@@ -1,0 +1,13 @@
+﻿{
+	"themeName":"明月",
+	"color_scheme":{
+		"BgColor":"ffffff",
+		"BorderColor":"cccccc",
+		"FocusBackColor":"000000",
+		"FocusColor":"FFFFFF",
+		"FontCodeColor":"000000",
+		"FontColor":"000000",
+		"LineColor":"ffffff",
+		"FocusCodeColor":"7fffff"
+	}
+}
