@@ -1,0 +1,13 @@
+﻿{
+	"themeName":"Google+",
+	"color_scheme":{
+		"BgColor":"ffffff",
+		"BorderColor":"394bdd",
+		"FocusBackColor":"394bdd",
+		"FocusColor":"ffffff",
+		"FontCodeColor":"394bdd",
+		"FontColor":"394bdd",
+		"LineColor":"ffffff",
+		"FocusCodeColor":"ffffff"
+	}
+}
