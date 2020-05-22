@@ -9,7 +9,7 @@
 
 3、内置98超集可以打十万汉字，需字体支持，[更多资源:](http://98wb.ys168.com/ "98五笔资源库")
 
-![效果图](https://github.com/weiman152/StarsView/blob/master/ScreenShots/1.png)
+![效果图](https://github.com/OnchiuLee/AHK-Input-method/blob/master/Font/%E5%AD%97%E4%BD%93%E6%94%AF%E6%8C%81/%E6%95%88%E6%9E%9C%E5%9B%BE.png)
 
 **更多使用见使用说明。。。**
 
