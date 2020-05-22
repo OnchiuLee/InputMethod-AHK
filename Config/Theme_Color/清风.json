@@ -1,0 +1,13 @@
+﻿{
+	"themeName":"清风",
+	"color_scheme":{
+		"BgColor":"FFFBFB",
+		"BorderColor":"FFAAAA",
+		"FocusBackColor":"FFD6AC",
+		"FocusColor":"6F003A",
+		"FontCodeColor":"0000CE",
+		"FontColor":"009100",
+		"LineColor":"FFFBFB",
+		"FocusCodeColor":"fffbfb"
+	}
+}

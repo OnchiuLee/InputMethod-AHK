@@ -1,0 +1,13 @@
+﻿{
+	"themeName":"现代战争",
+	"color_scheme":{
+		"BgColor":"0a1b0d",
+		"BorderColor":"4bad83",
+		"FocusBackColor":"676f63",
+		"FocusColor":"abfedc",
+		"FontCodeColor":"fbfdfc",
+		"FontColor":"abfedc",
+		"LineColor":"0a1b0d",
+		"FocusCodeColor":"030e06"
+	}
+}
