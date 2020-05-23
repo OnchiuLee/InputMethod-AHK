@@ -320,6 +320,34 @@ MoveGui:
 	}
 Return
 
+Backup_Conf:
+	default_obj:={}
+	For Section, element In srf_default_value
+		For key, value In element
+			default_obj[Section,key]:=%key%
+	if FileExist(A_ScriptDir "\Sync\Default.json")
+		FileDelete, %A_ScriptDir%\Sync\Default.json
+	Json_ObjToFile(default_obj, A_ScriptDir "\Sync\Default.json", "UTF-8")
+	if FileExist(A_ScriptDir "\Sync\Default.json"){
+		GuiControl, 98:Enable, Rest_Conf
+		Traytip,,配置导出完成！
+	}
+Return
+
+Rest_Conf:
+	MsgBox, 262452, 提示, 是否覆盖所有配置?
+	IfMsgBox, Yes
+	{
+		default_obj:=Json_FileToObj(A_ScriptDir "\Sync\Default.json")
+		For Section, element In default_obj
+			For key, value In element
+					%key%:=WubiIni[Section, key]:=value
+		WubiIni.save()
+		SG1.hide("高级设置")
+		Gui, 98:Destroy
+	}
+Return
+
 ;托盘菜单
 TRAY_Menu:
 	global Wubi_Schema
@@ -973,9 +1001,9 @@ More_Setting:
 	Gui, 98:Default
 	Gui, 98: +hwndhwndgui98 +AlwaysOnTop +ToolWindow -DPIScale
 	Gui,98:Font, s10 Bold, %font_%
-	Gui 98:Add, Tab3, x+0 y+10 w425 h940 -Wrap -Tabstop +Theme -Background, 基础配置|其它设置|标签管理|关于   ;Choose3
+	Gui 98:Add, Tab3, x+0 y+10 w425 h980 -Wrap -Tabstop +Theme -Background, 基础配置|其它设置|标签管理|关于   ;Choose3
 	Gui, 98:Tab, 1
-	Gui 98:Add, GroupBox, y+5 w385 h240, 主题项
+	Gui 98:Add, GroupBox, y+5 w385 h280, 主题项
 	Gui, 98:Add, Picture,xm+105 yp+35 h-1 vthemelogo, Config\Theme_Color\preview\默认.png
 	if FileExist(A_ScriptDir "\Config\Theme_Color\preview\" ThemeName ".png")
 		GuiControl,98:, themelogo,Config\Theme_Color\preview\%ThemeName%.png
@@ -999,6 +1027,15 @@ More_Setting:
 	Gui,98:Font, s9, %font_%
 	Gui, 98:Add, Button,x+5 yp-2 cred gdiycolor,自定义配色
 	Gui, 98:Add, Button,x+5 cred gthemelists vthemelists,主题管理
+	Gui,98:Font
+	Gui,98:Font, s10, %font_%
+	Gui, 98:Add, Text, xm+35 yp+40  left, 配置管理：
+	Gui,98:Font
+	Gui,98:Font, s9, %font_%
+	Gui, 98:Add, Button,x+5 yp-2 cred gBackup_Conf vBackup_Conf,备份配置
+	Gui, 98:Add, Button,x+10 yp cred gRest_Conf vRest_Conf,恢复配置
+	if !FileExist(A_ScriptDir "\Sync\Default.json")
+		GuiControl, 98:Disable, Rest_Conf
 	Gui,98:Font, s10 Bold, %font_%
 	Gui 98:Add, GroupBox,xm+15 y+25 w385 h635, 功能项
 	Gui,98:Font
@@ -1103,13 +1140,13 @@ More_Setting:
 	Gui, 98:Add, Text, xm+25 yp+40  left, 码表选择：
 	Gui, 98:Add, DDL,x+10 w100 vsChoice4 gsChoice4, 含词码表|单字码表|超集码表|字根码表
 	Gui, 98:Add, Button, x+10 yp-1 vciku1 gciku1,导入
-	Gui, 98:Add, Button, x+10 yp vciku9 gciku9,用户词管理
+	Gui, 98:Add, Button, x+10 yp vciku9 gciku9,自造词管理
 	Gui, 98:Add, Text, xm+25 yp+40 left, 码表导出：
 	Gui, 98:Add, Button, x+10 yp-1 vciku2 gciku2,码表合并导出
-	Gui, 98:Add, Button, x+15 yp-1 vciku7 gciku7,用户词导出
+	Gui, 98:Add, Button, x+30 yp vciku8 gciku8,含词主码表导出
 	GuiControlGet, budbvar, Pos , ciku2
-	Gui, 98:Add, Button, x%budbvarX% yp+40 vciku8 gciku8,含词主码表导出
-	Gui, 98:Add, CheckBox,x+15 yp+4 vyaml_ gyaml_, 导出为yaml格式
+	Gui, 98:Add, Button, x%budbvarX% yp+40 vciku7 gciku7,自造词导出
+	Gui, 98:Add, CheckBox,x+15 yp+4 vyaml_ gyaml_, 导出为yaml文件
 	if !FileExist(A_ScriptDir "\Sync\header.txt")
 		GuiControl, 98:Disable, yaml_
 	Gui, 98:Add, Text, xm+25 yp+50  left, 英文词库：
@@ -1838,15 +1875,12 @@ BackLogo:
 	GuiControlGet, backtheme,, BUTheme, text
 	if (not backtheme~="\s+"&&backtheme<>"")
 	{
-		Themeinfo:={themeName:backtheme
-			,color_scheme:{BgColor:SubStr(BgColor,5,2) SubStr(BgColor,3,2) SubStr(BgColor,1,2)
-				,BorderColor:SubStr(BorderColor,5,2) SubStr(BorderColor,3,2) SubStr(BorderColor,1,2)
-				,FocusBackColor:SubStr(FocusBackColor,5,2) SubStr(FocusBackColor,3,2) SubStr(FocusBackColor,1,2)
-				,FocusColor:SubStr(FocusColor,5,2) SubStr(FocusColor,3,2) SubStr(FocusColor,1,2)
-				,FontCodeColor:SubStr(FontCodeColor,5,2) SubStr(FontCodeColor,3,2) SubStr(FontCodeColor,1,2)
-				,FontColor:SubStr(FontColor,5,2) SubStr(FontColor,3,2) SubStr(FontColor,1,2)
-				,LineColor:SubStr(LineColor,5,2) SubStr(LineColor,3,2) SubStr(LineColor,1,2)
-				,FocusCodeColor:SubStr(FocusCodeColor,5,2) SubStr(FocusCodeColor,3,2) SubStr(FocusCodeColor,1,2)}}
+		Themeinfo:={}
+		For Section, element In srf_default_value
+			For key, value In element
+				If key in BgColor,BorderColor,FocusBackColor,FocusColor,FontCodeColor,FontColor,LineColor,FocusCodeColor
+					Themeinfo["color_scheme",key]:=SubStr(%key%,5,2) SubStr(%key%,3,2) SubStr(%key%,1,2)
+		Themeinfo["themeName"]:=backtheme
 		if FileExist(A_ScriptDir "\Config\Theme_Color\" backtheme ".json")
 			backtheme:=backtheme "-New"
 		Json_ObjToFile(Themeinfo, A_ScriptDir "\Config\Theme_Color\" backtheme ".json", "UTF-8")
