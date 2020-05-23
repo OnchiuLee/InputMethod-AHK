@@ -22,6 +22,7 @@ Loop, Files, main\*.exe
 	}
 }
 ;}}}}}
+
 #Include Config\Lib\Class_Gdip.ahk
 #Include Config\Lib\Class_EasyIni.ahk
 #Include Config\Lib\Class_LV_Colors.ahk
@@ -60,13 +61,18 @@ New_Content:=""
 ;}}}}}
 
 ;{{{{{读取配置及配置检测
-global srf_default_value,config_tip, mhyRegExstr, WubiIni:=class_EasyIni("config.ini")
+global srf_default_value,config_tip, WubiIni:=class_EasyIni("config.ini")
 ;初始化默认配置
-srf_default_value:={Settings:{Startup:"off", symb_mode:2,sym_match:0,Frequency:0,Freq_Count:3, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f", cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"200", Logo_Y:y2, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock", Suspend_switch:1, Suspend_hotkey:"!z", tip_hotkey:"!q", rlk_switch:"1", Logo_Switch:"on",Srf_Hotkey:"Shift", Select_Enter:"send", Initial_Mode:"off", symb_send:"on", set_color:"on", Wubi_Schema:"ci",Cut_Mode:"off", limit_code:"on", Trad_Mode:"off", IMEmode:"on",InitStatus:0}
-	, TipStyle:{ThemeName:"默认",FontType:font_, FontSize:20, FontColor:"362B00",FocusBackColor:"000000",FocusColor:"FFFFFF",FocusCodeColor:"f8b62d",FocusRadius:5, logo_show:0, FontStyle:"off", FontCodeColor:"800000",LineColor:"808080",BorderColor:"C0C0C0", Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"on", BgColor:"FFFFFF", ListNum:5,Gdip_Radius:5, Textdirection:"horizontal", Set_Range:3, Fix_Switch:"off",Fix_X:A_ScreenWidth/2,Fix_Y:10}  ;竖排--vertical
-	, CustomColors:{Color_Row1:"0x1C7399,0xEEEEEC,0x014E8B,0x444444,0x009FE8,0xDEF9FA,0xF8B62D,0x90FC0F", Color_Row2:"0x0078D7,0x0D1B0A,0xB9D497,0x00ADEF,0x1778BF,0xFDF6E3,0x002B36,0xDEDEDE"}
-	, Versions:{Version:A_YYYY A_MM A_DD "-1"}
-	, YSDllPath:{SQLDllPath_x86:"config\SQLite3_x86\SQLite3.dll", SQLDllPath_x64:"config\SQLite3_x64\SQLite3.dll"}}
+if FileExist(A_ScriptDir "\Sync\Default.json"){
+	srf_default_value:=Json_FileToObj(A_ScriptDir "\Sync\Default.json")
+}else{
+	srf_default_value:={Settings:{Startup:"off", symb_mode:2,sym_match:0,Frequency:0,Freq_Count:3, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f", cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"200", Logo_Y:y2, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock", Suspend_switch:1, Suspend_hotkey:"!z", tip_hotkey:"!q", rlk_switch:"1", Logo_Switch:"on",Srf_Hotkey:"Shift", Select_Enter:"send", Initial_Mode:"off", symb_send:"on", set_color:"on", Wubi_Schema:"ci",Cut_Mode:"off", limit_code:"on", Trad_Mode:"off", IMEmode:"on",InitStatus:0}
+		, TipStyle:{ThemeName:"默认",FontType:font_, FontSize:20, FontColor:"362B00",FocusBackColor:"000000",FocusColor:"FFFFFF",FocusCodeColor:"f8b62d",FocusRadius:5, logo_show:0, FontStyle:"off", FontCodeColor:"800000",LineColor:"808080",BorderColor:"C0C0C0", Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"on", BgColor:"FFFFFF", ListNum:5,Gdip_Radius:5, Textdirection:"horizontal", Set_Range:3, Fix_Switch:"off",Fix_X:A_ScreenWidth/2,Fix_Y:10}  ;竖排--vertical
+		, CustomColors:{Color_Row1:"0x1C7399,0xEEEEEC,0x014E8B,0x444444,0x009FE8,0xDEF9FA,0xF8B62D,0x90FC0F", Color_Row2:"0x0078D7,0x0D1B0A,0xB9D497,0x00ADEF,0x1778BF,0xFDF6E3,0x002B36,0xDEDEDE"}
+		, Versions:{Version:A_YYYY A_MM A_DD "-1"}
+		, YSDllPath:{SQLDllPath_x86:"config\SQLite3_x86\SQLite3.dll", SQLDllPath_x64:"config\SQLite3_x64\SQLite3.dll"}}
+}
+
 ;配置项说明
 config_tip:={Settings:{Startup:"开机自启设置<on为建立系统计划任务实现自启/off为关闭开机自启/sc为在系统自启目录建立快捷方式实现自启>",BUyaml:"导出文件为yaml格式文件，需要文件头支持才能导出",Frequency:"动态调频〔只对含词方案有效〕",Freq_Count:"调频参数〔词条上屏次数〕",FocusStyle:"焦点候选样式<1为启用,反之>",sym_match:"引号成对上屏光标并居中",PageShow:"候选框页数显示", s2t_swtich:"简繁模式切换开关", s2t_hotkey:"简繁模式切换功能快捷键", cf_swtich:"拆分显示功能开关", cf_hotkey:"字根拆分快捷键", UIAccess:"候选框UI层级权限提升,1为开启 0为关闭", Addcode_switch:"批量造词开关<1为开启,0为关闭>", Addcode_hotkey:"批量造词热键设置", Suspend_switch:"脚本挂起启用开关<1为开启,0为关闭>", Suspend_hotkey:"脚本挂起启用快捷键设置", tip_hotkey:"划词反查快捷键设置", rlk_switch:"划词反查开关<1为开启,0为关闭>", symb_mode:"中英文符号模式，1为英文 2为中文", Prompt_Word:"空码提示设置<on/off>",Srf_Hotkey:"中英文切换热键", Logo_X:"输入法logo图标x坐标", Logo_Y:"输入法logo图标y坐标", Logo_Switch:"logo图标显示与隐藏<on/off>"
 	, Select_Enter:"回车键功能定义<send为上屏编码/clean为清空编码>", Initial_Mode:"剪切板上屏开关<on/off>", symb_send:"符号顶屏开关<on/off>", set_color:"取色开关", Wubi_Schema:"方案设置项<ci为含词方案/zi为单字方案/chaoji为超集方案/zg为字根单打方案>",Cut_Mode:"字根拆分开关<on/off>", limit_code:"四码上屏开关<on/off>", Trad_Mode:"简繁模式切换<on为繁体/off为简体>", IMEmode:"中英文状态<on为中文/off为英文>"}
@@ -192,7 +198,7 @@ SwitchToEngIME()
 global recent:=Carets:={}
 global code_status:=localpos:=srfCounts:=select_pos:=1
 global valueindex:=Cut_Mode?2:1
-global waitnum:=select_sym:=sym_qmarks:=PosLimit:=PosIndex:=0
+global waitnum:=select_sym:=sym_qmarks:=PosLimit:=PosIndex:=InitSetting:=0
 Select_Code=gfdsahjklm;'space           ;字母选词
 global num__:=Result_Char:=Select_result :=selectallvalue:=""
 global select_arr:=select_value_arr:=srf_bianma:=add_Array:=add_Result:=Split_code:=[]
@@ -235,7 +241,9 @@ WM_RBUTTONDOWN(){
 		if (PosIndex>0&&PosIndex<ListNum+1)
 		{
 			Menu, selectmenu, Add, 置顶, set_top   ; +Break
+			Menu, selectmenu, Icon, 置顶, config\wubi98.icl, 36
 			Menu, selectmenu, Add, 前移, set_add   ; +Break
+			Menu, selectmenu, Icon, 前移, config\wubi98.icl, 37
 			if ((PosIndex+ListNum*waitnum)=1){
 				Menu, selectmenu, Disable, 置顶
 				Menu, selectmenu, Disable, 前移
@@ -244,11 +252,13 @@ WM_RBUTTONDOWN(){
 				Menu, selectmenu, Enable, 前移
 			}
 			Menu, selectmenu, Add, 后移, set_next   ; +Break
+			Menu, selectmenu, Icon, 后移, config\wubi98.icl, 38
 			if (srf_for_select_Array.length()=(PosIndex+ListNum*waitnum))
 				Menu, selectmenu, Disable, 后移
 			else
 				Menu, selectmenu, Enable, 后移
 			Menu, selectmenu, Add, 删除, Delete_Word   ; +Break
+			Menu, selectmenu, Icon, 删除, config\wubi98.icl, 39
 			Menu, selectmenu, Show
 		}
 	}
