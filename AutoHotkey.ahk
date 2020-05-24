@@ -131,9 +131,11 @@ if !InitStatus {
 	InitStatus:=WubiIni.Settings["InitStatus"]:=1,WubiIni.Save()
 	run,config\ReadMe.png
 }
-if (ToolTipStyle~="i)Gdip"&&A_OSVersion not in WIN_7,WIN_8,WIN_8.1,10.,6.1,6.2,6.3){
+if (ToolTipStyle ~="i)gdip"&&A_OSVersion ~="i)WIN_XP") {
 	;Traytip,,你的系统不支持当前Gdip候选框样式,请切换!,,2
-	ToolTipStyle:=WubiIni.TipStyle["ToolTipStyle"]:="on", FontSize:=WubiIni.Settings["FontSize"]:=14, WubiIni.Save()
+	ToolTipStyle:=WubiIni.TipStyle["ToolTipStyle"]:="on", FontSize:=WubiIni.Settings["FontSize"]:=16, WubiIni.Save()
+	Menu, Tip_Style, Rename, Gdip候选样式	√,Gdip候选样式
+	Menu, Tip_Style, Rename, ToolTip样式,ToolTip样式	√
 }
 
 ;{{{{{快捷键注册
