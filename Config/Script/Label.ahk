@@ -163,7 +163,7 @@ Return
 Get_IME:
 	global tip_pos:={x:GetCaretPos().x,y:GetCaretPos().y+30}
 	If (srf_mode&&A_Cursor ~= "i)IBeam" ){
-		if (A_OSVersion in WIN_7,WIN_8,WIN_8.1,10.,6.1,6.2,6.3)
+		if not A_OSVersion ~="i)WIN_XP"
 		{
 			Gosub Ime_Tips
 			Sleep,400
@@ -174,7 +174,7 @@ Get_IME:
 			ToolTip
 		}
 	}else If (!srf_mode&&A_Cursor ~= "i)IBeam" ){
-		if (A_OSVersion in WIN_7,WIN_8,WIN_8.1,10.,6.1,6.2,6.3)
+		if not A_OSVersion ~="i)WIN_XP"
 		{
 			Gosub Ime_Tips
 			Sleep,400
@@ -444,9 +444,13 @@ TRAY_Menu:
 	if ToolTipStyle ~="i)Gdip"{
 		Menu, Tip_Style, Add, Gdip候选样式	√,Tip_Style
 		Menu, Tip_Style, Icon, Gdip候选样式	√, config\wubi98.icl, 15
+		if A_OSVersion ~="i)WIN_XP"
+			Menu, Tip_Style, Disable, Gdip候选样式	√
 	}else{
 		Menu, Tip_Style, Add, Gdip候选样式,Tip_Style
 		Menu, Tip_Style, Icon, Gdip候选样式, config\wubi98.icl, 15
+		if A_OSVersion ~="i)WIN_XP"
+			Menu, Tip_Style, Disable, Gdip候选样式
 	}
 	Menu, Tray, Add, 候选样式, :Tip_Style
 	Menu, TRAY, Icon, 候选样式, config\wubi98.icl, 20
@@ -610,7 +614,7 @@ OnExit:
 	FileDelete, %A_ScriptDir%\Config\Script\wubi98_ci.json
 	if Logo_Switch ~="i)on"
 		Gosub Write_Pos
-	if A_OSVersion contains 10.0
+	if not A_OSVersion ~="i)WIN_XP"
 	{
 		SwitchToChsIME()
 		Traytip,  退出提示:,已切换至中文键盘！
@@ -818,7 +822,7 @@ srf_tooltip_cut:
 		Loop %loopindex%
 		{
 			if srf_for_select_Array[ListNum*waitnum+A_Index,1] {
-				srf_for_select_part:=(srf_for_select_Array[ListNum*waitnum+A_Index,1] (Cut_Mode="on"&&a_FontList ~="i)98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0"&&FontType ~="i)98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0"&&srf_for_select_Array[ListNum*waitnum+A_Index, valueindex]<>""?(srf_all_input~="^[a-z]+"?"〔":A_Space) . srf_for_select_Array[ListNum*waitnum+A_Index, valueindex] . (srf_all_input~="^[a-z]+"?"〕":A_Space):A_Space . srf_for_select_Array[ListNum*waitnum+A_Index, 3]))
+				srf_for_select_part:=((StrLen(srf_for_select_Array[ListNum*waitnum+A_Index,1])>25&&srf_all_input~="^[a-y]"?SubStr(srf_for_select_Array[ListNum*waitnum+A_Index,1],1,25) " •••••":srf_for_select_Array[ListNum*waitnum+A_Index,1]) (Cut_Mode="on"&&a_FontList ~="i)98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0"&&FontType ~="i)98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0"&&srf_for_select_Array[ListNum*waitnum+A_Index, valueindex]<>""?(srf_all_input~="^[a-z]+"?"〔":A_Space) . srf_for_select_Array[ListNum*waitnum+A_Index, valueindex] . (srf_all_input~="^[a-z]+"?"〕":A_Space):A_Space . srf_for_select_Array[ListNum*waitnum+A_Index, 3]))
 				if (srf_for_select_part<>""){
 					srf_for_select_string.=((srf_all_Input~="/\d+"?A_Space A_Space SubStr(Select_Code, A_Index , 1):(Cut_Mode~="on"?A_Space:A_Space A_Space) A_Index) "." srf_for_select_part)
 					srf_for_select_obj.Push(((srf_all_Input~="/\d+"?SubStr(Select_Code, A_Index , 1):A_Space A_Index) "." srf_for_select_part))
@@ -996,6 +1000,8 @@ More_Setting:
 	Menu, StyleMenu, Add, Tooltip样式, Export
 	Menu, StyleMenu, Add, Gui候选框样式, Export
 	Menu, StyleMenu, Add, Gdip候选框样式, Export
+	if A_OSVersion ~="i)WIN_XP"
+		Menu, StyleMenu, Disable, Gdip候选框样式
 	HMENU := Menu_GetMenuByName("StyleMenu")
 	Gui, 98:Destroy
 	Gui, 98:Default
@@ -1037,7 +1043,7 @@ More_Setting:
 	if !FileExist(A_ScriptDir "\Sync\Default.json")
 		GuiControl, 98:Disable, Rest_Conf
 	Gui,98:Font, s10 Bold, %font_%
-	Gui 98:Add, GroupBox,xm+15 y+25 w385 h635, 功能项
+	Gui 98:Add, GroupBox,xm+15 y+35 w385 h635, 功能项
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
 	Gui, 98:Add, Text, xm+25 yp+30 left, 选框风格：
