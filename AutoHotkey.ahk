@@ -278,7 +278,7 @@ WM_MOUSEMOVE()
 	global Tip_Show:={LineColor:"Gdip样式中间分隔线颜色",BorderColor : "Gdip样式四周边框线颜色", SBA16:"冻结/启用程序", SBA15:"鼠标划词反查编码", UIAccess:"候选框UI层级权限提升", SBA0 :"候选框固定坐标设置",About:"软件使用说明",ciku3:"英文词库导入`n（单行单义格式，以tab符隔开）`n「英文词条+Tab+词频」",ciku4:"英文词库导出`n（导出为单行单义格式txt码表）",ciku5:"特殊符号词库导入`n（格式「/引导字母+Tab+多符号以英文逗号隔开」）"
 		, SBA5 : "固定候选框的位置，不跟随光标",BgColor:"候选框背景色",FocusBackColor:"候选框焦点选项背景色",FocusColor:"候选框焦点选项字体色", FontColor:"候选词字体颜色", FontCodeColor:"候选框编码字体颜色", SBA1:"繁体开关（输简出繁）", SBA4:"加入开机自启动任务：「`non＝>为建立系统计划任务实现自启`noff＝>为关闭开机自启`nsc＝>为在系统自启目录建立快捷方式实现自启」",ciku6:"特殊符号词库导出`n（导出为txt）"
 		, SBA13:"显示/隐藏桌面Logo图标",SBA19:"没有焦点色块选项的候选框",SetInput_CNMode:"程序启动时默认中文输入模式",SetInput_ENMode:"程序启动时默认英文输入模式", SBA12 : "候选词显示粗体",ciku1:"导入txt词库至数据库`ntxt码表格式需为「单行单义」",ciku2:"导出词库为「单行单义」的txt格式文本",SBA2:"候选词条显示拆分字根`n（需特殊字体支持，Ctrl+Shift+w打开下载页）"
-		, SBA3:"当编码无词条时模糊匹配提示",SBA6:"符号顶首选屏并上屏该键符号",SBA7:"四位编码候选唯一时自动上屏，五码时顶首选上屏",SBA9:"Gdip候选框圆角开关",SBA10:"Gdip候选样式中间分隔线",yaml_:"导出词库为yaml格式可直接应用于rime平台，`n需Sync目录有header.txt文件头支持"
+		, SBA3:"当编码无词条时模糊匹配提示",SBA6:"符号顶首选屏并上屏该键符号",SBA7:"四位编码候选唯一时自动上屏，五码时顶首选上屏",SBA9:"Gdip候选框圆角开关",SBA10:"Gdip候选样式中间分隔线",yaml_:"导出词库为yaml格式可直接应用于rime平台，`n需Sync目录有header.txt文件头支持",search_1:"〔 词频为0的为主词库已删除的，勾选删除即恢复！ 〕"
 		, Save:"无码造词和自由模式可以同时进行需分行输入。格式如下：`nuqid=http://98wb.ys168.com/`nggte=五笔`n柚子输入法",Frequency:"自动根据每个词条的输入频率进行顺序调整",set_Frequency:"设置词条的输入频率值来进行顺序调整"}   ;Lastpage:"首页",Toppage:"尾页"
 
 	static CurRControl, PrevControl
