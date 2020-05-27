@@ -2781,6 +2781,8 @@ Cut_Mode:
 		Menu, setting, Rename, 拆分显示	√ , 拆分显示	×
 	else
 		Menu, setting, Rename, 拆分显示	× , 拆分显示	√
+	if srf_all_input
+		Gosub srf_tooltip_fanye
 	WubiIni.Settings["Cut_Mode"] :=Cut_Mode
 	WubiIni.save()
 return
@@ -2806,6 +2808,8 @@ Trad_Mode:
 		Menu, setting, Rename, 中文简体 , 中文繁体
 		GuiControl,3:, Pics2,*Icon17 config\wubi98.icl
 	}
+	if srf_all_input
+		Gosub srf_tooltip_fanye
 	WubiIni.Settings["Trad_Mode"] :=Trad_Mode
 	WubiIni.save()
 return
@@ -2894,6 +2898,7 @@ EM_SetCueBanner(hWnd, Cue)
 Return
 
 29GuiDropFiles:
+	OPCode_all:=OPCode_part:=OPCode:=""
 	Loop, Parse, A_GuiEvent, `n, `r
 	{
 		FileRead, OPCode, %A_LoopField%
@@ -2911,7 +2916,6 @@ Return
 		OPCode_all.=OPCode_part "`n"
 	}
 	GuiControl,29:, Set_Value ,% RegExReplace(OPCode_all,"^\n|\n$")
-	OPCode_all:=""
 Return
 
 lastp:
@@ -2987,6 +2991,8 @@ Write_DB:
 					Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "')" ","
 			}
 		}
+		if Wubi_Schema~="i)ci"
+			Gosub Backup_CustomDB
 		if DB.Exec(SQL :="INSERT INTO " Wubi_Schema " VALUES " RegExReplace(Insert_ci,"\,$","") ";")>0
 		{
 			ElapsedTime := (A_TickCount - Start)/1000
@@ -3057,6 +3063,24 @@ Write_En:
 	}
 	MaBiao:=Insert_ci:=""
 return
+
+;备份自造词
+Backup_CustomDB:
+	if DB.GetTable("SELECT aim_chars,A_Key,B_Key FROM ci WHERE C_Key IS NULL AND B_Key>0 ORDER BY A_Key,B_Key DESC;",Result)>0{
+		CFileName:="自造词_" A_Now ".txt"
+		if Result.RowCount>0{
+			Loop % Result.RowCount
+			{
+				custom_mb .=Result.Rows[A_index,1] A_tab Result.Rows[A_index,2] A_tab Result.Rows[A_index,3] "`n"
+			}
+			FileAppend,%custom_mb%,%A_ScriptDir%\Sync\%CFileName%, UTF-8
+			Loop, Files, Sync\自造词*.txt
+				if (A_Now-A_LoopFileTimeCreated>10000)
+					FileDelete, %A_LoopFileFullPath%
+			custom_mb:=""
+		}
+	}
+Return
 
 ;词库导出（超集+含词+单字）
 Backup_DB:
