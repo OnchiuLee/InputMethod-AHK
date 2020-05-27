@@ -1,6 +1,7 @@
 ﻿/*********************************************************************************
    脚本说明： 柚子98五笔多功能版
    资源库:https://wubi98.gitee.io/ && http://98wb.ys168.com/
+   GitHub:https://github.com/OnchiuLee/AHK-Input-method
 ;~ 环境 版本:   Autohotkey v1.1.32.00
    柚子五笔多功能版改装自--@河许人@天黑请闭眼联合开发的「影子输入法」与@hello_srf的柚子输入法代码结构
 */
@@ -174,24 +175,6 @@ DBFileName:="DB\wubi98.db"
 global DB := New SQLiteDB
 If !DB.OpenDB(DBFileName)
 	MsgBox, 16, 数据库DB错误, % "消息:`t" DB.ErrorMsg "`n代码:`t" DB.ErrorCode
-
-DB.GetTable(SQL, Result)
-
-;备份自造词
-if DB.gettable("SELECT aim_chars,A_Key,B_Key FROM ci WHERE C_Key IS NULL AND B_Key>0 ORDER BY A_Key,B_Key DESC;",Result)>0{
-	CFileName:="自造词_" A_Now ".txt"
-	if Result.RowCount>0{
-		Loop % Result.RowCount
-		{
-			custom_mb .=Result.Rows[A_index,1] A_tab Result.Rows[A_index,2] A_tab Result.Rows[A_index,3] "`n"
-		}
-		FileAppend,%custom_mb%,%A_ScriptDir%\Sync\%CFileName%, UTF-8
-		Loop, Files, Sync\自造词*.txt
-			if (A_Now-A_LoopFileTimeCreated>10000)
-				FileDelete, %A_LoopFileFullPath%
-		custom_mb:=""
-	}
-}
 
 ;}}}}}
 SwitchToEngIME()
