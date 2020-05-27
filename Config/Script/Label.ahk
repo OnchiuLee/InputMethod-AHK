@@ -151,7 +151,7 @@ Return
 			else
 				TrayTip,, 生成文件路径为:%A_Desktop%\%filenames%-单义.txt`n耗时%timecount%
 		}
-		ToolTip(1,"")
+		ToolTip(1,""), Result_:=Results_:=Result:=[]
 	}
 Return
 
@@ -639,14 +639,6 @@ houxuankuangguicreate:
 	Height:=60
 Return
 
-hxkcs:
-	srf_status:= srf_mode
-	srf_mode:=srf_mode?srf_mode:1
-	sendinput {z}{bs}
-	Gosub srf_value_off
-	srf_mode:=srf_status?srf_mode:1
-Return
-
 ;提词结果处理
 srf_tooltip:
 	if srf_all_Input ~="^[\,\#0-9]+"
@@ -952,7 +944,7 @@ srf_value_off:
 	Else
 		GdipText(""), FocusGdipGui("", "")
 	srf_all_Input:=srf_for_select_for_tooltip:="", waitnum:=select_sym:=PosLimit:=0
-	srf_for_select_Array :=select_arr:=srf_for_select_obj:=select_value_arr:=add_Result:=add_Array:=[],Select_result:=selectallvalue:="",code_status:=localpos:=srfCounts:=select_pos:=1
+	srf_for_select_Array :=select_arr:=srf_for_select_obj:=select_value_arr:=add_Result:=add_Array:=Result_:=Results_:=Result:=[],Select_result:=selectallvalue:="",code_status:=localpos:=srfCounts:=select_pos:=1
 Return
 
 diyColor:
@@ -1214,12 +1206,14 @@ Return
 	98GuiEscape:
 	Gui, 98:Destroy
 	LsVar:=opvar:=posInfo:=""
+	Result_:=Results_:=Result:=[]
 	WubiIni.Save()
 Return
 
 diyGuiClose:
 	diyGuiEscape:
 	Gui, diy:Destroy
+	Result_:=Results_:=Result:=[]
 	WubiIni.Save()
 Return
 
@@ -2925,7 +2919,7 @@ Return
 ;造词窗口关闭销毁
 29GuiClose:
 	Gui, 29:Destroy
-	CBVar:=0
+	CBVar:=0, Result_:=Results_:=Result:=[]
 	29GuiEscape:
 Return
 
@@ -3077,9 +3071,10 @@ Backup_CustomDB:
 			Loop, Files, Sync\自造词*.txt
 				if (A_Now-A_LoopFileTimeCreated>10000)
 					FileDelete, %A_LoopFileFullPath%
-			custom_mb:=""
+			custom_mb:="", Result_:=Results_:=Result:=[]
 		}
 	}
+	Result_:=Results_:=Result:=[]
 Return
 
 ;词库导出（超集+含词+单字）
@@ -3122,7 +3117,7 @@ Backup_DB:
 				FileDelete, %OutFolder%\wubi98-%fileNewname%.txt
 				FileAppend,%Resoure_%,%OutFolder%\wubi98-%fileNewname%.txt, UTF-8
 			}
-			Resoure_ :=OutFolder :="", custom_db:=init_db:=0
+			Resoure_ :=OutFolder :="", custom_db:=init_db:=0, Result_:=Results_:=Result:=[]
 			TrayTip,, 导出完成用时 %timecount%
 		}else{
 			TrayTip,, 导出失败！
@@ -3328,7 +3323,7 @@ return
 DB_management:
 	Gui, DB:Destroy
 	Gui, DB:Default
-	Gui, DB: +hwndDB_ +AlwaysOnTop +OwnDialogs +LastFound   ;+ToolWindow -DPIScale
+	Gui, DB: +hwndDB_ +AlwaysOnTop +OwnDialogs +LastFound   ;+ToolWindow -DPIScale +OwnDialogs +MinSize435x470 +MaxSize550x520 -MaximizeBox +Resize
 	Gui,DB:Font, s10 , %Font_%
 	Gui, DB:Add, Button,y+10 Section gDB_Delete vDB_Delete, 删除
 	Gui, DB:Add, Button,x+8 Section gDB_reload vDB_reload, 刷新
@@ -3355,8 +3350,8 @@ DB_management:
 	Gui, DB:Add, text,x+165 yp+5 Section vToppage gToppage,<<
 	Gui,DB:Font,
 	Gui,DB:Font, s9 bold cred, %font_%
-	Gui, DB:Add, text,x+15 Section vuppage guppage border,上一页
-	Gui, DB:Add, text,x+10 Section vnextpage gnextpage border,下一页
+	Gui, DB:Add, text,x+15 Section vuppage guppage,上一页
+	Gui, DB:Add, text,x+20 Section vnextpage gnextpage,下一页
 	Gui,DB:Font,
 	Gui,DB:Font, s9 bold cblue, %font_%
 	Gui, DB:Add, text,x+15 Section vLastpage gLastpage,>>
@@ -3372,14 +3367,40 @@ DB_management:
 	SB_SetText(A_Space "[  " (DB_Page-1)*DB_Count+1 . " / " Result_.RowCount " 条  ]")
 	;SB_SetIcon("Config\wubi98.icl",30)
 	EM_SetCueBanner(DBEdit, "请输入搜索的字词或编码")
-	Gui,DB:Show,w425,自造词管理
+	Gui,DB:Show,w435,自造词管理
 Return
 
 DBGuiClose:
 	search_1:=ss:=ResultCount:=RCount:=0
+	Result_:=Results_:=[]
 	DBGuiEscape:
 	Gui, DB:Destroy
 Return
+/*
+DBGuiSize:
+	GuiControlGet, LVVar, Pos , MyDB
+	if A_GuiWidth>435
+	{
+		GuiControl, DB:Move, MyDB,% "w" LVVarW+A_GuiWidth-435-30
+		LV_ModifyCol(1,"" 150+(A_GuiWidth-435)/3 " left")
+		LV_ModifyCol(2,"" 80+(A_GuiWidth-435)/3 " Center")
+		LV_ModifyCol(3,"" 150+(A_GuiWidth-435)/3 " Integer Center")
+	;	GuiControl, DB:Move, Toppage,% "x+" EVVarX+EVVarW+165+A_GuiWidth-435
+	;	GuiControl, DB:Move, uppage,% "x+" EVVarX+EVVarW+165+A_GuiWidth-400
+	;	GuiControl, DB:Move, nextpage,% "x+" EVVarX+EVVarW+165+A_GuiWidth-350
+	;	GuiControl, DB:Move, Lastpage,% "x+" EVVarX+EVVarW+165+A_GuiWidth-295
+	}
+	if A_GuiHeight>470
+	{
+		GuiControl, DB:Move, MyDB, % "h" A_GuiHeight-135
+		GuiControl, DB:Move, DB_BU,% "y+" LVVarY+A_GuiHeight-135+15
+		GuiControl, DB:Move, Toppage,% "y+" LVVarY+A_GuiHeight-135+20
+		GuiControl, DB:Move, uppage,% "y+" LVVarY+A_GuiHeight-135+20
+		GuiControl, DB:Move, nextpage,% "y+" LVVarY+A_GuiHeight-135+20
+		GuiControl, DB:Move, Lastpage,% "y+" LVVarY+A_GuiHeight-135+20
+	}
+Return
+*/
 
 DB_reload:
 	LV_Delete()
@@ -3587,12 +3608,6 @@ MyDB:
 		}else{
 			SB_SetText("[  " (DB_Page-1)*DB_Count+A_EventInfo . " / " Result_.RowCount " 条  ]")
 		}
-	}else if (A_GuiEvent="I") {
-		LV_GetText(LVars_1, A_EventInfo , 1), LV_GetText(LVars_3, A_EventInfo , 3)
-		if (LVars_3=0)
-			ToolTip, 〔 词频为0的为主词库已删除的，勾选删除即恢复！ 〕
-		else 
-			ToolTip,% LVars_1
 	}
 Return
 
