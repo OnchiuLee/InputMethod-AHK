@@ -222,29 +222,52 @@ Save_word(chars){
 		Return []
 	else
 	{
-		chars :=RegExReplace(RegExReplace(chars,"(`n){2,}","`n"),"^\s+|^`n|^\t|\s+$|`n$|\t$","")
+		chars :=RegExReplace(RegExReplace(chars,"(`n){2,}","`n"),"^\s+|\s+$")
 		count_1 :=0
 		loop,parse,chars,`n
 		{
 			if A_LoopField ~="="
 			{
-				Chars_L :=RegExReplace(RegExReplace(A_LoopField,"^\s+|^`n|^\t|\s+$|`n$|\t$",""),"\=.+","")
-				Chars_R :=RegExReplace(RegExReplace(A_LoopField,"^\s+|^`n|^\t|\s+$|`n$|\t$",""),".+\=","")
-				DB.gettable("SELECT B_Key,C_Key FROM ci WHERE A_Key = '" Chars_L "' ORDER BY B_Key DESC", Result)
-				frist_ci:= Result.RowCount>1?(Result.Rows[2,1]+2):Result.RowCount=1?(Result.Rows[1,1]-2):"64526534"
-				SQL =INSERT INTO ci(aim_chars,A_Key,B_Key,D_Key) SELECT '%Chars_R%', '%Chars_L%', '%frist_ci%', '%frist_ci%' WHERE NOT EXISTS(SELECT 1 FROM ci WHERE aim_chars = '%Chars_R%' AND A_Key = '%Chars_L%');
-				if DB.Exec(SQL)>0 
-					count_1++
-				else
-					Traytip,,保存失败!
-			}
-			else
-			{
+				RegExMatch(A_LoopField, ".+(?=\=)", Chars_L)
+				RegExMatch(A_LoopField, "(?<=\=).+", Chars_R)
+				if (strlen(Chars_L)<5&&strlen(Chars_L)>1)
+				{
+					if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci")
+						DB.gettable("SELECT D_Key,C_Key FROM ci WHERE A_Key = '" Chars_L "' ORDER BY A_Key,D_Key DESC", Result)
+					else
+						DB.gettable("SELECT B_Key,C_Key FROM ci WHERE A_Key = '" Chars_L "' ORDER BY A_Key,B_Key DESC", Result)
+					frist_ci:= Result.RowCount>1?(Result.Rows[2,1]+2):Result.RowCount=1?(Result.Rows[1,1]-2):"64526534"
+					SQL =INSERT INTO ci(aim_chars,A_Key,B_Key,D_Key) SELECT '%Chars_R%', '%Chars_L%', '%frist_ci%', '%frist_ci%' WHERE NOT EXISTS(SELECT 1 FROM ci WHERE aim_chars = '%Chars_R%' AND A_Key = '%Chars_L%');
+					if DB.Exec(SQL)>0 
+						count_1++
+					else
+						Traytip,,保存失败!
+				}
+			}else if A_LoopField ~="^.+\t[a-y]+"{
+				RegExMatch(A_LoopField, ".+(?=\t)", Chars_L)
+				RegExMatch(A_LoopField, "(?<=\t).+", Chars_R)
+				if (strlen(Chars_R)<5&&strlen(Chars_R)>1)
+				{
+					if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci")
+						DB.gettable("SELECT D_Key,C_Key FROM ci WHERE A_Key = '" Chars_R "' ORDER BY A_Key,D_Key DESC", Result)
+					else
+						DB.gettable("SELECT B_Key,C_Key FROM ci WHERE A_Key = '" Chars_R "' ORDER BY A_Key,B_Key DESC", Result)
+					frist_ci:= Result.RowCount>1?(Result.Rows[2,1]+2):Result.RowCount=1?(Result.Rows[1,1]-2):"64526534"
+					SQL =INSERT INTO ci(aim_chars,A_Key,B_Key,D_Key) SELECT '%Chars_L%', '%Chars_R%', '%frist_ci%', '%frist_ci%' WHERE NOT EXISTS(SELECT 1 FROM ci WHERE aim_chars = '%Chars_L%' AND A_Key = '%Chars_R%');
+					if DB.Exec(SQL)>0 
+						count_1++
+					else
+						Traytip,,保存失败!
+				}
+			}else if not A_LoopField ~="^[a-y0-9]|\t|\s+"{
 				mb_code :=get_en_code(A_LoopField)
 				If mb_code
 				{
-					DB.gettable("SELECT B_Key,C_Key FROM ci WHERE A_Key = '" mb_code "' ORDER BY B_Key DESC", Result)
-					frist_ci:= Result.RowCount>1?(Result.Rows[2,1]+2):Result.RowCount=1?(Result.Rows[1,2]-1):"64526534"
+					if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci")
+						DB.gettable("SELECT D_Key,C_Key FROM ci WHERE A_Key = '" mb_code "' ORDER BY A_Key,D_Key DESC", Result)
+					else
+						DB.gettable("SELECT B_Key,C_Key FROM ci WHERE A_Key = '" mb_code "' ORDER BY A_Key,B_Key DESC", Result)
+					frist_ci:= Result.RowCount>1?(Result.Rows[2,1]+2):Result.RowCount=1?(Result.Rows[1,1]-1):"64526534"
 					SQL =INSERT INTO ci(aim_chars,A_Key,B_Key,D_Key) SELECT '%A_LoopField%', '%mb_code%', '%frist_ci%', '%frist_ci%' WHERE NOT EXISTS(SELECT 1 FROM ci WHERE aim_chars = '%A_LoopField%' AND A_Key = '%mb_code%');
 					if DB.Exec(SQL)>0 
 						count_1++

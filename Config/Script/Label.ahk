@@ -117,26 +117,27 @@ Return
 			{
 				If (A_LoopField = "")
 					Continue
-				RegExMatch(A_LoopField,"^.+(?=\t[a-z])",Part1)
-				RegExMatch(A_LoopField,"(?<=\t)[a-z]+",Part2)
-				if get_en_code(RegExReplace(A_LoopField,"\t\d+|\t[a-z]+")) {
-					All_Word_part:=RegExReplace(A_LoopField,"\t\d+|\t[a-z]+") A_Tab get_en_code(RegExReplace(A_LoopField,"\t\d+|\t[a-z]+"))
+				if A_LoopField~="\t[a-z]+" {
+					RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"^.+(?=\t[a-z])",Part1)
+					RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"(?<=\t)[a-z]+",Part2)
 					if (saveTodb=1){
-						if Save_word(RegExReplace(A_LoopField,"\t\d+|\t[a-z]+"))>0
+						All_Word_part:=Part1 A_Tab Part2
+						if Save_word(Part2 "=" Part1)>0
 							count++
 					}
 				}else{
-					if A_LoopField~="\t" {
-						All_Word_part:=Part1 A_Tab Part2
+					bianmas:= get_en_code(RegExReplace(A_LoopField,"\t\d+|\t[a-z]+|\s+"))
+					if (bianmas<>"") {
+						All_Word_part:=RegExReplace(A_LoopField,"\t\d+|\t[a-z]+|\s+") A_Tab bianmas
 						if (saveTodb=1){
-							if Save_word(Part2 "=" Part1)>0
+							if Save_word(RegExReplace(A_LoopField,"\t\d+|\t[a-z]+|\s+"))>0
 								count++
 						}
 					}
 				}
 				All_Word .=All_Word_part "`r`n" 
 			}
-			All_Word:=RegExReplace(All_Word,"^`r`n|.+\t`r`n")
+			All_Word:=RegExReplace(All_Word,"^`r`n|.+\t`r`n|\t$")
 			FileDelete, %File_Path%%filenames%-单义.txt
 			FileAppend, %All_Word%, %File_Path%%filenames%-单义.txt, UTF-8
 			All_Word:=All_Word_part:=""
@@ -148,16 +149,16 @@ Return
 			if count>0
 				TrayTip,, 写入%count%行-耗时%timecount%
 			else
-				TrayTip,, 生成文件路径为:%A_Desktop%\%filenames%-New.txt`n耗时%timecount%
-			ToolTip(1,"")
+				TrayTip,, 生成文件路径为:%A_Desktop%\%filenames%-单义.txt`n耗时%timecount%
 		}
+		ToolTip(1,"")
 	}
 Return
 
 DROP_Status:
 	WinGetPos, Xs, Ys, , , sign_wb
 	ToolTip(1, "", "Q1 B" BgColor " T" FontCodeColor " S" 12 " F" Font_)
-	ToolTip(1, "文件处理中。。。", "x" Xs " y" Ys-35)
+	ToolTip(1, "词条处理中。。。", "x" Xs " y" Ys-35)
 Return
 
 Get_IME:
@@ -611,7 +612,7 @@ return
 ;退出设定
 OnExit:
 	DB.CloseDB()
-	FileDelete, %A_ScriptDir%\Config\Script\wubi98_ci.json
+	;FileDelete, %A_ScriptDir%\Config\Script\wubi98_ci.json
 	if Logo_Switch ~="i)on"
 		Gosub Write_Pos
 	if not A_OSVersion ~="i)WIN_XP"
@@ -1535,8 +1536,9 @@ ControlGui:
 		GuiControl, 98:Disable, SBA10
 		GuiControl, 98:Disable, SBA19
 	}
+
 	if themelist~=ThemeName "|"
-		GuiControl, 98:ChooseString, select_theme, %ThemeName%
+		GuiControl, 98:ChooseString, select_theme, % ThemeName
 	else
 		GuiControl, 98:Choose, select_theme, 0
 
@@ -1886,9 +1888,9 @@ BackLogo:
 			For key, value In element
 				If key in BgColor,BorderColor,FocusBackColor,FocusColor,FontCodeColor,FontColor,LineColor,FocusCodeColor
 					Themeinfo["color_scheme",key]:=SubStr(%key%,5,2) SubStr(%key%,3,2) SubStr(%key%,1,2)
-		Themeinfo["themeName"]:=backtheme
 		if FileExist(A_ScriptDir "\Config\Theme_Color\" backtheme ".json")
 			backtheme:=backtheme "-New"
+		Themeinfo["themeName"]:=backtheme
 		Json_ObjToFile(Themeinfo, A_ScriptDir "\Config\Theme_Color\" backtheme ".json", "UTF-8")
 		if FileExist(A_ScriptDir "\Config\Theme_Color\" backtheme ".json"){
 			Traytip,,导出成功，文件路径为:`n%A_ScriptDir%Config\Theme_Color\%backtheme%.json
@@ -1912,13 +1914,10 @@ Return
 _FileToObj:
 	Colors_part:=Json_FileToObj("Config\Theme_Color\" select_theme ".json")
 	For Section, element In Colors_part
-		if Section~="i)ThemeName"
-			%Section%:=WubiIni["TipStyle", Section]:=element
-		else{
-			For key, value In element
-				If (WubiIni["TipStyle", key]<>""&&key<>""&&value<>"")
-					%key%:=WubiIni["TipStyle", key]:=SubStr(value,5,2) SubStr(value,3,2) SubStr(value,1,2)
-		}
+		For key, value In element
+			If (WubiIni["TipStyle", key]<>""&&key<>""&&value<>"")
+				%key%:=WubiIni["TipStyle", key]:=SubStr(value,5,2) SubStr(value,3,2) SubStr(value,1,2)
+	ThemeName:=WubiIni.TipStyle["ThemeName"]:=Colors_part["ThemeName"]
 	WubiIni.save()
 	if !FileExist(A_ScriptDir "\Config\Theme_Color\preview\" ThemeName ".png")
 		GuiControl,98:, themelogo,Config\Theme_Color\preview\Error.png
@@ -2861,7 +2860,7 @@ else
 	Gui, 29: +AlwaysOnTop +Resize +OwnDialogs +MinSize220x190 -MaximizeBox +LastFound hwndEditPlus    ;+ToolWindow
 	Gui,29:Add, Edit, x8 y+8 vSet_Value +Multi hwndCodeEdit  ;+Multi
 	Gui, 29:Add, Button, gSave vSave, 确定
-	Gui, 29:Add, CheckBox,x+20 yp+5 glastp vlastp Checked, 连续造词
+	Gui, 29:Add, CheckBox,x+20 yp+5 glastp vlastp, 连续造词
 	Gui, 29:Submit
 	Gui,29:show,w220 h190,造词窗口
 	EM_SetCueBanner(CodeEdit, "造词格式有两种：⑴、无编码词条，例如「五笔」。⑵、固定格式，例如「ggte=五笔」。<<<多个词条以换行符隔开！>>>")
@@ -2870,7 +2869,7 @@ else
 	GuiControlGet, EdVar, Pos , Set_Value
 	GuiControl, 29:Move, Save,% "y+" EdVarY+EdVarH+6
 	GuiControl, 29:Move, lastp,% "y+" EdVarY+EdVarH+10
-	CBVar:=1
+	CBVar:=0
 }
 return
 
@@ -2898,8 +2897,18 @@ Return
 	Loop, Parse, A_GuiEvent, `n, `r
 	{
 		FileRead, OPCode, %A_LoopField%
-		OPCode:=RegExReplace(OPCode,"\t\d+|\t[a-z]+")
-		OPCode_all.=OPCode "`n"
+		if OPCode~="\t[a-z]+"{
+			Loop, Parse, OPCode, `n, `r
+			{
+				RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"(?<=\t)[a-z]+",L_)
+				RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"^.+(?=\t[a-z])",R_)
+				if (StrLen(L_)>1&&StrLen(L_)<5)
+					OPCode_part .=L_ "=" R_  "`n"
+			}
+		}else{
+			OPCode_part:=RegExReplace(OPCode,"\t\d+|\t[a-z]+")
+		}
+		OPCode_all.=OPCode_part "`n"
 	}
 	GuiControl,29:, Set_Value ,% RegExReplace(OPCode_all,"^\n|\n$")
 	OPCode_all:=""
@@ -2912,13 +2921,14 @@ Return
 ;造词窗口关闭销毁
 29GuiClose:
 	Gui, 29:Destroy
-	CBVar:=1
+	CBVar:=0
 	29GuiEscape:
 Return
 
 ;造词保存处理
 Save:
 	GuiControlGet, mb_add,, Set_Value, text
+	Gosub DROP_Status
 	return_num :=Save_word(mb_add)
 	if (return_num>0)
 	{
@@ -2930,6 +2940,7 @@ Save:
 	}
 	else
 		TrayTip,, 该词条已存在或自由选词格式不正确！
+	ToolTip(1, "")
 return
 
 ;方案词库导入（超集+含词+单字）
@@ -3294,45 +3305,64 @@ DB_management:
 	Gui, DB:Destroy
 	Gui, DB:Default
 	Gui, DB: +hwndDB_ +AlwaysOnTop +OwnDialogs +LastFound   ;+ToolWindow -DPIScale
-	Gui, DB:Add, Button,y+15 Section gDB_Delete vDB_Delete, 删除
+	Gui,DB:Font, s10 , %Font_%
+	Gui, DB:Add, Button,y+10 Section gDB_Delete vDB_Delete, 删除
+	Gui, DB:Add, Button,x+8 Section gDB_reload vDB_reload, 刷新
 	GuiControl, DB:Disable, DB_Delete
-	Gui, DB:Add, Button,x+5 Section gDB_search vDB_search, 搜索
-	Gui, DB:Add, Edit, x+5 yp w60 vsearch_text gsearch_text hwndDBEdit
-	Gui, DB:Add, Button,x+5 Section gDB_reload vDB_reload, 刷新
-	GuiControl, DB:Hide, search_text
-	GuiControl, DB:Hide, DB_reload
-	Gui,DB:Font, s9, %font_%
-	Gui, DB:Add, ListView, r15 xm y+10 Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 Checked -Multi -LV0x10 gMyDB vMyDB hwndDBLV, 词条|编码|词频
-	GuiControl, +Hdr, MyDB
+	Gui, DB:Add, Button,x+8 Section gDB_search vDB_search, 搜索
+	Gui, DB:Add, Edit, x+8 yp w180 vsearch_text gsearch_text hwndDBEdit
 	Gui,DB:Font,
-	Gui,DB:Font, s9 bold, %font_%
+	Gui,DB:Font, s9, %font_%
+	Gui, DB:Add, CheckBox, x+8 yp-2 vsearch_1 gsearch_1, 词频`n为零
+	GuiControl, DB:Disable, search_1
+	Gui,DB:Font,
+	Gui,DB:Font, s10, %font_%
+	GuiControl, DB:Hide, search_text
+	GuiControl, DB:Hide, search_1
+	Gui, DB:Add, ListView,R15 w400 xm+0 y+10 Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 Checked -Multi -LV0x10 gMyDB vMyDB hwndDBLV, 词条|编码|词频
+	GuiControl, +Hdr, MyDB
+	DLV := New LV_Colors(DBLV)
+	DLV.SelectionColors(0xfecd1b)
+	Gui,DB:Font,
+	Gui,DB:Font, s10, %font_%
 	Gui, DB:Add, Button,y+10 Section gDB_BU vDB_BU, 导出全部
 	Gui,DB:Font,
-	Gui,DB:Font, s9 bold cred, %font_%
-	Gui, DB:Add, text,x+10 yp+5 vDBTip, 〔 词频为0的为主词库已删`n除的，勾选删除即恢复！ 〕
-	GuiControl, DB:Hide, DBTip
+	Gui,DB:Font, s9 bold cblue, %font_%
+	Gui, DB:Add, text,x+165 yp+5 Section vToppage gToppage,<<
 	Gui,DB:Font,
-	Gui,DB:Font, s9 bold, %font_%
+	Gui,DB:Font, s9 bold cred, %font_%
+	Gui, DB:Add, text,x+15 Section vuppage guppage border,上一页
+	Gui, DB:Add, text,x+10 Section vnextpage gnextpage border,下一页
+	Gui,DB:Font,
+	Gui,DB:Font, s9 bold cblue, %font_%
+	Gui, DB:Add, text,x+15 Section vLastpage gLastpage,>>
+	Gui,DB:Font,
+	Gui,DB:Font, s10, %font_%
 	Gui, DB:Add, StatusBar,vSBTIP,
 	Gui, DB:Margin , 10, 10
+	DB_Page:=1, DB_Count:=40
 	Gosub ReadDB
-	Gui,DB:Font,
-	Gui,DB:Font, s9, %font_%
-	SB_SetText(A_Space "[ 共" LV_GetCount() . "条记录 ]")
-	SB_SetIcon("Config\wubi98.icl",30)
-	EM_SetCueBanner(DBEdit, "请输入字词或编码")
-	Gui,DB:Show,NA w%coluStr_%,自造词管理
+	LV_ModifyCol(1,"150 left")
+	LV_ModifyCol(2,"80 Center")
+	LV_ModifyCol(3,"150 Integer Center")
+	SB_SetText(A_Space "[  " (DB_Page-1)*DB_Count+1 . " / " Result_.RowCount " 条  ]")
+	;SB_SetIcon("Config\wubi98.icl",30)
+	EM_SetCueBanner(DBEdit, "请输入搜索的字词或编码")
+	Gui,DB:Show,w425,自造词管理
 Return
 
 DBGuiClose:
+	search_1:=ss:=ResultCount:=RCount:=0
 	DBGuiEscape:
 	Gui, DB:Destroy
-	shistory:=""
 Return
 
 DB_reload:
-	Gosub search_text
-	SB_SetText(A_Space "[ 共" LV_GetCount() . "条记录 ]")
+	LV_Delete()
+	lineInfo:=lineInfo?lineInfo:1
+	Gosub ReadDB
+	GuiControl,DB:, search_text ,
+	ss:=ResultCount:=RCount:=0
 Return
 
 DB_BU:
@@ -3342,86 +3372,170 @@ DB_BU:
 	Gui, DB:show,NA
 Return
 
+uppage:
+	DB_Page--
+	Gosub NextRows
+Return
+
+nextpage:
+	DB_Page++
+	Gosub NextRows
+Return
+
+Toppage:
+	DB_Page:=1
+	Gosub NextRows
+Return
+
+Lastpage:
+	DB_Page:=Ceil(Result_.RowCount/DB_Count)
+	Gosub NextRows
+Return
+
+NextRows:
+	DLV.SelectionColors(0xfecd1b),counts:=0
+	loop % DB_Count
+	{
+		if (Result_.Rows[A_Index+(DB_Page-1)*DB_Count,1]<>""){
+			counts:=A_Index
+			if !LV_Modify(A_Index, A_Index=1?"Select":"",Result_.Rows[A_Index+(DB_Page-1)*DB_Count,1],Result_.Rows[A_Index+(DB_Page-1)*DB_Count,2],Result_.Rows[A_Index+(DB_Page-1)*DB_Count,3]){
+				LV_Add(A_Index=1?"Select":"",Result_.Rows[A_Index+(DB_Page-1)*DB_Count,1],Result_.Rows[A_Index+(DB_Page-1)*DB_Count,2],Result_.Rows[A_Index+(DB_Page-1)*DB_Count,3])
+			}
+		}else{
+			LV_Delete(counts+1)
+		}
+	}
+	if (Ceil(Result_.RowCount/DB_Count)<>1&&DB_Page<Ceil(Result_.RowCount/DB_Count)){
+		GuiControl, DB:Enable, nextpage
+		GuiControl, DB:Enable, Lastpage
+	}else{
+		GuiControl, DB:Disable, nextpage
+		GuiControl, DB:Disable, Lastpage
+	}
+	if (DB_Page<2){
+		GuiControl, DB:Disable, uppage
+		GuiControl, DB:Disable, Toppage
+	}else{
+		GuiControl, DB:Enable, uppage
+		GuiControl, DB:Enable, Toppage
+	}
+	;GuiControlGet, BUVar, Pos , DB_BU
+	SB_SetText(A_Space "[  " (DB_Page-1)*DB_Count+1 . " / " Result_.RowCount " 条  ]")
+Return
+
 ReadDB:
-	DLV := New LV_Colors(DBLV)
 	DLV.SelectionColors(0xfecd1b)
-	coluStr_:=0
 	if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci")
 		SQL:="SELECT aim_chars,A_Key,D_Key FROM ci WHERE C_Key is NULL or D_Key ='0' ORDER BY A_Key,B_Key DESC;"
 	else
 		SQL:="SELECT aim_chars,A_Key,B_Key FROM ci WHERE C_Key is NULL or B_Key ='0' ORDER BY A_Key,B_Key DESC;"
 	if DB.gettable(SQL,Result_){
-		loop % Result_.RowCount
+		loop % DB_Count
 		{
-			LV_Add(A_Index=2?"Select":"", Result_.Rows[A_Index,1],Result_.Rows[A_Index,2],Result_.Rows[A_Index,3])
-			if !shistory
-				LV_ModifyCol()
+			if (Result_.Rows[A_Index+(DB_Page-1)*DB_Count,1]<>"")
+				LV_Add(A_Index=1?"Select":"", Result_.Rows[A_Index+(DB_Page-1)*DB_Count,1],Result_.Rows[A_Index+(DB_Page-1)*DB_Count,2],Result_.Rows[A_Index+(DB_Page-1)*DB_Count,3])
 		}
 	}
-	if !shistory {
-		GuiControlGet, LVVar, Pos , MyDB
-		LV_ModifyCol(1,"" LVVarW/3 " left")
-		LV_ModifyCol(2,"" LVVarW/3 " left")
-		LV_ModifyCol(3,"" LVVarW/3 " Integer Center")
-		coluStr_:=LVVarW+45
-		GuiControl, DB:Move, MyDB, % "w" LVVarW+22
-		GuiControl, DB:Move, search_text,% "w" LVVarW*0.45
-		GuiControlGet, EdVar, Pos , search_text
-		GuiControl, DB:Move, DB_reload,% "x+" EdVarX+EdVarW+5
+	if (Ceil(Result_.RowCount/DB_Count)<>1&&DB_Page<Ceil(Result_.RowCount/DB_Count)){
+		GuiControl, DB:Enable, nextpage
+		GuiControl, DB:Enable, Lastpage
+	}else{
+		GuiControl, DB:Disable, nextpage
+		GuiControl, DB:Disable, Lastpage
 	}
-	SB_SetText(A_Space "[ 共" LV_GetCount() . "条记录 ]")
+	if (DB_Page<2){
+		GuiControl, DB:Disable, uppage
+		GuiControl, DB:Disable, Toppage
+	}else{
+		GuiControl, DB:Enable, uppage
+		GuiControl, DB:Enable, Toppage
+	}
+	;GuiControlGet, BUVar, Pos , DB_BU
+	SB_SetText(A_Space "[  " (DB_Page-1)*DB_Count+1 . " / " Result_.RowCount " 条  ]")
 Return
 
 DB_search:
 	GuiControlGet, tVar, DB:Visible , search_text
 	if !tVar{
-		shistory:=""
 		GuiControl, DB:Show, search_text
-		GuiControl, DB:Show, DB_reload
-		SB_SetText(A_Space "[ 共" LV_GetCount() . "条记录 ]")
+		GuiControl, DB:Show, search_1
+		GuiControl, DB:Disable, uppage
+		GuiControl, DB:Disable, nextpage
 	}else{
 		GuiControl, DB:Hide, search_text
-		GuiControl, DB:Hide, DB_reload
+		GuiControl, DB:Hide, search_1
 		GuiControl,DB:, search_text ,
-		if (shistory<>""){
-			LV_Delete()
-			Gosub ReadDB
-		}
-		shistory:=""
-		SB_SetText(A_Space "[ 共" LV_GetCount() . "条记录 ]")
+		GuiControl,DB:, search_1 , 0
+		LV_Delete(),ss:=ResultCount:=RCount:=search_1:=0
+		Gosub ReadDB
+		if (Ceil(Result_.RowCount/DB_Count)<>1&&DB_Page<Ceil(Result_.RowCount/DB_Count))
+			GuiControl, DB:Enable, nextpage
+		else
+			GuiControl, DB:Disable, nextpage
+		if (DB_Page<2)
+			GuiControl, DB:Disable, uppage
+		else
+			GuiControl, DB:Enable, uppage
 	}
-	LV_ModifyCol(1,"" LVVarW/3 " left")
-	LV_ModifyCol(2,"" LVVarW/3 " left")
-	LV_ModifyCol(3,"" LVVarW/3 " Integer Center")
+Return
+
+search_1:
+	GuiControlGet, search_1 ,, search_1, CheckBox
+	if (search_text<>"")
+		Gosub search_result
 Return
 
 search_text:
 	GuiControlGet, tVar, DB:Visible , search_text
 	GuiControlGet, search_text,, search_text, text
 	If (search_text<>""&&tVar){
-		shistory:=search_text
-		LV_Delete()
+		GuiControl, DB:Disable, uppage
+		GuiControl, DB:Disable, nextpage
+		GuiControl, DB:Disable, Lastpage
+		GuiControl, DB:Disable, Toppage
+		GuiControl, DB:Enable, search_1
 		Gosub search_result
 	}else if (search_text=""&&tVar){
-		if (shistory<>""){
-			LV_Delete()
-			Gosub ReadDB
-		}
+		GuiControl, DB:Disable, search_1
+		ss:=0
+		LV_Delete()
+		Gosub ReadDB
+		SB_SetText(A_Space "[  " (DB_Page-1)*DB_Count+1 . " / " Result_.RowCount " 条  ]")
 	}
-	SB_SetText(A_Space "[ 共" LV_GetCount() . "条记录 ]")
 Return
 
 search_result:
-	coluStr_:=0
-	if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci")
-		SQL:="SELECT aim_chars,A_Key,D_Key FROM ci WHERE aim_chars LIKE '%" search_text "%' AND C_Key is NULL or D_Key ='0' AND aim_chars LIKE '%" search_text "%' or A_Key LIKE '%" search_text "%' AND C_Key is NULL or D_Key ='0' AND A_Key LIKE '%" search_text "%';"
-	else
-		SQL:="SELECT aim_chars,A_Key,B_Key FROM ci WHERE aim_chars LIKE '%" search_text "%' AND C_Key is NULL or B_Key ='0' AND aim_chars LIKE '%" search_text "%' or A_Key LIKE '%" search_text "%' AND C_Key is NULL or B_Key ='0' AND A_Key LIKE '%" search_text "%';"
-	if DB.gettable(SQL,Result_){
-		loop % Result_.RowCount
+	ss:=0
+	DLV.SelectionColors(0xC0C0C0)
+	if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci"){
+		if search_1
+			SQL:="SELECT aim_chars,A_Key,D_Key FROM ci WHERE aim_chars LIKE '%" search_text "%' AND D_Key ='0' or A_Key LIKE '%" search_text "%' AND D_Key ='0';"
+		else
+			SQL:="SELECT aim_chars,A_Key,D_Key FROM ci WHERE aim_chars LIKE '%" search_text "%' AND C_Key is NULL or D_Key ='0' AND aim_chars LIKE '%" search_text "%' or A_Key LIKE '%" search_text "%' AND C_Key is NULL or D_Key ='0' AND A_Key LIKE '%" search_text "%';"
+	}else{
+		if search_1
+			SQL:="SELECT aim_chars,A_Key,B_Key FROM ci WHERE aim_chars LIKE '%" search_text "%' AND B_Key ='0' or A_Key LIKE '%" search_text "%' AND B_Key ='0';"
+		else
+			SQL:="SELECT aim_chars,A_Key,B_Key FROM ci WHERE aim_chars LIKE '%" search_text "%' AND C_Key is NULL or B_Key ='0' AND aim_chars LIKE '%" search_text "%' or A_Key LIKE '%" search_text "%' AND C_Key is NULL or B_Key ='0' AND A_Key LIKE '%" search_text "%';"
+	}
+	if DB.gettable(SQL,Results_){
+		ss:=1, counts:=0
+		if Results_.RowCount>0
 		{
-			LV_Add(A_Index=2?"Select":"", Result_.Rows[A_Index,1],Result_.Rows[A_Index,2],Result_.Rows[A_Index,3])
-		}
+			ResultCount:=RCount>Results_.RowCount?RCount:Results_.RowCount>DB_Count?Results_.RowCount:DB_Count
+			loop % ResultCount
+			{
+				if (Results_.Rows[A_Index,1]<>""){
+					counts:=A_Index
+					if !LV_Modify(A_Index, A_Index=1?"Select":"", Results_.Rows[A_Index,1],Results_.Rows[A_Index,2],Results_.Rows[A_Index,3])
+						LV_Add(A_Index=1?"Select":"", Results_.Rows[A_Index,1],Results_.Rows[A_Index,2],Results_.Rows[A_Index,3])
+				}else{
+					LV_Delete(counts+1)
+				}
+			}
+			RCount:=ResultCount
+		}else
+			LV_Delete()
 	}
 	SB_SetText(A_Space "[ 共" LV_GetCount() . "条记录 ]")
 Return
@@ -3430,8 +3544,9 @@ MyDB:
 	if (A_GuiEvent = "RightClick"){
 		LV_GetText(pos_name, A_EventInfo)
 		if pos_name
-			select_theme:=pos_name, lineInfo:=A_EventInfo
+			lineInfo:=A_EventInfo
 	}else if (A_GuiEvent = "Normal"){
+		lineInfo:=A_EventInfo
 		loop, % LV_GetCount()+1
 		{
 			if LV_GetNext( A_Index-1, "Checked" ){
@@ -3443,18 +3558,17 @@ MyDB:
 			}
 		}
 		LV_GetText(LVars_1, A_EventInfo , 1), LV_GetText(LVars_2, A_EventInfo , 2), LV_GetText(LVars_, A_EventInfo , 3)
-		if (LVars_=0){
-			GuiControl, DB:Show, DBTip
-			Gui, DB:Font, s9 cred
-			GuiControl, DB:Font, DBTip
-			GuiControlGet, BTVar, Pos , DB_BU
-			GuiControl, DB:Move, DBTip, % "w" LVVarW*0.8 "x+" BTVarX+BTVarW+10 "y+" BTVarY-4
-			GuiControl,DB:, DBTip ,〔 词频为0的为主词库已删除的，勾选删除即恢复显示！ 〕
-			SB_SetText(A_Space "[ 共" LV_GetCount() . "条记录 ]",1,2)
+		if ss{
+			SB_SetText(A_Space "[ 第 " A_EventInfo " / " LV_GetCount() . " 条记录 ]")
 		}else{
-			GuiControl, DB:Hide, DBTip
-			SB_SetText(A_Space "〔 " LVars_1 " -- " LVars_2 " 〕",1,2)
+			SB_SetText("[  " (DB_Page-1)*DB_Count+A_EventInfo . " / " Result_.RowCount " 条  ]")
 		}
+	}else if (A_GuiEvent="I") {
+		LV_GetText(LVars_1, A_EventInfo , 1), LV_GetText(LVars_3, A_EventInfo , 3)
+		if (LVars_3=0)
+			ToolTip, 〔 词频为0的为主词库已删除的，勾选删除即恢复！ 〕
+		else 
+			ToolTip,% LVars_1
 	}
 Return
 
@@ -3463,23 +3577,29 @@ DB_Delete:
 Return
 
 DelCode(deb =""){
-	global Frequency,Prompt_Word,Trad_Mode,Wubi_Schema
+	global Frequency,Prompt_Word,Trad_Mode,Wubi_Schema,DB_Page,DB_Count,Result_,lineInfo, DB_Page, DB_Page,ss
+	count:=0
 	Loop % (LV_GetCount(),a:=1)
 	{	if ( LV_GetNext( 0, "Checked" ) = a )
 		{	if ( !deb ){
 				LV_GetText(LVar1, a , 1),LV_GetText(LVar2, a , 2),LV_GetText(LVar3, a , 3)
 				LV_Delete( a )
+				if !ss
+					Result_.Rows.RemoveAt((DB_Page-1)*DB_Count+a)
 				if (LVar3=0){
 					if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci")
 						DB.Exec("UPDATE ci SET D_Key=C_Key WHERE aim_chars ='" LVar1 "';")
 					else
 						DB.Exec("UPDATE ci SET B_Key=C_Key WHERE aim_chars ='" LVar1 "';")
-				}else
+					count++
+				}else{
 					DB.Exec("DELETE FROM ci WHERE aim_chars ='" LVar1 "';")
+					count++
+				}
 			}
 		}else
 			++a
 	}
-	SB_SetText(A_Space "[ 共" LV_GetCount() . "条记录 ]")
+	SB_SetText(A_Space "[  " (DB_Page-1)*DB_Count+lineInfo . " / " Result_.RowCount-count " 条  ]")
 
 }
