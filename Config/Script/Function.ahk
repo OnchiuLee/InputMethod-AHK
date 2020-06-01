@@ -2092,7 +2092,7 @@ FocusGdipGui(codetext, Textobj, x:=0, y:=0, Font:="Microsoft YaHei UI"){
 	Loop % Textobj.Length()
 		If (A_Index=localpos){
 			Gdip_FillRoundedRectangle(G, pBrush[FocusBack], TPosObj[A_Index,1]-FontSize*0.15, TPosObj[A_Index,2]-FontSize*0.1, codetext~="\d"?TPosObj[A_Index,3]+FontSize*0.4:TPosObj[A_Index,3]-FontSize*0.2, TPosObj[A_Index,4]+FontSize*0.38, FocusRadius)  ;焦点背景圆弧
-			, CreateRectF(RC, codetext~="\d"?TPosObj[A_Index,1]:TPosObj[A_Index,1]-FontSize*0.62, TPosObj[A_Index,2]+fontoffset+FontSize*0.28, w-30, h-30), Gdip_DrawString(G, Textobj[A_Index], hFont, hFormat, pBrush[Focus], RC)
+			, CreateRectF(RC, codetext~="\d"?TPosObj[A_Index,1]:TPosObj[A_Index,1]-FontSize*0.48, TPosObj[A_Index,2]+fontoffset+FontSize*0.28, w-30, h-30), Gdip_DrawString(G, Textobj[A_Index], hFont, hFormat, pBrush[Focus], RC)
 		}Else
 			CreateRectF(RC, codetext~="\d"?TPosObj[A_Index,1]:TPosObj[A_Index,1]-FontSize*0.62, TPosObj[A_Index,2]+fontoffset+FontSize*0.28, w-30, h-30), Gdip_DrawString(G, Textobj[A_Index], hFont, hFormat, pBrush[Font], RC)
 	Loop % Textobj[0].Length()
