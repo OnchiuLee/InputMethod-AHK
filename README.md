@@ -1,6 +1,6 @@
 # AHK-Input-method
 
-## 最新的包请前往资源库下载[http://98wb.ys168.com/:](http://98wb.ys168.com/ "98五笔资源库")
+## 最新的包请前往资源库下载[http://98wb.ys168.com/](http://98wb.ys168.com/ "98五笔资源库")
 
 <font size=28>## 用Autohotkey脚本语言改装的五笔98输入法，可以实现正常的文本输入，包含的功能有：</font>
 
