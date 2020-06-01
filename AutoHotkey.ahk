@@ -8,9 +8,11 @@
 ;*********************************************************************************
 
 #NoEnv
+#MaxMem 2048
 ;#NoTrayIcon
 #SingleInstance, Force
 #MaxThreadsPerHotkey 100
+#MaxHotkeysPerInterval 400
 #Persistent
 #WinActivateForce
 #Include %A_ScriptDir%
@@ -23,6 +25,12 @@ Loop, Files, main\*.exe
 	}
 }
 ;}}}}}
+
+if FileExist(A_ScriptDir "\Config\Theme_Color\")
+	FileRemoveDir, %A_ScriptDir%\Config\Theme_Color , 1
+if FileExist(A_ScriptDir "\Config\*.ahk")
+	Loop Files, %A_ScriptDir%\Config\*.ahk
+		FileDelete, %A_LoopFileLongPath%
 
 #Include Config\Lib\Class_Gdip.ahk
 #Include Config\Lib\Class_EasyIni.ahk
@@ -46,9 +54,13 @@ OnMessage(0x201, "WM_LBUTTONDOWN")
 OnMessage(0x200, "WM_MOUSEMOVE")
 OnMessage(0x020a, "WM_MOUSEWHEEL")
 SetWorkingDir %A_ScriptDir%
+DetectHiddenWindows, On
+DetectHiddenText, On
 WinGetPos,,,,Shell_Wnd ,ahk_class Shell_TrayWnd
 global y2 :=A_ScreenHeight-Shell_Wnd-40
-font_:=a_FontList~="i)Microsoft YaHei UI"?"Microsoft YaHei UI":"微软雅黑"
+NumPut(VarSetCapacity(info, A_IsUnicode ? 504 : 344, 0), info, 0, "UInt")
+DllCall("SystemParametersInfo", "UInt", 0x29, "UInt", 0, "Ptr", &info, "UInt", 0)
+font_:=StrGet(&info + 52), font_:=font_?font_:"Microsoft YaHei UI"
 
 ;;{{{{{config.ini去重
 FileRead,content,config.ini
@@ -67,7 +79,7 @@ global srf_default_value,config_tip, WubiIni:=class_EasyIni("config.ini")
 if FileExist(A_ScriptDir "\Sync\Default.json"){
 	srf_default_value:=Json_FileToObj(A_ScriptDir "\Sync\Default.json")
 }else{
-	srf_default_value:={Settings:{Startup:"off", symb_mode:2,sym_match:0,Frequency:0,Freq_Count:3, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f", cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"200", Logo_Y:y2, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock", Suspend_switch:1, Suspend_hotkey:"!z", tip_hotkey:"!q", rlk_switch:"1", Logo_Switch:"on",Srf_Hotkey:"Shift", Select_Enter:"send", Initial_Mode:"off", symb_send:"on", set_color:"on", Wubi_Schema:"ci",Cut_Mode:"off", limit_code:"on", Trad_Mode:"off", IMEmode:"on",InitStatus:0}
+	srf_default_value:={Settings:{Startup:"off", symb_mode:2,sym_match:0,Frequency:0,Freq_Count:3, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f", cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"200", Logo_Y:y2, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock", Suspend_switch:1, Suspend_hotkey:"!z", tip_hotkey:"!q", rlk_switch:"1", Logo_Switch:"on",Srf_Hotkey:"Shift", Select_Enter:"clean", Initial_Mode:"off", symb_send:"on", set_color:"on", Wubi_Schema:"ci",Cut_Mode:"off", limit_code:"on", Trad_Mode:"off", IMEmode:"on",InitStatus:0}
 		, TipStyle:{ThemeName:"默认",FontType:font_, FontSize:20, FontColor:"362B00",FocusBackColor:"000000",FocusColor:"FFFFFF",FocusCodeColor:"f8b62d",FocusRadius:5, logo_show:0, FontStyle:"off", FontCodeColor:"800000",LineColor:"808080",BorderColor:"C0C0C0", Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"on", BgColor:"FFFFFF", ListNum:5,Gdip_Radius:5, Textdirection:"horizontal", Set_Range:3, Fix_Switch:"off",Fix_X:A_ScreenWidth/2,Fix_Y:10}  ;竖排--vertical
 		, CustomColors:{Color_Row1:"0x1C7399,0xEEEEEC,0x014E8B,0x444444,0x009FE8,0xDEF9FA,0xF8B62D,0x90FC0F", Color_Row2:"0x0078D7,0x0D1B0A,0xB9D497,0x00ADEF,0x1778BF,0xFDF6E3,0x002B36,0xDEDEDE"}
 		, Versions:{Version:A_YYYY A_MM A_DD "-1"}
@@ -175,9 +187,9 @@ DBFileName:="DB\wubi98.db"
 global DB := New SQLiteDB
 If !DB.OpenDB(DBFileName)
 	MsgBox, 16, 数据库DB错误, % "消息:`t" DB.ErrorMsg "`n代码:`t" DB.ErrorCode
-
+Gosub Backup_CustomDB
 ;}}}}}
-SwitchToEngIME()
+;SwitchToEngIME()
 
 ;{{常用变量值初始化
 global recent:=Carets:={}
@@ -261,8 +273,8 @@ WM_MOUSEMOVE()
 	global Tip_Show:={LineColor:"Gdip样式中间分隔线颜色",BorderColor : "Gdip样式四周边框线颜色", SBA16:"冻结/启用程序", SBA15:"鼠标划词反查编码", UIAccess:"候选框UI层级权限提升", SBA0 :"候选框固定坐标设置",About:"软件使用说明",ciku3:"英文词库导入`n（单行单义格式，以tab符隔开）`n「英文词条+Tab+词频」",ciku4:"英文词库导出`n（导出为单行单义格式txt码表）",ciku5:"特殊符号词库导入`n（格式「/引导字母+Tab+多符号以英文逗号隔开」）"
 		, SBA5 : "固定候选框的位置，不跟随光标",BgColor:"候选框背景色",FocusBackColor:"候选框焦点选项背景色",FocusColor:"候选框焦点选项字体色", FontColor:"候选词字体颜色", FontCodeColor:"候选框编码字体颜色", SBA1:"繁体开关（输简出繁）", SBA4:"加入开机自启动任务：「`non＝>为建立系统计划任务实现自启`noff＝>为关闭开机自启`nsc＝>为在系统自启目录建立快捷方式实现自启」",ciku6:"特殊符号词库导出`n（导出为txt）"
 		, SBA13:"显示/隐藏桌面Logo图标",SBA19:"没有焦点色块选项的候选框",SetInput_CNMode:"程序启动时默认中文输入模式",SetInput_ENMode:"程序启动时默认英文输入模式", SBA12 : "候选词显示粗体",ciku1:"导入txt词库至数据库`ntxt码表格式需为「单行单义」",ciku2:"导出词库为「单行单义」的txt格式文本",SBA2:"候选词条显示拆分字根`n（需特殊字体支持，Ctrl+Shift+w打开下载页）"
-		, SBA3:"当编码无词条时模糊匹配提示",SBA6:"符号顶首选屏并上屏该键符号",SBA7:"四位编码候选唯一时自动上屏，五码时顶首选上屏",SBA9:"Gdip候选框圆角开关",SBA10:"Gdip候选样式中间分隔线",yaml_:"导出词库为yaml格式可直接应用于rime平台，`n需Sync目录有header.txt文件头支持",search_1:"〔 词频为0的为主词库已删除的，勾选删除即恢复！ 〕"
-		, Save:"无码造词和自由模式可以同时进行需分行输入。格式如下：`nuqid=http://98wb.ys168.com/`nggte=五笔`n柚子输入法",Frequency:"自动根据每个词条的输入频率进行顺序调整",set_Frequency:"设置词条的输入频率值来进行顺序调整"}   ;Lastpage:"首页",Toppage:"尾页"
+		, SBA3:"当编码无词条时模糊匹配提示",SBA6:"符号顶首选屏并上屏该键符号",SBA7:"四位编码候选唯一时自动上屏，五码时顶首选上屏",SBA9:"Gdip候选框圆角开关",SBA10:"Gdip候选样式中间分隔线",yaml_:"导出词库为yaml格式可直接应用于rime平台，`n需Sync目录有header.txt文件头支持",search_1:"〔 词频为0的为主词库已删除的，勾选删除即恢复！ 〕",IM_DDL:"此处选择你要更改的内容"
+		, Save:"无码造词和自由模式可以同时进行需分行输入。格式如下：`nuqid=http://98wb.ys168.com/`nggte=五笔`n柚子输入法",Frequency:"自动根据每个词条的输入频率进行顺序调整",set_Frequency:"设置词条的输入频率值来进行顺序调整",AddProcess:"只在新开启的窗口有效,在进行窗口切换时没有任何效果!`n添加进程名时,鼠标放在指定的窗口上,按下左Ctrl执行添加`n,20秒内无操作,自动添加当前鼠标所在窗口的进程."}   ;Lastpage:"首页",Toppage:"尾页"
 
 	static CurRControl, PrevControl
 	CurRControl := A_GuiControl
@@ -293,6 +305,45 @@ WM_MOUSEMOVE()
 		ToolTip
 	return
 }
+
+;{{{{{{应用状态管理{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
+EXEList_obj:=Json_FileToObj(A_ScriptDir "\Sync\InputMode.json")
+if !EXEList_obj.Count() {
+	EXEList_obj:={CN:["QQ.exe"],EN:["Notepad.exe"],CLIP:["Notepad.exe"]}
+	Json_ObjToFile(EXEList_obj, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
+}
+Gui +LastFound
+DllCall( "RegisterShellHookWindow", UInt,WinExist() )   ;WinActive()
+OnMessage( DllCall( "RegisterWindowMessage", Str,"SHELLHOOK" ), "ShellIMEMessage")
+ShellIMEMessage( wParam,lParam ) {
+	global srf_mode, EXEList_obj, Initial_Mode, WubiIni
+	If ( wParam = 6 ||wParam = 1 ){
+		WinGet, WinEXE, ProcessName , ahk_id %lParam%
+		WinGetclass, WinClass, ahk_id %lParam%
+		WinActivate,ahk_class %WinClass%
+		Loop,% EXEList_obj["CN"].length()+EXEList_obj["EN"].length()+EXEList_obj["CLIP"].length()
+		{
+			If (EXEList_obj["CN",a_index]=WinEXE&&!srf_mode&&EXEList_obj["CN",a_index]<>"")
+			{
+				srf_mode:=1
+				GuiControl,3:, Pics,*Icon9 config\wubi98.icl
+				break
+			}else If (EXEList_obj["EN",a_index]=WinEXE&&srf_mode&&EXEList_obj["EN",a_index]<>""){
+				srf_mode:=0
+				GuiControl,3:, Pics,*Icon12 config\wubi98.icl
+				break
+			}else If (EXEList_obj["CLIP",a_index]=WinEXE&&EXEList_obj["CLIP",a_index]<>""){
+				if Initial_Mode~="i)off" {
+					Menu, setting, Rename, 剪切板通道	× , 剪切板通道	√
+					Initial_Mode:=WubiIni.Settings["Initial_Mode"] :="on", WubiIni.save()
+					GuiControl,3:, Pics4,*Icon42 config\wubi98.icl
+					break
+				}
+			}
+		}
+	}
+}
+;}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 
 Gosub houxuankuangguicreate
 ;if FocusStyle&&ToolTipStyle~="i)Gdip"
