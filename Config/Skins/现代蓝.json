@@ -1,0 +1,13 @@
+﻿{
+	"themeName":"现代蓝",
+	"color_scheme":{
+		"BgColor":"ffffff",
+		"BorderColor":"d77800",
+		"FocusBackColor":"d77800",
+		"FocusColor":"ffffff",
+		"FontCodeColor":"000000",
+		"FontColor":"000000",
+		"LineColor":"ffffff",
+		"FocusCodeColor":"ffffff"
+	}
+}

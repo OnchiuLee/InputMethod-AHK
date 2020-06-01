@@ -1,0 +1,13 @@
+﻿{
+	"themeName":"熊出没",
+	"color_scheme":{
+		"BgColor":"2db6f8",
+		"BorderColor":"2db6f8",
+		"FocusBackColor":"000000",
+		"FocusColor":"FFFFFF",
+		"FontCodeColor":"2db6f8",
+		"FontColor":"ffffff",
+		"LineColor":"2db6f8",
+		"FocusCodeColor":"ffffff"
+	}
+}
