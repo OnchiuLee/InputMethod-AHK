@@ -1,0 +1,13 @@
+﻿{
+	"themeName":"DOTA2",
+	"color_scheme":{
+		"BgColor":"120f10",
+		"BorderColor":"120f10",
+		"FocusBackColor":"1841dd",
+		"FocusColor":"FFFFFF",
+		"FontCodeColor":"1841dd",
+		"FontColor":"5c758f",
+		"LineColor":"120f10",
+		"FocusCodeColor":"120f10"
+		}
+}
