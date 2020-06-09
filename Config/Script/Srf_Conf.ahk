@@ -198,13 +198,13 @@ Return
 	CapsLock::
 		if !GetKeyState("CapsLock", "T"){
 			SetCapsLockState , on
-			GuiControl,3:, Pics,*Icon21 config\wubi98.icl
+			GuiControl,3:, Pics,*Icon2 config\Skins\logoStyle\%StyleN%.icl
 			gosub Get_IME
 		}
 		else
 		{
 			SetCapsLockState , off
-			GuiControl,3:, Pics,*Icon9 config\wubi98.icl
+			GuiControl,3:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
 			gosub Get_IME
 		}
 		gosub srf_value_off
@@ -268,13 +268,13 @@ return
 	CapsLock::
 		if GetKeyState("CapsLock", "T"){
 			SetCapsLockState , off
-			GuiControl,3:, Pics,*Icon12 config\wubi98.icl
+			GuiControl,3:, Pics,*Icon3 config\Skins\logoStyle\%StyleN%.icl
 			gosub Get_IME
 		}
 		else
 		{
 			SetCapsLockState , on
-			GuiControl,3:, Pics,*Icon21 config\wubi98.icl
+			GuiControl,3:, Pics,*Icon2 config\Skins\logoStyle\%StyleN%.icl
 			gosub Get_IME
 		}
 		gosub srf_value_off
@@ -533,10 +533,10 @@ Return
 			Gosub srf_value_off
 			srf_for_select_Array :=[]
 			SetCapsLockState , on
-			GuiControl,3:, Pics,*Icon21 config\wubi98.icl
+			GuiControl,3:, Pics,*Icon2 config\Skins\logoStyle\%StyleN%.icl
 			gosub Get_IME
 		}else{
-			GuiControl,3:, Pics,*Icon9 config\wubi98.icl
+			GuiControl,3:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
 			gosub srf_value_off
 		}
 	Return
@@ -718,10 +718,6 @@ Return
 ;}}}
 */
 
-^esc::
-	Gosub OnExit
-return
-
 /*
 ~LButton::
 	If (A_Cursor ~= "i)IBeam" ){
@@ -734,7 +730,19 @@ Return
 */
 
 ~LButton::
-	ToolTip(1, ""), ToolTip(2, "")
+	ToolTip(1, ""), ToolTip(2, ""),select_for_code:=select_for_code_result:=rlk_for_select_tooltip:=""
+	CoordMode, Mouse, Screen
+	MouseGetPos, x1, y1
+	KeyWait, LButton
+	MouseGetPos, x2, y2
+	if (abs(x1-x2) > 10 &&rlk_switch&&abs(y1-y2) <=10 && abs(x1-x2) < A_ScreenHeight/3) {
+		gosub RlkResult
+	}
 Return
+
+~RButton::
+	ToolTip(1, ""), ToolTip(2, "")
+
+return
 
 vk5d::return ; 屏蔽键盘上的菜单右键
