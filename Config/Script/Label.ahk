@@ -1058,7 +1058,7 @@ More_Setting:
 	Gui, 98: +hwndhwndgui98 +AlwaysOnTop -DPIScale  ;+ToolWindow
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
-	Gui, 98:Add, TreeView,x10 y10 h400 w150 AltSubmit -WantF2 gTVGUI vTVGUI
+	Gui, 98:Add, TreeView,x10 y10 h400 w150 AltSubmit 0x20 0x200 -Buttons -WantF2 gTVGUI vTVGUI   ;-Buttons 
 	TV1 := TV_Add("基础设置",, "Bold")
 	TV1_1 := TV_Add("主题设置", TV1)  ; 指定项目的父项目.
 	TV_Modify(TV1, "Expand"),TV_Modify(TV1_1, "Select")
@@ -1080,7 +1080,7 @@ More_Setting:
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","Dlabel","Rlabel","Blabel","Wlabel","Ulabel","Setlabel","Savelabel","MyLabel"]
 		,GBoxList7:["GBox7","TextInfo21","sChoice4","ciku1","ciku9","ciku2","TextInfo22","ciku8","ciku7","yaml_","TextInfo23","ciku3","ciku4","TextInfo24","ciku5","ciku6"]
-		,GBoxList8:["GBox8","linkinfo1","linkinfo2","linkinfo3","versionsinfo"]}
+		,GBoxList8:["GBox8","linkinfo1","linkinfo2","linkinfo3","versionsinfo","infos_"]}
 
 	Gui, 98:Add, GroupBox,x+10 yp w400 h400 vGBox1, 主题配置
 	Gui, 98:Add, Picture,xp+80 yp+30 h-1 vthemelogo, Config\Skins\preview\默认.png
@@ -1102,7 +1102,7 @@ More_Setting:
 	Gui, 98:Add, Button,x+5 cred gthemelists vthemelists,主题管理
 	Gui, 98:Add, Text,x190 y+20 vTextInfo3 left, 配置管理：
 	Gui, 98:Add, Button,x+5 yp-2 cred gBackup_Conf vBackup_Conf,备份配置
-	Gui, 98:Add, Button,x+10 yp cred gRest_Conf vRest_Conf,恢复配置
+	Gui, 98:Add, Button,x+20 yp cred gRest_Conf vRest_Conf,恢复配置
 	if !FileExist(A_ScriptDir "\Sync\Default.json")
 		GuiControl, 98:Disable, Rest_Conf
 	Loop Files, config\Skins\logoStyle\*.icl
@@ -1258,7 +1258,7 @@ More_Setting:
 	GuiControl, 98:Hide, Savelabel
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
-	Gui, 98:Add, ListView,x180 y+15 h300 w380 Grid AltSubmit NoSortHdr NoSort -WantF2 Checked -ReadOnly -Multi -LV0x10 gMyLabel vMyLabel hwndHLV, 别名|标签名|标签说明|状态
+	Gui, 98:Add, ListView,x180 y+15 h300 w380 Grid AltSubmit NoSortHdr NoSort -WantF2 Checked -ReadOnly -Multi 0x8 LV0x40 -LV0x10 gMyLabel vMyLabel hwndHLV, 别名|标签名|标签说明|状态
 	GuiControl, +Hdr, MyLabel
 	Gosub Glabel
 	For Section, element In TV_obj
@@ -1278,7 +1278,7 @@ More_Setting:
 	Gui, 98:Add, Button, x+10 yp-1 vciku2 gciku2,码表合并导出
 	Gui, 98:Add, Button, x+20 yp vciku8 gciku8,含词主码表导出
 	GuiControlGet, budbvar, Pos , ciku2
-	Gui, 98:Add, Button, x%budbvarX% yp+40 vciku7 gciku7,自造词导出
+	Gui, 98:Add, Button, x%budbvarX% yp+45 vciku7 gciku7,自造词导出
 	Gui, 98:Add, CheckBox,x+15 yp+4 vyaml_ gyaml_, 导出为yaml文件
 	if !FileExist(A_ScriptDir "\Sync\header.txt")
 		GuiControl, 98:Disable, yaml_
@@ -1296,9 +1296,12 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox8, 关于
 	Gui,98:Font
+	Gui,98:Font, s9 c757575, %font_%
+	Gui,98:Add, Text, x190 yp+35 w360 vinfos_ , `t柚子98五笔版是以AutoHotkey脚本语言编写的外挂类型形码输入法，借用同类型的「影子输入法」的实现思路通过调用众多WinAPI整合SQLite数据库实现文字输出等一系列功能。以「数据库码表性能」和「前端呈现」（调用Windows的GdiPlus.dll）两方面对文字内容直接发送上屏，而不进行传统输入法的转换操作，从XP至Win10皆能流畅运行。此版本为王码五笔98版专用，非98五笔的用户移步至「影子输入法」。
+	Gui,98:Font
 	Gui,98:Font, s10, %font_%
-	Gui,98:Add, Link, x190 yp+45 vlinkinfo1, 使用帮助：<a href="config\ReadMe.png">点我查看详细说明</a>
-	Gui,98:Add, Link, y+5 vlinkinfo2, 关于：<a href="https://wubi98.gitee.io/">https://wubi98.gitee.io/</a>`n资源库：<a href="http://98wb.ys168.com">http://98wb.ys168.com</a>
+	Gui,98:Add, Link, y+15 vlinkinfo1, 使用帮助：<a href="config\ReadMe.png">点我查看详细说明</a>
+	Gui,98:Add, Link, y+5 vlinkinfo2, 关于：<a href="https://wubi98.gitee.io/">https://wubi98.gitee.io/</a>`n资源库：<a href="http://98wb.ys168.com">http://98wb.ys168.com</a>`n简介：<a href="https://wubi98.gitee.io/2020/04/27/2019-12-03-031.yours/">程序简介</a>
 	Gui,98:Add, Link, y+5 vlinkinfo3, 查看码元图：<a href="config\码元图.jpg">点我查看五笔98版码元图</a>
 	Gui,98:Add, Text, y+5 vversionsinfo, 版本日期：%Versions%
 	For Section, element In TV_obj
@@ -1317,18 +1320,18 @@ Return
 
 TVGUI:
 	Index_:= GetVisible()
-	if (A_GuiEvent = "Normal") {
+	if (A_GuiEvent = "Normal"&&A_EventInfo) {
 		TV_GetText(SelectedItem_, A_EventInfo)
-		If not SelectedItem_~="基础设置|功能设置"
-			SetVisibleHide(Index_,A_EventInfo), SetVisibleShow(SelectedItem_,A_EventInfo)
-		else{
+		If (A_EventInfo != TV1&&A_EventInfo != TV2){
+			SetVisibleHide(Index_,A_EventInfo), SetVisibleShow(A_EventInfo)
+		}else{
 			TV_Modify(A_EventInfo , TV_Get(A_EventInfo, "Expand")?"-Expand":"Expand")
 		}
 	}
 Return
 
 GetVisible(){
-	Loop,8
+	Loop,% TV_GetCount()
 	{
 		GuiControlGet, VisiVar, Visible , GBox%A_Index%
 		if VisiVar
@@ -1346,12 +1349,12 @@ SetVisibleHide(Index,EventInfo){
 	}
 }
 
-SetVisibleShow(Item,EventInfo){
-	global TV_obj,Index_
-	_objNum:=Item~="主题设置"?1:Item~="候选框参数"?2:Item~="输入设定"?3:Item~="上屏设定"?4:Item~="快捷键设置"?5:Item~="标签管理"?6:Item~="码表管理"?7:Item~="关于"?8:Item~="基础设置"?(TV_Get(EventInfo, "Expand")?Index_:1):Item~="功能设置"?(TV_Get(EventInfo, "Expand")?Index_:2):0
+SetVisibleShow(EventInfo){
+	global TV_obj,Index_,TV1_1,TV1,TV2,TV2_1,TV2_2,TV2_3,TV3,TV4,TV5,TV6
+	_objNum:=EventInfo=TV1_1?1:EventInfo=TV2_1?2:EventInfo=TV2_2?3:EventInfo=TV2_3?4:EventInfo=TV3?5:EventInfo=TV4?6:EventInfo=TV5?7:EventInfo=TV6?8:Index_
 	Loop,% TV_obj["GBoxList" _objNum].Length()
 	{
-		if not TV_obj["GBoxList" _objNum,A_Index]~= "i)^Setlabel$|^Savelabel$"
+		if not TV_obj["GBoxList" _objNum,A_Index]~="i)^Setlabel$|^Savelabel$"
 			GuiControl, 98:Show, % TV_obj["GBoxList" _objNum,A_Index]
 	}
 }
@@ -1384,7 +1387,7 @@ WinMode:
 	Gui, IM:Add, Button, x+10 vAddProcess gAddProcess,添加
 	Gui, IM:Add, DropDownList ,Choose1 w80 x+10 vIM_DDL gIM_DDL, 中文|英文|剪切板
 	GuiControl,IM:Disable,IM_DDL
-	Gui, IM:Add, ListView, AltSubmit Grid r15 x10 yp+30 -LV0x10 -Multi Checked NoSortHdr -wscroll -WantF2 hwndIPView gIPView vIPView  ,进程名|输入状态
+	Gui, IM:Add, ListView, AltSubmit Grid r15 x10 yp+30 -LV0x10 -Multi Checked NoSortHdr -wscroll -WantF2 0x8 LV0x40 hwndIPView gIPView vIPView  ,进程名|输入状态
 	For Section, element In EXEList_obj
 		For key, value In element
 			if (value<>"")
@@ -2116,7 +2119,7 @@ themelists:
 	Gui, themes:Destroy
 	Gui, themes:Default
 	Gui, themes: +AlwaysOnTop -DPIScale +Owner  ;+ToolWindow
-	Gui, themes:Add, ListView, r15 w425 Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 Checked -Multi -LV0x10 gMyTheme vMyTheme hwndThemeLV, 主题名称|预览图|文件路径
+	Gui, themes:Add, ListView, r15 w425 Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 Checked -Multi 0x8 LV0x40 -LV0x10 gMyTheme vMyTheme hwndThemeLV, 主题名称|预览图|文件路径
 	themelist:=""
 	Loop Files, config\Skins\*.json
 	{
@@ -3225,15 +3228,15 @@ if WinExist("造词窗口"){
 else
 {
 	Gui, 29:Default              ;A_ScreenDPI/96
-	Gui, 29: +AlwaysOnTop +Resize +OwnDialogs +MinSize220x190 -MaximizeBox +LastFound hwndEditPlus    ;+ToolWindow
+	Gui, 29: +AlwaysOnTop +LastFound hwndEditPlus    ;+ToolWindow +OwnDialogs +MinSize260x250 -MaximizeBox +Resize 
 	Gui,29:Add, Edit, x8 y+8 vSet_Value +Multi hwndCodeEdit  ;+Multi
 	Gui, 29:Add, Button, gSave vSave, 确定
 	Gui, 29:Add, CheckBox,x+20 yp+5 glastp vlastp, 连续造词
 	Gui, 29:Submit
-	Gui,29:show,w220 h190,造词窗口
+	Gui,29:show,w260 h250,造词窗口
 	EM_SetCueBanner(CodeEdit, "造词格式有两种：⑴、无编码词条，例如「五笔」。⑵、固定格式，例如「ggte=五笔」。<<<多个词条以换行符隔开！>>>")
 	;SendMessage, 0x1501, 1, "造词格式有两种：⑴、无编码词条，例如「五笔」。⑵、固定格式，例如「ggte=五笔」。<<<多个词条以换行符隔开！>>>", Edit1, ahk_id%EditPlus%
-	GuiControl, 29:Move, Set_Value,% "w200 h150"
+	GuiControl, 29:Move, Set_Value,% "w240 h200"
 	GuiControlGet, EdVar, Pos , Set_Value
 	GuiControl, 29:Move, Save,% "y+" EdVarY+EdVarH+6
 	GuiControl, 29:Move, lastp,% "y+" EdVarY+EdVarH+10
@@ -3247,19 +3250,21 @@ EM_SetCueBanner(hWnd, Cue)
 	return DllCall("User32.dll\SendMessage", "Ptr", hWnd, "UInt", EM_SETCUEBANNER, "Ptr", True, "WStr", Cue)
 }
 
+/*
 29GuiSize:
 	GuiControlGet, EdVar, Pos , Set_Value
-	if A_GuiWidth>220
+	if A_GuiWidth>260
 	{
 		GuiControl, 29:Move, Set_Value,% "w" A_GuiWidth-18
 	}
-	if A_GuiHeight>190
+	if A_GuiHeight>250
 	{
 		GuiControl, 29:Move, Set_Value, % "h" A_GuiHeight-45
 		GuiControl, 29:Move, Save,% "y+" EdVarY+EdVarH+6
 		GuiControl, 29:Move, lastp,% "y+" EdVarY+EdVarH+10
 	}
 Return
+*/
 
 29GuiDropFiles:
 	OPCode_all:=OPCode_part:=OPCode:=""
@@ -3729,7 +3734,7 @@ DB_management:
 	Gui,DB:Font, s10, %font_%
 	GuiControl, DB:Hide, search_text
 	GuiControl, DB:Hide, search_1
-	Gui, DB:Add, ListView,R15 w400 xm+0 y+10 Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 Checked -Multi -LV0x10 gMyDB vMyDB hwndDBLV, 词条|编码|词频
+	Gui, DB:Add, ListView,R15 w400 xm+0 y+10 Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 Checked -Multi 0x8 LV0x40 -LV0x10 gMyDB vMyDB hwndDBLV, 词条|编码|词频
 	GuiControl, +Hdr, MyDB
 	DLV := New LV_Colors(DBLV)
 	DLV.SelectionColors(0xfecd1b)
