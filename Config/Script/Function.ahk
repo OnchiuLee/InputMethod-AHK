@@ -1095,12 +1095,90 @@ Hex2Str(val, len, x:=false)
 	Return x ? "0x" out : out
 }
 
+/*
+ * 获取选中的文本
+ */
+getSelectText()
+{
+	ClipboardOld = %ClipboardAll%
+	Clipboard =  ; 必须清空, 才能检测是否有效
+	SendInput ^c
+	ClipWait, 0
+	if ErrorLevel  ; ClipWait 超时
+	{
+		;MsgBox, 262160,错误提示, % "没有选中文本或获取选中的文本失败，请选中文本后重新尝试！"
+		return 0
+	}
+	selectedText = %Clipboard%
+	Clipboard = %ClipboardOld%
+	
+	return %selectedText%
+}
+
+/*
+ * 获取文件列表，以`n分割
+ */
+getFileList(pathPattern)
+{
+	fileList :=""
+	Loop, %pathPattern%, 0, 1
+		if not fileList
+		{
+			fileList = %A_LoopFileName%
+		}else 
+		{
+			fileList = %fileList%`n%A_LoopFileName%
+		}
+	return fileList
+}
+
+/*
+ * 获取文件夹列表，以`n分割
+ */
+getDirList(pathPattern)
+{
+	dirList :=""
+	Loop, %pathPattern%, 2, 1
+		if not dirList
+		{
+			dirList = %A_LoopFileName%
+		}else
+		{
+			dirList = %dirList%`n%A_LoopFileName%
+		}
+		
+	return dirList
+}
+
+/*
+ * 根据文件或文件夹名称获取完整路径
+ */
+getPathByName(pathPattern)
+{
+	path :=""
+	Loop, %pathPattern%, 1, 1
+		path = %A_LoopFileFullPath%
+	return path
+}
+
+/*
+ * 粘贴给定的内容
+ */
+pasteText(content)
+{
+	ClipboardOld = %ClipboardAll%
+	Clipboard = %content%
+	SendInput ^v
+	Clipboard = %ClipboardOld%
+	return
+}
+
 ;===================执行批获取================
 
 cmdClipReturn(command){
 	cmdInfo:=""
 	Clip_Saved :=ClipboardAll
-	ClipWait,2
+	ClipWait,0
 	try{
 		Clipboard:=""
 		Run,% ComSpec " /C " command " | CLIP", , Hide

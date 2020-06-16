@@ -300,11 +300,9 @@ Pics4:
 		if Initial_Mode~="i)on" {
 			Initial_Mode:=WubiIni.Settings["Initial_Mode"] :="off", WubiIni.save()
 			GuiControl,3:, Pics4,*Icon9 config\Skins\logoStyle\%StyleN%.icl
-			Menu, setting, Rename, 剪切板通道	√ , 剪切板通道	×
 		}else{
 			Initial_Mode:=WubiIni.Settings["Initial_Mode"] :="on", WubiIni.save()
 			GuiControl,3:, Pics4,*Icon10 config\Skins\logoStyle\%StyleN%.icl
-			Menu, setting, Rename, 剪切板通道	× , 剪切板通道	√
 		}
 	}
 Return
@@ -409,14 +407,6 @@ TRAY_Menu:
 	Menu, Tray, Add, 使用帮助,OnHelp
 	Menu, TRAY, Icon, 使用帮助, config\wubi98.icl, 3
 	Menu, Tray, Add
-	if (Initial_Mode ~="i)on"){
-		Menu, setting, Add, 剪切板通道	√, Initial_Mode
-		Menu, setting, Icon, 剪切板通道	√, config\wubi98.icl, 15
-	}else{
-		Menu, setting, Add, 剪切板通道	×,Initial_Mode
-		Menu, setting, Icon, 剪切板通道	×, config\wubi98.icl, 15
-	}
-	Menu, setting, Add
 	if (Cut_Mode ~="i)on"){
 		Menu, setting, Add, 拆分显示	√, Cut_Mode
 		Menu, setting, Icon, 拆分显示	√, config\wubi98.icl, 15
@@ -811,6 +801,10 @@ Return
 
 ;候选词条分页处理
 srf_tooltip_fanye:
+	if (WubiIni.TipStyle["Textdirection"]<>Textdirection&&Textdirection:="vertical")
+		Textdirection:=WubiIni.TipStyle["Textdirection"]
+	if (WubiIni.TipStyle["ListNum"]<>ListNum)
+		ListNum:=WubiIni.TipStyle["ListNum"]
 	if srf_all_Input ~="^``"{
 		if srf_all_Input~="^``[a-z]+"{
 			srf_for_select_Array:=format_word(RegExReplace(srf_all_Input,"^``"))
@@ -858,10 +852,21 @@ srf_tooltip_fanye:
 		Gosub srf_tooltip_cut
 	}else{
 		srf_for_select_Array:=get_word(srf_all_Input, Wubi_Schema)
+		if (srf_for_select_Array.Length()=0&&srf_all_Input ="help"){
+			Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10
+			help_info:=[["拼音反查"," z键引导 ","〔 z键引导 〕"]
+				,["以形查音"," ~键引导 ","〔 ~键引导 〕"]
+				,["临时英文"," 双``键引导 ","〔 双``键引导 〕"]
+				,["程序挂起"," 默认热键Alt+Z ","〔 默认热键Alt+Z 〕"]
+				,["精准造词"," ``键引导+``键分词 ","〔 ``键引导+``键分词 〕"]
+				,["快捷退出"," 默认热键Ctrl+Esc ","〔 默认热键Ctrl+Esc 〕"]
+				,["简繁模式"," 默认热键Ctrl+Shift+F ","〔 默认热键Ctrl+Shift+F 〕"]
+				,["拆分显示"," 默认热键Ctrl+Shift+H ","〔 默认热键Ctrl+Shift+H 〕"]
+				,["批量造词"," 默认热键Ctrl+CapsLock调出窗口 ","〔 默认热键Ctrl+CapsLock调出窗口 〕"]], srf_for_select_Array:=help_info
+		}
 		Gosub srf_tooltip_cut
 	}
 Return
-
 
 srf_tooltip_cut:
 	srf_for_select_string:="", localpos:=1, srf_for_select_obj:=[]
@@ -2887,10 +2892,8 @@ Return
 Initial_Mode:
 	Initial_Mode :=(Initial_Mode~="i)off"?"on":"off")
 	if Initial_Mode~="i)off" {
-		Menu, setting, Rename, 剪切板通道	√ , 剪切板通道	×
 		GuiControl,3:, Pics4,*Icon9 config\Skins\logoStyle\%StyleN%.icl
 	}else{
-		Menu, setting, Rename, 剪切板通道	× , 剪切板通道	√
 		GuiControl,3:, Pics4,*Icon10 config\Skins\logoStyle\%StyleN%.icl
 	}
 	WubiIni.Settings["Initial_Mode"] :=Initial_Mode
@@ -3669,13 +3672,7 @@ SetRlk:
 Return
 
 RlkResult:
-	select_for_code:=select_for_code_result:=rlk_for_select_tooltip:=""
-	Clip_Saved :=ClipboardAll
-	clipboard:=""
-	send ^{c 2}
-	ClipWait,0
-	sleep 20
-	select_for_code = %clipboard%
+	select_for_code:=select_for_code_result:=rlk_for_select_tooltip:="", select_for_code := getSelectText()
 	if (StrLen(select_for_code)<20&&StrLen(select_for_code)>0)
 	{
 		select_for_code :=RegExReplace(select_for_code, "\d+|[a-zA-Z]{1,}|\s+|`n", "")
@@ -3699,7 +3696,6 @@ RlkResult:
 			;SetTimer, RemoveToolTip, 3200  ;定时关闭启用
 		}
 	}
-	Clipboard :=Clip_Saved
 return
 
 Batch_AddCode:
@@ -3743,14 +3739,14 @@ DB_management:
 	Gui, DB:Add, Button,y+10 Section gDB_BU vDB_BU, 导出全部
 	Gui,DB:Font,
 	Gui,DB:Font, s9 bold cblue, %font_%
-	Gui, DB:Add, text,x+165 yp+5 Section vToppage gToppage,<<
+	Gui, DB:Add, Button,x+150 yp Section vToppage gToppage,首页
 	Gui,DB:Font,
 	Gui,DB:Font, s9 bold cred, %font_%
-	Gui, DB:Add, text,x+15 Section vuppage guppage,上一页
-	Gui, DB:Add, text,x+20 Section vnextpage gnextpage,下一页
+	Gui, DB:Add, Button,x+5 Section vuppage guppage,上一页
+	Gui, DB:Add, Button,x+5 Section vnextpage gnextpage,下一页
 	Gui,DB:Font,
 	Gui,DB:Font, s9 bold cblue, %font_%
-	Gui, DB:Add, text,x+15 Section vLastpage gLastpage,>>
+	Gui, DB:Add, Button,x+5 Section vLastpage gLastpage,尾页
 	Gui,DB:Font,
 	Gui,DB:Font, s10, %font_%
 	Gui, DB:Add, StatusBar,vSBTIP,
@@ -3835,8 +3831,17 @@ Return
 
 NextRows:
 	DLV.SelectionColors(0xfecd1b),counts:=0
+	if (DB_Page=1||DB_Page=Ceil(Result_.RowCount/DB_Count))
+		LV_Delete()
 	loop % DB_Count
 	{
+		if (Result_.Rows[A_Index+(DB_Page-1)*DB_Count,1]<>""){
+			if (DB_Page=1||DB_Page=Ceil(Result_.RowCount/DB_Count))
+				LV_Add(A_Index=1?"Select":"",Result_.Rows[A_Index+(DB_Page-1)*DB_Count,1],Result_.Rows[A_Index+(DB_Page-1)*DB_Count,2],Result_.Rows[A_Index+(DB_Page-1)*DB_Count,3])
+			else
+				LV_Modify(A_Index, A_Index=1?"Select":"",Result_.Rows[A_Index+(DB_Page-1)*DB_Count,1],Result_.Rows[A_Index+(DB_Page-1)*DB_Count,2],Result_.Rows[A_Index+(DB_Page-1)*DB_Count,3])
+		}
+/*
 		if (Result_.Rows[A_Index+(DB_Page-1)*DB_Count,1]<>""){
 			counts:=A_Index
 			if !LV_Modify(A_Index, A_Index=1?"Select":"",Result_.Rows[A_Index+(DB_Page-1)*DB_Count,1],Result_.Rows[A_Index+(DB_Page-1)*DB_Count,2],Result_.Rows[A_Index+(DB_Page-1)*DB_Count,3]){
@@ -3845,6 +3850,7 @@ NextRows:
 		}else{
 			LV_Delete(counts+1)
 		}
+*/
 	}
 	if (Ceil(Result_.RowCount/DB_Count)<>1&&DB_Page<Ceil(Result_.RowCount/DB_Count)){
 		GuiControl, DB:Enable, nextpage
