@@ -82,7 +82,7 @@ Loop Files, config\Skins\logoStyle\*.icl
 
 ;{{{{{读取配置及配置检测
 global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni("config.ini")
-	srf_default_obj:={Settings:{Startup:"off",IStatus:1,Exit_switch:1,Exit_hotkey:"^esc", symb_mode:2,sym_match:0,Frequency:0,Freq_Count:3, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f", cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"200", Logo_Y:y2, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock", Suspend_switch:1, Suspend_hotkey:"!z", tip_hotkey:"!q", rlk_switch:"1", Logo_Switch:"on",Srf_Hotkey:"Shift", Select_Enter:"clean", Initial_Mode:"off", symb_send:"on", set_color:"on", Wubi_Schema:"ci",Cut_Mode:"off", limit_code:"on", Trad_Mode:"off", IMEmode:"on",InitStatus:0}
+	srf_default_obj:={Settings:{Startup:"off",IStatus:1,Exit_switch:1,Exit_hotkey:"^esc", symb_mode:2,sym_match:0,Frequency:0,Freq_Count:3, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f", cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"200", Logo_Y:y2, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock", Suspend_switch:1, Suspend_hotkey:"!z", tip_hotkey:"!q", rlk_switch:0, Logo_Switch:"on",Srf_Hotkey:"Shift", Select_Enter:"clean", Initial_Mode:"off", symb_send:"on", set_color:"on", Wubi_Schema:"ci",Cut_Mode:"off", limit_code:"on", Trad_Mode:"off", IMEmode:"on",InitStatus:0}
 		, TipStyle:{ThemeName:"经典商务风格", StyleN:StyleName, FontType:font_, FontSize:20, FontColor:"2C3D4F",FocusBackColor:"2C3D4F",FocusColor:"CA3936",FocusCodeColor:"DEDEDE",FocusRadius:5, logo_show:0, FontStyle:"off", FontCodeColor:"2C3D4F",LineColor:"444444",BorderColor:"ECF0F1", Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"on", BgColor:"ECF0F1", ListNum:5,Gdip_Radius:5, Textdirection:"horizontal", Set_Range:3, Fix_Switch:"off",Fix_X:A_ScreenWidth/2,Fix_Y:10}  ;竖排--vertical
 		, CustomColors:{Color_Row1:"0x1C7399,0xEEEEEC,0x014E8B,0x444444,0x009FE8,0xDEF9FA,0xF8B62D,0x90FC0F", Color_Row2:"0x0078D7,0x0D1B0A,0xB9D497,0x00ADEF,0x1778BF,0xFDF6E3,0x002B36,0xDEDEDE"}
 		, Versions:{Version:A_YYYY A_MM A_DD "-1"}
@@ -184,7 +184,7 @@ global Srf_Hotkey_ :=hk_conv(Srf_Hotkey)
 Hotkey, %Srf_Hotkey_%, SetHotkey,on
 
 tiphotkey:=tip_hotkey, AddCodehotkey:=Addcode_hotkey, s2thotkey:=s2t_hotkey, cfhotkey:=cf_hotkey, Suspendhotkey:=Suspend_hotkey,exithotkey:=Exit_hotkey
-if rlk_switch
+if tip_hotkey
 	Hotkey, %tiphotkey%, SetRlk,on
 if Suspend_switch
 	Hotkey, %Suspendhotkey%, SetSuspend,on
@@ -224,9 +224,9 @@ if !Frequency_obj.Count()
 	Frequency_obj:={}
 
 ;中英标点符号映射
-srf_symblos:={"``":["``","·"], "~":["~","～"], "!":["+1","！"], "@":["+2","@"], "#":["+3","#"]
-	, "$":["+4","￥"], "%":["+5","％"], "^":["+6","……"], "&":["+7","&"], "*":["+8","*"], "(":["+9","（）{Left}"]
-	, ")":["+0","）"], "-":["-","—"], "=":["=","＝"], "[":["[","「"], "]":["]","」"]
+srf_symblos:={"``":["``","·"], "~":["~","～"], "!":["`!","！"], "@":["@","@"], "#":["#","#"]
+	, "$":["$","￥"], "%":["`%","`%"], "^":["^","……"], "&":["&","&"], "*":["*","*"], "(":["(","（）{Left}"]
+	, ")":[")","）"], "-":["-","-"], "=":["=","="], "[":["[","「"], "]":["]","」"]
 	, "{":["{{}{}}{Left}","【】{Left}"], "}":["{}}","】"], "\":["\","、"], "|":["|","|"], ";":[";","；"], ":":[":","："]
 	, "'":["'","‘"], "<":["<","《》{Left}"],">":[">","》"],",":[",","，"]
 	,".":[".","。"], "/":["/","/"], "?":["?","？"], """":["""""{Left}","“"]}           ;中文单引号"‘’"
@@ -352,7 +352,6 @@ ShellIMEMessage( wParam,lParam ) {
 				break
 			}else If (EXEList_obj["CLIP",a_index]=WinEXE&&EXEList_obj["CLIP",a_index]<>""&&IStatus){
 				if Initial_Mode~="i)off" {
-					Menu, setting, Rename, 剪切板通道	× , 剪切板通道	√
 					Initial_Mode:=WubiIni.Settings["Initial_Mode"] :="on", WubiIni.save()
 					GuiControl,3:, Pics4,*Icon10 config\Skins\logoStyle\%StyleN%.icl
 					break
