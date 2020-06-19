@@ -400,7 +400,7 @@ TRAY_Menu:
 	global Wubi_Schema
 	Menu, TRAY, NoStandard
 	Menu, TRAY, DeleteAll
-	program:="※柚子98五笔※`n版本日期：" Versions "`n" Date_GetLunarDate(A_YYYY A_MM A_DD)
+	program:= "※柚子98五笔※`n版本日期：" Versions "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
 	Menu, Tray, Add, 使用帮助,OnHelp
 	Menu, TRAY, Icon, 使用帮助, config\wubi98.icl, 3
 	Menu, Tray, Add
