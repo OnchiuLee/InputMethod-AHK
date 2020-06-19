@@ -242,6 +242,10 @@ WM_LBUTTONDOWN(){
 			srf_select(PosIndex)
 		}
 	}
+	if (A_Gui =3||A_Gui="TSF"||A_Gui ="houxuankuang"){
+		PostMessage, 0xA1, 2
+		Gosub Write_Pos
+	}
 }
 
 WM_RBUTTONDOWN(){
