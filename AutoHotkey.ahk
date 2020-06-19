@@ -322,6 +322,7 @@ WM_MOUSEMOVE()
 		ToolTip % Tip_Show[CurRControl]
 		SetTimer, RMToolTip, 5000
 	return
+
 	RMToolTip:
 		SetTimer, RMToolTip, Off
 		ToolTip
@@ -338,7 +339,7 @@ Gui +LastFound
 DllCall( "RegisterShellHookWindow", UInt,WinExist() )   ;WinActive()
 OnMessage( DllCall( "RegisterWindowMessage", Str,"SHELLHOOK" ), "ShellIMEMessage")
 ShellIMEMessage( wParam,lParam ) {
-	global srf_mode, EXEList_obj, Initial_Mode, WubiIni,StyleN,IStatus
+	global srf_mode, EXEList_obj, Initial_Mode, WubiIni,StyleN,IStatus, Versions, program
 	If ( wParam = 6 ||wParam = 1 ){
 		WinGet, WinEXE, ProcessName , ahk_id %lParam%
 		WinGetclass, WinClass, ahk_id %lParam%
@@ -363,6 +364,12 @@ ShellIMEMessage( wParam,lParam ) {
 			}
 		}
 	}
+	SetTimer, func_timer, 1000
+
+	func_timer:
+		program:="※柚子98五笔※`n版本日期：" Versions "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
+		Menu,Tray,Tip,%program%
+	Return
 }
 ;}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 
