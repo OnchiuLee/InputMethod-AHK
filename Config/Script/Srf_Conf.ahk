@@ -730,8 +730,8 @@ Return
 */
 
 ~LButton::
-	ToolTip(1, ""), ToolTip(2, ""),select_for_code:=select_for_code_result:=rlk_for_select_tooltip:=""
-	CoordMode, Mouse, Screen
+	if select_for_code
+		ToolTip(1, ""), ToolTip(2, ""),select_for_code:=select_for_code_result:=rlk_for_select_tooltip:=""
 	MouseGetPos, x1, y1
 	KeyWait, LButton
 	MouseGetPos, x2, y2
@@ -741,8 +741,8 @@ Return
 Return
 
 ~RButton::
-	ToolTip(1, ""), ToolTip(2, "")
-
+	if select_for_code
+		ToolTip(1, ""), ToolTip(2, "")
 return
 
 vk5d::return ; 屏蔽键盘上的菜单右键

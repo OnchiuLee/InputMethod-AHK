@@ -485,6 +485,7 @@ Date_GetLunarDate(Gregorian)
 	;第四位，Dec，表示闰月天数，1为大月30天，0为小月29天
 	;第五位，Hex，转Dec，表示是否闰月，0为不闰，否则为闰月月份
 	;后两位，Hex，转Dec，表示当年新年公历日期，格式MMDD
+	Isleap:=0
 	LunarData=
 	(LTrim Join
 	AB500D2,4BD0883,
@@ -561,12 +562,14 @@ Date_GetLunarDate(Gregorian)
 			if leap
 			{
 				If leap>=%a_index%
-					LMonth:=A_index
-				Else
+					LMonth:=A_index, Isleap:=0
+				Else{
 					LMonth:=A_index-1
+					Isleap:=a_index-leap=1?1:0
+				}
+			}Else{
+				LMonth:=A_index, Isleap:=0
 			}
-			Else
-				LMonth:=A_index
 			LDay:=Date2
 			Break
 		}
@@ -597,7 +600,7 @@ Date_GetLunarDate(Gregorian)
 		rizi%A_index%:=A_LoopField
 	LDay:=rizi%LDay%
 	StringRight, wk, A_YWeek, 2
-	LDate = %LYear%年农历%LMonth%月%LDay%
+	LDate := LYear "年农历" (Isleap?"(闰" LMonth "月)":LMonth) LDay
 	Return,LDate
 }
 

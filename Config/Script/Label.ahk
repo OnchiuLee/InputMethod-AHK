@@ -2,7 +2,7 @@
 Schema_logo:
 	Gui, 3:Destroy
 	Gui, 3:Default
-	Gui, 3: -Caption +AlwaysOnTop ToolWindow +Owner border -DPIScale +hwndWubi_Gui          ;  -DPIScale 禁止放大
+	Gui, 3: -Caption +AlwaysOnTop ToolWindow border -DPIScale +hwndWubi_Gui          ;  -DPIScale 禁止放大
 	if FileExist(A_ScriptDir "\config\background.png"){
 		Gui, 3:Add, Picture,x0 y0 h-1 w190,config\background.png
 		Gui, 3:Add, Picture,x4 y4 h26 w181 border, config\background.png
@@ -332,23 +332,13 @@ Return
 Write_Pos:
 	WinGetPos, X_, Y_, , , sign_wb
 	if (X_=""||Y_="")
-	{
-		global Logo_X :=WubiIni.Settings["Logo_X"]:=200
-		global Logo_Y :=WubiIni.Settings["Logo_Y"]:=y2
-		WubiIni.save()
-	}
+		Logo_X :=WubiIni.Settings["Logo_X"]:=200, Logo_Y :=WubiIni.Settings["Logo_Y"]:=y2, WubiIni.save()
 	else
-	{
-		global Logo_X :=WubiIni.Settings["Logo_X"]:=X_
-		global Logo_Y :=WubiIni.Settings["Logo_Y"]:=Y_
-		WubiIni.save()
-	}
+		Logo_X :=WubiIni.Settings["Logo_X"]:=X_, Logo_Y :=WubiIni.Settings["Logo_Y"]:=Y_, WubiIni.save()
 Return
 
 ;logo双击操作设定
 MoveGui:
-	PostMessage, 0xA1, 2, , , Ahk_Id %Wubi_Gui%
-	Gosub Write_Pos
 	if (A_GuiEvent = "DoubleClick")
 	{
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:=Wubi_Schema~="ci"?"zi":(Wubi_Schema~="zi"?"chaoji":(Wubi_Schema~="chaoji"?"zg":"ci")), WubiIni.save()
@@ -368,6 +358,13 @@ MoveGui:
 			Menu, Tray, Disable, 批量造词
 		}
 	}
+/*
+	else if (A_GuiEvent = "Normal"){
+		MouseGetPos, X_, Y_, Wubi_Gui
+		WinGetPos, FX, FY, Width, Height
+		WinMove, X_, Y_-Height
+	}
+*/
 Return
 
 Backup_Conf:
@@ -403,7 +400,7 @@ TRAY_Menu:
 	global Wubi_Schema
 	Menu, TRAY, NoStandard
 	Menu, TRAY, DeleteAll
-	program:="『柚子98五笔』"
+	program:="※柚子98五笔※`n版本日期：" Versions "`n" Date_GetLunarDate(A_YYYY A_MM A_DD)
 	Menu, Tray, Add, 使用帮助,OnHelp
 	Menu, TRAY, Icon, 使用帮助, config\wubi98.icl, 3
 	Menu, Tray, Add
