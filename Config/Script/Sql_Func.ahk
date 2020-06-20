@@ -539,7 +539,7 @@ Tip_rvlk(chars){
 		If DB.GetTable(SQL, Result)
 		{
 			if Result.Rows[1,1]
-				rvlk_ :=SubStr(rev_code, A_index, 1) . Result.Rows[1,1] . "(" . get_en_code(SubStr(rev_code, A_index, 1)) . "·" . get_single_py(SubStr(rev_code, A_index, 1)) ")"
+				rvlk_ :=SubStr(rev_code, A_index, 1) . Result.Rows[1,1] . "(" . get_en_code(SubStr(rev_code, A_index, 1)) . " ※ " . get_single_py(SubStr(rev_code, A_index, 1)) ")"
 			if rvlk_
 				rvlk_all .= rvlk_ . "`n", rvlk_:=""
 		}

@@ -1075,7 +1075,7 @@ More_Setting:
 	TV6 := TV_Add("关于",, "Bold")
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
-	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","TextInfo1","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4"]
+	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","TextInfo1","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","CreateSC"]
 		,GBoxList2:["GBox2","set_select_value","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
 		,GBoxList3:["GBox3","TextInfo11","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","SBA7","UIAccess","SBA6","SBA14","SBA21","SBA13","SBA3","logo_show","TextInfo13","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
@@ -1099,21 +1099,23 @@ More_Setting:
 	Loop Files, config\Skins\*.json
 		themelist.="|" SubStr(A_LoopFileName,1,-5)
 	Gui, 98:Add, DDL,x+5 yp vselect_theme gselect_theme, % RegExReplace(themelist,"^\|")
-	Gui, 98:Add, Text,x190 y+20  vTextInfo2 left, 主题管理：
+	Gui, 98:Add, Text,x190 y+15  vTextInfo2 left, 主题管理：
 	Gui, 98:Add, Button,x+5 yp-2 cred gdiycolor vdiycolor,自定义配色
 	Gui, 98:Add, Button,x+5 cred gthemelists vthemelists,主题管理
-	Gui, 98:Add, Text,x190 y+20 vTextInfo3 left, 配置管理：
+	Gui, 98:Add, Text,x190 y+15 vTextInfo3 left, 配置管理：
 	Gui, 98:Add, Button,x+5 yp-2 cred gBackup_Conf vBackup_Conf,备份配置
 	Gui, 98:Add, Button,x+20 yp cred gRest_Conf vRest_Conf,恢复配置
 	if !FileExist(A_ScriptDir "\Sync\Default.json")
 		GuiControl, 98:Disable, Rest_Conf
 	Loop Files, config\Skins\logoStyle\*.icl
 		logoList.="|" SubStr(A_LoopFileName,1,-4)
-	Gui, 98:Add, Text,x190 y+20 vTextInfo4 left, Logo样式：
+	Gui, 98:Add, Text,x190 y+15 vTextInfo4 left, Logo样式：
 	Gui, 98:Add, DDL,x+5 vselect_logo gselect_logo , % RegExReplace(logoList,"^\|")
 	GuiControl, 98:ChooseString, select_logo, %StyleN%
 	If Logo_Switch~="i)off"
 		GuiControl, 98:Disable, select_logo
+	GuiControlGet, scvar, Pos , select_logo
+	Gui, 98:Add, Button,x%scvarX% y+10 cred gCreateSC vCreateSC,建立桌面快捷方式
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox2, 候选框参数
@@ -1318,6 +1320,18 @@ More_Setting:
 	Gui, 98:Show,AutoSize,输入法设置
 	Gosub ControlGui
 
+Return
+
+CreateSC:
+	if FileExist(A_Desktop "\" Startup_Name ".lnk"){
+		FileGetShortcut, %A_Desktop%\%Startup_Name%.lnk , OutAHKPath, AHKOutDir, AHKOutArgs, , , ,
+		if (A_ScriptFullPath<>SubStr(AHKOutArgs,2,-1)){
+			FileDelete, %A_Desktop%\%Startup_Name%.lnk
+			FileCreateShortcut, %A_AhkPath%, %A_Desktop%\%Startup_Name%.lnk , %A_ScriptDir%, "%A_ScriptFullPath%", % "位置: " A_Space SubStr(RegExReplace(A_AhkPath,".+\\"),1,-4) "(" SubStr(RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")),1,-1) ")", %A_ScriptDir%\config\wubi98.icl, , 30, 1
+		}
+	}else{
+		FileCreateShortcut, %A_AhkPath%, %A_Desktop%\%Startup_Name%.lnk , %A_ScriptDir%, "%A_ScriptFullPath%", % "位置: " A_Space SubStr(RegExReplace(A_AhkPath,".+\\"),1,-4) "(" SubStr(RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")),1,-1) ")", %A_ScriptDir%\config\wubi98.icl, , 30, 1
+	}
 Return
 
 TVGUI:
