@@ -600,7 +600,7 @@ Date_GetLunarDate(Gregorian)
 		rizi%A_index%:=A_LoopField
 	LDay:=rizi%LDay%
 	StringRight, wk, A_YWeek, 2
-	LDate := LYear "年农历" (Isleap?"(闰" LMonth "月)":LMonth) LDay
+	LDate := LYear "年农历" (Isleap?"(闰" LMonth "月)":LMonth "月") LDay
 	Return,LDate
 }
 

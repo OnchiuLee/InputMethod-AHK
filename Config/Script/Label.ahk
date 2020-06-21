@@ -1076,7 +1076,7 @@ More_Setting:
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
 	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","TextInfo1","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","CreateSC"]
-		,GBoxList2:["GBox2","set_select_value","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
+		,GBoxList2:["GBox2","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
 		,GBoxList3:["GBox3","TextInfo11","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","SBA7","UIAccess","SBA6","SBA14","SBA21","SBA13","SBA3","logo_show","TextInfo13","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
@@ -1129,6 +1129,10 @@ More_Setting:
 	GuiControl, 98:ChooseString, FontType, %FontType%
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
+	GuiControlGet, FontVar, Pos , FontType
+	Gui, 98:Add, Button, x%FontVarX% y+5 cred gFontIN vFontIN,安装拆分字体
+	if !FileExist(getPathByName("Font\*.exe"))
+		GuiControl, 98:Disable, FontIN
 	Gui, 98:Add, Text, x190 yp+45 w220 left vTextInfo6, 候选框字体字号[9-40]：
 	Gui, 98:Add, Edit, x+0 w80 Limit2 Number vfont_value gfont_value
 	Gui, 98:Add, UpDown, x+0 w160 Range9-40 gfont_size vfont_size, %FontSize%
@@ -1304,8 +1308,8 @@ More_Setting:
 	Gui,98:Add, Text, x190 yp+35 w360 vinfos_ , `t柚子98五笔版是以AutoHotkey脚本语言编写的外挂类型形码输入法，借用同类型的「影子输入法」的实现思路通过调用众多WinAPI整合SQLite数据库实现文字输出等一系列功能。以「数据库码表性能」和「前端呈现」（调用Windows的GdiPlus.dll）两方面对文字内容直接发送上屏，而不进行传统输入法的转换操作，从XP至Win10皆能流畅运行。此版本为王码五笔98版专用，非98五笔的用户移步至「影子输入法」。
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
-	Gui,98:Add, Link, y+15 vlinkinfo1, 使用帮助：<a href="config\ReadMe.png">点我查看详细说明</a>
-	Gui,98:Add, Link, y+5 vlinkinfo2, 关于：<a href="https://wubi98.gitee.io/">https://wubi98.gitee.io/</a>`n资源库：<a href="http://98wb.ys168.com">http://98wb.ys168.com</a>`n简介：<a href="https://wubi98.gitee.io/2020/04/27/2019-12-03-031.yours/">程序简介</a>
+	Gui,98:Add, Link, y+15 vlinkinfo1, 简介：<a href="https://wubi98.gitee.io/2020/04/27/2019-12-03-031.yours/">程序简介</a>`nGitHub：<a href="https://github.com/OnchiuLee/AHK-Input-method">GitHub查看</a>`n使用帮助：<a href="config\ReadMe.png">点我查看详细说明</a>
+	Gui,98:Add, Link, y+5 vlinkinfo2, 关于：<a href="https://wubi98.gitee.io/">https://wubi98.gitee.io/</a>`n资源库：<a href="http://98wb.ys168.com">http://98wb.ys168.com</a>
 	Gui,98:Add, Link, y+5 vlinkinfo3, 查看码元图：<a href="config\码元图.jpg">点我查看五笔98版码元图</a>
 	Gui,98:Add, Text, y+5 vversionsinfo, 版本日期：%Versions%
 	For Section, element In TV_obj
@@ -1331,6 +1335,26 @@ CreateSC:
 		}
 	}else{
 		FileCreateShortcut, %A_AhkPath%, %A_Desktop%\%Startup_Name%.lnk , %A_ScriptDir%, "%A_ScriptFullPath%", % "位置: " A_Space SubStr(RegExReplace(A_AhkPath,".+\\"),1,-4) "(" SubStr(RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")),1,-1) ")", %A_ScriptDir%\config\wubi98.icl, , 30, 1
+	}
+Return
+
+FontIN:
+	FontPathByName:=getPathByName("Font\*.exe")
+	if FontPathByName {
+		If FileExist(FontPathByName) {
+			Gui,98:Hide
+			Traytip,,字体安装中。。。
+			RunWait,% FontPathByName
+			if (ErrorLevel <> "ERROR"){
+				Cut_Mode:=WubiIni.Settings["Cut_Mode"] :="on",FontType :=WubiIni.TipStyle["FontType"]:= "98WB-0", WubiIni.save()
+				DllCall("gdi32\EnumFontFamilies","uint",DllCall("GetDC","uint",0),"uint",0,"uint",RegisterCallback("EnumFontFamilies"),"uint",a_FontList:="")
+				GuiControl,98:, FontType , |%a_FontList%
+				GuiControl, 98:ChooseString, FontType, %FontType%
+			}
+		}
+		Gui,98:Show
+	}else{
+		Traytip,文件不存在！,,,3
 	}
 Return
 
@@ -2961,7 +2985,7 @@ Return
 fonts_type:
 	GuiControlGet, fonts_type_add,, FontType, text
 	FontType :=WubiIni.TipStyle["FontType"]:= fonts_type_add
-	GuiControl, 98:ChooseString, fonts_type, %FontType%
+	GuiControl, 98:ChooseString, FontType, %FontType%
 	if FontType ~="i)98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_
 		GuiControl, 98:Enable, SBA2
 	else
