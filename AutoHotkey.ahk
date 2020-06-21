@@ -1,9 +1,8 @@
 ﻿/*********************************************************************************
-   脚本说明： 柚子98五笔多功能版
+   脚本说明： 98五笔多功能版改装自--@河许人@天黑请闭眼联合开发的「影子输入法」与@hello_srf的柚子输入法代码结构
    资源库:https://wubi98.gitee.io/ && http://98wb.ys168.com/
    GitHub:https://github.com/OnchiuLee/AHK-Input-method
 ;~ 环境 版本:   Autohotkey v1.1.32.00
-   柚子五笔多功能版改装自--@河许人@天黑请闭眼联合开发的「影子输入法」与@hello_srf的柚子输入法代码结构
 */
 ;*********************************************************************************
 
@@ -61,6 +60,9 @@ global y2 :=A_ScreenHeight-Shell_Wnd-40
 NumPut(VarSetCapacity(info, A_IsUnicode ? 504 : 344, 0), info, 0, "UInt")
 DllCall("SystemParametersInfo", "UInt", 0x29, "UInt", 0, "Ptr", &info, "UInt", 0)
 font_:=StrGet(&info + 52), font_:=font_?font_:"Microsoft YaHei UI"
+;;===============输入法名称（可修改）==================
+global Startup_Name :="柚子98五笔"
+;;====================================================
 
 ;;{{{{{config.ini去重
 FileRead,content,config.ini
@@ -130,8 +132,6 @@ if (Logo_X<0||Logo_X>A_ScreenWidth||Logo_Y<0||Logo_Y>A_ScreenHeight)
 if (Wubi_Schema<>"ci"&&Wubi_Schema<>"zi"&&Wubi_Schema<>"chaoji"&&Wubi_Schema<>"zg")
 	Wubi_Schema :=WubiIni.Settings["Wubi_Schema"]:="ci"
 
-;写入系统计划任务开机自启名称（可修改）
-global Startup_Name :="柚子98五笔"
 ;开机自启项检测是否开启，以便与配置文件同步
 cmd_zq= schtasks /Query /TN %Startup_Name%
 global zq_:= cmdClipReturn(cmd_zq)
@@ -339,7 +339,7 @@ Gui +LastFound
 DllCall( "RegisterShellHookWindow", UInt,WinExist() )   ;WinActive()
 OnMessage( DllCall( "RegisterWindowMessage", Str,"SHELLHOOK" ), "ShellIMEMessage")
 ShellIMEMessage( wParam,lParam ) {
-	global srf_mode, EXEList_obj, Initial_Mode, WubiIni,StyleN,IStatus, Versions, program
+	global srf_mode, EXEList_obj, Initial_Mode, WubiIni,StyleN,IStatus, Versions, program, Startup_Name
 	If ( wParam = 6 ||wParam = 1 ){
 		WinGet, WinEXE, ProcessName , ahk_id %lParam%
 		WinGetclass, WinClass, ahk_id %lParam%
@@ -367,7 +367,7 @@ ShellIMEMessage( wParam,lParam ) {
 	SetTimer, func_timer, 1000
 
 	func_timer:
-		program:="※柚子98五笔※`n版本日期：" Versions "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
+		program:="※ " Startup_Name " ※`n版本日期：" Versions "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
 		Menu,Tray,Tip,%program%
 	Return
 }
