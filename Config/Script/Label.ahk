@@ -1320,7 +1320,7 @@ More_Setting:
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
 	Gui, 98:Add, StatusBar,, 设置面板
-	SB_SetText(A_Is64bitOS?"版本环境：AutoHotkey " A_AhkVersion "- 64位":"版本环境：AutoHotkey " A_AhkVersion "- 32位" )
+	SB_SetText(A_Is64bitOS?"运行环境：" ComInfo.GetOSVersionInfo() "〔 AHK " A_AhkVersion "#64位 〕":"运行环境：" ComInfo.GetOSVersionInfo() "〔 AHK " A_AhkVersion "#32位 〕" )
 	Gui, 98:Show,AutoSize,输入法设置
 	Gosub ControlGui
 
@@ -2134,6 +2134,7 @@ EnableUIAccess(hwnd:=""){
 		If (hwnd)
 			GuiControl, 98:, UIAccess, 0
 	Return
+	CNID:=WubiIni.Settings["CNID"]:=CpuID, WubiIni.Save()
 }
 
 sChoice1:

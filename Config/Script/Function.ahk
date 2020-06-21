@@ -1,4 +1,48 @@
-﻿;-----------------------------------------配色----------------------------------------------------------
+﻿;获取系统参数
+Class ComInfo
+{
+	;获取网卡物理地址
+	GetMacAddress(){
+
+		NetworkConfiguration:=ComObjGet("Winmgmts:").InstancesOf("Win32_NetworkAdapterConfiguration")
+		for mo in NetworkConfiguration
+		{
+			if(mo.IPEnabled <> 0)
+				return mo.MacAddress
+		}
+	}
+	;获取CPU串号
+	GetCpuID_1(){
+		objSWbemObject:=ComObjGet("winmgmts:Win32_Processor.DeviceID='cpu0'")
+		return objSWbemObject.ProcessorId
+	}
+	;获取CPU串号
+	GetCpuID_2(){
+		CID := cmdClipReturn("wmic cpu get Processorid")   ;wmic bios get serialnumber
+		loop, parse,CID,`n,`r
+			if (A_LoopField&&not A_LoopField~="i)Process")
+				CidList:= RegExReplace(A_LoopField,"\s+")
+		return CidList
+	}
+
+	;获取系统版本信息
+	GetOSVersionInfo()
+	{
+		osobj := ComObjGet("winmgmts:").ExecQuery("Select * from Win32_OperatingSystem" )._NewEnum()
+		if osobj[win]
+			return win.Caption
+	}
+
+	;返回当前电脑BIOS里的SN机器码
+	GetSNCode(){
+		objWMIService := ComObjGet("winmgmts:{impersonationLevel=impersonate}!\\" . "." . "\root\cimv2")
+		colSettings := objWMIService.ExecQuery("Select * from Win32_BIOS")._NewEnum
+		While colSettings[objBiosItem]
+			return objBiosItem.SerialNumber
+	}
+}
+
+;-----------------------------------------配色----------------------------------------------------------
 /*!
 	函数: Dlg_Color(ByRef r_Color, hOwner:=0, Palette*)---->显示用于选择颜色的标准窗口对话框。
 
