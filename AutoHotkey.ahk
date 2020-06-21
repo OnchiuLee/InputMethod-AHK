@@ -148,11 +148,14 @@ if not Srf_Hotkey ~="i)Ctrl|Shift|Alt|LWin"||Srf_Hotkey ~="\&$"
 WubiIni.Save()
 ;}}}}}
 
-if (UIAccess&&CNID=CpuID){             ;FileExist(RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")) "*_UIA.exe")
+If (UIAccess&&CNID=CpuID){             ;FileExist(RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")) "*_UIA.exe")
 	EnableUIAccess()
 }else If (CNID<>CpuID){
 	UIAccess:=WubiIni.Settings["UIAccess"]:=0,CNID:=WubiIni.Settings["CNID"]:=CpuID, WubiIni.Save()
-	FileDelete, % RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")) "*_UIA.exe"
+	If FileExist(RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")) "*_UIA.exe")
+		FileDelete, % RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")) "*_UIA.exe"
+}else If (UIAccess&&not RegExReplace(A_AhkPath,".+\\")~="i)\_UIA"){
+	UIAccess:=WubiIni.Settings["UIAccess"]:=0,CNID:=WubiIni.Settings["CNID"]:=CpuID, WubiIni.Save()
 }
 Gosub TRAY_Menu
 
