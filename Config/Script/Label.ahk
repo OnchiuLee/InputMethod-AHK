@@ -400,7 +400,7 @@ TRAY_Menu:
 	global Wubi_Schema
 	Menu, TRAY, NoStandard
 	Menu, TRAY, DeleteAll
-	program:= "※柚子98五笔※`n版本日期：" Versions "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
+	program:= "※ " Startup_Name " ※`n版本日期：" Versions "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
 	Menu, Tray, Add, 使用帮助,OnHelp
 	Menu, TRAY, Icon, 使用帮助, config\wubi98.icl, 3
 	Menu, Tray, Add
@@ -1305,7 +1305,7 @@ More_Setting:
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox8, 关于
 	Gui,98:Font
 	Gui,98:Font, s9 c757575, %font_%
-	Gui,98:Add, Text, x190 yp+35 w360 vinfos_ , `t柚子98五笔版是以AutoHotkey脚本语言编写的外挂类型形码输入法，借用同类型的「影子输入法」的实现思路通过调用众多WinAPI整合SQLite数据库实现文字输出等一系列功能。以「数据库码表性能」和「前端呈现」（调用Windows的GdiPlus.dll）两方面对文字内容直接发送上屏，而不进行传统输入法的转换操作，从XP至Win10皆能流畅运行。此版本为王码五笔98版专用，非98五笔的用户移步至「影子输入法」。
+	Gui,98:Add, Text, x190 yp+35 w360 vinfos_ , `t%Startup_Name%是以AutoHotkey脚本语言编写的外挂类型形码输入法，借用同类型的「影子输入法」的实现思路通过调用众多WinAPI整合SQLite数据库实现文字输出等一系列功能。以「数据库码表性能」和「前端呈现」（调用Windows的GdiPlus.dll）两方面对文字内容直接发送上屏，而不进行传统输入法的转换操作，从XP至Win10皆能流畅运行。此版本为王码五笔98版专用，非98五笔的用户移步至「影子输入法」。
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui,98:Add, Link, y+15 vlinkinfo1, 简介：<a href="https://wubi98.gitee.io/2020/04/27/2019-12-03-031.yours/">程序简介</a>`nGitHub：<a href="https://github.com/OnchiuLee/AHK-Input-method">GitHub查看</a>`n使用帮助：<a href="config\ReadMe.png">点我查看详细说明</a>
