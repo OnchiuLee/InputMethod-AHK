@@ -1,9 +1,19 @@
 ﻿;获取系统参数
 Class ComInfo
 {
+	;获取设备型号
+	GetMacName(){
+		;https://docs.microsoft.com/zh-cn/windows/win32/cimwin32prov/win32-computersystemproduct
+		objWMIService := ComObjGet("winmgmts:{impersonationLevel=impersonate}!\\" . "." . "\root\cimv2")
+		colSysProduct := objWMIService.ExecQuery("Select * From Win32_ComputerSystemProduct")._NewEnum
+		while,colSysProduct[objSysProduct]   ;PropertyList>>["Caption,Description,IdentifyingNumber,Name,SKUNumber,UUID,Vendor,Version"]
+		{
+			return objSysProduct["Name"]
+		}
+	}
 	;获取网卡物理地址
 	GetMacAddress(){
-
+		;https://docs.microsoft.com/zh-cn/windows/win32/cimwin32prov/win32-networkadapterconfiguration
 		NetworkConfiguration:=ComObjGet("Winmgmts:").InstancesOf("Win32_NetworkAdapterConfiguration")
 		for mo in NetworkConfiguration
 		{
@@ -11,8 +21,27 @@ Class ComInfo
 				return mo.MacAddress
 		}
 	}
+	;获取网卡物理地址
+	GetMacAddress_1(){
+		Adlist:=[], info:=ComInfo.GetAdaptersInfo()
+		for index, obj in info
+			if (not obj["Description"] ~="i)Adapter"||obj["Description"] ~="i)Wifi|wlan")
+				Adlist.Push([obj["Address"],"〔 " . obj["Description"] . " 〕","〔 " . obj["Description"] . " 〕"])
+		return Adlist
+	}
+	;获取IP地址
+	GetIPAddress_1(){
+		Adlist:=[], info:=ComInfo.GetAdaptersInfo()
+		for index, obj in info
+		{
+			if (not obj["Description"] ~="i)Adapter"||obj["Description"] ~="i)Wifi|wlan")
+				Adlist.Push([obj["IpAddressList"],"〔 " . obj["Description"] . " 〕","〔 " . obj["Description"] . " 〕"])
+		}
+		return Adlist
+	}
 	;获取CPU串号
 	GetCpuID_1(){
+		;https://docs.microsoft.com/en-us/windows/win32/cimwin32prov/win32-processor
 		objSWbemObject:=ComObjGet("winmgmts:Win32_Processor.DeviceID='cpu0'")
 		return objSWbemObject.ProcessorId
 	}
@@ -24,22 +53,133 @@ Class ComInfo
 				CidList:= RegExReplace(A_LoopField,"\s+")
 		return CidList
 	}
-
+	;获取CPU串号
+	GetCpuID_3(){
+		;https://docs.microsoft.com/en-us/windows/win32/cimwin32prov/win32-processor
+		objWMIService := ComObjGet("winmgmts:{impersonationLevel=impersonate}!\\" . A_ComputerName . "\root\cimv2")
+		colCPU := objWMIService.ExecQuery("Select * From Win32_Processor")._NewEnum
+		While colCPU[objCPU]
+			return objCPU["ProcessorId"]    ;Name获取cpu名称
+	}
 	;获取系统版本信息
 	GetOSVersionInfo()
 	{
+		;https://msdn.microsoft.com/en-us/library/windows/desktop/aa394239(v=vs.85).aspx
 		osobj := ComObjGet("winmgmts:").ExecQuery("Select * from Win32_OperatingSystem" )._NewEnum()
 		if osobj[win]
 			return win.Caption
 	}
-
 	;返回当前电脑BIOS里的SN机器码
 	GetSNCode(){
+		;https://docs.microsoft.com/zh-cn/windows/win32/cimwin32prov/win32-bios
 		objWMIService := ComObjGet("winmgmts:{impersonationLevel=impersonate}!\\" . "." . "\root\cimv2")
 		colSettings := objWMIService.ExecQuery("Select * from Win32_BIOS")._NewEnum
 		While colSettings[objBiosItem]
 			return objBiosItem.SerialNumber
 	}
+	;返回当前电脑BIOS里的SN机器码
+	GetSNCode_1(){
+		;https://docs.microsoft.com/zh-cn/windows/win32/cimwin32prov/win32-computersystemproduct
+		objWMIService := ComObjGet("winmgmts:{impersonationLevel=impersonate}!\\" . "." . "\root\cimv2")
+		colSysProduct := objWMIService.ExecQuery("Select * From Win32_ComputerSystemProduct")._NewEnum
+		while,colSysProduct[objSysProduct]   ;PropertyList>>["Caption,Description,IdentifyingNumber,Name,SKUNumber,UUID,Vendor,Version"]
+		{
+			return objSysProduct["IdentifyingNumber"]
+		}
+	}
+	;获取网卡mac地址
+	GetAdaptersInfo(){
+		; 对GetAdaptersInfo的初始调用以获取所需的大小
+		if (DllCall("iphlpapi.dll\GetAdaptersInfo", "ptr", 0, "UIntP", size) = 111) ; ERROR_BUFFER_OVERFLOW
+			if !(VarSetCapacity(buf, size, 0))  ; size ==>  1x = 704  |  2x = 1408  |  3x = 2112
+				return "IP适配器信息结构的内存分配失败！"
+		; 第二次调用GetAdapters地址以获取我们想要的实际数据
+		if (DllCall("iphlpapi.dll\GetAdaptersInfo", "ptr", &buf, "UIntP", size) != 0) ; NO_ERROR / ERROR_SUCCESS
+			return "调用GetAdaptersInfo失败，ERROR: " A_LastError
+		; 从数据中获取信息
+		addr := &buf, IP_ADAPTER_INFO := {}
+		while (addr)
+		{
+			IP_ADAPTER_INFO[A_Index, "ComboIndex"]:= NumGet(addr+0, o := A_PtrSize, "UInt"), o += 4
+			IP_ADAPTER_INFO[A_Index, "AdapterName"]:= StrGet(addr+0 + o, 260, "CP0"), o += 260
+			IP_ADAPTER_INFO[A_Index, "Description"]:= StrGet(addr+0 + o, 132, "CP0"), o += 132
+			IP_ADAPTER_INFO[A_Index, "AddressLength"]:= NumGet(addr+0, o, "UInt"), o += 4
+			loop % IP_ADAPTER_INFO[A_Index].AddressLength
+				mac .= Format("{:02X}",NumGet(addr+0, o + A_Index - 1, "UChar")) "-"
+			IP_ADAPTER_INFO[A_Index, "Address"]:= SubStr(mac, 1, -1), mac := "", o += 8
+			IP_ADAPTER_INFO[A_Index, "Index"]:= NumGet(addr+0, o, "UInt"), o += 4
+			IP_ADAPTER_INFO[A_Index, "Type"]:= NumGet(addr+0, o, "UInt"), o += 4
+			IP_ADAPTER_INFO[A_Index, "DhcpEnabled"]:= NumGet(addr+0, o, "UInt"), o += A_PtrSize
+			Ptr := NumGet(addr+0, o, "UPtr"), o += A_PtrSize
+			IP_ADAPTER_INFO[A_Index, "CurrentIpAddress"]:= Ptr ? StrGet(Ptr + A_PtrSize, "CP0") : ""
+			IP_ADAPTER_INFO[A_Index, "IpAddressList"]:= StrGet(addr + o + A_PtrSize, "CP0")
+			;~ IP_ADAPTER_INFO[A_Index, "IpMaskList"]:= StrGet(addr + o + A_PtrSize + 16, "CP0") , o += A_PtrSize + 32 + A_PtrSize
+			IP_ADAPTER_INFO[A_Index, "IpMaskList"]:= StrGet(addr + o + A_PtrSize * 3, "CP0") , o += A_PtrSize + 32 + A_PtrSize
+			IP_ADAPTER_INFO[A_Index, "GatewayList"]:= StrGet(addr + o + A_PtrSize, "CP0"), o += A_PtrSize + 32 + A_PtrSize
+			IP_ADAPTER_INFO[A_Index, "DhcpServer"]:= StrGet(addr + o + A_PtrSize, "CP0"), o += A_PtrSize + 32 + A_PtrSize
+			IP_ADAPTER_INFO[A_Index, "HaveWins"]:= NumGet(addr+0, o, "Int"), o += A_PtrSize
+			IP_ADAPTER_INFO[A_Index, "PrimaryWinsServer"]:= StrGet(addr + o + A_PtrSize, "CP0"), o += A_PtrSize + 32 + A_PtrSize
+			IP_ADAPTER_INFO[A_Index, "SecondaryWinsServer"] := StrGet(addr + o + A_PtrSize, "CP0"), o += A_PtrSize + 32 + A_PtrSize
+			IP_ADAPTER_INFO[A_Index, "LeaseObtained"]:= DateAdd(NumGet(addr+0, o, "Int")), o += A_PtrSize
+			IP_ADAPTER_INFO[A_Index, "LeaseExpires"]:= DateAdd(NumGet(addr+0, o, "Int"))
+			addr := NumGet(addr+0, "UPtr")
+		}
+		; 输出数据并释放缓冲区
+		return IP_ADAPTER_INFO, VarSetCapacity(buf, 0), VarSetCapacity(addr, 0)
+	}
+}
+
+;Print obj对象
+PrintArr(Arr, Option := "w800 h200", GuiNum := 90) {
+	for index, obj in Arr {
+		if (A_Index = 1) {
+			for k, v in obj {
+				Columns .= k "|"
+				cnt++
+			}
+			Gui, %GuiNum%: Margin, 5, 5
+			Gui, %GuiNum%: Add, ListView, %Option%, % Columns
+		}
+		RowNum := A_Index
+		Gui, %GuiNum%: default
+		LV_Add("")
+		for k, v in obj {
+			LV_GetText(Header, 0, A_Index)
+			if (k <> Header) {
+				FoundHeader := False
+				loop % LV_GetCount("Column") {
+					LV_GetText(Header, 0, A_Index)
+					if (k <> Header)
+						continue
+					else {
+						FoundHeader := A_Index
+						break
+					}
+				}
+				if !(FoundHeader) {
+					LV_InsertCol(cnt + 1, "", k)
+					cnt++
+					ColNum := "Col" cnt
+				} else
+					ColNum := "Col" FoundHeader
+			} else
+				ColNum := "Col" A_Index
+			LV_Modify(RowNum, ColNum, (IsObject(v) ? "Object()" : v))
+		}
+	}
+	loop % LV_GetCount("Column")
+		LV_ModifyCol(A_Index, "AutoHdr")
+	Gui, %GuiNum%: Show,, Display Area
+}
+
+DateAdd(time)
+{
+	if (time = 0)
+		return 0
+	datetime := 19700101
+	datetime += time, s
+	FormatTime, OutputVar, datetime, yyyy-MM-dd HH:mm:ss
+	return OutputVar
 }
 
 ;-----------------------------------------配色----------------------------------------------------------
