@@ -26,7 +26,7 @@ Class ComInfo
 		Adlist:=[], info:=ComInfo.GetAdaptersInfo()
 		for index, obj in info
 			if (not obj["Description"] ~="i)Adapter"||obj["Description"] ~="i)Wifi|wlan")
-				Adlist.Push([obj["Address"],"〔 " . obj["Description"] . " 〕","〔 " . obj["Description"] . " 〕"])
+				Adlist.Push([obj["Address"]," " . obj["Description"] . " ","〔 " . obj["Description"] . " 〕"])
 		return Adlist
 	}
 	;获取IP地址
@@ -35,7 +35,7 @@ Class ComInfo
 		for index, obj in info
 		{
 			if (not obj["Description"] ~="i)Adapter"||obj["Description"] ~="i)Wifi|wlan")
-				Adlist.Push([obj["IpAddressList"],"〔 " . obj["Description"] . " 〕","〔 " . obj["Description"] . " 〕"])
+				Adlist.Push([obj["IpAddressList"]," " . obj["Description"] . " ","〔 " . obj["Description"] . " 〕"])
 		}
 		return Adlist
 	}
@@ -64,7 +64,7 @@ Class ComInfo
 	;获取系统版本信息
 	GetOSVersionInfo()
 	{
-		;https://msdn.microsoft.com/en-us/library/windows/desktop/aa394239(v=vs.85).aspx
+		;https://docs.microsoft.com/zh-cn/windows/win32/cimwin32prov/win32-operatingsystem?redirectedfrom=MSDN
 		osobj := ComObjGet("winmgmts:").ExecQuery("Select * from Win32_OperatingSystem" )._NewEnum()
 		if osobj[win]
 			return win.Caption

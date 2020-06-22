@@ -863,8 +863,8 @@ srf_tooltip_fanye:
 		}else if (srf_for_select_Array.Length()=0&&srf_all_Input ="mac"){
 			Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10
 			Mac_Array:=ComInfo.GetMacAddress_1(),IP_Array:=ComInfo.GetIPAddress_1()
-			srf_for_select_Array.Push([ComInfo.GetSNCode(),"〔 设备S/N序列号 〕","〔 设备S/N序列号 〕"])
-			srf_for_select_Array.Push([ComInfo.GetMacName(),"〔 设备型号 〕","〔 设备型号 〕"])
+			srf_for_select_Array.Push([ComInfo.GetSNCode()," 设备S/N序列号 ","〔 设备S/N序列号 〕"])
+			srf_for_select_Array.Push([ComInfo.GetMacName()," 设备型号 ","〔 设备型号 〕"])
 			Loop,% Max(Mac_Array.Length(),IP_Array.Length())
 			{
 				srf_for_select_Array.Push(Mac_Array[A_Index])
