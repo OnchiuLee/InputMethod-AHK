@@ -377,7 +377,7 @@ ShellIMEMessage( wParam,lParam ) {
 	SetTimer, func_timer, 1000
 
 	func_timer:
-		program:="※ " Startup_Name " ※`n版本日期：" Versions "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
+		program:="※ " Startup_Name " ※`n版本日期：" Versions "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "〖 " A_DDDD " 〗`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
 		Menu,Tray,Tip,%program%
 	Return
 }
