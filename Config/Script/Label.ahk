@@ -4,10 +4,10 @@ Schema_logo:
 	Gui, 3:Default
 	Gui, 3: -Caption +AlwaysOnTop ToolWindow border -DPIScale +hwndWubi_Gui          ;  -DPIScale 禁止放大
 	if FileExist(A_ScriptDir "\config\background.png"){
-		Gui, 3:Add, Picture,x0 y0 h-1 w190,config\background.png
+		Gui, 3:Add, Picture,x2 y0 w190,config\background.png
 		Gui, 3:Add, Picture,x4 y4 h26 w181 border, config\background.png
 	}else{
-		Gui, 3:Add, Picture,x0 y0 h-1 w190 Icon33,config\wubi98.icl
+		Gui, 3:Add, Picture,x2 y0 w190 Icon33,config\wubi98.icl
 		Gui, 3:Add, Picture,x4 y4 h26 w181 border Icon33, config\wubi98.icl
 	}
 	Gui, 3:Add, Picture,xp+3 yp+2 w22 BackgroundTrans Icon9 vPics gPics, config\Skins\logoStyle\%StyleN%.icl
@@ -863,8 +863,16 @@ srf_tooltip_fanye:
 		}else if (srf_for_select_Array.Length()=0&&srf_all_Input ="mac"){
 			Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10
 			Mac_Array:=ComInfo.GetMacAddress_1(),IP_Array:=ComInfo.GetIPAddress_1()
-			srf_for_select_Array.Push([ComInfo.GetSNCode()," 设备S/N序列号 ","〔 设备S/N序列号 〕"])
-			srf_for_select_Array.Push([ComInfo.GetMacName()," 设备型号 ","〔 设备型号 〕"])
+			srf_for_select_Array.Push(ComInfo.GetSNCode_1()), srf_for_select_Array.Push(ComInfo.GetMacName())
+		;获取本机外网IP接口
+			if ipInfo:= ComInfo.GetIPAPI_2(),ipInfo.Length()>0
+				srf_for_select_Array.Push(ipInfo)
+		/*获取本机外网IP方法有：
+			ComInfo.GetIPAPI_3()
+			ComInfo.GetIPAPI_1()
+			ComInfo.GetIPAPI()
+			;;其它的接口方法在function.ahk文件中对照现成的方法自己写
+		*/
 			Loop,% Max(Mac_Array.Length(),IP_Array.Length())
 			{
 				srf_for_select_Array.Push(Mac_Array[A_Index])
@@ -3647,30 +3655,24 @@ Ime_Tips:
 		Return
 	}
 	OnExit, TipExit
-	Width := 40, Height := A_Cursor ~= "i)IBeam"?38:40
+	Width := A_Cursor ~= "i)IBeam"?34*(A_ScreenDPI/96):38*(A_ScreenDPI/96), Height := A_Cursor ~= "i)IBeam"?34*(A_ScreenDPI/96):38*(A_ScreenDPI/96)
 	Gui, tips: -Caption +E0x80000 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs
 	Gui, tips: Add, Edit, w%Width% h%Height%, vMeEdit
 	Gui, tips: Show, NA
-	hwnd1 := WinExist()
-	hbm := CreateDIBSection(Width, Height)
-	hdc := CreateCompatibleDC()
-	obm := SelectObject(hdc, hbm)
-	G := Gdip_GraphicsFromHDC(hdc)
-	Gdip_SetSmoothingMode(G, 4)
+	hwnd1 := WinExist(),hbm := CreateDIBSection(Width, Height)
+	hdc := CreateCompatibleDC(),obm := SelectObject(hdc, hbm),G := Gdip_GraphicsFromHDC(hdc),Gdip_SetSmoothingMode(G, 4)
 	pBrush := Gdip_BrushCreateSolid("0x" SubStr("FF" FocusBackColor, -7))   ;"0xaa" FocusBackColor
-	Gdip_FillRoundedRectangle(G, pBrush, 0, 0, Width, Height, A_Cursor ~= "i)IBeam"?Gdip_Radius:0)
-	Gdip_DeleteBrush(pBrush)
-	tips_text:=GetKeyState("CapsLock", "T")?"A":srf_mode?"中":"英"
-	tipSize:=A_Cursor ~= "i)IBeam"?"s24":"s30"
+	Gdip_FillRoundedRectangle(G, pBrush, 0, 0, Width, Height, A_Cursor ~= "i)IBeam"?Gdip_Radius*(A_ScreenDPI/96):0),Gdip_DeleteBrush(pBrush)
+	tips_text:=GetKeyState("CapsLock", "T")?"A":srf_mode?"中":"英",tipSize:=A_Cursor ~= "i)IBeam"?"22":"28"
 	If !Gdip_FontFamilyCreate(Font_)
 	{
 		MsgBox, 48, Font error!, The font you have specified does not exist on the system
 		Gui, tips: Destroy
 	}
-	pPen := Gdip_CreatePen("0x" SubStr("FF" FocusBackColor, -7), 2), Gdip_DrawRoundedRectangle(G, pPen, 0, 0, Width-2, Height-2, A_Cursor ~= "i)IBeam"?Gdip_Radius:0)
-	Gdip_TextToGraphics(G, tips_text, "Center" "c" SubStr("ff" FocusColor, -7) " r4" tipSize "bold", Font_, Width, Height)
+	pPen := Gdip_CreatePen("0x" SubStr("FF" FocusBackColor, -7), 2), Gdip_DrawRoundedRectangle(G, pPen, 0, 0, Width-2, Height-2, A_Cursor ~= "i)IBeam"?Gdip_Radius*(A_ScreenDPI/96):0)
+	Gdip_TextToGraphics(G, tips_text, "Center" "c" SubStr("ff" FocusColor, -7) " r4" "S" tipSize*(A_ScreenDPI/96) "bold", Font_, Width, Height)
 	WinGetPos,,,,Shell_Wnd ,ahk_class Shell_TrayWnd
-	UpdateLayeredWindow(hwnd1, hdc, A_Cursor ~= "i)IBeam"?tip_pos.x:A_ScreenWidth-40, A_Cursor ~= "i)IBeam"?tip_pos.y:A_ScreenHeight-Shell_Wnd-40, Width, Height)
+	UpdateLayeredWindow(hwnd1, hdc, A_Cursor ~= "i)IBeam"?tip_pos.x:A_ScreenWidth-Width, A_Cursor ~= "i)IBeam"?tip_pos.y:A_ScreenHeight-Shell_Wnd-Height, Width, Height)
 	SelectObject(hdc, obm)
 	DeleteObject(hbm)
 	DeleteDC(hdc)

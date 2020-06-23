@@ -1,6 +1,111 @@
 ﻿;获取系统参数
 Class ComInfo
 {
+	/*
+		;http://pv.sohu.com/cityjson?ie=utf-8
+		    ;返回值{"cip":"xxx","cid":"xxx","cname":"xxx"}
+		    ;cip：ip地址
+		    ;cid：邮编
+		    ;cname：归属地
+		;能获取外网ip的接口：
+		;http://members.3322.org/dyndns/getip    ;直接返回ip
+		;https://api.ipify.org/    ;直接返回ip
+		;http://icanhazip.com/    ;直接返回ip
+		;http://ident.me/    ;直接返回ip
+		;http://ip.cip.cc/    ;直接返回ip
+		;http://ip.qaros.com/    ;直接返回ip
+		;https://api.ip.sb/ip    ;直接返回ip
+		;http://ip.3322.net/    ;直接返回ip
+		;http://ip.42.pl/raw    ;直接返回ip
+		;https://www.fbisb.com/ip.php
+		;http://myip.ipip.net/json    ;返回json格式参数如下：
+			{"ret":"ok"
+			,"data":
+				{"ip":"59.173.134.130"
+				,"location":["中国","xx省","xx","","电信"]}}
+		;http://ip-api.com/json/?fields=520191&lang=zh-CN    ;返回json格式参数如下:
+			{"status":"success","country":"中国"
+			,"countryCode":"CN","region":"HB"
+			,"regionName":"xx省","city":"xx市"
+			,"zip":"","lat":30.5856,"lon":114.2665
+			,"timezone":"Asia/Shanghai","isp":"Chinanet"
+			,"org":"Chinanet HB","as":"AS4134 CHINANET-BACKBONE"
+			,"mobile":false,"proxy":false,"accuracy":10
+			,"query":"171.113.255.124"
+		;https://api.ttt.sh/ip/qqwry/    返回json格式参数如下：
+			{"code":200,"ip":"171.113.255.124"
+			,"address":"\u6e56\u5317\u7701 \u7535\u4fe1"
+			,"date":"2020-06-23 10:09:40"}
+		;http://whois.pconline.com.cn/ipJson.jsp?json=true    返回json格式参数如下：
+			{"ip":"171.113.255.124","pro":"xx省"
+			,"proCode":"420000","city":"xx市"
+			,"cityCode":"420100","region":""
+			,"regionCode":"0","addr":"xx省xx市 电信"
+			,"regionNames":"","err":""}
+	*/
+	;获取本机外网IP①
+	GetIPAPI(url:="http://pv.sohu.com/cityjson?ie=utf-8") {
+		;~ 测试网络连接
+		network:=DllCall("Wininet.dll\InternetCheckConnection", "Ptr", &Url, "UInt", 0x1, "UInt", 0x0, "Int")
+		if(!network)
+			return []
+		iHTTP := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+		iHTTP.Open("Get", URL , False)
+		iHTTP.SetRequestHeader("User-Agent", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)")
+		iHTTP.SetRequestHeader("Referer", URL)
+		iHTTP.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded")
+		iHTTP.Send()
+		RegExMatch(iHTTP.ResponseText,"\{.+\}",ipobj)   ;iHTTP.ResponseText为接收的结果
+		iJson:= Json_toObj(ipobj)
+		return ["本机外网ip：" iJson["cip"],"归属地：" iJson["cname"],"〔 归属地：" iJson["cname"] " 〕"]
+	}
+	;获取本机外网IP②
+	GetIPAPI_1(url:="http://myip.ipip.net/json") {
+		;~ 测试网络连接
+		network:=DllCall("Wininet.dll\InternetCheckConnection", "Ptr", &Url, "UInt", 0x1, "UInt", 0x0, "Int")
+		if(!network)
+			return []
+		iHTTP := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+		iHTTP.Open("Get", URL , False)
+		iHTTP.SetRequestHeader("User-Agent", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)")
+		iHTTP.SetRequestHeader("Referer", URL)
+		iHTTP.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded")
+		iHTTP.Send()
+		iJson:= Json_toObj(iHTTP.ResponseText)    ;iHTTP.ResponseText为接收的结果
+		ipLocal:= iJson["data","location"][1] iJson["data","location"][2] iJson["data","location"][3] iJson["data","location"][5]
+		return ["本机外网ip：" iJson["data","ip"],"归属地：" ipLocal,"〔 归属地：" ipLocal " 〕"]
+	}
+	;获取本机外网IP③
+	GetIPAPI_2(url:="http://whois.pconline.com.cn/ipJson.jsp?json=true") {
+		;~ 测试网络连接
+		network:=DllCall("Wininet.dll\InternetCheckConnection", "Ptr", &Url, "UInt", 0x1, "UInt", 0x0, "Int")
+		if(!network)
+			return []
+		iHTTP := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+		iHTTP.Open("Get", URL , False)
+		iHTTP.SetRequestHeader("User-Agent", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)")
+		iHTTP.SetRequestHeader("Referer", URL)
+		iHTTP.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded")
+		iHTTP.Send()
+		iJson:= Json_toObj(iHTTP.ResponseText)    ;iHTTP.ResponseText为接收的结果
+		ipLocal:= iJson["pro"] iJson["city"] "-" iJson["addr"]
+		return ["本机外网ip：" iJson["ip"],"归属地：" ipLocal,"〔 归属地：" ipLocal " 〕"]
+	}
+	;获取本机外网IP④
+	GetIPAPI_3(url:="https://api.ttt.sh/ip/qqwry/") {
+		;~ 测试网络连接
+		network:=DllCall("Wininet.dll\InternetCheckConnection", "Ptr", &Url, "UInt", 0x1, "UInt", 0x0, "Int")
+		if(!network)
+			return []
+		iHTTP := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+		iHTTP.Open("Get", URL , False)
+		iHTTP.SetRequestHeader("User-Agent", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)")
+		iHTTP.SetRequestHeader("Referer", URL)
+		iHTTP.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded")
+		iHTTP.Send()
+		iJson:= Json_toObj(iHTTP.ResponseText)    ;iHTTP.ResponseText为接收的结果
+		return ["本机外网ip：" iJson["ip"],"归属地：" iJson["address"],"〔 归属地：" iJson["address"] " 〕"]
+	}
 	;获取设备型号
 	GetMacName(){
 		;https://docs.microsoft.com/zh-cn/windows/win32/cimwin32prov/win32-computersystemproduct
@@ -8,7 +113,7 @@ Class ComInfo
 		colSysProduct := objWMIService.ExecQuery("Select * From Win32_ComputerSystemProduct")._NewEnum
 		while,colSysProduct[objSysProduct]   ;PropertyList>>["Caption,Description,IdentifyingNumber,Name,SKUNumber,UUID,Vendor,Version"]
 		{
-			return objSysProduct["Name"]
+			return [objSysProduct["Name"]," 设备品牌型号 ","〔 设备品牌型号 〕"]
 		}
 	}
 	;获取网卡物理地址
@@ -47,7 +152,7 @@ Class ComInfo
 	}
 	;获取CPU串号
 	GetCpuID_2(){
-		CID := cmdClipReturn("wmic cpu get Processorid")   ;wmic bios get serialnumber
+		CID := cmdClipReturn("wmic cpu get Processorid")
 		loop, parse,CID,`n,`r
 			if (A_LoopField&&not A_LoopField~="i)Process")
 				CidList:= RegExReplace(A_LoopField,"\s+")
@@ -75,7 +180,7 @@ Class ComInfo
 		objWMIService := ComObjGet("winmgmts:{impersonationLevel=impersonate}!\\" . "." . "\root\cimv2")
 		colSettings := objWMIService.ExecQuery("Select * from Win32_BIOS")._NewEnum
 		While colSettings[objBiosItem]
-			return objBiosItem.SerialNumber
+			return [objBiosItem.SerialNumber," 设备S/N序列号 ","〔 设备S/N序列号 〕"]
 	}
 	;返回当前电脑BIOS里的SN机器码
 	GetSNCode_1(){
@@ -84,8 +189,16 @@ Class ComInfo
 		colSysProduct := objWMIService.ExecQuery("Select * From Win32_ComputerSystemProduct")._NewEnum
 		while,colSysProduct[objSysProduct]   ;PropertyList>>["Caption,Description,IdentifyingNumber,Name,SKUNumber,UUID,Vendor,Version"]
 		{
-			return objSysProduct["IdentifyingNumber"]
+			return [objSysProduct["IdentifyingNumber"]," 设备S/N序列号 ","〔 设备S/N序列号 〕"]
 		}
+	}
+	;返回当前电脑BIOS里的SN机器码
+	GetSNCode_2(){
+		SID := cmdClipReturn("wmic bios get serialnumber")
+		loop, parse,SID,`n,`r
+			if (A_LoopField&&not A_LoopField~="i)seria")
+				sidList:= RegExReplace(A_LoopField,"\s+")
+		return sidList
 	}
 	;获取网卡mac地址
 	GetAdaptersInfo(){
@@ -127,6 +240,166 @@ Class ComInfo
 		; 输出数据并释放缓冲区
 		return IP_ADAPTER_INFO, VarSetCapacity(buf, 0), VarSetCapacity(addr, 0)
 	}
+	;获取系统默认字体名
+	GetDefaultFontName(){
+		NumPut(VarSetCapacity(info, A_IsUnicode ? 504 : 344, 0), info, 0, "UInt")
+		DllCall("SystemParametersInfo", "UInt", 0x29, "UInt", 0, "Ptr", &info, "UInt", 0)
+		return StrGet(&info + 52)
+	}
+
+}
+
+;~ 从数组中寻找是否存在某个value，aArr为数组，aStr为要查重的字符
+Array_isInValue(aArr, aStr)
+{
+	for k,v in aArr
+	{
+		if (IsObject(v) && (aArr[k].count()>0))
+		{
+			if (Array_isInValue(aArr[k],aStr) = 1)
+				return 1
+		}
+		else if (!IsObject(v) && (v=aStr))
+			return 1
+	}
+}
+
+;~ 从数组中判断指定key对应的value是否为空，aArr为数组，aStr为要判断非空的key
+Array_ValueNotEmpty(aArr, aKey)
+{
+	for k,v in aArr
+	{
+		if (IsObject(v) && (aArr[k].count()>0))
+		{
+			if (Array_ValueNotEmpty(aArr[k],aKey) = 1&&v<>"")
+				return 1
+		}
+		else if (!IsObject(v) && v<>"" && k =aKey)
+			return 1
+	}
+}
+;~ 在obj对象中根据次级key名获取并返回上级的的key名
+Array_GetParentKey(aArr, aKey)
+{
+MsgBox % aArr.countt()
+	for k,v in aArr
+	{
+		rKey :=k
+		if (IsObject(v) && (aArr[k].count()>0))
+		{
+			if (Array_ValueNotEmpty(aArr[k],aKey) = 1){
+				return rKey
+		}}
+	}
+}
+
+;~ 从数组中寻找是否存在某个key，aArr为obj数组对象，aStr为要查重的字符
+Array_isInKey(aArr, aKey)
+{
+	for k,v in aArr
+	{
+		if (IsObject(v) && (aArr[k].count()>0))
+		{
+			if (Array_isInKey(aArr[k],aKey) = 1)
+				return 1
+		}
+		else if (!IsObject(v) && (k=aKey))
+			return 1
+	}
+	Return 0
+}
+
+StatusBarGetText(Part = "", WinTitle = "", WinText = "", ExcludeTitle = "", ExcludeText = "")
+{
+	_v := ""
+	StatusBarGetText, _v, %Part%, %WinTitle%, %WinText%, %ExcludeTitle%, %ExcludeText%
+	return _v
+}
+Random(Min = "", Max = "")
+{
+	_v := ""
+	Random, _v, %Min%, %Max%
+	return _v
+}
+GuiControlGet(Subcommand = "", ControlID = "", Param4 = "")
+{
+	_v := ""
+	GuiControlGet, _v, %Subcommand%, %ControlID%, %Param4%
+	return _v
+}
+FormatTime(YYYYMMDDHH24MISS = "", Format = "")
+{
+	_v := ""
+	FormatTime, _v, %YYYYMMDDHH24MISS%, %Format%
+	return _v
+}
+FileRead(Filename)
+{
+	_v := ""
+	FileRead, _v, %Filename%
+	return _v
+}
+ControlGet(Cmd, Value = "", Control = "", WinTitle = "", WinText = "", ExcludeTitle = "", ExcludeText = "")
+{
+	_v := ""
+	ControlGet, _v, %Cmd%, %Value%, %Control%, %WinTitle%, %WinText%, %ExcludeTitle%, %ExcludeText%
+	return _v
+}
+ControlGetText(Control = "", WinTitle = "", WinText = "", ExcludeTitle = "", ExcludeText = "")
+{
+	_v := ""
+	ControlGetText, _v, %Control%, %WinTitle%, %WinText%, %ExcludeTitle%, %ExcludeText%
+	return _v
+}
+IfIn(ByRef var, MatchList)
+{
+	If var in %MatchList%
+		return true
+}
+IfNotIn(ByRef var, MatchList)
+{
+	If var not in %MatchList%
+		return true
+}
+IfContains(ByRef var, MatchList)
+{
+	If var contains %MatchList%
+		return true
+}
+IfNotContains(ByRef var, MatchList)
+{
+	If var not contains %MatchList%
+		return true
+}
+IfIs(ByRef var, type)
+{
+	If var is %type%
+		return true
+}
+IfIsNot(ByRef var, type)
+{
+	If var is not %type%
+		return true
+}
+
+SetTextAndResize(controlHwnd, newText) {
+	dc := DllCall("GetDC", "Ptr", controlHwnd)
+	; 0x31 = WM_GETFONT
+	SendMessage 0x31,,,, ahk_id %controlHwnd%
+	hFont := ErrorLevel
+	oldFont := 0
+	if (hFont != "FAIL")
+		oldFont := DllCall("SelectObject", "Ptr", dc, "Ptr", hFont)
+	VarSetCapacity(rect, 16, 0)
+	; 0x440 = DT_CALCRECT | DT_EXPANDTABS
+	h := DllCall("DrawText", "Ptr", dc, "Ptr", &newText, "Int", -1, "Ptr", &rect, "UInt", 0x440)
+	; width = rect.right - rect.left
+	w := NumGet(rect, 8, "Int") - NumGet(rect, 0, "Int")
+	if oldFont
+		DllCall("SelectObject", "Ptr", dc, "Ptr", oldFont)
+	DllCall("ReleaseDC", "Ptr", controlHwnd, "Ptr", dc)
+	GuiControl,, %controlHwnd%, %newText%
+	GuiControl Move, %controlHwnd%, % "h" h " w" w
 }
 
 ;Print obj对象
@@ -1186,52 +1459,6 @@ StringUpper(ByRef InputVar, T = "")
 	return InputVar
 }
 
-；==================简繁转换====================
-;两个参数 一个是要转换的数据，一个是转换方式，如果只填一个 就是简转繁 第二个参数填1 就是繁转简
-S2T(j,r:=""){
-	static c:=S2T_()
-	if r
-		{
-		for i,n in c
-			if InStr(j,i)
-				stringReplace,j,j,% i,% n,1
-		}
-	else
-		{
-		for i,n in c
-			if InStr(j,n)
-				stringReplace,j,j,% n,% i,1
-		}
-	Return j
-}
-
-;统计简繁字个数
-ver_st(j,r:=""){
-	static c:=S2T_()
-	if r
-		{
-		for i,n in c
-			if InStr(j,i)
-				return 1 ;判断是简体  有参数1 此处说明是繁体
-		}
-	else
-		{
-		for i,n in c
-			if InStr(j,n)
-				return 0 ;判断是繁体  有参数1 此处说明是简体
-		}
-}
-
-S2T_(){
-	SetWorkingDir %A_ScriptDir%
-	;FileRead,n,%A_ScriptDir%\script\zhengjian.txt   ;用简繁码表进行转换时 启用
-	FileRead,n,%A_ScriptDir%\script\Trad.txt  ;统计繁体字个数用
-	j:=[], n:=Trim(n)
-	Loop,Parse,n,% A_Space
-		j[SubStr(A_Loopfield,1,1)]:=SubStr(A_Loopfield,2)
-	Return j
-}
-
 ;===================统计字符数=============
 wStrLen(source)
 {
@@ -1388,11 +1615,7 @@ Combin_Arr(code_arr,DB){
 					loop, % Result.RowCount
 					{
 						arrs[Index,a_index]:=Result.Rows[a_index,1]
-					}
-				}
-			}
-		}
-	}
+	}}}}}
 	loop,% arrs[1].length()
 	{
 		if (arrs.length()=1)
@@ -1441,18 +1664,7 @@ Combin_Arr(code_arr,DB){
 												{
 													if (arrs.length()>=12)
 														code_all.= arrs[1,A_index] arrs[2,A_index] arrs[3,A_index] arrs[4,A_index] arrs[5,A_index] arrs[6,A_index] arrs[7,A_index] arrs[8,A_index] arrs[9,A_index] arrs[10,A_index] arrs[11,A_index] arrs[12,A_index] "`n"
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+	}}}}}}}}}}}}											
 	return StrSplit(RegExReplace(code_all,"\n$"), "`n")
 }
 
@@ -1466,21 +1678,6 @@ EnumFontFamilies(lpelf,lpntm,FontType,lP)
 		Return 1
 }
 DllCall("gdi32\EnumFontFamilies","uint",DllCall("GetDC","uint",0),"uint",0,"uint",RegisterCallback("EnumFontFamilies"),"uint",a_FontList:="")
-
-ListFonts(){
-	VarSetCapacity(logfont, 128, 0), NumPut(1, logfont, 23, "UChar")
-	obj := []
-	DllCall("EnumFontFamiliesEx", "ptr", DllCall("GetDC", "ptr", 0), "ptr", &logfont, "ptr", RegisterCallback("EnumFontProc"), "ptr", &obj, "uint", 0)
-	For font in obj
-		If !InStr(font, "@")
-			list .= "|" font
-	Return LTrim(list,"|")
-}
-EnumFontProc(lpFont, tm, fontType, lParam){
-	obj := Object(lParam)
-	obj[StrGet(lpFont+28)] := 1
-	Return 1
-}
 
 ;======================ToolTip样式========================
 ToolTipStyle(hwnd:="",Options:=""){
@@ -1561,10 +1758,7 @@ TransDate(chars){
 		, 18:"十八", 19:"十九", 20:"二十",21:"二十一", 22:"二十二", 23:"二十三", 24:"二十四", 25:"二十五", 26:"二十六", 27:"二十七", 28:"二十八", 29:"二十九", 30:"三十", 31:"三十一"}}
 	if (Strlen(chars)=8){
 		loop, 4
-		{
 			yy .=rq.y[SubStr(chars,A_Index,1)]
-			
-		}
 		Return yy "年" rq.m[SubStr(chars,5,2)] rq.d[SubStr(chars,7,2)] (SubStr(chars,7,2)<32&&SubStr(chars,7,2)>0?"日":"")
 	}else{
 		Return "无效数字"
