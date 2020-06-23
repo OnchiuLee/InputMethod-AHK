@@ -57,11 +57,10 @@ DetectHiddenWindows, On
 DetectHiddenText, On
 WinGetPos,,,,Shell_Wnd ,ahk_class Shell_TrayWnd
 global y2 :=A_ScreenHeight-Shell_Wnd-40, CpuID:=ComInfo.GetCpuID_2()
-NumPut(VarSetCapacity(info, A_IsUnicode ? 504 : 344, 0), info, 0, "UInt")
-DllCall("SystemParametersInfo", "UInt", 0x29, "UInt", 0, "Ptr", &info, "UInt", 0)
-font_:=StrGet(&info + 52), font_:=font_?font_:"Microsoft YaHei UI"
+font_:=ComInfo.GetDefaultFontName(), font_:=font_?font_:"Microsoft YaHei UI"
+
 ;;===============输入法名称（可修改）==================
-global Startup_Name :="柚子98五笔"
+global Startup_Name :="柚子98五笔"   
 ;;====================================================
 
 ;;{{{{{config.ini去重
@@ -92,16 +91,9 @@ global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni("con
 ;初始化默认配置
 if FileExist(A_ScriptDir "\Sync\Default.json"){
 	srf_default_value:=Json_FileToObj(A_ScriptDir "\Sync\Default.json")
-	if (srf_default_value["Settings","IStatus"]="")
-		IStatus:=srf_default_value["Settings","IStatus"]:= srf_default_obj["Settings","IStatus"]
-	if !StyleN 
-		StyleN:=srf_default_value["TipStyle","StyleN"]:= srf_default_obj["TipStyle","StyleN"]
-	if (srf_default_value["Settings","Exit_switch"]="")
-		Exit_switch:=srf_default_value["Settings","Exit_switch"]:= srf_default_obj["Settings","Exit_switch"]
-	if (srf_default_value["Settings","Exit_hotkey"]="")
-		Exit_hotkey:=srf_default_value["Settings","Exit_hotkey"]:= srf_default_obj["Settings","Exit_hotkey"]
-	if (srf_default_value["Settings","CNID"]="")
-		CNID:=srf_default_value["Settings","CNID"]:= srf_default_obj["Settings","CNID"]
+	For key,value In ["IStatus","StyleN","Exit_switch","Exit_hotkey","CNID"]
+		if !Array_ValueNotEmpty(srf_default_value, value)
+			%value%:=srf_default_value["Settings",value]:= srf_default_obj[Array_GetParentKey(srf_default_value, value),value]
 }else{
 	srf_default_value:=srf_default_obj
 }
