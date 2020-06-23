@@ -91,9 +91,10 @@ global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni("con
 ;初始化默认配置
 if FileExist(A_ScriptDir "\Sync\Default.json"){
 	srf_default_value:=Json_FileToObj(A_ScriptDir "\Sync\Default.json")
-	For key,value In ["IStatus","StyleN","Exit_switch","Exit_hotkey","CNID"]
-		if !Array_ValueNotEmpty(srf_default_value, value)
-			%value%:=srf_default_value["Settings",value]:= srf_default_obj[Array_GetParentKey(srf_default_value, value),value]
+	For Section, element In srf_default_obj
+		For key,value In element
+			if !Array_ValueNotEmpty(srf_default_value, key)
+				%key%:=WubiIni[Section,key]:=srf_default_value[Section,key]:= srf_default_obj[Section,key]
 }else{
 	srf_default_value:=srf_default_obj
 }
