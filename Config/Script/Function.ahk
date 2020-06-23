@@ -281,7 +281,6 @@ Array_ValueNotEmpty(aArr, aKey)
 ;~ 在obj对象中根据次级key名获取并返回上级的的key名
 Array_GetParentKey(aArr, aKey)
 {
-MsgBox % aArr.countt()
 	for k,v in aArr
 	{
 		rKey :=k
