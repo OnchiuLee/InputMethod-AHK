@@ -61,6 +61,8 @@ font_:=ComInfo.GetDefaultFontName(), font_:=font_?font_:"Microsoft YaHei UI"
 
 ;;===============输入法名称（可修改）==================
 global Startup_Name :="柚子98五笔"   
+;拆分字体名变量，拆分开启时用来过滤字体以完美显示拆分
+FontExtend:="98WB-U|98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_
 ;;====================================================
 
 ;;{{{{{config.ini去重
@@ -394,6 +396,18 @@ updateRecent(date){
 		objdelete(recent,ListNum+1,length)
 	}
 }
+
+;获取返回系统存在的拆分字体名
+GetCutModeFont(){
+	global FontExtend,a_FontList
+	fontName:=""
+	for k,v in StrSplit(a_FontList , "|")
+		if v~="i)" FontExtend
+			fontName:= v
+	Return fontName
+}
+;if GetFont:=GetCutModeFont()&&Cut_Mode~="i)on"&&not FontType~="i)" FontExtend
+;	FontType :=WubiIni.TipStyle["FontType"]:= GetFont, WubiIni.Save()
 
 Gosub srf_value_off
 #Include Config\Script\Label.ahk
