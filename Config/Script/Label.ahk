@@ -893,7 +893,7 @@ srf_tooltip_cut:
 		Loop %loopindex%
 		{
 			if srf_for_select_Array[ListNum*waitnum+A_Index,1] {
-				srf_for_select_part:=((StrLen(srf_for_select_Array[ListNum*waitnum+A_Index,1])>25&&srf_all_input~="^[a-y]"?SubStr(srf_for_select_Array[ListNum*waitnum+A_Index,1],1,25) " •••••":srf_for_select_Array[ListNum*waitnum+A_Index,1]) (Cut_Mode="on"&&a_FontList ~="i)98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_ &&FontType ~="i)98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_&&srf_for_select_Array[ListNum*waitnum+A_Index, valueindex]<>""?(srf_all_input~="^[a-z]+"?"〔":A_Space) . srf_for_select_Array[ListNum*waitnum+A_Index, valueindex] . (srf_all_input~="^[a-z]+"?"〕":A_Space):A_Space . srf_for_select_Array[ListNum*waitnum+A_Index, 3]))
+				srf_for_select_part:=((StrLen(srf_for_select_Array[ListNum*waitnum+A_Index,1])>25&&srf_all_input~="^[a-y]"?SubStr(srf_for_select_Array[ListNum*waitnum+A_Index,1],1,25) " •••••":srf_for_select_Array[ListNum*waitnum+A_Index,1]) (Cut_Mode="on"&&a_FontList ~="i)" FontExtend &&FontType ~="i)" FontExtend &&srf_for_select_Array[ListNum*waitnum+A_Index, valueindex]<>""?(srf_all_input~="^[a-z]+"?"〔":A_Space) . srf_for_select_Array[ListNum*waitnum+A_Index, valueindex] . (srf_all_input~="^[a-z]+"?"〕":A_Space):A_Space . srf_for_select_Array[ListNum*waitnum+A_Index, 3]))
 				if (srf_for_select_part<>""){
 					srf_for_select_string.=((srf_all_Input~="/\d+"?A_Space A_Space SubStr(Select_Code, A_Index , 1):(Cut_Mode~="on"?A_Space:A_Space A_Space) A_Index) "." srf_for_select_part)
 					srf_for_select_obj.Push(((srf_all_Input~="/\d+"?SubStr(Select_Code, A_Index , 1):A_Space A_Index) "." srf_for_select_part))
@@ -906,7 +906,7 @@ srf_tooltip_cut:
 		Loop %loopindex%
 		{
 			if srf_for_select_Array[ListNum*waitnum+A_Index,1] {
-				srf_for_select_part:=(srf_for_select_Array[ListNum*waitnum+A_Index, 1] (Cut_Mode="on"&&a_FontList ~="i)98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_&&FontType ~="i)98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_&&srf_for_select_Array[ListNum*waitnum+A_Index, valueindex]<>""?(srf_all_input~="^[a-z]+"?"〔":A_Space) . srf_for_select_Array[ListNum*waitnum+A_Index, valueindex] . (srf_all_input~="^[a-z]+"?"〕":A_Space):A_Space . srf_for_select_Array[ListNum*waitnum+A_Index, 3]))
+				srf_for_select_part:=(srf_for_select_Array[ListNum*waitnum+A_Index, 1] (Cut_Mode="on"&&a_FontList ~="i)" FontExtend &&FontType ~="i)" FontExtend &&srf_for_select_Array[ListNum*waitnum+A_Index, valueindex]<>""?(srf_all_input~="^[a-z]+"?"〔":A_Space) . srf_for_select_Array[ListNum*waitnum+A_Index, valueindex] . (srf_all_input~="^[a-z]+"?"〕":A_Space):A_Space . srf_for_select_Array[ListNum*waitnum+A_Index, 3]))
 				if (srf_for_select_part<>""){
 					srf_for_select_string.=("`n" (srf_all_Input~="/\d+"?SubStr(Select_Code, A_Index , 1):A_Index) "." srf_for_select_part)
 					srf_for_select_obj.Push(((srf_all_Input~="/\d+"?SubStr(Select_Code, A_Index , 1):A_Space A_Index) "." srf_for_select_part))
@@ -1150,7 +1150,7 @@ More_Setting:
 	Gui,98:Font, s10, %font_%
 	GuiControlGet, FontVar, Pos , FontType
 	Gui, 98:Add, Button, x%FontVarX% y+5 cred gFontIN vFontIN,安装拆分字体
-	if !FileExist(getPathByName("Font\*.exe"))
+	if !FileExist("Font\*.otf")
 		GuiControl, 98:Disable, FontIN
 	Gui, 98:Add, Text, x190 yp+45 w220 left vTextInfo6, 候选框字体字号[9-40]：
 	Gui, 98:Add, Edit, x+0 w80 Limit2 Number vfont_value gfont_value
@@ -1358,20 +1358,22 @@ CreateSC:
 Return
 
 FontIN:
-	FontPathByName:=getPathByName("Font\*.exe")
-	if FontPathByName {
-		If FileExist(FontPathByName) {
+	If FileExist("Font\*.otf") {
+		Traytip,,字体安装中。。。
+		FileCopy, Font\*.otf, %A_WinDir%\Fonts,1
+		DllCall("gdi32\EnumFontFamilies","uint",DllCall("GetDC","uint",0),"uint",0,"uint",RegisterCallback("EnumFontFamilies"),"uint",a_FontList:="")
+		If a_FontList~="i)五笔拆字字根字体|98WB-3|98WB-ZG|98WB-0" {
 			Gui,98:Hide
-			Traytip,,字体安装中。。。
-			RunWait,% FontPathByName
-			if (ErrorLevel <> "ERROR"){
-				Cut_Mode:=WubiIni.Settings["Cut_Mode"] :="on",FontType :=WubiIni.TipStyle["FontType"]:= "98WB-0", WubiIni.save()
-				DllCall("gdi32\EnumFontFamilies","uint",DllCall("GetDC","uint",0),"uint",0,"uint",RegisterCallback("EnumFontFamilies"),"uint",a_FontList:="")
+			Loop,Files,Font\*.Reg
+				RunWait,%A_LoopFileLongPath%
+			if CutFontName:=GetCutModeFont() {
+				Cut_Mode:=WubiIni.Settings["Cut_Mode"] :="on",FontType :=WubiIni.TipStyle["FontType"]:= CutFontName, WubiIni.save()
 				GuiControl,98:, FontType , |%a_FontList%
-				GuiControl, 98:ChooseString, FontType, %FontType%
+				GuiControl, 98:ChooseString, FontType, %CutFontName%
 			}
+			Gui,98:Show
 		}
-		Gui,98:Show
+
 	}else{
 		Traytip,文件不存在！,,,3
 	}
@@ -2072,7 +2074,7 @@ ControlGui:
 	}else{
 		GuiControl, 98:Disable, cf_hotkeys
 	}
-	if not FontType ~="i)98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_
+	if not FontType ~="i)" FontExtend
 		GuiControl, 98:Disable, SBA2
 	if s2t_swtich {
 		GuiControl,98:, SBA1 , 1
@@ -3006,7 +3008,7 @@ fonts_type:
 	GuiControlGet, fonts_type_add,, FontType, text
 	FontType :=WubiIni.TipStyle["FontType"]:= fonts_type_add
 	GuiControl, 98:ChooseString, FontType, %FontType%
-	if FontType ~="i)98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_
+	if FontType ~="i)" FontExtend
 		GuiControl, 98:Enable, SBA2
 	else
 		GuiControl, 98:Disable, SBA2
@@ -3156,7 +3158,7 @@ return
 
 ;超集方案选择
 Extend_Schema:
-	Wubi_Schema :=(Wubi_Schema~="i)zi|ci|zg"&&a_FontList ~="i)98WB-V|98WB-P0|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_?"chaoji":"ci")
+	Wubi_Schema :=(Wubi_Schema~="i)zi|ci|zg"&&a_FontList ~="i)" FontExtend?"chaoji":"ci")
 	if Wubi_Schema~="i)ci|chaoji"{
 		Gosub Enable_Tray
 		if Wubi_Schema~="i)ci"{
@@ -3207,8 +3209,11 @@ Cut_Mode:
 	Cut_Mode :=WubiIni.Settings["Cut_Mode"] :=Cut_Mode~="i)off"?"on":"off", WubiIni.save()
 	if Cut_Mode~="i)off"
 		Menu, setting, Rename, 拆分显示	√ , 拆分显示	×
-	else
+	else{
 		Menu, setting, Rename, 拆分显示	× , 拆分显示	√
+		if GetFont:=GetCutModeFont()
+			FontType :=WubiIni.TipStyle["FontType"]:= GetFont, WubiIni.Save()
+	}
 	if srf_all_input
 		Gosub srf_tooltip_fanye
 return
@@ -3728,7 +3733,7 @@ RlkResult:
 		if select_for_code_result := Tip_rvlk(select_for_code)
 		{
 			MouseGetPos, xpos, ypos
-			if (a_FontList ~="i)五笔拆字字根字体|98WB-V|98WB-P0|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_&&FontType ~="i)五笔拆字字根字体|98WB-V|98WB-P0|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_)          ;判断是否安装「折分显示的字体」没安装的话只显示编码
+			if (a_FontList ~="i)" FontExtend && FontType ~="i)" FontExtend )          ;判断是否安装「折分显示的字体」没安装的话只显示编码
 			{
 				ToolTip(1, "", "Q1 B" FocusBackColor " T" FocusColor " S16" " F" FontType)
 				ToolTip(1, select_for_code_result, "x" xpos " y" ypos+30)
