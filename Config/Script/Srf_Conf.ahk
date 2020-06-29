@@ -198,13 +198,15 @@ Return
 	CapsLock::
 		if !GetKeyState("CapsLock", "T"){
 			SetCapsLockState , on
-			GuiControl,3:, Pics,*Icon2 config\Skins\logoStyle\%StyleN%.icl
+			GuiControl,logo:, Pics,*Icon2 config\Skins\logoStyle\%StyleN%.icl
+			Gosub ShowSrfTip
 			gosub Get_IME
 		}
 		else
 		{
 			SetCapsLockState , off
-			GuiControl,3:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
+			GuiControl,logo:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
+			Gosub ShowSrfTip
 			gosub Get_IME
 		}
 		gosub srf_value_off
@@ -268,13 +270,15 @@ return
 	CapsLock::
 		if GetKeyState("CapsLock", "T"){
 			SetCapsLockState , off
-			GuiControl,3:, Pics,*Icon3 config\Skins\logoStyle\%StyleN%.icl
+			GuiControl,logo:, Pics,*Icon3 config\Skins\logoStyle\%StyleN%.icl
+			Gosub ShowSrfTip
 			gosub Get_IME
 		}
 		else
 		{
 			SetCapsLockState , on
-			GuiControl,3:, Pics,*Icon2 config\Skins\logoStyle\%StyleN%.icl
+			GuiControl,logo:, Pics,*Icon2 config\Skins\logoStyle\%StyleN%.icl
+			Gosub ShowSrfTip
 			gosub Get_IME
 		}
 		gosub srf_value_off
@@ -533,10 +537,11 @@ Return
 			Gosub srf_value_off
 			srf_for_select_Array :=[]
 			SetCapsLockState , on
-			GuiControl,3:, Pics,*Icon2 config\Skins\logoStyle\%StyleN%.icl
+			GuiControl,logo:, Pics,*Icon2 config\Skins\logoStyle\%StyleN%.icl
+			Gosub ShowSrfTip
 			gosub Get_IME
 		}else{
-			GuiControl,3:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
+			GuiControl,logo:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
 			gosub srf_value_off
 		}
 	Return
