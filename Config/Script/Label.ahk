@@ -1,6 +1,6 @@
 ﻿;桌面logo
 Srf_Tip:
-	SrfTip_Width:=36,SrfTip_Height:=36   ;方块Logo长宽尺寸
+	SrfTip_Width:=SrfTip_Height:=LogoSize   ;方块Logo长宽尺寸
 	Gui, SrfTip:Destroy
 	Gui, SrfTip:Default
 	Gui,SrfTip:+LastFound -Caption +AlwaysOnTop ToolWindow -DPIScale +hwndSrf_Tip
@@ -12,7 +12,7 @@ Srf_Tip:
 		Gui, SrfTip:Destroy
 	else
 		Gui,SrfTip: Show,NA h%SrfTip_Width% w%SrfTip_Height% x%Logo_X% y%Logo_Y%,Srf_Tip
-	WinSet, TransColor, ffffff 180,Srf_Tip
+	WinSet, TransColor, ffffff %transparentX%,Srf_Tip
 	if Logo_ExStyle
 		WinSet, ExStyle, ^0x20, ahk_id %Srf_Tip%  ;鼠标穿透
 Return
@@ -69,8 +69,7 @@ Schema_logo:
 	Gui, logo:Color, EFEFEF
 	Gui, logo:Margin, 2,2
 	Gui, logo:Hide
-	if logo_show
-		WinSet, TransColor, EFEFEF 180,sign_wb   ;方案Logo的透明度 数字越大透明度越低最大255，0为完全透明
+	WinSet, TransColor, EFEFEF %transparentX%,sign_wb   ;方案Logo的透明度 数字越大透明度越低最大255，0为完全透明
 Return
 
 logoGuiDropFiles:
@@ -801,10 +800,9 @@ Return
 
 ;候选词条分页处理
 srf_tooltip_fanye:
-	if (WubiIni.TipStyle["Textdirection"]<>Textdirection&&Textdirection:="vertical")
-		Textdirection:=WubiIni.TipStyle["Textdirection"]
-	if (WubiIni.TipStyle["ListNum"]<>ListNum)
-		ListNum:=WubiIni.TipStyle["ListNum"]
+	for k,v in ["Textdirection","ListNum","FontSize"]
+		if (WubiIni.TipStyle[v]<>%v%)
+			%v%:=Textdirection:=WubiIni[Array_GetParentKey(WubiIni, v),v]
 	if srf_all_Input ~="^``"{
 		if srf_all_Input~="^``[a-z]+"{
 			srf_for_select_Array:=format_word(RegExReplace(srf_all_Input,"^``"))
@@ -824,7 +822,20 @@ srf_tooltip_fanye:
 	}else if srf_all_Input ~="^/"{
 		if srf_all_Input~="^/[a-z]+|^/[0-9]+"
 		{
-			srf_for_select_Array:=prompt_symbols(srf_all_Input)
+			if srf_all_input ~="/help" {
+				Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10,FontSize:=ToolTipStyle~="i)Gdip"?18:FontSize
+					SymList:=[["数字/0-9 ● 分数/fs ● 数字+圈/szq ● 数字+弧/szh ● 月份/yf ● 日期/rq ● 符号/fh ● 电脑/dn ● 象棋/xq ● 麻将/mj"]
+					,["色子/sz ● 扑克/pk ● 表情/bq ● 天气/tq ● 音乐/yy ● 两性/lx ● 八卦/bg ● 星座/xz ● 上标/sb ● 下标/xb"]
+					,["六十四卦/lssg ● 六十四卦名/lssgm ● 注音/zy ● 太玄经/txj ● 八卦名/bgm ● 十二宫/seg ● 字母+圈/zmq ● 字母+弧/zmh"]
+					,["天体/tt ● 星座名/xzm ● 星号/xh ● 方块/fk ● 几何/jh ● 箭头/jt ● 数学/sx ● 数字+点/szd ● 货币/hb ● 拼音小写/py"]
+					,["曜日/yr ● 时间/sj ● 节气/jq ● 单位/dw ● 拼音大写/pyd ● 天干/tg ● 地支/dz ● 干支/gz ● 苏州码/szm"]
+					,["罗马数字/lm ● 罗马数字大写/lmd ● 声调/sd ● 结构/jg ● 偏旁/pp ● 汉字+圈/hzq ● 汉字+弧/hzh"]
+					,["希腊/xl ● 希腊大写/xld ● 俄语/ey ● 俄语大写/eyd ● 康熙部首/kx ● 笔画/bh ● 标点英/bd ● 标点中/bdz"]
+					,["假名/jm/pjm/jmk/jmg/jms/jmz/jmt/jmd/jmn/jmh/jmb/jmp/jmm/jmy/jmr/jmw/jma/jmi/jmu/jme/jmo"]
+					,["假名+圈/jmq ● 假名+半角/jmb ● jいろは顺/iro ● 韩文+圈/hwq ● 韩文+弧/hwh ● 韩文/hw"]]
+				srf_for_select_Array:=SymList
+			}else
+				srf_for_select_Array:=prompt_symbols(srf_all_Input)
 		}else{
 			Sym_Array_1[1,1]:=srf_all_input, srf_for_select_Array:=Sym_Array_1
 		}
@@ -1097,9 +1108,9 @@ More_Setting:
 	TV6 := TV_Add("关于",, "Bold")
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
-	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","TextInfo1","ExSty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","CreateSC"]
+	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","TextInfo1","TextInfo0","SrfSlider","SizeValue","set_SizeValue","ExSty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4"]
 		,GBoxList2:["GBox2","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
-		,GBoxList3:["GBox3","TextInfo11","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","SBA7","UIAccess","SBA6","SBA14","SBA21","SBA13","SBA3","logo_show","TextInfo13","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode"]
+		,GBoxList3:["GBox3","TextInfo11","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","SBA7","UIAccess","SBA6","SBA14","SBA21","SBA13","SBA3","TextInfo13","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","Dlabel","Rlabel","Blabel","Wlabel","Ulabel","Setlabel","Savelabel","MyLabel"]
@@ -1112,11 +1123,11 @@ More_Setting:
 		GuiControl,98:, themelogo,Config\Skins\preview\%ThemeName%.png
 	else
 		GuiControl,98:, themelogo,Config\Skins\preview\Error.png
-	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vlineText1
+	Gui 98:Add, Text,x190 y+5 w365 h2 0x10 vlineText1
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui, 98:Add, Text,
-	Gui, 98:Add, Text,x190 yp+10 vTextInfo1 left, 主题选择：
+	Gui, 98:Add, Text,x190 yp vTextInfo1 left, 主题选择：
 	themelist:=logoList:=""
 	Loop Files, config\Skins\*.json
 		themelist.="|" SubStr(A_LoopFileName,1,-5)
@@ -1131,14 +1142,17 @@ More_Setting:
 		GuiControl, 98:Disable, Rest_Conf
 	Loop Files, config\Skins\logoStyle\*.icl
 		logoList.="|" SubStr(A_LoopFileName,1,-4)
-	Gui, 98:Add, Text,x190 y+15 vTextInfo4 left, Logo样式：
-	Gui, 98:Add, DDL,x+5 vselect_logo gselect_logo , % RegExReplace(logoList,"^\|")
+	Gui, 98:Add, Text,x190 y+15 vTextInfo4 left, 功能条：
+	Gui, 98:Add, DDL,x+5 w150 vselect_logo gselect_logo , % RegExReplace(logoList,"^\|")
 	GuiControl, 98:ChooseString, select_logo, %StyleN%
 	If Logo_Switch~="i)off"
 		GuiControl, 98:Disable, select_logo
-	GuiControlGet, scvar, Pos , select_logo
-	Gui, 98:Add, Button,x%scvarX% y+10 cred gCreateSC vCreateSC,建立桌面快捷方式
-	Gui, 98:Add, CheckBox,x+15 yp+8 Checked%Logo_ExStyle% vExSty gExSty, 鼠标穿透
+	;GuiControlGet, scvar, Pos , Backup_Conf
+	Gui, 98:Add, Edit, x+5 w60 Limit3 Number vSizeValue gSizeValue
+	Gui, 98:Add, UpDown, x+0 w160 Range1-150 gset_SizeValue vset_SizeValue, % (LogoSize>0&&LogoSize<=150?LogoSize:36)
+	Gui, 98:Add, Text,x190 y+15 vTextInfo0 left, 透明度：
+	Gui, 98:Add, Slider,x+0 yp gSrfSlider vSrfSlider Center TickInterval10 ToolTipLeft Range0-255, % transparentX
+	Gui, 98:Add, CheckBox,x+5 yp+10 Checked%Logo_ExStyle% vExSty gExSty, 鼠标穿透
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox2, 候选框参数
@@ -1200,8 +1214,8 @@ More_Setting:
 	Gui, 98:Add, CheckBox,x190 yp+40 vSBA14 gSBA14, 中文模式使用英文标点
 	Gui, 98:Add, CheckBox,x+5 yp+0 vSBA21 gSBA21, 引号成对光标并居中
 	Gui, 98:Add, CheckBox,x190 yp+40 vSBA13 gSBA13, Logo显隐
-	Gui, 98:Add, CheckBox, x+5 yp+0 Checked%logo_show% glogo_show vlogo_show, Logo透明
 	Gui, 98:Add, CheckBox,x+5 yp+0 vSBA3 gSBA3, 空码提示
+	Gui, 98:Add, Button,x+10 yp-3 cred gCreateSC vCreateSC,建立桌面捷径
 	Gui 98:Add, Text,x190 y+15 w365 h2 0x10 vTextInfo13
 	Gui, 98:Add, CheckBox,x190 yp+20 Checked%Frequency% vFrequency gFrequency, 动态调频
 	if (not Wubi_Schema~="i)ci"||Trad_Mode~="i)on"||Prompt_Word~="i)on")
@@ -1355,6 +1369,35 @@ ExSty:
 		Logo_ExStyle:=WubiIni.TipStyle["Logo_ExStyle"]:=1, WubiIni.save()
 	}else{
 		Logo_ExStyle:=WubiIni.TipStyle["Logo_ExStyle"]:=0, WubiIni.save()
+	}
+	Gosub ShowSrfTip
+Return
+
+SrfSlider:
+	transparentX:=WubiIni.TipStyle["transparentX"]:=SrfSlider, WubiIni.save()
+	WinSet, TransColor, ffffff %transparentX%,Srf_Tip
+	WinSet, TransColor, EFEFEF %transparentX%,sign_wb
+Return
+
+SizeValue:
+	GuiControlGet, SizeValue,, SizeValue, text
+	if (SizeValue>0&&SizeValue<=150)
+		LogoSize:=WubiIni.TipStyle["LogoSize"]:=SizeValue, WubiIni.save()
+	else{
+		LogoSize:=WubiIni.TipStyle["LogoSize"]:=36, WubiIni.save()
+		GuiControl,98:, SizeValue ,% LogoSize
+		Traytip,,输入的尺寸超限！
+	}
+	Gosub ShowSrfTip
+Return
+
+set_SizeValue:
+	if (set_SizeValue>0&&set_SizeValue<=150)
+		LogoSize:=WubiIni.TipStyle["LogoSize"]:=set_SizeValue, WubiIni.save()
+	else{
+		LogoSize:=WubiIni.TipStyle["LogoSize"]:=36, WubiIni.save()
+		GuiControl,98:, set_SizeValue ,% set_SizeValue
+		Traytip,,输入的尺寸超限！
 	}
 	Gosub ShowSrfTip
 Return
@@ -1989,8 +2032,13 @@ ControlGui:
 	if Radius~="i)on" {
 		GuiControl,98:, SBA9 , 1
 	}
-	if Logo_Switch~="off"
-		GuiControl, 98:Disable, logo_show
+	if Logo_Switch~="off" {
+		GuiControl, 98:Disable, SrfSlider
+		GuiControl, 98:Disable, select_logo
+		GuiControl, 98:Disable, ExSty
+		GuiControl, 98:Disable, set_SizeValue
+		GuiControl, 98:Disable, SizeValue
+	}
 	if FontStyle~="i)on" {
 		GuiControl,98:, SBA12 , 1
 	}
@@ -2705,11 +2753,17 @@ Return
 SBA13:
 	Gosub Logo_Switch
 	if Logo_Switch~="off" {
-		GuiControl, 98:Disable, logo_show
+		GuiControl, 98:Disable, ExSty
+		GuiControl, 98:Disable, SrfSlider
 		GuiControl, 98:Disable, select_logo
+		GuiControl, 98:Disable, set_SizeValue
+		GuiControl, 98:Disable, SizeValue
 	}else{
-		GuiControl, 98:Enable, logo_show
+		GuiControl, 98:Enable, ExSty
+		GuiControl, 98:Enable, SrfSlider
 		GuiControl, 98:Enable, select_logo
+		GuiControl, 98:Enable, set_SizeValue
+		GuiControl, 98:Enable, SizeValue
 	}
 Return
 
@@ -2736,17 +2790,6 @@ SBA15:
 		Hotkey, %tiphotkey%, SetRlk,off
 		GuiControl, 98:Disable, tip_hotkey
 	}
-Return
-
-logo_show:
-	GuiControlGet, SBA ,, logo_show, Checkbox
-	if (SBA==1) {
-		logo_show:=WubiIni.TipStyle["logo_show"]:=1,WubiIni.save()
-	}else{
-		logo_show:=WubiIni.TipStyle["logo_show"]:=0,WubiIni.save()
-	}
-	Gui, SrfTip:Destroy
-	Gosub Srf_Tip
 Return
 
 SBA16:

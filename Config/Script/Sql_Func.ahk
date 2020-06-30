@@ -458,22 +458,22 @@ srf_select(list_num){
 			}
 	}}
 	if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci"&&list_num>1&&srf_all_Input~="^[a-y]+"&&srf_for_select_Array.Length()>1){
-		if Frequency_obj[selectvalue] {
-			Frequency_obj[selectvalue]:=Frequency_obj[selectvalue]+1
-			if (Frequency_obj[selectvalue]>Freq_Count) {
-				Frequency_obj[selectvalue]:=0
-			}else if (Frequency_obj[selectvalue]=Freq_Count){
-				if DB.Exec("UPDATE ci SET D_Key =(SELECT D_Key FROM ci WHERE aim_chars ='" srf_for_select_Array[1,1] "')+2 WHERE aim_chars ='" selectvalue "';")>0
-					Frequency_obj[selectvalue]:=0
+		if (Frequency_obj[selectvalue,1]&&Frequency_obj[selectvalue,2]=srf_all_Input) {
+			Frequency_obj[selectvalue,1]:=Frequency_obj[selectvalue,1]+1
+			if (Frequency_obj[selectvalue,1]>Freq_Count) {
+				Frequency_obj[selectvalue,1]:=0
+			}else if (Frequency_obj[selectvalue,1]=Freq_Count){
+				if DB.Exec("UPDATE ci SET D_Key =(SELECT D_Key FROM ci WHERE aim_chars ='" srf_for_select_Array[1,1] "')+2 WHERE aim_chars ='" selectvalue "' AND A_Key ='" srf_all_Input "';")>0
+					Frequency_obj[selectvalue,1]:=0
 			}else{
 				If list_num>2
-					DB.Exec("UPDATE ci SET D_Key =(SELECT D_Key FROM ci WHERE aim_chars ='" srf_for_select_Array[list_num-1+ListNum*waitnum,1] "')+2 WHERE aim_chars ='" selectvalue "';")
+					DB.Exec("UPDATE ci SET D_Key =(SELECT D_Key FROM ci WHERE aim_chars ='" srf_for_select_Array[list_num-1+ListNum*waitnum,1] "')+2 WHERE aim_chars ='" selectvalue "' AND A_Key ='" srf_all_Input "';")
 			}
 			Json_ObjToFile(Frequency_Obj, A_ScriptDir "\Config\Script\wubi98_ci.json", "UTF-8")
 		}else{
-			Frequency_obj[selectvalue]:=1
+			Frequency_obj[selectvalue,1]:=1, Frequency_obj[selectvalue,2]:=srf_all_Input
 			If list_num>2
-				DB.Exec("UPDATE ci SET D_Key =(SELECT D_Key FROM ci WHERE aim_chars ='" srf_for_select_Array[list_num-1+ListNum*waitnum,1] "')+2 WHERE aim_chars ='" selectvalue "';")
+				DB.Exec("UPDATE ci SET D_Key =(SELECT D_Key FROM ci WHERE aim_chars ='" srf_for_select_Array[list_num-1+ListNum*waitnum,1] "')+2 WHERE aim_chars ='" selectvalue "' AND A_Key ='" srf_all_Input "';")
 			Json_ObjToFile(Frequency_Obj, A_ScriptDir "\Config\Script\wubi98_ci.json", "UTF-8")
 		}
 	}
