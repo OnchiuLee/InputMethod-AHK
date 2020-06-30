@@ -356,14 +356,18 @@ MoveGui:
 		if Wubi_Schema~="ci" {
 			Gosub Enable_Tray
 			Menu, Tray, Enable, 批量造词
+			GuiControl, 98:Disable, SBA23
 		}else if Wubi_Schema~="zi"{
 			Gosub Disable_Tray
+			GuiControl, 98:Enable, SBA23
 			Menu, Tray, Disable, 批量造词
 		}else if Wubi_Schema~="chaoji" {
 			Gosub Enable_Tray
+			GuiControl, 98:Disable, SBA23
 			Menu, Tray, Disable, 批量造词
 		}else if Wubi_Schema~="zg"{
 			Gosub Disable_Tray
+			GuiControl, 98:Disable, SBA23
 			Menu, Tray, Disable, 批量造词
 		}
 	}
@@ -1111,7 +1115,7 @@ More_Setting:
 	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","TextInfo1","TextInfo0","SrfSlider","SizeValue","set_SizeValue","ExSty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4"]
 		,GBoxList2:["GBox2","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
 		,GBoxList3:["GBox3","TextInfo11","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","SBA7","UIAccess","SBA6","SBA14","SBA21","SBA13","SBA3","TextInfo13","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
-		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
+		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode","SBA23"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","Dlabel","Rlabel","Blabel","Wlabel","Ulabel","Setlabel","Savelabel","MyLabel"]
 		,GBoxList7:["GBox7","TextInfo21","sChoice4","ciku1","ciku9","ciku2","TextInfo22","ciku8","ciku7","yaml_","TextInfo23","ciku3","ciku4","TextInfo24","ciku5","ciku6"]
@@ -1261,6 +1265,9 @@ More_Setting:
 	Gui, 98:Add, Text, x190 yp+45  left vTextInfo20, 默认状态：
 	Gui, 98:Add, Radio,yp+0 x+30 vSetInput_CNMode gSetInput_Mode, 中文
 	Gui, 98:Add, Radio,yp+0 x+30 vSetInput_ENMode gSetInput_Mode, 英文
+	Gui, 98:Add, CheckBox,x190 yp+45 vSBA23 gSBA23 Checked%CharFliter%, GB2312过滤
+	if not Wubi_Schema ~="i)zi"
+		GuiControl, 98:Disable, SBA23
 	For Section, element In TV_obj
 		if (Section="GBoxList4")
 			Loop, % TV_obj[Section].Length()
@@ -2439,6 +2446,7 @@ sChoice4:
 		Menu, Tray, Enable, 导出词库
 		GuiControl, 98:Enable, ciku1
 		GuiControl, 98:Enable, ciku2
+		GuiControl, 98:Disable, SBA23
 		GuiControl,logo:, MoveGui,*Icon11 config\Skins\logoStyle\%StyleN%.icl
 		GuiControl, 98:Enable, Frequency
 		if !Frequency {
@@ -2457,6 +2465,7 @@ sChoice4:
 		Menu, Tray, Disable, 导出词库
 		GuiControl, 98:Disable, ciku1
 		GuiControl, 98:Disable, ciku2
+		GuiControl, 98:Enable, SBA23
 		GuiControl,logo:, MoveGui,*Icon13 config\Skins\logoStyle\%StyleN%.icl
 		GuiControl, 98:Disable, Frequency
 		GuiControl, 98:Disable, FTip
@@ -2469,6 +2478,7 @@ sChoice4:
 		Menu, Tray, Enable, 导出词库
 		GuiControl, 98:Enable, ciku1
 		GuiControl, 98:Enable, ciku2
+		GuiControl, 98:Disable, SBA23
 		GuiControl,logo:, MoveGui,*Icon12 config\Skins\logoStyle\%StyleN%.icl
 		GuiControl, 98:Disable, Frequency
 		GuiControl, 98:Disable, FTip
@@ -2481,6 +2491,7 @@ sChoice4:
 		Menu, Tray, Disable, 导出词库
 		GuiControl, 98:Disable, ciku1
 		GuiControl, 98:Disable, ciku2
+		GuiControl, 98:Disable, SBA23
 		GuiControl,logo:, MoveGui,*Icon14 config\Skins\logoStyle\%StyleN%.icl
 		GuiControl, 98:Disable, Frequency
 		GuiControl, 98:Disable, FTip
@@ -2856,6 +2867,15 @@ SBA22:
 		Exit_switch:=WubiIni.Settings["Exit_switch"]:=0,WubiIni.save()
 		Hotkey, %exithotkey%, OnExit,off
 		GuiControl, 98:Disable, Exit_hotkey
+	}
+Return
+
+SBA23:
+	GuiControlGet, SBA ,, SBA23, Checkbox
+	if (SBA==1) {
+		CharFliter:=WubiIni.Settings["CharFliter"]:=1,WubiIni.save()
+	}else{
+		CharFliter:=WubiIni.Settings["CharFliter"]:=0,WubiIni.save()
 	}
 Return
 

@@ -365,8 +365,12 @@ get_word(input, cikuname){
 					SQL :="select aim_chars from ci WHERE A_Key ='" input "' AND D_Key >0 ORDER BY A_Key,D_Key DESC;"
 				else
 					SQL :="select aim_chars from ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC;"
-			}else
-				SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "'" (not cikuname~="i)zg"?"ORDER BY A_Key,B_Key DESC":"") ";"
+			}else{
+				if cikuname~="i)zi"
+					SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC;"
+				else
+					SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "'" (not cikuname~="i)zg"?"ORDER BY A_Key,B_Key DESC":"") ";"
+			}
 			If DB.GetTable(SQL, Result)
 			{
 				if (Result.Rows[1,1]=""&&strlen(input)>1&&Prompt_Word ~="on"||Result.Rows[1,1]=""&&strlen(input)<4&&Prompt_Word ~="on")
