@@ -72,7 +72,7 @@ Schema_logo:
 	WinSet, TransColor, EFEFEF %transparentX%,sign_wb   ;方案Logo的透明度 数字越大透明度越低最大255，0为完全透明
 Return
 
-logoGuiDropFiles:
+SrfTipGuiDropFiles:
 	MsgBoxRenBtn("保存","不保存","单/多义互转")
 	MsgBox, 266243,TXT码表处理,正在执行批量生词,是否保存至词库?
 	IfMsgBox, No
