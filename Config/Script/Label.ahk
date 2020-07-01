@@ -69,7 +69,7 @@ Schema_logo:
 	Gui, logo:Color, EFEFEF
 	Gui, logo:Margin, 2,2
 	Gui, logo:Hide
-	WinSet, TransColor, EFEFEF %transparentX%,sign_wb   ;方案Logo的透明度 数字越大透明度越低最大255，0为完全透明
+	;WinSet, TransColor, EFEFEF %transparentX%,sign_wb   ;方案Logo的透明度 数字越大透明度越低最大255，0为完全透明
 Return
 
 SrfTipGuiDropFiles:
@@ -1112,9 +1112,9 @@ More_Setting:
 	TV6 := TV_Add("关于",, "Bold")
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
-	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","TextInfo1","TextInfo0","SrfSlider","SizeValue","set_SizeValue","ExSty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4"]
+	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","SBA13","TextInfo1","TextInfo0","SrfSlider","SizeValue","set_SizeValue","ExSty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4"]
 		,GBoxList2:["GBox2","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
-		,GBoxList3:["GBox3","TextInfo11","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","SBA7","UIAccess","SBA6","SBA14","SBA21","SBA13","SBA3","TextInfo13","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
+		,GBoxList3:["GBox3","TextInfo11","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","SBA7","UIAccess","SBA6","SBA14","SBA21","SBA3","TextInfo13","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode","SBA23"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","Dlabel","Rlabel","Blabel","Wlabel","Ulabel","Setlabel","Savelabel","MyLabel"]
@@ -1136,27 +1136,28 @@ More_Setting:
 	Loop Files, config\Skins\*.json
 		themelist.="|" SubStr(A_LoopFileName,1,-5)
 	Gui, 98:Add, DDL,x+5 yp vselect_theme gselect_theme, % RegExReplace(themelist,"^\|")
-	Gui, 98:Add, Text,x190 y+15  vTextInfo2 left, 主题管理：
+	Gui, 98:Add, Text,x190 y+10  vTextInfo2 left, 主题管理：
 	Gui, 98:Add, Button,x+5 yp-2 cred gdiycolor vdiycolor,自定义配色
 	Gui, 98:Add, Button,x+5 cred gthemelists vthemelists,主题管理
-	Gui, 98:Add, Text,x190 y+15 vTextInfo3 left, 配置管理：
+	Gui, 98:Add, Text,x190 y+10 vTextInfo3 left, 配置管理：
 	Gui, 98:Add, Button,x+5 yp-2 cred gBackup_Conf vBackup_Conf,备份配置
 	Gui, 98:Add, Button,x+20 yp cred gRest_Conf vRest_Conf,恢复配置
 	if !FileExist(A_ScriptDir "\Sync\Default.json")
 		GuiControl, 98:Disable, Rest_Conf
 	Loop Files, config\Skins\logoStyle\*.icl
 		logoList.="|" SubStr(A_LoopFileName,1,-4)
-	Gui, 98:Add, Text,x190 y+15 vTextInfo4 left, 功能条：
-	Gui, 98:Add, DDL,x+5 w150 vselect_logo gselect_logo , % RegExReplace(logoList,"^\|")
+	GuiControlGet, scvar, Pos , Backup_Conf
+	Gui, 98:Add, Text,x190 y+10 vTextInfo4 left, 功能条：
+	Gui, 98:Add, DDL,x%scvarX% yp w150 vselect_logo gselect_logo , % RegExReplace(logoList,"^\|")
 	GuiControl, 98:ChooseString, select_logo, %StyleN%
 	If Logo_Switch~="i)off"
 		GuiControl, 98:Disable, select_logo
-	;GuiControlGet, scvar, Pos , Backup_Conf
-	Gui, 98:Add, Edit, x+5 w60 Limit3 Number vSizeValue gSizeValue
+	Gui, 98:Add, Edit, x+10 w60 Limit3 Number vSizeValue gSizeValue
 	Gui, 98:Add, UpDown, x+0 w160 Range1-150 gset_SizeValue vset_SizeValue, % (LogoSize>0&&LogoSize<=150?LogoSize:36)
-	Gui, 98:Add, Text,x190 y+15 vTextInfo0 left, 透明度：
-	Gui, 98:Add, Slider,x+0 yp gSrfSlider vSrfSlider Center TickInterval10 ToolTipLeft Range0-255, % transparentX
-	Gui, 98:Add, CheckBox,x+5 yp+10 Checked%Logo_ExStyle% vExSty gExSty, 鼠标穿透
+	Gui, 98:Add, Text,x190 y+10 vTextInfo0 left, 色块透明：
+	Gui, 98:Add, Slider,x%scvarX% yp gSrfSlider vSrfSlider Center TickInterval10 ToolTipLeft Range0-255, % transparentX
+	Gui, 98:Add, CheckBox,x%scvarX% y+5 vSBA13 gSBA13, 色块显隐
+	Gui, 98:Add, CheckBox,x+15 Checked%Logo_ExStyle% vExSty gExSty, 鼠标穿透
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox2, 候选框参数
@@ -1207,21 +1208,22 @@ More_Setting:
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
 	Gui 98:Add, Text,x190 y+15 w365 h2 0x10 vTextInfo12
-	Gui, 98:Add, CheckBox,x190 yp+15 vSBA9 gSBA9, Gdip框圆角
-	Gui, 98:Add, CheckBox,yp+0 x+5 vSBA10 gSBA10, Gdip分割线
-	Gui, 98:Add, CheckBox,yp+0 x+5 vSBA12 gSBA12, 粗体
-	Gui, 98:Add, CheckBox,x190 yp+40 vSBA19 gSBA19, 焦点候选框
-	Gui, 98:Add, CheckBox,yp+0 x+5 vSBA20 gSBA20, 候选框页数显示
+	Gui, 98:Add, CheckBox,x190 y+15 vSBA9 gSBA9, Gdip框圆角
+	Gui, 98:Add, CheckBox,yp+0 x+15 vSBA10 gSBA10, Gdip分割线
+	GuiControlGet, CheckVar1, Pos , SBA10
+	Gui, 98:Add, CheckBox,yp+0 x+30 vSBA12 gSBA12, 粗体
+	GuiControlGet, CheckVar2, Pos , SBA12
+	Gui, 98:Add, CheckBox,x190 y+15 vSBA19 gSBA19, 焦点候选框
+	Gui, 98:Add, CheckBox,yp+0 x%CheckVar1X% vSBA20 gSBA20, 候选框页数显示
 	Gui, 98:Add, CheckBox,x+5 yp+0 vSBA7 gSBA7, 四码上屏
-	Gui, 98:Add, CheckBox, x190 yp+40 gEnableUIAccess vUIAccess , UIA（看不到候选框点我）
-	Gui, 98:Add, CheckBox,x+5 yp+0 vSBA6 gSBA6, 符号顶屏
-	Gui, 98:Add, CheckBox,x190 yp+40 vSBA14 gSBA14, 中文模式使用英文标点
-	Gui, 98:Add, CheckBox,x+5 yp+0 vSBA21 gSBA21, 引号成对光标并居中
-	Gui, 98:Add, CheckBox,x190 yp+40 vSBA13 gSBA13, Logo显隐
-	Gui, 98:Add, CheckBox,x+5 yp+0 vSBA3 gSBA3, 空码提示
-	Gui, 98:Add, Button,x+10 yp-3 cred gCreateSC vCreateSC,建立桌面捷径
+	Gui, 98:Add, CheckBox, x190 y+15 gEnableUIAccess vUIAccess , 权限提升
+	Gui, 98:Add, CheckBox,x%CheckVar1X% yp+0 vSBA6 gSBA6, 符号顶屏
+	Gui, 98:Add, CheckBox,x%CheckVar2X% yp+0 vSBA3 gSBA3, 空码提示
+	Gui, 98:Add, CheckBox,x190 y+15 vSBA14 gSBA14, 中文模式使用英文标点
+	Gui, 98:Add, CheckBox,x+10 yp+0 vSBA21 gSBA21, 引号成对光标并居中
+	Gui, 98:Add, Button,x190 y+15 cred gCreateSC vCreateSC,建立桌面捷径
 	Gui 98:Add, Text,x190 y+15 w365 h2 0x10 vTextInfo13
-	Gui, 98:Add, CheckBox,x190 yp+20 Checked%Frequency% vFrequency gFrequency, 动态调频
+	Gui, 98:Add, CheckBox,x190 y+15 Checked%Frequency% vFrequency gFrequency, 动态调频
 	if (not Wubi_Schema~="i)ci"||Trad_Mode~="i)on"||Prompt_Word~="i)on")
 		GuiControl, 98:Disable, Frequency
 	Gui, 98:Add, Text, x+5 yp vFTip left vTextInfo14, 调频参数：
@@ -1232,7 +1234,7 @@ More_Setting:
 		GuiControl, 98:Disable, set_Frequency
 		GuiControl, 98:Disable, RestDB
 	}
-	Gui, 98:Add, CheckBox,x190 yp+45 Checked%IStatus% vInputStatus gInputStatus, 输入状态控制
+	Gui, 98:Add, CheckBox,x190 y+15 Checked%IStatus% vInputStatus gInputStatus, 输入状态控制
 	Gui, 98:Add, Button, yp-4 x+10 gWinMode vWinMode,程序设置
 	if !IStatus
 		GuiControl,98:Disable,WinMode
@@ -1265,7 +1267,7 @@ More_Setting:
 	Gui, 98:Add, Text, x190 yp+45  left vTextInfo20, 默认状态：
 	Gui, 98:Add, Radio,yp+0 x+30 vSetInput_CNMode gSetInput_Mode, 中文
 	Gui, 98:Add, Radio,yp+0 x+30 vSetInput_ENMode gSetInput_Mode, 英文
-	Gui, 98:Add, CheckBox,x190 yp+45 vSBA23 gSBA23 Checked%CharFliter%, GB2312过滤
+	Gui, 98:Add, CheckBox,x190 yp+45 vSBA23 gSBA23 Checked%CharFliter%, GB2312过滤（单字方案）
 	if not Wubi_Schema ~="i)zi"
 		GuiControl, 98:Disable, SBA23
 	For Section, element In TV_obj
@@ -1383,7 +1385,7 @@ Return
 SrfSlider:
 	transparentX:=WubiIni.TipStyle["transparentX"]:=SrfSlider, WubiIni.save()
 	WinSet, TransColor, ffffff %transparentX%,Srf_Tip
-	WinSet, TransColor, EFEFEF %transparentX%,sign_wb
+	;WinSet, TransColor, EFEFEF %transparentX%,sign_wb
 Return
 
 SizeValue:
@@ -3290,8 +3292,9 @@ Cut_Mode:
 		Menu, setting, Rename, 拆分显示	√ , 拆分显示	×
 	else{
 		Menu, setting, Rename, 拆分显示	× , 拆分显示	√
-		if (GetFont:=GetCutModeFont()&&not FontType~=FontExtend)
-			FontType :=WubiIni.TipStyle["FontType"]:= GetFont, WubiIni.Save()
+		if (GetCutModeFont()&&not FontType~=FontExtend){
+			FontType :=WubiIni.TipStyle["FontType"]:= GetCutModeFont(), WubiIni.Save()
+		}
 	}
 	if srf_all_input
 		Gosub srf_tooltip_fanye
