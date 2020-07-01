@@ -828,15 +828,16 @@ srf_tooltip_fanye:
 		{
 			if srf_all_input ~="/help" {
 				Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10,FontSize:=ToolTipStyle~="i)Gdip"?18:FontSize
-					SymList:=[["数字/0-9 ● 分数/fs ● 数字+圈/szq ● 数字+弧/szh ● 月份/yf ● 日期/rq ● 符号/fh ● 电脑/dn ● 象棋/xq ● 麻将/mj"]
-					,["色子/sz ● 扑克/pk ● 表情/bq ● 天气/tq ● 音乐/yy ● 两性/lx ● 八卦/bg ● 星座/xz ● 上标/sb ● 下标/xb"]
-					,["六十四卦/lssg ● 六十四卦名/lssgm ● 注音/zy ● 太玄经/txj ● 八卦名/bgm ● 十二宫/seg ● 字母+圈/zmq ● 字母+弧/zmh"]
-					,["天体/tt ● 星座名/xzm ● 星号/xh ● 方块/fk ● 几何/jh ● 箭头/jt ● 数学/sx ● 数字+点/szd ● 货币/hb ● 拼音小写/py"]
-					,["曜日/yr ● 时间/sj ● 节气/jq ● 单位/dw ● 拼音大写/pyd ● 天干/tg ● 地支/dz ● 干支/gz ● 苏州码/szm"]
-					,["罗马数字/lm ● 罗马数字大写/lmd ● 声调/sd ● 结构/jg ● 偏旁/pp ● 汉字+圈/hzq ● 汉字+弧/hzh"]
-					,["希腊/xl ● 希腊大写/xld ● 俄语/ey ● 俄语大写/eyd ● 康熙部首/kx ● 笔画/bh ● 标点英/bd ● 标点中/bdz"]
-					,["假名/jm/pjm/jmk/jmg/jms/jmz/jmt/jmd/jmn/jmh/jmb/jmp/jmm/jmy/jmr/jmw/jma/jmi/jmu/jme/jmo"]
-					,["假名+圈/jmq ● 假名+半角/jmb ● jいろは顺/iro ● 韩文+圈/hwq ● 韩文+弧/hwh ● 韩文/hw"]]
+				SymList:=[["/+年月日⇒农历/公历互转 ● /+【date/week/time/nl/zzrq/zznl/zzsj】⇒输出日期时间 ● /+数字⇒金额大写转换"]
+					,["数字/0-9 ● 分数/fs ● 月份/yf ● 日期/rq ● 符号/fh ● 电脑/dn ● 象棋/xq ● 麻将/mj ● 曜日/yr ● 地支/dz"]
+					,["色子/sz  ● 扑克/pk ● 表情/bq ● 天气/tq ● 音乐/yy ● 两性/lx ● 八卦/bg ● 星座/xz ● 偏旁/pp ● 干支/gz"]
+					,["上标/sb  ● 下标/xb ● 天体/tt ● 星号/xh ● 方块/fk ● 几何/jh ● 箭头/jt ● 数学/sx ● 声调/sd ● 结构/jg"]
+					,["时间/sj  ● 货币/hb ● 节气/jq ● 单位/dw ● 笔画/bh ● 天干/tg ● 注音/zy ● 标点英/bd ● 标点中/bdz"]
+					,["六十四卦/lssg ● 六十四卦名/lssgm ● 太玄经/txj ● 八卦名/bgm ● 十二宫/seg ● 苏州码/szm ● 康熙部首/kx"]
+					,["星座名/xzm ● 拼音小写/py ● 拼音大写/pyd ● 俄语/ey ● 俄语大写/eyd ● 字母弧/zmh ● 汉字弧/hzh"]
+					,["罗马数字/lm ● 罗马数字大写/lmd ● 希腊/xl ● 希腊大写/xld ● jいろは顺/iro ● 假名半角/jmb ● 韩文/hw"]
+					,["韩文圈/hwq● 汉字圈/hzq ● 数字圈/szq ● 数字弧/szh ● 韩文弧/hwh ● 数字点/szd ● 字母圈/zmq ● 假名圈/jmq"]
+					,["假名/jm/pjm/jmk/jmg/jms/jmz/jmt/jmd/jmn/jmh/jmb/jmp/jmm/jmy/jmr/jmw/jma/jmi/jmu/jme/jmo"]]
 				srf_for_select_Array:=SymList
 			}else
 				srf_for_select_Array:=prompt_symbols(srf_all_Input)
@@ -869,15 +870,15 @@ srf_tooltip_fanye:
 		srf_for_select_Array:=get_word(srf_all_Input, Wubi_Schema)
 		if (srf_for_select_Array.Length()=0&&srf_all_Input ="help"){
 			Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10
-			help_info:=[["拼音反查"," z键引导 ","〔 z键引导 〕"]
-				,["以形查音"," ~键引导 ","〔 ~键引导 〕"]
-				,["临时英文"," 双``键引导 ","〔 双``键引导 〕"]
+			help_info:=[["简繁模式"," 默认热键Ctrl+Shift+F ","〔 默认热键Ctrl+Shift+F 〕"]
 				,["程序挂起"," 默认热键Alt+Z ","〔 默认热键Alt+Z 〕"]
+				,["以形查音"," ~键引导 ","〔 ~键引导 〕"]
 				,["精准造词"," ``键引导+``键分词 ","〔 ``键引导+``键分词 〕"]
+				,["临时英文"," 双``键引导 ","〔 双``键引导 〕"]
 				,["快捷退出"," 默认热键Ctrl+Esc ","〔 默认热键Ctrl+Esc 〕"]
-				,["简繁模式"," 默认热键Ctrl+Shift+F ","〔 默认热键Ctrl+Shift+F 〕"]
+				,["拼音反查"," z键引导 ","〔 z键引导 〕"]
 				,["拆分显示"," 默认热键Ctrl+Shift+H ","〔 默认热键Ctrl+Shift+H 〕"]
-				,["批量造词"," 默认热键Ctrl+CapsLock调出窗口 ","〔 默认热键Ctrl+CapsLock调出窗口 〕"]], srf_for_select_Array:=help_info
+				,["批量造词"," 默认热键Ctrl+CapsLock开启 ","〔 默认热键Ctrl+CapsLock开启 〕"]], srf_for_select_Array:=help_info
 		}else if (srf_for_select_Array.Length()=0&&srf_all_Input ="mac"){
 			Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10
 			Mac_Array:=ComInfo.GetMacAddress_1(),IP_Array:=ComInfo.GetIPAddress_1()
@@ -1112,10 +1113,11 @@ More_Setting:
 	TV6 := TV_Add("关于",, "Bold")
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
+
 	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","SBA13","TextInfo1","TextInfo0","SrfSlider","SizeValue","set_SizeValue","ExSty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4"]
-		,GBoxList2:["GBox2","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
-		,GBoxList3:["GBox3","TextInfo11","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","SBA7","UIAccess","SBA6","SBA14","SBA21","SBA3","TextInfo13","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
-		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode","SBA23"]
+		,GBoxList2:["GBox2","TextInfo11","TextInfo25","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
+		,GBoxList3:["GBox3","SBA7","SBA23","UIAccess","SBA6","SBA14","SBA21","SBA3","TextInfo13","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
+		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","Dlabel","Rlabel","Blabel","Wlabel","Ulabel","Setlabel","Savelabel","MyLabel"]
 		,GBoxList7:["GBox7","TextInfo21","sChoice4","ciku1","ciku9","ciku2","TextInfo22","ciku8","ciku7","yaml_","TextInfo23","ciku3","ciku4","TextInfo24","ciku5","ciku6"]
@@ -1162,34 +1164,55 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox2, 候选框参数
 	Gui,98:Font
+	Gui,98:Font, s9, %font_%
+	Gui, 98:Add, Text, x190 yp+40 left vTextInfo11, 选框风格：
+	Gui,98:Font
+	Gui,98:Font, s8, %font_%
+	Gui, 98:Add, Button,x+0 w125 hwndHExportBtn gStyleMenu vStyleMenu, % ToolTipStyle~="i)on"?"Tooltip样式":ToolTipStyle~="i)off"?"Gui候选框样式":"Gdip候选框样式"
+	Gui, 98:Add, CheckBox,yp+0 x+15 vSBA5 gSBA5, 固定`n位置
+	Gui, 98:Add, Button,yp+5 x+5 vSBA0 gSBA0, 坐标设置
+	Gui,98:Font
+	Gui,98:Font, s10, %font_%
+	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo12
+	Gui, 98:Add, CheckBox,x190 y+10 vSBA9 gSBA9, 候选框圆角
+	Gui, 98:Add, CheckBox,yp+0 x+5 vSBA10 gSBA10, 候选框分割线
+	GuiControlGet, CheckVar1, Pos , SBA10
+	Gui, 98:Add, CheckBox,yp+0 x+5 vSBA12 gSBA12, 粗体
+	GuiControlGet, CheckVar2, Pos , SBA12
+	Gui, 98:Add, CheckBox,x190 y+10 vSBA19 gSBA19, 焦点候选框
+	Gui, 98:Add, CheckBox,yp+0 x%CheckVar1X% vSBA20 gSBA20, 页数显示
+	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo25
+	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	DllCall("gdi32\EnumFontFamilies","uint",DllCall("GetDC","uint",0),"uint",0,"uint",RegisterCallback("EnumFontFamilies"),"uint",a_FontList:="")
-	Gui, 98:Add, Text, x190 yp+45 w150 left vTextInfo5, 候选框字体类型：
+	Gui, 98:Add, Text, x190 y+15 left vTextInfo5, 字体选择：
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
-	Gui, 98:Add, ComboBox,x+0 w180 gfonts_type vFontType, % a_FontList
+	Gui, 98:Add, ComboBox,x+10 gfonts_type vFontType, % a_FontList
 	GuiControl, 98:ChooseString, FontType, %FontType%
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
-	GuiControlGet, FontVar, Pos , FontType
-	Gui, 98:Add, Button, x%FontVarX% y+5 cred gFontIN vFontIN,安装拆分字体
+	;GuiControlGet, FontVar, Pos , FontType
+	Gui, 98:Add, Button, x+5 yp-3 cred gFontIN vFontIN,安装字体
 	if !FileExist("Font\*.otf")
 		GuiControl, 98:Disable, FontIN
-	Gui, 98:Add, Text, x190 yp+45 w220 left vTextInfo6, 候选框字体字号[9-40]：
-	Gui, 98:Add, Edit, x+0 w80 Limit2 Number vfont_value gfont_value
-	Gui, 98:Add, UpDown, x+0 w160 Range9-40 gfont_size vfont_size, %FontSize%
-	Gui, 98:Add, Text, x190 yp+45 w220 left vTextInfo7, 候选框候选数目[3-10]：
-	Gui, 98:Add, Edit, x+0 w80 Limit2 Number vselect_value gselect_value
-	Gui, 98:Add, UpDown, x+0 w160 Range3-10 gset_select_value vset_select_value, %ListNum%
-	Gui, 98:Add, Text, x190 yp+45 w220 left vTextInfo8, ToolTip偏移量[3-25]：
-	Gui, 98:Add, Edit, x+0 w80 Limit2 Number vset_regulate_Hx gset_regulate_Hx
+	Gui, 98:Add, Text, x190 y+15 left vTextInfo8, 候选框偏移：
+	Gui, 98:Add, Edit, x+0 yp-3 w60 Limit2 Number vset_regulate_Hx gset_regulate_Hx
 	Gui, 98:Add, UpDown, x+0 w160 Range3-25 gset_regulate vset_regulate, %Set_Range%
-	Gui, 98:Add, Text, x190 yp+45 w220 left vTextInfo9, Gdip候选框圆角[0-15]：
-	Gui, 98:Add, Edit, x+0 w80 Limit2 Number vGdipRadius gGdipRadius
+	GuiControlGet, EditVar1, Pos , set_regulate_Hx
+	Gui, 98:Add, Text, x+20 yp+3 left vTextInfo7, 候选项数目：
+	Gui, 98:Add, Edit, x+0 yp-3 w60 Limit2 Number vselect_value gselect_value
+	Gui, 98:Add, UpDown, x+0 w160 Range3-10 gset_select_value vset_select_value, %ListNum%
+
+	Gui, 98:Add, Text, x190 y+15 left vTextInfo9, 候选框圆角：
+	Gui, 98:Add, Edit, x%EditVar1X% yp-3 w60 Limit2 Number vGdipRadius gGdipRadius
 	Gui, 98:Add, UpDown, x+0 w160 Range0-15 gset_GdipRadius vset_GdipRadius, %Gdip_Radius%
-	Gui, 98:Add, Text, x190 yp+45 w220 left vTextInfo10, 焦点候选项圆角[0-18]：
-	Gui, 98:Add, Edit, x+0 w80 Limit2 Number vset_FocusRadius gset_FocusRadius
+	Gui, 98:Add, Text, x+20 yp-3 left vTextInfo10, 焦点项圆角：
+	Gui, 98:Add, Edit, x+0 yp+3 w60 Limit2 Number vset_FocusRadius gset_FocusRadius
 	Gui, 98:Add, UpDown, x+0 w160 Range0-18 gset_FocusRadius_value vset_FocusRadius_value, %FocusRadius%
+	Gui, 98:Add, Text, x190 y+15 left vTextInfo6, 字体字号：
+	Gui, 98:Add, Edit, x%EditVar1X% yp-3 w60 Limit2 Number vfont_value gfont_value
+	Gui, 98:Add, UpDown, x+0 w160 Range9-40 gfont_size vfont_size, %FontSize%
 	For Section, element In TV_obj
 		if (Section="GBoxList2")
 			Loop, % TV_obj[Section].Length()
@@ -1198,32 +1221,20 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox3, 输入设定
 	Gui,98:Font
-	Gui,98:Font, s9, %font_%
-	Gui, 98:Add, Text, x190 yp+40 left vTextInfo11, 选框风格：
-	Gui,98:Font
-	Gui,98:Font, s8, %font_%
-	Gui, 98:Add, Button,x+0 w125 hwndHExportBtn gStyleMenu vStyleMenu, % ToolTipStyle~="i)on"?"Tooltip样式":ToolTipStyle~="i)off"?"Gui候选框样式":"Gdip候选框样式"
-	Gui, 98:Add, CheckBox,yp+0 x+15 vSBA5 gSBA5, 固定`n位置
-	Gui, 98:Add, Button,yp+5 x+10 vSBA0 gSBA0, 坐标设置
-	Gui,98:Font
-	Gui,98:Font, s9, %font_%
-	Gui 98:Add, Text,x190 y+15 w365 h2 0x10 vTextInfo12
-	Gui, 98:Add, CheckBox,x190 y+15 vSBA9 gSBA9, Gdip框圆角
-	Gui, 98:Add, CheckBox,yp+0 x+15 vSBA10 gSBA10, Gdip分割线
-	GuiControlGet, CheckVar1, Pos , SBA10
-	Gui, 98:Add, CheckBox,yp+0 x+30 vSBA12 gSBA12, 粗体
-	GuiControlGet, CheckVar2, Pos , SBA12
-	Gui, 98:Add, CheckBox,x190 y+15 vSBA19 gSBA19, 焦点候选框
-	Gui, 98:Add, CheckBox,yp+0 x%CheckVar1X% vSBA20 gSBA20, 候选框页数显示
-	Gui, 98:Add, CheckBox,x+5 yp+0 vSBA7 gSBA7, 四码上屏
-	Gui, 98:Add, CheckBox, x190 y+15 gEnableUIAccess vUIAccess , 权限提升
+	Gui,98:Font, s10, %font_%
+	Gui, 98:Add, CheckBox, x190 yp+45 gEnableUIAccess vUIAccess , 权限提升
+	GuiControlGet, CheckVar1, Pos , EnableUIAccess
 	Gui, 98:Add, CheckBox,x%CheckVar1X% yp+0 vSBA6 gSBA6, 符号顶屏
+	GuiControlGet, CheckVar2, Pos , EnableUIAccess
 	Gui, 98:Add, CheckBox,x%CheckVar2X% yp+0 vSBA3 gSBA3, 空码提示
-	Gui, 98:Add, CheckBox,x190 y+15 vSBA14 gSBA14, 中文模式使用英文标点
-	Gui, 98:Add, CheckBox,x+10 yp+0 vSBA21 gSBA21, 引号成对光标并居中
-	Gui, 98:Add, Button,x190 y+15 cred gCreateSC vCreateSC,建立桌面捷径
-	Gui 98:Add, Text,x190 y+15 w365 h2 0x10 vTextInfo13
-	Gui, 98:Add, CheckBox,x190 y+15 Checked%Frequency% vFrequency gFrequency, 动态调频
+	Gui, 98:Add, CheckBox,x190 y+10 vSBA14 gSBA14, 中文模式使用英文标点
+	Gui, 98:Add, CheckBox,x%CheckVar2X% yp+0 vSBA7 gSBA7, 四码上屏
+	Gui, 98:Add, CheckBox,x190 y+10 vSBA21 gSBA21, 引号成对光标并居中
+	Gui, 98:Add, CheckBox,x190 y+10 vSBA23 gSBA23 Checked%CharFliter%, GB2312过滤（单字方案）
+	if not Wubi_Schema ~="i)zi"
+		GuiControl, 98:Disable, SBA23
+	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo13
+	Gui, 98:Add, CheckBox,x190 y+10 Checked%Frequency% vFrequency gFrequency, 动态调频
 	if (not Wubi_Schema~="i)ci"||Trad_Mode~="i)on"||Prompt_Word~="i)on")
 		GuiControl, 98:Disable, Frequency
 	Gui, 98:Add, Text, x+5 yp vFTip left vTextInfo14, 调频参数：
@@ -1234,8 +1245,9 @@ More_Setting:
 		GuiControl, 98:Disable, set_Frequency
 		GuiControl, 98:Disable, RestDB
 	}
-	Gui, 98:Add, CheckBox,x190 y+15 Checked%IStatus% vInputStatus gInputStatus, 输入状态控制
+	Gui, 98:Add, CheckBox,x190 y+10 Checked%IStatus% vInputStatus gInputStatus, 输入状态控制
 	Gui, 98:Add, Button, yp-4 x+10 gWinMode vWinMode,程序设置
+	Gui, 98:Add, Button,yp x+10 cred gCreateSC vCreateSC,建立桌面捷径
 	if !IStatus
 		GuiControl,98:Disable,WinMode
 	For Section, element In TV_obj
@@ -1267,9 +1279,7 @@ More_Setting:
 	Gui, 98:Add, Text, x190 yp+45  left vTextInfo20, 默认状态：
 	Gui, 98:Add, Radio,yp+0 x+30 vSetInput_CNMode gSetInput_Mode, 中文
 	Gui, 98:Add, Radio,yp+0 x+30 vSetInput_ENMode gSetInput_Mode, 英文
-	Gui, 98:Add, CheckBox,x190 yp+45 vSBA23 gSBA23 Checked%CharFliter%, GB2312过滤（单字方案）
-	if not Wubi_Schema ~="i)zi"
-		GuiControl, 98:Disable, SBA23
+
 	For Section, element In TV_obj
 		if (Section="GBoxList4")
 			Loop, % TV_obj[Section].Length()
@@ -2997,8 +3007,10 @@ Export:
 		GuiControl, 98:Enable, SBA10
 		GuiControl, 98:Enable, SBA12
 		GuiControl, 98:Enable, SBA19
-		GuiControl, 98:Enable, set_GdipRadius
-		GuiControl, 98:Enable, GdipRadius
+		if Radius~="i)on" {
+			GuiControl, 98:Enable, set_GdipRadius
+			GuiControl, 98:Enable, GdipRadius
+		}
 	}
 Return
 
