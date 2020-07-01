@@ -740,7 +740,8 @@ Return
 	MouseGetPos, x1, y1
 	KeyWait, LButton
 	MouseGetPos, x2, y2
-	if (abs(x1-x2) > 10 &&rlk_switch&&abs(y1-y2) <=10 && abs(x1-x2) < A_ScreenHeight/3) {
+	SysGet, _height, 14       ;获取光标高度
+	if (abs(x1-x2) > 10 &&rlk_switch&&abs(y1-y2) <=_height && abs(x1-x2) < A_ScreenHeight/3) {
 		gosub RlkResult
 	}
 Return
