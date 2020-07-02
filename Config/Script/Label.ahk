@@ -870,15 +870,15 @@ srf_tooltip_fanye:
 		srf_for_select_Array:=get_word(srf_all_Input, Wubi_Schema)
 		if (srf_for_select_Array.Length()=0&&srf_all_Input ="help"){
 			Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10
-			help_info:=[["简繁模式"," 默认热键Ctrl+Shift+F ","〔 默认热键Ctrl+Shift+F 〕"]
-				,["程序挂起"," 默认热键Alt+Z ","〔 默认热键Alt+Z 〕"]
+			help_info:=[["简繁模式"," 热键" GetkeyName(s2thotkey) " 组合","〔 热键" GetkeyName(s2thotkey) "组合 〕"]
+				,["程序挂起"," 热键" GetkeyName(Suspendhotkey) " 组合","〔 热键" GetkeyName(Suspendhotkey) "组合 〕"]
 				,["以形查音"," ~键引导 ","〔 ~键引导 〕"]
 				,["精准造词"," ``键引导+``键分词 ","〔 ``键引导+``键分词 〕"]
 				,["临时英文"," 双``键引导 ","〔 双``键引导 〕"]
-				,["快捷退出"," 默认热键Ctrl+Esc ","〔 默认热键Ctrl+Esc 〕"]
+				,["快捷退出"," 热键" GetkeyName(exithotkey) " 组合","〔 热键" GetkeyName(exithotkey) "组合 〕"]
 				,["拼音反查"," z键引导 ","〔 z键引导 〕"]
-				,["拆分显示"," 默认热键Ctrl+Shift+H ","〔 默认热键Ctrl+Shift+H 〕"]
-				,["批量造词"," 默认热键Ctrl+CapsLock开启 ","〔 默认热键Ctrl+CapsLock开启 〕"]], srf_for_select_Array:=help_info
+				,["拆分显示"," 热键" GetkeyName(cfhotkey) " 组合","〔 热键" GetkeyName(cfhotkey) "组合 〕"]
+				,["批量造词"," 热键" GetkeyName(AddCodehotkey) " 组合 ","〔 热键" GetkeyName(AddCodehotkey) " 组合 〕"]], srf_for_select_Array:=help_info
 		}else if (srf_for_select_Array.Length()=0&&srf_all_Input ="mac"){
 			Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10
 			Mac_Array:=ComInfo.GetMacAddress_1(),IP_Array:=ComInfo.GetIPAddress_1()
@@ -902,6 +902,18 @@ srf_tooltip_fanye:
 		Gosub srf_tooltip_cut
 	}
 Return
+
+GetkeyName(hotkey:=""){
+	if (hotkey="")
+		Return
+	Loop,% StrLen(hotkey)
+	{
+		hkey:=SubStr(hotkey,A_Index,1), hkey:=RegExReplace(RegExReplace(hkey,"\<","L"),"\>","R")
+		hkey:=RegExReplace(RegExReplace(RegExReplace(RegExReplace(hkey,"\+","Shift • "),"\^","Ctrl • "),"\!","Alt • "),"\#","Win • ")
+		hkey_.= hkey
+	}
+	Return hkey_
+}
 
 srf_tooltip_cut:
 	srf_for_select_string:="", localpos:=1, srf_for_select_obj:=[]
