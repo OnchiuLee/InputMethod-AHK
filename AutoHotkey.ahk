@@ -61,7 +61,7 @@ CoordMode, ToolTip, Screen
 OnMessage(0x204, "WM_RBUTTONDOWN")
 OnMessage(0x201, "WM_LBUTTONDOWN")
 OnMessage(0x200, "WM_MOUSEMOVE")
-OnMessage(0x020a, "WM_MOUSEWHEEL")
+;OnMessage(0x020a, "WM_MOUSEWHEEL")
 SetWorkingDir %A_ScriptDir%
 DetectHiddenWindows, On
 DetectHiddenText, On
@@ -70,7 +70,7 @@ global y2 :=A_ScreenHeight-Shell_Wnd-40, CpuID:=ComInfo.GetCpuID_2()
 font_:=ComInfo.GetDefaultFontName(), font_:=font_?font_:"Microsoft YaHei UI"
 
 ;;===============输入法名称（可修改）==================
-global Startup_Name :="柚子98五笔"   
+global Startup_Name :="五笔98版"   
 ;拆分字体名变量，拆分开启时用来过滤字体以完美显示拆分
 FontExtend:="98WB-U|98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_
 ;;====================================================
@@ -95,8 +95,19 @@ Loop Files, config\Skins\logoStyle\*.icl
 
 ;{{{{{读取配置及配置检测
 global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni("config.ini")
-	srf_default_obj:={Settings:{Startup:"off",CNID:CpuID,IStatus:1,CharFliter:0,Exit_switch:1,Exit_hotkey:"^esc", symb_mode:2,sym_match:0,Frequency:0,Freq_Count:3, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f", cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"200", Logo_Y:y2, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock", Suspend_switch:1, Suspend_hotkey:"!z", tip_hotkey:"!q", rlk_switch:0, Logo_Switch:"on",Srf_Hotkey:"Shift", Select_Enter:"clean", Initial_Mode:"off", symb_send:"on", set_color:"on", Wubi_Schema:"ci",Cut_Mode:"off", limit_code:"on", Trad_Mode:"off", IMEmode:"on",InitStatus:0}
-		, TipStyle:{ThemeName:"经典商务风格", StyleN:StyleName,Logo_ExStyle:0,transparentX:180,LogoSize:36, FontType:font_, FontSize:20, FontColor:"2C3D4F",FocusBackColor:"2C3D4F",FocusColor:"CA3936",FocusCodeColor:"DEDEDE",FocusRadius:5, FontStyle:"off", FontCodeColor:"2C3D4F",LineColor:"444444",BorderColor:"ECF0F1", Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"on", BgColor:"ECF0F1", ListNum:5,Gdip_Radius:5, Textdirection:"horizontal", Set_Range:3, Fix_Switch:"off",Fix_X:A_ScreenWidth/2,Fix_Y:10}  ;竖排--vertical
+	srf_default_obj:={Settings:{Startup:"off",CNID:CpuID,IStatus:1,CharFliter:0,Exit_switch:1
+				,Exit_hotkey:"^esc", symb_mode:2,sym_match:0,Frequency:0,Freq_Count:3
+				, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f"
+				, cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"200", Logo_Y:y2
+				, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock", Suspend_switch:1
+				, Suspend_hotkey:"!z", tip_hotkey:"!q", rlk_switch:0, Logo_Switch:"on",Srf_Hotkey:"Shift"
+				, Select_Enter:"clean", Initial_Mode:"off", symb_send:"on", set_color:"on", Wubi_Schema:"ci"
+				,Cut_Mode:"off", limit_code:"on", Trad_Mode:"off", IMEmode:"on",InitStatus:0}
+		, TipStyle:{ThemeName:"经典商务风格", StyleN:StyleName,Logo_ExStyle:0,transparentX:180,LogoSize:36, FontType:font_
+				, FontSize:20, FontColor:"2C3D4F",FocusBackColor:"2C3D4F",FocusColor:"CA3936",FocusCodeColor:"DEDEDE"
+				,FocusRadius:5, FontStyle:"off", FontCodeColor:"2C3D4F",LineColor:"444444",BorderColor:"ECF0F1"
+				, Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"on", BgColor:"ECF0F1", ListNum:5,Gdip_Radius:5
+				, Textdirection:"horizontal", Set_Range:3, Fix_Switch:"off",Fix_X:A_ScreenWidth/2,Fix_Y:10}  ;竖排--vertical
 		, CustomColors:{Color_Row1:"0x1C7399,0xEEEEEC,0x014E8B,0x444444,0x009FE8,0xDEF9FA,0xF8B62D,0x90FC0F", Color_Row2:"0x0078D7,0x0D1B0A,0xB9D497,0x00ADEF,0x1778BF,0xFDF6E3,0x002B36,0xDEDEDE"}
 		, Versions:{Version:A_YYYY A_MM A_DD "-1"}
 		, YSDllPath:{SQLDllPath_x86:"config\SQLite3_x86\SQLite3.dll", SQLDllPath_x64:"config\SQLite3_x64\SQLite3.dll"}}
@@ -120,9 +131,23 @@ if FileExist(A_ScriptDir "\Sync\Default.json"){
 }
 
 ;配置项说明
-config_tip:={Settings:{Startup:"开机自启设置<on为建立系统计划任务实现自启/off为关闭开机自启/sc为在系统自启目录建立快捷方式实现自启>",CharFliter:"单字方案GB2312过滤",IStatus:"窗口程序输入状态配置开关",Exit_switch:"快捷退出快捷键启用开关",Exit_hotkey:"快捷退出快捷键",BUyaml:"导出文件为yaml格式文件，需要文件头支持才能导出",Frequency:"动态调频〔只对含词方案有效〕",Freq_Count:"调频参数〔词条上屏次数〕",FocusStyle:"焦点候选样式<1为启用,反之>",sym_match:"引号成对上屏光标并居中",PageShow:"候选框页数显示", s2t_swtich:"简繁模式切换开关", s2t_hotkey:"简繁模式切换功能快捷键", cf_swtich:"拆分显示功能开关", cf_hotkey:"字根拆分快捷键", UIAccess:"候选框UI层级权限提升,1为开启 0为关闭", Addcode_switch:"批量造词开关<1为开启,0为关闭>", Addcode_hotkey:"批量造词热键设置", Suspend_switch:"脚本挂起启用开关<1为开启,0为关闭>", Suspend_hotkey:"脚本挂起启用快捷键设置", tip_hotkey:"划词反查快捷键设置", rlk_switch:"划词反查开关<1为开启,0为关闭>", symb_mode:"中英文符号模式，1为英文 2为中文", Prompt_Word:"空码提示设置<on/off>",Srf_Hotkey:"中英文切换热键", Logo_X:"输入法logo图标x坐标", Logo_Y:"输入法logo图标y坐标", Logo_Switch:"logo图标显示与隐藏<on/off>"
-	, Select_Enter:"回车键功能定义<send为上屏编码/clean为清空编码>", Initial_Mode:"剪切板上屏开关<on/off>", symb_send:"符号顶屏开关<on/off>", set_color:"取色开关", Wubi_Schema:"方案设置项<ci为含词方案/zi为单字方案/chaoji为超集方案/zg为字根单打方案>",Cut_Mode:"字根拆分开关<on/off>", limit_code:"四码上屏开关<on/off>", Trad_Mode:"简繁模式切换<on为繁体/off为简体>", IMEmode:"中英文状态<on为中文/off为英文>"}
-	, TipStyle:{ThemeName:"主题名称",StyleN:"logo样式编号",transparentX:"Logo透明值「0-255」",Logo_ExStyle:"Logo鼠标穿透开关",LogoSize:"Logo尺寸大小",FontType:"候选字体设置",FontStyle:"候选词粗体开关",FocusBackColor:"候选框焦点背景颜色",FocusCodeColor:"候选框编码项背景",FocusColor:"候选框焦点字体颜色",FocusRadius:"焦点候选项圆角", FontSize:"候选字号大小设置", FontColor:"候选项颜色", FontCodeColor:"候选编码颜色",BorderColor:"候选框边框线",LineColor:"候选分割线选色", Gdip_Line:"Gdip候选框样式边框及候选框编码与候选词分隔线", ToolTipStyle:"候选框风格<on为tooltip样式/off为Gui候选样式/Gdip为Gdip候选样式>", Radius:"Gdip候选样式圆角开关<on/off>",Gdip_Radius:"Gdip候选框圆角大小", BgColor:"候选框背景色<16进制色值>", ListNum:"候选数量", Textdirection:"horizontal为横排/vertical为竖排", Set_Range:"ToolTip样式编码与候选词距离", Fix_Switch:"候选框固定开关",Fix_X:"候选框固定x坐标",Fix_Y:"候选框固定y坐标"}
+config_tip:={Settings:{Startup:"开机自启设置<on为建立系统计划任务实现自启/off为关闭开机自启/sc为在系统自启目录建立快捷方式实现自启>"
+			, CharFliter:"单字方案GB2312过滤",IStatus:"窗口程序输入状态配置开关",Exit_switch:"快捷退出快捷键启用开关"
+			, Exit_hotkey:"快捷退出快捷键",BUyaml:"导出文件为yaml格式文件，需要文件头支持才能导出",Frequency:"动态调频〔只对含词方案有效〕"
+			, Freq_Count:"调频参数〔词条上屏次数〕",FocusStyle:"焦点候选样式<1为启用,反之>",sym_match:"引号成对上屏光标并居中"
+			, PageShow:"候选框页数显示", s2t_swtich:"简繁模式切换开关", s2t_hotkey:"简繁模式切换功能快捷键", cf_swtich:"拆分显示功能开关"
+			, cf_hotkey:"字根拆分快捷键", UIAccess:"候选框UI层级权限提升,1为开启 0为关闭", Addcode_switch:"批量造词开关<1为开启,0为关闭>"
+			, Addcode_hotkey:"批量造词热键设置", Suspend_switch:"脚本挂起启用开关<1为开启,0为关闭>", Suspend_hotkey:"脚本挂起启用快捷键设置"
+			, tip_hotkey:"划词反查快捷键设置", rlk_switch:"划词反查开关<1为开启,0为关闭>", symb_mode:"中英文符号模式，1为英文 2为中文"
+			, Prompt_Word:"空码提示设置<on/off>",Srf_Hotkey:"中英文切换热键", Logo_X:"输入法logo图标x坐标", Logo_Y:"输入法logo图标y坐标"
+			, Logo_Switch:"logo图标显示与隐藏<on/off>", Select_Enter:"回车键功能定义<send为上屏编码/clean为清空编码>", Initial_Mode:"剪切板上屏开关<on/off>"
+			, symb_send:"符号顶屏开关<on/off>", set_color:"取色开关", Wubi_Schema:"方案设置项<ci为含词方案/zi为单字方案/chaoji为超集方案/zg为字根单打方案>"
+			,Cut_Mode:"字根拆分开关<on/off>", limit_code:"四码上屏开关<on/off>", Trad_Mode:"简繁模式切换<on为繁体/off为简体>", IMEmode:"中英文状态<on为中文/off为英文>"}
+	, TipStyle:{ThemeName:"主题名称",StyleN:"logo样式编号",transparentX:"Logo透明值「0-255」",Logo_ExStyle:"Logo鼠标穿透开关",LogoSize:"Logo尺寸大小",FontType:"候选字体设置"
+			,FontStyle:"候选词粗体开关",FocusBackColor:"候选框焦点背景颜色",FocusCodeColor:"候选框编码项背景",FocusColor:"候选框焦点字体颜色",FocusRadius:"焦点候选项圆角"
+			, FontSize:"候选字号大小设置", FontColor:"候选项颜色", FontCodeColor:"候选编码颜色",BorderColor:"候选框边框线",LineColor:"候选分割线选色", Gdip_Line:"Gdip候选框样式边框及候选框编码与候选词分隔线"
+			, ToolTipStyle:"候选框风格<on为tooltip样式/off为Gui候选样式/Gdip为Gdip候选样式>", Radius:"Gdip候选样式圆角开关<on/off>",Gdip_Radius:"Gdip候选框圆角大小", BgColor:"候选框背景色<16进制色值>"
+			, ListNum:"候选数量", Textdirection:"horizontal为横排/vertical为竖排", Set_Range:"ToolTip样式编码与候选词距离", Fix_Switch:"候选框固定开关",Fix_X:"候选框固定x坐标",Fix_Y:"候选框固定y坐标"}
 	, CustomColors:{Color_Row1:"配色对话框自定义颜色区域，第一排", Color_Row2:"配色对话框自定义颜色区域，第二排"}
 	, Versions:{Version:"版本日期"}
 	, YSDllPath:{SQLDllPath_x86:"SQlite数据库dll 32位路径", SQLDllPath_x64:"SQlite数据库dll 64位路径"}}
@@ -179,9 +204,12 @@ else
 
 srf_mode :=IMEmode~="off"?0:1
 if !InitStatus {
-	run,http://98wb.ys168.com/
+	Run, iexplore.exe "98wb.ys168.com/",, UseErrorLevel
+	Run, config\ReadMe.png,, UseErrorLevel
+	if (ErrorLevel = "ERROR") {
+		Traytip,, 未找到默认的图片查看器！,,3
+	}
 	InitStatus:=WubiIni.Settings["InitStatus"]:=1,WubiIni.Save()
-	run,config\ReadMe.png
 }
 if (ToolTipStyle ~="i)gdip"&&A_OSVersion ~="i)WIN_XP") {
 	;Traytip,,你的系统不支持当前Gdip候选框样式,请切换!,,2
@@ -238,7 +266,8 @@ If FileExist("Config\GB*.txt") {
 		DB.Exec(SQL)
 		FileRead,_Chars,Config\GB2312.txt
 		Loop,parse,_Chars,`n,`r
-			__Chars .="('" a_index "','" RegExReplace(A_LoopField,"\s+") "')" ","
+			if not RegExReplace(A_LoopField,"\s+")~="^\;|^\/|^[a-zA-Z0-9]"
+				__Chars .="('" a_index "','" RegExReplace(A_LoopField,"\s+") "')" ","
 		DB.Exec("INSERT INTO GBChars VALUES" RegExReplace(__Chars,"\,$") "")
 	}
 }
