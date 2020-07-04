@@ -1243,7 +1243,7 @@ More_Setting:
 	Gui, 98:Add, CheckBox,x%CheckVar2X% yp+0 vSBA7 gSBA7, 四码上屏
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA21 gSBA21, 引号成对光标并居中
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA23 gSBA23 Checked%CharFliter%, GB2312过滤（单字方案）
-	if not Wubi_Schema ~="i)zi"
+	if (not Wubi_Schema ~="i)zi"||!FileExist("config\GB*.txt"))
 		GuiControl, 98:Disable, SBA23
 	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo13
 	Gui, 98:Add, CheckBox,x190 y+10 Checked%Frequency% vFrequency gFrequency, 动态调频
@@ -1333,8 +1333,8 @@ More_Setting:
 	GuiControl, 98:Hide, Setlabel
 	GuiControl, 98:Hide, Savelabel
 	Gui,98:Font
-	Gui,98:Font, s9, %font_%
-	Gui, 98:Add, ListView,x180 y+15 h300 w380 Grid AltSubmit NoSortHdr NoSort -WantF2 Checked -ReadOnly -Multi 0x8 LV0x40 -LV0x10 gMyLabel vMyLabel hwndHLV, 别名|标签名|标签说明|状态
+	Gui,98:Font, s8, %font_%
+	Gui, 98:Add, ListView,x180 y+15 h300 w380 Grid AltSubmit NoSortHdr NoSort -WantF2 Checked -ReadOnly -Multi 0x8 LV0x40 -LV0x10 gMyLabel vMyLabel hwndHLV, 别名|标签名|标签说明
 	GuiControl, +Hdr, MyLabel
 	Gosub Glabel
 	For Section, element In TV_obj
@@ -1751,7 +1751,7 @@ Glabel:
 	If DB.gettable("SELECT * FROM label", Result){
 		loop, % Result.RowCount
 		{
-			LV_Add("", Result.Rows[A_index,2], Result.Rows[A_index,3],SubStr(Result.Rows[A_index,4],2),(WubiIni.Settings[Result.Rows[A_index,3]]!=""?(WubiIni.Settings[Result.Rows[A_index,3]]~="i)^on"?"开":WubiIni.Settings[Result.Rows[A_index,3]]~="i)^off"?"关":WubiIni.Settings[Result.Rows[A_index,3]]):(WubiIni.TipStyle[Result.Rows[A_index,3]]~="i)^on"?"开":WubiIni.TipStyle[Result.Rows[A_index,3]]~="i)^off"?"关":WubiIni.TipStyle[Result.Rows[A_index,3]]))), LV_ModifyCol()
+			LV_Add("", Result.Rows[A_index,2], Result.Rows[A_index,3],SubStr(Result.Rows[A_index,4],2)), LV_ModifyCol()
 		}
 		LV_ModifyCol(2,"120 left")
 		;LV_ModifyCol(4,"60 left")
@@ -2489,7 +2489,8 @@ sChoice4:
 		Menu, Tray, Disable, 导出词库
 		GuiControl, 98:Disable, ciku1
 		GuiControl, 98:Disable, ciku2
-		GuiControl, 98:Enable, SBA23
+		if FileExist("config\GB*.txt")
+			GuiControl, 98:Enable, SBA23
 		GuiControl,logo:, MoveGui,*Icon13 config\Skins\logoStyle\%StyleN%.icl
 		GuiControl, 98:Disable, Frequency
 		GuiControl, 98:Disable, FTip
@@ -2901,6 +2902,13 @@ SBA23:
 	}else{
 		CharFliter:=WubiIni.Settings["CharFliter"]:=0,WubiIni.save()
 	}
+Return
+
+CharFliter:
+	if Wubi_Schema~="i)zi"
+		CharFliter:=WubiIni.Settings["CharFliter"]:=CharFliter?0:1,WubiIni.save()
+	else
+		CharFliter:=WubiIni.Settings["CharFliter"]:=CharFliter,WubiIni.save()
 Return
 
 s2t_hotkeys:
