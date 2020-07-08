@@ -279,7 +279,7 @@ If FileExist("Config\GB*.txt") {
 global recent:=Carets:={}
 global code_status:=localpos:=srfCounts:=select_pos:=1
 global valueindex:=Cut_Mode?2:1
-global waitnum:=select_sym:=sym_qmarks:=PosLimit:=PosIndex:=InitSetting:=0
+global waitnum:=select_sym:=sym_qmarks:=PosLimit:=PosIndex:=InitSetting:=CharsCount:=0
 Select_Code=gfdsahjklm;'space           ;字母选词
 global num__:=Result_Char:=Select_result :=selectallvalue:=""
 global select_arr:=select_value_arr:=srf_bianma:=add_Array:=add_Result:=Split_code:=[]
@@ -432,38 +432,57 @@ Gui +LastFound
 DllCall( "RegisterShellHookWindow", UInt,WinExist() )   ;WinActive()
 OnMessage( DllCall( "RegisterWindowMessage", Str,"SHELLHOOK" ), "ShellIMEMessage")
 ShellIMEMessage( wParam,lParam ) {
-	global srf_mode, EXEList_obj, Initial_Mode, WubiIni,StyleN,IStatus, Versions, program
-		, Startup_Name, Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle
-	If ( wParam = 6 ||wParam = 1 ){
+	global srf_mode, EXEList_obj, Initial_Mode, WubiIni,StyleN,IStatus, Versions, program, IMEmode
+		, Startup_Name, Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, CharsCount, srf_all_input
+	If (wParam = 1 ){    ; wParam = 6
 		WinGet, WinEXE, ProcessName , ahk_id %lParam%
 		WinGetclass, WinClass, ahk_id %lParam%
 		;WinActivate,ahk_class %WinClass%
-		Loop,% EXEList_obj["CN"].length()+EXEList_obj["EN"].length()+EXEList_obj["CLIP"].length()
+		If (Array_isInValue(EXEList_obj["CN"], WinEXE)&&!srf_mode&&IStatus)
 		{
-			If (EXEList_obj["CN",a_index]=WinEXE&&!srf_mode&&EXEList_obj["CN",a_index]<>""&&IStatus)
-			{
-				srf_mode:=1
-				GuiControl,logo:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
-				Gosub ShowSrfTip
-				break
-			}else If (EXEList_obj["EN",a_index]=WinEXE&&srf_mode&&EXEList_obj["EN",a_index]<>""&&IStatus){
-				srf_mode:=0
-				GuiControl,logo:, Pics,*Icon3 config\Skins\logoStyle\%StyleN%.icl
-				Gosub ShowSrfTip
-				break
-			}else If (EXEList_obj["CLIP",a_index]=WinEXE&&EXEList_obj["CLIP",a_index]<>""&&IStatus){
-				if Initial_Mode~="i)off" {
-					Initial_Mode:=WubiIni.Settings["Initial_Mode"] :="on", WubiIni.save()
-					GuiControl,logo:, Pics4,*Icon10 config\Skins\logoStyle\%StyleN%.icl
-					break
-				}
+			srf_mode:=1
+			GuiControl,logo:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
+			Gosub ShowSrfTip
+		}else If (Array_isInValue(EXEList_obj["EN"], WinEXE)&&srf_mode&&IStatus){
+			srf_mode:=0
+			GuiControl,logo:, Pics,*Icon3 config\Skins\logoStyle\%StyleN%.icl
+			Gosub ShowSrfTip
+		}else If (Array_isInValue(EXEList_obj["CLIP"], WinEXE)&&IStatus){
+			if Initial_Mode~="i)off" {
+				Initial_Mode:=WubiIni.Settings["Initial_Mode"] :="on", WubiIni.save()
+				GuiControl,logo:, Pics4,*Icon10 config\Skins\logoStyle\%StyleN%.icl
 			}
 		}
 	}
 	SetTimer, func_timer, 1000
 
 	func_timer:
-		program:="※ " Startup_Name " ※`n版本日期：" Versions "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "〖 " A_DDDD " 〗`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
+		WinID_:=WinExist("A")
+		If (strLen(WinID_)>3){
+			WinGet, WinEXE_, ProcessName , ahk_id %WinID_%
+		}
+		if (WinEXE_<>LastWinEXE&&Eid<>WinExist()&&Eid){
+			If (Array_isInValue(EXEList_obj["CN"], WinEXE_)&&!srf_mode&&IStatus){
+				srf_mode:=1
+				GuiControl,logo:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
+				Gosub ShowSrfTip
+			}else If (Array_isInValue(EXEList_obj["EN"], WinEXE_)&&srf_mode&&IStatus){
+				srf_mode:=0
+				GuiControl,logo:, Pics,*Icon3 config\Skins\logoStyle\%StyleN%.icl
+				Gosub ShowSrfTip
+			}else If (Array_isInValue(EXEList_obj["CLIP"], WinEXE_)&&IStatus){
+				if Initial_Mode~="i)off" {
+					Initial_Mode:=WubiIni.Settings["Initial_Mode"] :="on", WubiIni.save()
+					GuiControl,logo:, Pics4,*Icon10 config\Skins\logoStyle\%StyleN%.icl
+				}
+			}else if (!Array_isInValue(EXEList_obj["EN"], WinEXE_)&&!Array_isInValue(EXEList_obj["CN"], WinEXE_)&&srf_mode<>(IMEmode~="off"?0:1)){
+				srf_mode :=IMEmode~="off"?0:1, _Icon:=srf_mode?1:3
+				GuiControl,logo:, Pics,*Icon%_Icon% config\Skins\logoStyle\%StyleN%.icl
+				Gosub ShowSrfTip
+			}
+		}
+		LastWinEXE:=WinEXE_, Eid:=WinExist()
+		program:="※ " Startup_Name " ※`n版本日期：" Versions "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "〖 " A_DDDD " 〗`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2)) "`n字数统计：" CharsCount "字"
 		Menu,Tray,Tip,%program%
 	Return
 }
