@@ -1557,6 +1557,30 @@ WinMode:
 	Gui,IM:Show, AutoSize,程序配置
 Return
 
+IsProcessInfo(ProcessName){
+	CaptionObj:=[],ProcessFullPath:=""
+	for process in ComObjGet("winmgmts:").ExecQuery("Select * from Win32_Process")
+	{
+		CaptionObj.push([process.Caption,process.ExecutablePath])
+		if (process.Caption=ProcessName)
+			ProcessFullPath:=CaptionObj[A_Index,2]
+	}
+	If Array_isInValue(CaptionObj, ProcessFullPath)
+		return GetProcessInfo(ProcessFullPath)
+}
+
+GetProcessInfo(filepath){
+	SplitPath, filepath , FileName, DirPath,
+	objShell := ComObjCreate("Shell.Application")
+	objFolder := objShell.NameSpace(DirPath)
+	objFolderItem := objFolder.ParseName(FileName)
+	Loop 283
+		if propertyitem :=objFolder.GetDetailsOf(objFolderItem, A_Index)
+			if objFolder.GetDetailsOf(objFolder.Items, A_Index)="文件说明"
+				if propertyitem
+					return propertyitem
+}
+
 IPView:
 	if A_GuiEvent~="i)Normal" {
 		LV_GetText(LVName_,A_EventInfo,2),LV_GetText(LVName,A_EventInfo,1), LVPOS:= A_EventInfo
@@ -1580,6 +1604,7 @@ IPView:
 				break
 			}
 		}
+		ToolTip, % IsProcessInfo(LVName)   ;显示进程描述
 	}
 Return
 
