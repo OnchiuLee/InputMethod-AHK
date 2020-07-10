@@ -1627,23 +1627,23 @@ AddProcess:
 	TransGui()
 	MouseGetPos, , , id
 	WinGet, win_exe, ProcessName, ahk_id %id%,
-	Set_IMode:=IMEmode~="off"?"EN":"CN", IModeCount:=0
-	if EXEList_obj[Set_IMode].Length()>0 {
-		Loop,% EXEList_obj[Set_IMode].Length()
-		{
-			if (value<>win_exe)
-				IModeCount++
-		}
-		if (EXEList_obj[Set_IMode].Length()=IModeCount&&win_exe~="i)\.exe") {
-			LV_Insert(LV_GetCount()+1 , "", win_exe, Set_IMode="CN"?"中文":Section="EN"?"英文":"剪切板")
-			EXEList_obj[Set_IMode].Push(win_exe)
-			Json_ObjToFile(EXEList_obj, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
-		}
-	}else{
-		if win_exe~="i)\.exe"
-		{
-			LV_Insert(1 , "", win_exe, Set_IMode="CN"?"中文":Section="EN"?"英文":"剪切板"),LV_ModifyCol()
-			EXEList_obj[Set_IMode,1]:=win_exe
+	Set_IMode:=IMEmode~="i)off"?"EN":"CN", IModeCount:=Set_IMode~="i)EN"?"CN":"EN"
+	If win_exe~="i)\.exe" {
+		if !Array_isInValue(EXEList_obj[Set_IMode], win_exe){
+			if Array_isInValue(EXEList_obj[IModeCount], win_exe){
+				Loop, % EXEList_obj[IModeCount].Length()
+					if (EXEList_obj[IModeCount,A_Index]=win_exe)
+						EXEList_obj[IModeCount].RemoveAt(A_Index)
+				If EXEList_obj[Set_IMode].Length()>0
+					EXEList_obj[Set_IMode].Push(win_exe), LV_Modify(LVPOS,"text",win_exe,IMEmode~="i)off"?"英文":"中文")
+				else
+					LV_Insert(LV_GetCount() ,"", win_exe, "中文"),EXEList_obj[Set_IMode]:=[ win_exe ]
+			}else{
+				If EXEList_obj[Set_IMode].Length()>0
+					EXEList_obj[Set_IMode].Push(win_exe),LV_Insert(LV_GetCount() ,"", win_exe, IMEmode~="i)off"?"英文":"中文")
+				else
+					EXEList_obj[Set_IMode]:=[ win_exe ],LV_Insert(LV_GetCount() ,"", win_exe, IMEmode~="i)off"?"英文":"中文")
+			}
 			Json_ObjToFile(EXEList_obj, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
 			LV_ModifyCol(2,"100 center")
 			ColWidth:=0
@@ -1655,7 +1655,8 @@ AddProcess:
 				ColWidth+=ErrorLevel
 			}
 			GuiControl, IM:Move, IPView, % "w" (A_ScreenDPI/96>1?ColWidth/(A_ScreenDPI/96):ColWidth)
-		}
+		}else{
+			Traytip,,该进程已存在！
 	}
 	Gui, 98:Show
 	Gui, IM:show
@@ -1675,59 +1676,46 @@ IM_DDL:
 		if IM_DDL ~="中文" {
 			if EXEList_obj["CN"].Length()>0
 			{
-				if LVName__~="EN" {
-					IModeCount:=0
-					Loop, % EXEList_obj["CN"].Length()
-						if (EXEList_obj["CN",A_Index]=LVName)
-							IModeCount:=1
-					if !IModeCount
-					{
-						Loop, % EXEList_obj["EN"].Length()
-						{
-							if (EXEList_obj["EN",A_Index]=LVName)
-								EXEList_obj["EN"].RemoveAt(A_Index)
-						}
-						LV_Modify(LVPOS,"text",LVName,"中文")
-						EXEList_obj["CN"].Push(LVName)
+				if Array_isInValue(EXEList_obj["EN"], LVName){
+					Loop, % EXEList_obj["EN"].Length()
+						if (EXEList_obj["EN",A_Index]=LVName)
+							EXEList_obj["EN"].RemoveAt(A_Index), LV_Modify(LVPOS,"text",LVName,"中文"), EXEList_obj["CN"].Push(LVName)
 					}
-				}
-			}else
-				EXEList_obj["CN",1]:=LVName, LV_Insert(LV_GetCount() ,"", LVName, "中文")
+				}else
+					EXEList_obj["CN"].Push(LVName)
+			}else{
+				if Array_isInValue(EXEList_obj["EN"], LVName){
+					Loop, % EXEList_obj["EN"].Length()
+						if (EXEList_obj["EN",A_Index]=LVName)
+							EXEList_obj["EN"].RemoveAt(A_Index), LV_Modify(LVPOS,"text",LVName,"中文"), EXEList_obj["CN"]:=[ LVName ]
+				}else
+					EXEList_obj["CN"]:=[ LVName ], LV_Insert(LV_GetCount() ,"", LVName, "中文")
+			}
 		}else if IM_DDL ~="英文" {
 			if EXEList_obj["EN"].Length()>0
 			{
-				if LVName__~="CN" {
-					IModeCount:=0
-					Loop, % EXEList_obj["EN"].Length()
-						if (EXEList_obj["EN",A_Index]=LVName)
-							IModeCount:=1
-					if !IModeCount
-					{
-						Loop, % EXEList_obj["CN"].Length()
-						{
-							if (EXEList_obj["CN",A_Index]=LVName)
-								EXEList_obj["CN"].RemoveAt(A_Index)
-						}
-						LV_Modify(LVPOS,"text",LVName,"英文")
-						EXEList_obj["EN"].Push(LVName)
-					}
-				}
-			}else
-				EXEList_obj["EN",1]:=LVName, LV_Insert(LV_GetCount() ,"", LVName, "英文")
+				if Array_isInValue(EXEList_obj["CN"], LVName){
+					Loop, % EXEList_obj["CN"].Length()
+						if (EXEList_obj["CN",A_Index]=LVName)
+							EXEList_obj["CN"].RemoveAt(A_Index), LV_Modify(LVPOS,"text",LVName,"英文"), EXEList_obj["EN"].Push(LVName)
+				}else
+					EXEList_obj["EN"].Push(LVName)
+			}else{
+				if Array_isInValue(EXEList_obj["CN"], LVName){
+					Loop, % EXEList_obj["CN"].Length()
+						if (EXEList_obj["CN",A_Index]=LVName)
+							EXEList_obj["CN"].RemoveAt(A_Index), LV_Modify(LVPOS,"text",LVName,"英文"), EXEList_obj["EN"]:=[ LVName ]
+				}else
+					EXEList_obj["EN"]:=[ LVName ], LV_Insert(LV_GetCount() ,"", LVName, "英文")
+			}
 		}else if IM_DDL ~="剪切板" {
 			if EXEList_obj["CLIP"].Length()>0
 			{
-				IModeCount:=0
-				Loop, % EXEList_obj["CLIP"].Length()
-					if (EXEList_obj["CLIP",A_Index]=LVName)
-						IModeCount:=1
-				if !IModeCount
-				{
-					LV_Insert(LVPOS+1 ,"", LVName, "剪切板")
-					EXEList_obj["CLIP"].Push(LVName)
+				if !Array_isInValue(EXEList_obj["CLIP"], LVName){
+					LV_Insert(LV_GetCount() ,"", LVName, "剪切板"), EXEList_obj["EN"].Push(LVName)
 				}
 			}else{
-				LV_Insert(1 ,"", LVName, "剪切板"), EXEList_obj["CLIP",1]:=LVName
+				LV_Insert(1 ,"", LVName, "剪切板"), EXEList_obj["CLIP"]:=[ LVName ]
 			}
 		}
 		Json_ObjToFile(EXEList_obj, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
