@@ -95,7 +95,7 @@ Loop Files, config\Skins\logoStyle\*.icl
 
 ;{{{{{读取配置及配置检测
 global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni("config.ini")
-	srf_default_obj:={Settings:{Startup:"off",CNID:CpuID,IStatus:1,CharFliter:0,Exit_switch:1
+	srf_default_obj:={Settings:{Startup:"off",CNID:CpuID,IStatus:1,CharFliter:0,Exit_switch:1,PromptChar:0
 				,Exit_hotkey:"^esc", symb_mode:2,sym_match:0,Frequency:0,Freq_Count:3
 				, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f"
 				, cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"200", Logo_Y:y2
@@ -132,7 +132,7 @@ if FileExist(A_ScriptDir "\Sync\Default.json"){
 
 ;配置项说明
 config_tip:={Settings:{Startup:"开机自启设置<on为建立系统计划任务实现自启/off为关闭开机自启/sc为在系统自启目录建立快捷方式实现自启>"
-			, CharFliter:"单字方案GB2312过滤",IStatus:"窗口程序输入状态配置开关",Exit_switch:"快捷退出快捷键启用开关"
+			, CharFliter:"单字方案GB2312过滤",IStatus:"窗口程序输入状态配置开关",Exit_switch:"快捷退出快捷键启用开关",PromptChar:"逐码提示"
 			, Exit_hotkey:"快捷退出快捷键",BUyaml:"导出文件为yaml格式文件，需要文件头支持才能导出",Frequency:"动态调频〔只对含词方案有效〕"
 			, Freq_Count:"调频参数〔词条上屏次数〕",FocusStyle:"焦点候选样式<1为启用,反之>",sym_match:"引号成对上屏光标并居中"
 			, PageShow:"候选框页数显示", s2t_swtich:"简繁模式切换开关", s2t_hotkey:"简繁模式切换功能快捷键", cf_swtich:"拆分显示功能开关"
