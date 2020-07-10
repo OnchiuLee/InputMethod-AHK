@@ -361,15 +361,33 @@ get_word(input, cikuname){
 				Return Result.Rows
 		}else if input ~="^[a-y]+"{
 			if cikuname~="i)ci"{
-				if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off")
-					SQL :="select aim_chars from ci WHERE A_Key ='" input "' AND D_Key >0 ORDER BY A_Key,D_Key DESC;"
-				else
-					SQL :="select aim_chars from ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC;"
+				if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"){
+					if PromptChar
+						SQL :="SELECT aim_chars FROM(SELECT aim_chars FROM ci WHERE A_Key ='" input "' AND D_Key >0 ORDER BY A_Key,D_Key DESC) UNION ALL SELECT aim_chars FROM(SELECT aim_chars FROM ci WHERE A_Key LIKE'" input "_' AND D_Key >0 ORDER BY A_Key,D_Key DESC);"
+					else
+						SQL :="select aim_chars from ci WHERE A_Key ='" input "' AND D_Key >0 ORDER BY A_Key,D_Key DESC;"
+				}else{
+					if PromptChar
+						SQL :="SELECT aim_chars FROM(SELECT aim_chars FROM ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars FROM(SELECT aim_chars FROM ci WHERE A_Key LIKE'" input "_' AND B_Key >0 ORDER BY A_Key,B_Key DESC);"
+					else
+						SQL :="select aim_chars from ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC;"
+				}
 			}else{
-				if cikuname~="i)zi"
-					SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC;"
-				else
-					SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "'" (not cikuname~="i)zg"?"ORDER BY A_Key,B_Key DESC":"") ";"
+				if cikuname~="i)zi"{
+					if PromptChar
+						SQL :="SELECT aim_chars FROM(SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars FROM(SELECT aim_chars FROM " cikuname " WHERE A_Key LIKE '" input "_' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC);"
+					else
+						SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC;"
+				}else{
+					if PromptChar
+					{
+						if cikuname~="i)zg"
+							SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "'" (not cikuname~="i)zg"?"ORDER BY A_Key,B_Key DESC":"") ";"
+						else
+							SQL :="SELECT aim_chars FROM(SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "'" (not cikuname~="i)zg"?"ORDER BY A_Key,B_Key DESC":"") ") UNION ALL SELECT aim_chars FROM(SELECT aim_chars FROM " cikuname " WHERE A_Key LIKE'" input "_'" (not cikuname~="i)zg"?"ORDER BY A_Key,B_Key DESC":"") ");"
+					}else
+						SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "'" (not cikuname~="i)zg"?"ORDER BY A_Key,B_Key DESC":"") ";"
+				}
 			}
 			If DB.GetTable(SQL, Result)
 			{
@@ -403,12 +421,10 @@ get_word(input, cikuname){
 				}
 				else
 				{
-					if Trad_Mode~="off"{
+					if Trad_Mode~="off" {
 						loop, % Result.RowCount
-							Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1])
-					}
-					else
-					{
+							Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?RegExReplace(getEnCode,"^" srf_all_Input ,"~"):""
+					}else{
 						lianx :="on"
 						loop, % Result.RowCount
 						{
@@ -420,8 +436,7 @@ get_word(input, cikuname){
 						{
 							if A_LoopField
 							{
-								Result.Rows[a_index,1] :=A_LoopField
-								Result.Rows[a_index,2]:=split_wubizg(A_LoopField)
+								Result.Rows[a_index,1] :=A_LoopField, Result.Rows[a_index,2]:=split_wubizg(A_LoopField), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(A_LoopField))<>srf_all_Input&&PromptChar)? RegExReplace(getEnCode,"^" srf_all_Input ,"~"):""
 							}
 						}
 						Result_ :=Result_part_all:=""

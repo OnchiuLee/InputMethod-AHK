@@ -1128,7 +1128,7 @@ More_Setting:
 
 	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","SBA13","TextInfo1","TextInfo0","SrfSlider","SizeValue","set_SizeValue","ExSty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4"]
 		,GBoxList2:["GBox2","TextInfo11","TextInfo25","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
-		,GBoxList3:["GBox3","SBA7","SBA23","UIAccess","SBA6","SBA14","SBA21","SBA3","TextInfo13","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
+		,GBoxList3:["GBox3","SBA7","SBA23","SBA24","UIAccess","SBA6","SBA14","SBA21","SBA3","TextInfo13","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","Dlabel","Rlabel","Blabel","Wlabel","Ulabel","Setlabel","Savelabel","MyLabel"]
@@ -1239,9 +1239,19 @@ More_Setting:
 	Gui, 98:Add, CheckBox,x%CheckVar1X% yp+0 vSBA6 gSBA6, 符号顶屏
 	GuiControlGet, CheckVar2, Pos , EnableUIAccess
 	Gui, 98:Add, CheckBox,x%CheckVar2X% yp+0 vSBA3 gSBA3, 空码提示
+	if PromptChar
+	{
+		Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="off"
+		GuiControl,98:, SBA24 , 0
+	}
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA14 gSBA14, 中文模式使用英文标点
 	Gui, 98:Add, CheckBox,x%CheckVar2X% yp+0 vSBA7 gSBA7, 四码上屏
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA21 gSBA21, 引号成对光标并居中
+	Gui, 98:Add, CheckBox,x%CheckVar2X% yp+0 vSBA24 gSBA24 Checked%PromptChar%, 逐码提示
+	if Prompt_Word~="i)on" {
+		PromptChar:=WubiIni.Settings["PromptChar"]:=0
+		GuiControl,98:, SBA3 , 0
+	}
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA23 gSBA23 Checked%CharFliter%, GB2312过滤（单字方案）
 	if (not Wubi_Schema ~="i)zi"||!FileExist("config\GB*.txt"))
 		GuiControl, 98:Disable, SBA23
@@ -2083,7 +2093,8 @@ ControlGui:
 		GuiControl, 98:ChooseString, select_theme, % ThemeName
 	else
 		GuiControl, 98:Choose, select_theme, 0
-
+	if PromptChar
+		GuiControl,98:, SBA24 , 1
 	GuiControl, 98:ChooseString, set_Frequency, %Freq_Count%
 	if Radius~="i)on" {
 		GuiControl,98:, SBA9 , 1
@@ -2705,7 +2716,9 @@ Return
 SBA3:
 	GuiControlGet, SBA ,, SBA3, Checkbox
 	if (SBA==1) {
-		Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="on",WubiIni.save()
+		if PromptChar
+			GuiControl,98:, SBA24 , 0
+		Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="on",PromptChar:=WubiIni.Settings["PromptChar"]:=0,WubiIni.save()
 		Menu, setting, Rename, 空码提示	× , 空码提示	√
 		GuiControl, 98:Disable, Frequency
 		GuiControl, 98:Disable, FTip
@@ -2926,6 +2939,17 @@ SBA23:
 		CharFliter:=WubiIni.Settings["CharFliter"]:=1,WubiIni.save()
 	}else{
 		CharFliter:=WubiIni.Settings["CharFliter"]:=0,WubiIni.save()
+	}
+Return
+
+SBA24:
+	GuiControlGet, SBA ,, SBA24, Checkbox
+	if (SBA==1) {
+		if Prompt_Word~="i)on"
+			GuiControl,98:, SBA3 , 0
+		PromptChar:=WubiIni.Settings["PromptChar"]:=1,Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="on",WubiIni.save()
+	}else{
+		PromptChar:=WubiIni.Settings["PromptChar"]:=0,WubiIni.save()
 	}
 Return
 
