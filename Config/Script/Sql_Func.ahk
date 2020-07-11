@@ -218,7 +218,6 @@ get_en_code(chars){
 		else
 		{
 			Return chars
-			
 		}
 	}
 }
@@ -294,7 +293,7 @@ format_word(input){
 	If (input="")
 		Return []
 	if code_status&&!InStr(input,"``") {
-		SQL :="SELECT aim_chars FROM zi WHERE A_Key = '" RegExReplace(input,"^" srf_bianma[srf_bianma.Length()]) "'" 
+		SQL :="SELECT aim_chars FROM ci WHERE A_Key = '" RegExReplace(input,"^" srf_bianma[srf_bianma.Length()]) "' AND Length(aim_chars)=1;" 
 		If DB.GetTable(SQL, Result)
 		{
 			if (Result.Rows[1,1]<>""){
@@ -308,7 +307,7 @@ format_word(input){
 		Split_l:=[]
 		Split_code:=StrSplit(RegExReplace(input,"^``"), "``")
 		Split_l:= Combin_Arr(Split_code,DB)
-		SQL :="SELECT aim_chars FROM zi WHERE A_Key = '" Split_code[select_pos] "'"
+		SQL :="SELECT aim_chars FROM ci WHERE A_Key = '" Split_code[select_pos] "' AND Length(aim_chars)=1;"
 		If DB.GetTable(SQL, Result)
 		{
 			if (Result.Rows[1,1]<>""){
@@ -438,7 +437,10 @@ get_word(input, cikuname){
 								{
 									If Array_isInValue(cArr_count, Result.Rows[a_index,1]){
 										c_count++, Result.Rows.RemoveAt(a_index)
-										Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
+										If !Array_isInValue(cArr_count, Result.Rows[a_index,1])
+											Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
+										else
+											Result.Rows.RemoveAt(a_index)
 									}else
 										Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
 									cArr_count.Push(Result.Rows[a_index,1])
@@ -455,7 +457,10 @@ get_word(input, cikuname){
 								{
 									If Array_isInValue(cArr_count, Result.Rows[a_index,1]){
 										c_count++, Result.Rows.RemoveAt(a_index)
-										Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
+										If !Array_isInValue(cArr_count, Result.Rows[a_index,1])
+											Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
+										else
+											Result.Rows.RemoveAt(a_index)
 									}else
 										Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
 									cArr_count.Push(Result.Rows[a_index,1])
@@ -654,7 +659,8 @@ prompt_pinyin(input){
 	If (input="")
 		Return []
 	input:=RegExReplace(input,"~","")
-	prompt_result:=get_word(input,Wubi_Schema)
+	DB.GetTable("select aim_chars from zi WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC;", Result)
+	prompt_result:=Result.Rows
 	prompt_all:=[],count:=0
 	if prompt_result[1,1]{
 		loop % prompt_result.Length()
