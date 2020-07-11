@@ -124,32 +124,40 @@ set_next(list_num){
 }
 
 ;简体转繁体
-set_trad_mode(chars){
+set_trad_mode(Arrs){
 	global DB
-	If (chars="")
+	If (Arrs.Length()<1)
 		Return []
 	else
 	{
-		If DB.gettable("SELECT A_Key FROM s2t WHERE aim_chars = '" chars "'", Result){
-			if Result.Rows[1,1]
+		ResultAll:=[]
+		for k,v in Arrs
+		{
+			for Index,value in v
 			{
-				Return Result.Rows[1,1]
-			}
-			else
-			{
-				loop % strlen(chars)
-				{
-					If DB.gettable("SELECT A_Key FROM s2t WHERE aim_chars = '" SubStr(chars,a_index,1) "'", Result){
-						If Result.Rows[1,1]
-							Result_1 :=Result.Rows[1,1]
-						else
-							Result_1 :=SubStr(chars,a_index,1)
+				If DB.gettable("SELECT A_Key FROM s2t WHERE aim_chars = '" value "'", Result){
+					if Result_2:=Result.Rows[1,1]
+					{
+						loop,parse,Result_2,%A_space%
+							ResultAll.push([A_LoopField])
+						ResultAll.push([Result_1])
+					}else{
+						loop % strlen(value)
+						{
+							If DB.gettable("SELECT A_Key FROM s2t WHERE aim_chars = '" SubStr(value,a_index,1) "'", Result){
+								If Result_2:=Result.Rows[1,1] {
+									loop,parse,Result_2,%A_space%
+										Result_1 .= A_LoopField
+								}else
+									Result_1 .=SubStr(value,a_index,1)
+							}
+						}
+						ResultAll.push([Result_1]), Result_1:=""
 					}
-					Result_ .=Result_1
 				}
-				Return Result_
 			}
 		}
+		Return ResultAll
 	}
 }
 
@@ -422,25 +430,41 @@ get_word(input, cikuname){
 				else
 				{
 					if Trad_Mode~="off" {
-						loop, % Result.RowCount
-							Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?RegExReplace(getEnCode,"^" srf_all_Input ,"~"):""
-					}else{
-						lianx :="on"
+						cArr_count:=[], c_count:=0
 						loop, % Result.RowCount
 						{
-							if set_trad_mode(Result.Rows[a_index,1])
-								Result_ :=set_trad_mode(Result.Rows[a_index,1])
-							Result_part_all .=RegExReplace(Result_,"\s+","`n") "`n"
-						}
-						loop,parse,Result_part_all,`n
-						{
-							if A_LoopField
-							{
-								Result.Rows[a_index,1] :=A_LoopField, Result.Rows[a_index,2]:=split_wubizg(A_LoopField), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(A_LoopField))<>srf_all_Input&&PromptChar)? RegExReplace(getEnCode,"^" srf_all_Input ,"~"):""
+							If cc_count:=Array_isInValueCount(Result.Rows, Result.Rows[a_index,1]){
+								If cc_count>1
+								{
+									If Array_isInValue(cArr_count, Result.Rows[a_index,1]){
+										c_count++, Result.Rows.RemoveAt(a_index)
+										Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
+									}else
+										Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
+									cArr_count.Push(Result.Rows[a_index,1])
+								}else
+									Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
 							}
 						}
-						Result_ :=Result_part_all:=""
-				}}
+					}else{
+						lianx :="on", cArr_count:=[], c_count:=0, Result.Rows:=set_trad_mode(Result.Rows)
+						loop, % Result.RowCount
+						{
+							If cc_count:=Array_isInValueCount(Result.Rows, Result.Rows[a_index,1]){
+								If cc_count>1
+								{
+									If Array_isInValue(cArr_count, Result.Rows[a_index,1]){
+										c_count++, Result.Rows.RemoveAt(a_index)
+										Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
+									}else
+										Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
+									cArr_count.Push(Result.Rows[a_index,1])
+								}else
+									Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
+							}
+						}
+					}
+				}
 			}
 			Return Result.Rows
 		}

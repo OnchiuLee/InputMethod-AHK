@@ -316,6 +316,22 @@ Array_isInValue(aArr, aStr)
 			return 1
 	}
 }
+;~ 返回数组中存在某个value的个数
+Array_isInValueCount(aArr, aStr)
+{
+	count:=0
+	for k,v in aArr
+	{
+		if (IsObject(v) && (aArr[k].count()>0))
+		{
+			if (Array_isInValue(aArr[k],aStr) = 1)
+				count++
+		}
+		else if (!IsObject(v) && (v=aStr))
+			count++
+	}
+	return count
+}
 
 ;~ 从数组中判断指定key对应的value是否为空，aArr为数组，aStr为要判断非空的key
 Array_ValueNotEmpty(aArr, aKey)
