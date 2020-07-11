@@ -802,6 +802,55 @@ RestDB:
 	
 Return
 
+MacInfo:
+	Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10,FontSize:=ToolTipStyle~="i)Gdip"?18:FontSize
+	SymList:=[["/+年月日⇒农历/公历互转 ● /+【date/week/time/nl/zzrq/zznl/zzsj】⇒输出日期时间 ● /+数字⇒金额大写转换"]
+		,["数字/0-9 ● 分数/fs ● 月份/yf ● 日期/rq ● 符号/fh ● 电脑/dn ● 象棋/xq ● 麻将/mj ● 曜日/yr ● 地支/dz"]
+		,["色子/sz  ● 扑克/pk ● 表情/bq ● 天气/tq ● 音乐/yy ● 两性/lx ● 八卦/bg ● 星座/xz ● 偏旁/pp ● 干支/gz"]
+		,["上标/sb  ● 下标/xb ● 天体/tt ● 星号/xh ● 方块/fk ● 几何/jh ● 箭头/jt ● 数学/sx ● 声调/sd ● 结构/jg"]
+		,["时间/sj  ● 货币/hb ● 节气/jq ● 单位/dw ● 笔画/bh ● 天干/tg ● 注音/zy ● 标点英/bd ● 标点中/bdz"]
+		,["六十四卦/lssg ● 六十四卦名/lssgm ● 太玄经/txj ● 八卦名/bgm ● 十二宫/seg ● 苏州码/szm ● 康熙部首/kx"]
+		,["星座名/xzm ● 拼音小写/py ● 拼音大写/pyd ● 俄语/ey ● 俄语大写/eyd ● 字母弧/zmh ● 汉字弧/hzh"]
+		,["罗马数字/lm ● 罗马数字大写/lmd ● 希腊/xl ● 希腊大写/xld ● jいろは顺/iro ● 假名半角/jmb ● 韩文/hw"]
+		,["韩文圈/hwq● 汉字圈/hzq ● 数字圈/szq ● 数字弧/szh ● 韩文弧/hwh ● 数字点/szd ● 字母圈/zmq ● 假名圈/jmq"]
+		,["假名/jm/pjm/jmk/jmg/jms/jmz/jmt/jmd/jmn/jmh/jmb/jmp/jmm/jmy/jmr/jmw/jma/jmi/jmu/jme/jmo"]]
+	srf_for_select_Array:=SymList
+Return
+
+helpInfo:
+	if (srf_for_select_Array.Length()=0&&srf_all_Input ="help"){
+		Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10
+		help_info:=[["简繁模式"," 热键" GetkeyName(s2thotkey) " 组合","〔 热键" GetkeyName(s2thotkey) "组合 〕"]
+			,["程序挂起"," 热键" GetkeyName(Suspendhotkey) " 组合","〔 热键" GetkeyName(Suspendhotkey) "组合 〕"]
+			,["以形查音"," ~键引导 ","〔 ~键引导 〕"]
+			,["精准造词"," ``键引导+``键分词 ","〔 ``键引导+``键分词 〕"]
+			,["临时英文"," 双``键引导 ","〔 双``键引导 〕"]
+			,["快捷退出"," 热键" GetkeyName(exithotkey) " 组合","〔 热键" GetkeyName(exithotkey) "组合 〕"]
+			,["拼音反查"," z键引导 ","〔 z键引导 〕"]
+			,["拆分显示"," 热键" GetkeyName(cfhotkey) " 组合","〔 热键" GetkeyName(cfhotkey) "组合 〕"]
+			,["批量造词"," 热键" GetkeyName(AddCodehotkey) " 组合 ","〔 热键" GetkeyName(AddCodehotkey) " 组合 〕"]], srf_for_select_Array:=help_info
+	}else if (srf_for_select_Array.Length()=0&&srf_all_Input ="mac"){
+		Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10
+		Mac_Array:=ComInfo.GetMacAddress_1(),IP_Array:=ComInfo.GetIPAddress_1()
+		srf_for_select_Array.Push(ComInfo.GetSNCode_1()), srf_for_select_Array.Push(ComInfo.GetMacName())
+	;获取本机外网IP接口
+		if ipInfo:= ComInfo.GetIPAPI_2(),ipInfo.Length()>0
+			srf_for_select_Array.Push(ipInfo)
+	/*获取本机外网IP方法有：
+		ComInfo.GetIPAPI_3()
+		ComInfo.GetIPAPI_1()
+		ComInfo.GetIPAPI()
+		;;其它的接口方法在function.ahk文件中对照现成的方法自己写
+	*/
+		Loop,% Max(Mac_Array.Length(),IP_Array.Length())
+		{
+			srf_for_select_Array.Push(Mac_Array[A_Index])
+			if not IP_Array[A_Index,1]~="^0\."
+				srf_for_select_Array.Push(IP_Array[A_Index])
+		}
+	}
+Return
+
 ;候选词条分页处理
 srf_tooltip_fanye:
 	for k,v in ["Textdirection","ListNum","FontSize"]
@@ -826,20 +875,9 @@ srf_tooltip_fanye:
 	}else if srf_all_Input ~="^/"{
 		if srf_all_Input~="^/[a-z]+|^/[0-9]+"
 		{
-			if srf_all_input ~="/help" {
-				Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10,FontSize:=ToolTipStyle~="i)Gdip"?18:FontSize
-				SymList:=[["/+年月日⇒农历/公历互转 ● /+【date/week/time/nl/zzrq/zznl/zzsj】⇒输出日期时间 ● /+数字⇒金额大写转换"]
-					,["数字/0-9 ● 分数/fs ● 月份/yf ● 日期/rq ● 符号/fh ● 电脑/dn ● 象棋/xq ● 麻将/mj ● 曜日/yr ● 地支/dz"]
-					,["色子/sz  ● 扑克/pk ● 表情/bq ● 天气/tq ● 音乐/yy ● 两性/lx ● 八卦/bg ● 星座/xz ● 偏旁/pp ● 干支/gz"]
-					,["上标/sb  ● 下标/xb ● 天体/tt ● 星号/xh ● 方块/fk ● 几何/jh ● 箭头/jt ● 数学/sx ● 声调/sd ● 结构/jg"]
-					,["时间/sj  ● 货币/hb ● 节气/jq ● 单位/dw ● 笔画/bh ● 天干/tg ● 注音/zy ● 标点英/bd ● 标点中/bdz"]
-					,["六十四卦/lssg ● 六十四卦名/lssgm ● 太玄经/txj ● 八卦名/bgm ● 十二宫/seg ● 苏州码/szm ● 康熙部首/kx"]
-					,["星座名/xzm ● 拼音小写/py ● 拼音大写/pyd ● 俄语/ey ● 俄语大写/eyd ● 字母弧/zmh ● 汉字弧/hzh"]
-					,["罗马数字/lm ● 罗马数字大写/lmd ● 希腊/xl ● 希腊大写/xld ● jいろは顺/iro ● 假名半角/jmb ● 韩文/hw"]
-					,["韩文圈/hwq● 汉字圈/hzq ● 数字圈/szq ● 数字弧/szh ● 韩文弧/hwh ● 数字点/szd ● 字母圈/zmq ● 假名圈/jmq"]
-					,["假名/jm/pjm/jmk/jmg/jms/jmz/jmt/jmd/jmn/jmh/jmb/jmp/jmm/jmy/jmr/jmw/jma/jmi/jmu/jme/jmo"]]
-				srf_for_select_Array:=SymList
-			}else
+			if srf_all_input ~="/help"
+				Gosub MacInfo
+			else
 				srf_for_select_Array:=prompt_symbols(srf_all_Input)
 		}else{
 			Sym_Array_1[1,1]:=srf_all_input, srf_for_select_Array:=Sym_Array_1
@@ -868,37 +906,7 @@ srf_tooltip_fanye:
 		Gosub srf_tooltip_cut
 	}else{
 		srf_for_select_Array:=get_word(srf_all_Input, Wubi_Schema)
-		if (srf_for_select_Array.Length()=0&&srf_all_Input ="help"){
-			Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10
-			help_info:=[["简繁模式"," 热键" GetkeyName(s2thotkey) " 组合","〔 热键" GetkeyName(s2thotkey) "组合 〕"]
-				,["程序挂起"," 热键" GetkeyName(Suspendhotkey) " 组合","〔 热键" GetkeyName(Suspendhotkey) "组合 〕"]
-				,["以形查音"," ~键引导 ","〔 ~键引导 〕"]
-				,["精准造词"," ``键引导+``键分词 ","〔 ``键引导+``键分词 〕"]
-				,["临时英文"," 双``键引导 ","〔 双``键引导 〕"]
-				,["快捷退出"," 热键" GetkeyName(exithotkey) " 组合","〔 热键" GetkeyName(exithotkey) "组合 〕"]
-				,["拼音反查"," z键引导 ","〔 z键引导 〕"]
-				,["拆分显示"," 热键" GetkeyName(cfhotkey) " 组合","〔 热键" GetkeyName(cfhotkey) "组合 〕"]
-				,["批量造词"," 热键" GetkeyName(AddCodehotkey) " 组合 ","〔 热键" GetkeyName(AddCodehotkey) " 组合 〕"]], srf_for_select_Array:=help_info
-		}else if (srf_for_select_Array.Length()=0&&srf_all_Input ="mac"){
-			Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10
-			Mac_Array:=ComInfo.GetMacAddress_1(),IP_Array:=ComInfo.GetIPAddress_1()
-			srf_for_select_Array.Push(ComInfo.GetSNCode_1()), srf_for_select_Array.Push(ComInfo.GetMacName())
-		;获取本机外网IP接口
-			if ipInfo:= ComInfo.GetIPAPI_2(),ipInfo.Length()>0
-				srf_for_select_Array.Push(ipInfo)
-		/*获取本机外网IP方法有：
-			ComInfo.GetIPAPI_3()
-			ComInfo.GetIPAPI_1()
-			ComInfo.GetIPAPI()
-			;;其它的接口方法在function.ahk文件中对照现成的方法自己写
-		*/
-			Loop,% Max(Mac_Array.Length(),IP_Array.Length())
-			{
-				srf_for_select_Array.Push(Mac_Array[A_Index])
-				if not IP_Array[A_Index,1]~="^0\."
-					srf_for_select_Array.Push(IP_Array[A_Index])
-			}
-		}
+		Gosub helpInfo
 		Gosub srf_tooltip_cut
 	}
 Return
@@ -2928,6 +2936,10 @@ SBA23:
 	}else{
 		CharFliter:=WubiIni.Settings["CharFliter"]:=0,WubiIni.save()
 	}
+Return
+
+CodingTips:
+	PromptChar:=WubiIni.Settings["PromptChar"]:=PromptChar?0:1,WubiIni.save()
 Return
 
 SBA24:
