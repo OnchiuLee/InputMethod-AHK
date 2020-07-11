@@ -106,7 +106,7 @@ global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni("con
 		, TipStyle:{ThemeName:"经典商务风格", StyleN:StyleName,Logo_ExStyle:0,transparentX:180,LogoSize:36, FontType:font_
 				, FontSize:20, FontColor:"2C3D4F",FocusBackColor:"2C3D4F",FocusColor:"CA3936",FocusCodeColor:"DEDEDE"
 				,FocusRadius:5, FontStyle:"off", FontCodeColor:"2C3D4F",LineColor:"444444",BorderColor:"ECF0F1"
-				, Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"on", BgColor:"ECF0F1", ListNum:5,Gdip_Radius:5
+				, Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"off", BgColor:"ECF0F1", ListNum:5,Gdip_Radius:5
 				, Textdirection:"horizontal", Set_Range:3, Fix_Switch:"off",Fix_X:A_ScreenWidth/2,Fix_Y:10}  ;竖排--vertical
 		, CustomColors:{Color_Row1:"0x1C7399,0xEEEEEC,0x014E8B,0x444444,0x009FE8,0xDEF9FA,0xF8B62D,0x90FC0F", Color_Row2:"0x0078D7,0x0D1B0A,0xB9D497,0x00ADEF,0x1778BF,0xFDF6E3,0x002B36,0xDEDEDE"}
 		, Versions:{Version:A_YYYY A_MM A_DD "-1"}
