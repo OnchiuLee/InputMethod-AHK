@@ -857,7 +857,7 @@ srf_tooltip_fanye:
 		if (WubiIni.TipStyle[v]<>%v%)
 			%v%:=Textdirection:=WubiIni[Array_GetParentKey(WubiIni, v),v]
 	if srf_all_Input ~="^``"{
-		if srf_all_Input~="^``[a-z]+"{
+		if (srf_all_Input~="^``[a-z]+"&&Wubi_Schema~="i)ci"){
 			srf_for_select_Array:=format_word(RegExReplace(srf_all_Input,"^``"))
 			if (srf_for_select_Array[1]<>select_arr&&select_arr[1]<>""){
 				srf_for_select_Array.InsertAt(1, select_arr)
@@ -972,7 +972,7 @@ showhouxuankuang:
 			Gui, houxuankuang:Hide
 		Return
 	}
-	srf_code:=srf_all_input~="^z\'[a-z]"?RegExReplace(srf_all_input,"^z\'",""):(srf_all_input~="^``$"?RegExReplace(srf_all_input,"^``","〔精准造词〕"):srf_all_input~="^~$"?RegExReplace(srf_all_input,"^~","〔以形查音〕"):srf_all_input~="^````$"?RegExReplace(srf_all_input,"^````","〔临时英文〕"):srf_all_input)
+	srf_code:=srf_all_input~="^z\'[a-z]"?RegExReplace(srf_all_input,"^z\'",""):(srf_all_input~="^``$"?RegExReplace(srf_all_input,"^``",(Wubi_Schema~="i)ci"?"〔精准造词〕":"〔常用符号〕")):srf_all_input~="^~$"?RegExReplace(srf_all_input,"^~","〔以形查音〕"):srf_all_input~="^````$"?RegExReplace(srf_all_input,"^````","〔临时英文〕"):srf_all_input)
 	srf_code:=srf_code~="^``|^~"?RegExReplace(RegExReplace(srf_code,"^``|^~"),"``","'"):srf_code
 	SysGet, _height, 14       ;获取光标高度
 	if Fix_Switch~="i)on"{
@@ -1140,7 +1140,7 @@ More_Setting:
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","Dlabel","Rlabel","Blabel","Wlabel","Ulabel","Setlabel","Savelabel","MyLabel"]
-		,GBoxList7:["GBox7","TextInfo21","sChoice4","ciku1","ciku9","ciku2","TextInfo22","ciku8","ciku7","yaml_","TextInfo23","ciku3","ciku4","TextInfo24","ciku5","ciku6"]
+		,GBoxList7:["GBox7","TextInfo21","sChoice4","ciku1","ciku9","ciku2","TextInfo22","ciku8","ciku7","yaml_","TextInfo23","ciku3","ciku4","TextInfo24","ciku5","ciku6","TextInfo26","ciku10","ciku11"]
 		,GBoxList8:["GBox8","linkinfo1","linkinfo2","linkinfo3","versionsinfo","infos_"]}
 
 	Gui, 98:Add, GroupBox,x+10 yp w400 h400 vGBox1, 主题配置
@@ -1382,6 +1382,11 @@ More_Setting:
 	Gui, 98:Add, Text, x190 yp+45 vTextInfo24 left, 特殊符号：
 	Gui, 98:Add, Button, x+10 yp-1 vciku5 gciku5,导入
 	Gui, 98:Add, Button, x+5 yp-1 vciku6 gciku6,导出
+
+	Gui, 98:Add, Text, x190 yp+45 vTextInfo26 left, 汉字拼音：
+	Gui, 98:Add, Button, x+10 yp-1 vciku10 gciku10,导入
+	Gui, 98:Add, Button, x+5 yp-1 vciku11 gciku11,导出
+
 	For Section, element In TV_obj
 		if (Section="GBoxList7")
 			Loop, % TV_obj[Section].Length()
@@ -2669,6 +2674,84 @@ Return
 ciku9:
 	Gosub DB_management
 Return
+
+ciku10:
+	Gui,98:Hide
+	FileSelectFile, FileNamePath, 3,%A_Desktop%\ , 导入单字读音词库, Text Documents (*.txt)
+	If (FileNamePath<>"") {
+		MsgBox, 262452, 提示, 要导入以下词库进行替换？`n〔 单字+Tab+读音 〕
+		IfMsgBox, No
+		{
+			TrayTip,, 导入已取消！
+			Return
+		} Else {
+			Create_pinyin(DB)
+			FileRead,pyAll,%FileNamePath%
+			If pyAll {
+				If DB_WritePy(pyAll)>0
+					Traytip,,导入完成！
+				else
+					Traytip,,导入失败！
+			}
+		}
+	}else
+		Traytip,,导入已取消！
+	Gui, 98:show,NA
+Return
+
+ciku11:
+	Gui,98:Hide
+	FileSelectFolder, OutFolder,*%A_Desktop%\,3,请选择导出后保存的位置
+	if (OutFolder<>"")
+	{
+		If DB_BackUpPy(OutFolder)>0
+			Traytip,,导出完成！
+		else
+			Traytip,,导出失败！
+	}
+	Gui, 98:show,NA
+Return
+
+DB_WritePy(Strs){
+	global DB
+	Insert_ci:=""
+	Loop, Parse, Strs, `n, `r
+	{
+		If (A_LoopField = "")
+			Continue
+		tarr:=StrSplit(A_LoopField,A_Tab,A_Tab)
+		if tarr[3]
+			Insert_ci .="('" A_Index "','" tarr[1] "','" tarr[2] "','" tarr[3] "')" ","
+		else
+			Insert_ci .="('" A_Index "','" tarr[1] "','" tarr[2] "','')" ","
+	}
+	Traytip,,写入中。。。
+	If DB.Exec("INSERT INTO PY VALUES" RegExReplace(Insert_ci,"\,$","") "")>0
+		Return 1
+}
+
+DB_BackUpPy(FolderPath){
+	global DB
+	Result_All:=""
+	DB.gettable("Select * from PY",Result)
+	Traytip,,正在执行导出。。。
+	If Result.RowCount>0
+	{
+		Loop, % Result.RowCount
+		{
+			If Result.Rows[A_index,4]
+				Result_All .= Result.Rows[A_index,2] A_tab Result.Rows[A_index,3] A_tab Result.Rows[A_index,4] "`n"
+			else
+				Result_All .= Result.Rows[A_index,2] A_tab Result.Rows[A_index,3] "`n"
+		}
+		Traytip,,正在生成文件。。。
+		FileDelete %FolderPath%\pinyin.txt
+		FileAppend,%Result_All%,%FolderPath%\pinyin.txt,UTF-8
+		if Result_All
+			Return 1
+	}
+	Result_All:=""
+}
 
 SBA0:
 	Gui,98:Hide

@@ -161,6 +161,7 @@ set_trad_mode(Arrs){
 	}
 }
 
+/*
 ;自造词条编码生成
 get_en_code(chars){
 	global DB
@@ -219,6 +220,48 @@ get_en_code(chars){
 		{
 			Return chars
 		}
+	}
+}
+*/
+
+;自造词条编码生成
+get_en_code(chars){
+	global DB, Wubi_Schema
+	If (chars="")
+		Return []
+	else
+	{
+		If Wubi_Schema~="i)chaoji" {
+			if (StrLen(chars)>1)
+				DB.gettable("SELECT A_Key FROM chaoji WHERE aim_chars = '" chars "';", Result)
+			else if (StrLen(chars)=1)
+				DB.gettable("SELECT A_Key FROM EN_Chr WHERE aim_chars = '" chars "';", Result)
+			if (Result.Rows[1,1]<>"")
+				Result_ := Result.Rows[1,1]
+		}else{
+			Loop,% StrLen(chars)
+			{
+				If DB.gettable("SELECT A_Key FROM EN_Chr WHERE aim_chars = '" SubStr(chars,a_index,1) "'", Result){
+					if (strlen(chars)=1){
+						Result_part := Result.Rows[1,1]
+					}else{
+					if (strlen(chars)=2)
+							Result_part := SubStr(Result.Rows[1,1],1,2)
+						else if (strlen(chars)=3){
+							If (A_Index=3)
+								Result_part := SubStr(Result.Rows[1,1],1,2)
+							else
+								Result_part := SubStr(Result.Rows[1,1],1,1)
+						}if (strlen(chars)>3){
+							If (A_Index<4||A_Index=strlen(chars))
+								Result_part := SubStr(Result.Rows[1,1],1,1)
+						}
+					}
+				}
+				Result_ .=Result_part, Result_part:=""
+			}
+		}
+		Return Result_
 	}
 }
 
@@ -569,27 +612,40 @@ get_single_py(chars){
 		Return []
 	else
 	{
-		SQL_ :="SELECT A_Key FROM PY WHERE aim_chars = '" chars "'"
+		SQL_ :="SELECT * FROM PY WHERE aim_chars = '" chars "'"
 		if DB.gettable(SQL_,Result){
-			if Result.Rows[1,1]
-				Return Result.Rows[1,1]
+			if Result.Rows[1,3]&&Result.Rows[1,4]
+				Return Result.Rows[1,3] " • " Result.Rows[1,4]
+			else If Result.Rows[1,3]&&!Result.Rows[1,4]
+				Return Result.Rows[1,3]
 		}
 	}
 }
 
 ;划词反查处理
 Tip_rvlk(chars){
-	global DB
+	global DB, Wubi_Schema
 	rev_code :=RegExReplace(chars, "\d+|[a-zA-Z]{1,}|\s+|`n|\~|~[a-zA-Z]+", "")
 	loop % wStrLen(rev_code)
 	{
-		SQL :="SELECT A_Key FROM EtymologyChr WHERE aim_chars = '" SubStr(rev_code, A_index, 1) "'" 
-		If DB.GetTable(SQL, Result)
-		{
-			if Result.Rows[1,1]
-				rvlk_ :=SubStr(rev_code, A_index, 1) . Result.Rows[1,1] . "(" . get_en_code(SubStr(rev_code, A_index, 1)) . " ※ " . get_single_py(SubStr(rev_code, A_index, 1)) ")"
+		If Wubi_Schema~="i)chaoji" {
+			if !(GeteEnCode:=get_en_code(_code:=SubStr(rev_code, A_index, 2)))
+				GeteEnCode:=get_en_code(_code:=SubStr(rev_code, A_index, 1))
+			bianma:=get_single_py(_code)
+			DB.GetTable("SELECT A_Key FROM EtymologyChr WHERE aim_chars = '" _code "'", Result)
+			If (Result.Rows[1,1]<>""||GeteEnCode||bianma)
+				rvlk_ :=_code . (Result.Rows[1,1]<>""?Result.Rows[1,1]:"") . "( " . GeteEnCode . (bianma?" ※ " . bianma:"") " )"
 			if rvlk_
 				rvlk_all .= rvlk_ . "`n", rvlk_:=""
+		}else{
+			SQL :="SELECT A_Key FROM EtymologyChr WHERE aim_chars = '" SubStr(rev_code, A_index, 1) "'" 
+			If DB.GetTable(SQL, Result)
+			{
+				if Result.Rows[1,1]
+					rvlk_ :=SubStr(rev_code, A_index, 1) . Result.Rows[1,1] . "( " . get_en_code(SubStr(rev_code, A_index, 1)) . " ※ " . get_single_py(SubStr(rev_code, A_index, 1)) " )"
+				if rvlk_
+					rvlk_all .= rvlk_ . "`n", rvlk_:=""
+			}
 		}
 	}
 	return rvlk_all
@@ -655,20 +711,26 @@ prompt_enword(input){
 
 ;~键反查读音
 prompt_pinyin(input){
-	global DB
+	global DB, Wubi_Schema
 	If (input="")
 		Return []
 	input:=RegExReplace(input,"~","")
-	DB.GetTable("select aim_chars from zi WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC;", Result)
+	If Wubi_Schema~="i)ci"
+		SQL:="select aim_chars from ci WHERE A_Key ='" input "' AND Length(aim_chars)=1 ORDER BY A_Key,B_Key DESC;"
+	else If Wubi_Schema~="i)zi"
+		SQL:="select aim_chars from zi WHERE A_Key ='" input "' ORDER BY A_Key,B_Key DESC;"
+	else If Wubi_Schema~="i)chaoji"
+		SQL:="select aim_chars from chaoji WHERE A_Key ='" input "' ORDER BY A_Key,B_Key DESC;"
+	DB.GetTable(SQL, Result)
 	prompt_result:=Result.Rows
 	prompt_all:=[],count:=0
 	if prompt_result[1,1]{
 		loop % prompt_result.Length()
 		{
 			result_:=prompt_result[a_index,1]
-			if (get_single_py(result_)&&strlen(result_)=1){
+			if (get_single_py(result_)){
 				count++
-				prompt_all[count,1]:=result_, prompt_all[count,2]:=get_single_py(result_), prompt_all[count,3]:=get_single_py(result_)
+				prompt_all[count,1]:=result_, prompt_all[count,2]:="〔 " get_single_py(result_) " 〕", prompt_all[count,3]:="〔 "get_single_py(result_) " 〕"
 		}}
 		Return prompt_all
 	}
@@ -802,6 +864,16 @@ Create_label(DB,Name){
 	DB.Exec("DROP TABLE IF EXISTS label;")
 	DB.Exec("BEGIN TRANSACTION;")
 	_SQL = CREATE TABLE label ("A_Key" INTEGER PRIMARY KEY AUTOINCREMENT,"B_Key" TEXT,"C_Key" TEXT,"D_Key" TEXT);
+	DB.Exec(_SQL)
+	DB.Exec("COMMIT TRANSACTION;VACUUM;")
+}
+
+;创建拼音表
+Create_pinyin(DB){
+	global
+	DB.Exec("DROP TABLE IF EXISTS PY;")
+	DB.Exec("BEGIN TRANSACTION;")
+	_SQL = CREATE TABLE PY ("list" INTEGER PRIMARY KEY AUTOINCREMENT,"aim_chars" TEXT,"A_Key" TEXT,"B_Key" TEXT);
 	DB.Exec(_SQL)
 	DB.Exec("COMMIT TRANSACTION;VACUUM;")
 }
