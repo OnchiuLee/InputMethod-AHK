@@ -47,6 +47,7 @@ if FileExist(A_ScriptDir "\Config\*.ahk")
 #Include Config\Lib\Class_SQLiteDB.ahk
 #Include Config\Lib\Class_ScrollGUI.ahk
 #Include Config\Lib\Class_ToolTip.ahk
+#Include Config\Lib\Class_Toolbar.ahk
 #Include Config\Lib\Class_Json.ahk
 #Include Config\Script\Function.ahk
 #Include Config\Script\Sql_Func.ahk
@@ -293,6 +294,10 @@ else{
 		if v.length()<1
 			Frequency_obj:={}
 }
+
+If (Json_FileToObj(A_Temp "\User.json")["Time"]=SubStr(A_Now,1,8))
+	CharsCount:= Json_FileToObj(A_Temp "\User.json")["Num"]
+
 
 ;中英标点符号映射
 srf_symblos:={"``":["``","·"], "~":["~","～"], "!":["`!","！"], "@":["@","@"], "#":["#","#"]
