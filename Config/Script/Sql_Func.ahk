@@ -234,7 +234,7 @@ get_en_code(chars){
 		If Wubi_Schema~="i)chaoji" {
 			if (StrLen(chars)>1)
 				DB.gettable("SELECT A_Key FROM chaoji WHERE aim_chars = '" chars "';", Result)
-			else if (StrLen(chars)=1)
+			else
 				DB.gettable("SELECT A_Key FROM EN_Chr WHERE aim_chars = '" chars "';", Result)
 			if (Result.Rows[1,1]<>"")
 				Result_ := Result.Rows[1,1]
@@ -412,29 +412,29 @@ get_word(input, cikuname){
 		}else if input ~="^[a-y]+"{
 			if cikuname~="i)ci"{
 				if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"){
-					if PromptChar
+					if (PromptChar&&StrLen(input)<4)
 						SQL :="SELECT aim_chars FROM(SELECT aim_chars FROM ci WHERE A_Key ='" input "' AND D_Key >0 ORDER BY A_Key,D_Key DESC) UNION ALL SELECT aim_chars FROM(SELECT aim_chars FROM ci WHERE A_Key LIKE'" input "_' AND D_Key >0 ORDER BY A_Key,D_Key DESC);"
 					else
 						SQL :="select aim_chars from ci WHERE A_Key ='" input "' AND D_Key >0 ORDER BY A_Key,D_Key DESC;"
 				}else{
-					if PromptChar
+					if (PromptChar&&StrLen(input)<4)
 						SQL :="SELECT aim_chars FROM(SELECT aim_chars FROM ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars FROM(SELECT aim_chars FROM ci WHERE A_Key LIKE'" input "_' AND B_Key >0 ORDER BY A_Key,B_Key DESC);"
 					else
 						SQL :="select aim_chars from ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC;"
 				}
 			}else{
 				if cikuname~="i)zi"{
-					if PromptChar
+					if (PromptChar&&StrLen(input)<4)
 						SQL :="SELECT aim_chars FROM(SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars FROM(SELECT aim_chars FROM " cikuname " WHERE A_Key LIKE '" input "_' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC);"
 					else
 						SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC;"
 				}else{
-					if PromptChar
+					if (PromptChar&&StrLen(input)<4)
 					{
 						if cikuname~="i)zg"
-							SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "'" (not cikuname~="i)zg"?"ORDER BY A_Key,B_Key DESC":"") ";"
+							SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "';"
 						else
-							SQL :="SELECT aim_chars FROM(SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "'" (not cikuname~="i)zg"?"ORDER BY A_Key,B_Key DESC":"") ") UNION ALL SELECT aim_chars FROM(SELECT aim_chars FROM " cikuname " WHERE A_Key LIKE'" input "_'" (not cikuname~="i)zg"?"ORDER BY A_Key,B_Key DESC":"") ");"
+							SQL :="SELECT aim_chars FROM(SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "' ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars FROM(SELECT aim_chars FROM " cikuname " WHERE A_Key LIKE'" input "_' ORDER BY A_Key,B_Key DESC);"
 					}else
 						SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "'" (not cikuname~="i)zg"?"ORDER BY A_Key,B_Key DESC":"") ";"
 				}
@@ -481,14 +481,14 @@ get_word(input, cikuname){
 									If Array_isInValue(cArr_count, Result.Rows[a_index,1]){
 										c_count++, Result.Rows.RemoveAt(a_index)
 										If !Array_isInValue(cArr_count, Result.Rows[a_index,1])
-											Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
+											Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar&&getEnCode)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
 										else
 											Result.Rows.RemoveAt(a_index)
 									}else
-										Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
+										Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar&&getEnCode)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
 									cArr_count.Push(Result.Rows[a_index,1])
 								}else
-									Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
+									Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar&&getEnCode)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
 							}
 						}
 					}else{
@@ -501,14 +501,14 @@ get_word(input, cikuname){
 									If Array_isInValue(cArr_count, Result.Rows[a_index,1]){
 										c_count++, Result.Rows.RemoveAt(a_index)
 										If !Array_isInValue(cArr_count, Result.Rows[a_index,1])
-											Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
+											Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar&&getEnCode)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
 										else
 											Result.Rows.RemoveAt(a_index)
 									}else
-										Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
+										Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar&&getEnCode)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
 									cArr_count.Push(Result.Rows[a_index,1])
 								}else
-									Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
+									Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar&&getEnCode)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
 							}
 						}
 					}

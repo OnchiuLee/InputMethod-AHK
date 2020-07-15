@@ -72,6 +72,7 @@ Schema_logo:
 	;WinSet, TransColor, EFEFEF %transparentX%,sign_wb   ;方案Logo的透明度 数字越大透明度越低最大255，0为完全透明
 Return
 
+logoGuiDropFiles:
 SrfTipGuiDropFiles:
 	MsgBoxRenBtn("保存","不保存","单/多义互转")
 	MsgBox, 266243,TXT码表处理,正在执行批量生词,是否保存至词库?
@@ -277,12 +278,10 @@ Pics2:
 	{
 		if Trad_Mode~="i)on" {
 			GuiControl,logo:, Pics2,*Icon5 config\Skins\logoStyle\%StyleN%.icl
-			Menu, setting, Rename, 中文繁体 , 中文简体
 			SetCapsLockState , off
 			Trad_Mode :=WubiIni.Settings["Trad_Mode"]:="off",WubiIni.save()
 		}else{
 			GuiControl,logo:, Pics2,*Icon6 config\Skins\logoStyle\%StyleN%.icl
-			Menu, setting, Rename, 中文简体 , 中文繁体
 			SetCapsLockState , off
 			Trad_Mode :=WubiIni.Settings["Trad_Mode"]:="on",WubiIni.save()
 		}
@@ -388,6 +387,7 @@ Backup_Conf:
 Return
 
 Rest_Conf:
+	Gui +OwnDialogs
 	MsgBox, 262452, 提示, 是否覆盖所有配置?
 	IfMsgBox, Yes
 	{
@@ -409,96 +409,6 @@ TRAY_Menu:
 	program:= "※ " Startup_Name " ※`n版本日期：" Versions "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
 	Menu, Tray, Add, 使用帮助,OnHelp
 	Menu, TRAY, Icon, 使用帮助, config\wubi98.icl, 3
-	Menu, Tray, Add
-	if (Cut_Mode ~="i)on"){
-		Menu, setting, Add, 拆分显示	√, Cut_Mode
-		Menu, setting, Icon, 拆分显示	√, config\wubi98.icl, 15
-	}else{
-		Menu, setting, Add, 拆分显示	×,Cut_Mode
-		Menu, setting, Icon, 拆分显示	×, config\wubi98.icl, 15
-	}
-	Menu, setting, Add
-	if (Prompt_Word ~="i)on"){
-		Menu, setting, Add, 空码提示	√, Prompt_Word
-		Menu, setting, Icon, 空码提示	√, config\wubi98.icl, 15
-	}else{
-		Menu, setting, Add, 空码提示	×,Prompt_Word
-		Menu, setting, Icon, 空码提示	×, config\wubi98.icl, 15
-	}
-	Menu, setting, Add
-	if (Trad_Mode ~="i)on"){
-		Menu, setting, Add, 中文繁体, Trad_Mode
-		Menu, setting, Icon, 中文繁体, config\wubi98.icl, 15
-	}else{
-		Menu, setting, Add, 中文简体,Trad_Mode
-		Menu, setting, Icon, 中文简体, config\wubi98.icl, 15
-	}
-	Menu, setting, Add
-	if (Textdirection ~="i)horizontal"){
-		Menu, setting, Add, 候选横排, Textdirection
-		Menu, setting, Icon, 候选横排, config\wubi98.icl, 15
-	}else{
-		Menu, setting, Add, 候选竖排,Textdirection
-		Menu, setting, Icon, 候选竖排, config\wubi98.icl, 15
-	}
-	Menu, setting, Add
-	if (limit_code ~="i)on"){
-		Menu, setting, Add, 四码上屏	√, limit_code
-		Menu, setting, Icon, 四码上屏	√, config\wubi98.icl, 15
-	}else{
-		Menu, setting, Add, 四码上屏	×,limit_code
-		Menu, setting, Icon, 四码上屏	×, config\wubi98.icl, 15
-	}
-	Menu, setting, Add
-/*
-	if (symb_send ~="i)on"){
-		Menu, setting, Add, 符号顶屏	√, symb_send
-		Menu, setting, Icon, 符号顶屏	√, config\wubi98.icl, 15
-	}else{
-		Menu, setting, Add, 符号顶屏	×,symb_send
-		Menu, setting, Icon, 符号顶屏	×, config\wubi98.icl, 15
-	}
-	Menu, setting, Add
-*/
-	if (Select_Enter ~="i)send"){
-		Menu, setting, Add, 回车上屏, Select_Enter
-		Menu, setting, Icon, 回车上屏, config\wubi98.icl, 15
-	}else if (Select_Enter ~="i)clean"){
-		Menu, setting, Add, 回车清屏,Select_Enter
-		Menu, setting, Icon, 回车清屏, config\wubi98.icl, 15
-	}
-	Menu, Tray, Add, 更多设置,:setting
-	Menu, TRAY, Icon, 更多设置, config\wubi98.icl, 14
-	Menu, Tray, Add
-	if ToolTipStyle ~="i)on"{
-		Menu, Tip_Style, Add, ToolTip样式	√,Tip_Style
-		Menu, Tip_Style, Icon, ToolTip样式	√, config\wubi98.icl, 15
-	}else{
-		Menu, Tip_Style, Add, ToolTip样式,Tip_Style
-		Menu, Tip_Style, Icon, ToolTip样式, config\wubi98.icl, 15
-	}
-	Menu, Tip_Style, Add
-	if ToolTipStyle ~="i)off"{
-		Menu, Tip_Style, Add, Gui候选样式	√,Tip_Style
-		Menu, Tip_Style, Icon, Gui候选样式	√, config\wubi98.icl, 15
-	}else{
-		Menu, Tip_Style, Add, Gui候选样式,Tip_Style
-		Menu, Tip_Style, Icon, Gui候选样式, config\wubi98.icl, 15
-	}
-	Menu, Tip_Style, Add
-	if ToolTipStyle ~="i)Gdip"{
-		Menu, Tip_Style, Add, Gdip候选样式	√,Tip_Style
-		Menu, Tip_Style, Icon, Gdip候选样式	√, config\wubi98.icl, 15
-		if A_OSVersion ~="i)WIN_XP"
-			Menu, Tip_Style, Disable, Gdip候选样式	√
-	}else{
-		Menu, Tip_Style, Add, Gdip候选样式,Tip_Style
-		Menu, Tip_Style, Icon, Gdip候选样式, config\wubi98.icl, 15
-		if A_OSVersion ~="i)WIN_XP"
-			Menu, Tip_Style, Disable, Gdip候选样式
-	}
-	Menu, Tray, Add, 候选样式, :Tip_Style
-	Menu, TRAY, Icon, 候选样式, config\wubi98.icl, 20
 	Menu, Tray, Add
 	;Menu, Tray, Default, 高级设置
 	Menu, Tray, Add, 导入词库,OnWrite
@@ -564,40 +474,6 @@ Enable_Tray:
 	Menu, Tray, Enable, 导出词库
 return
 
-;托盘菜单候选样式选择
-Tip_Style:
-	if A_ThisMenuItem ~="i)ToolTip"&&ToolTipStyle<>"on"{
-		Menu, Tip_Style, Rename, ToolTip样式,ToolTip样式	√
-		if ToolTipStyle ~="i)gdip"
-			Menu, Tip_Style, Rename, Gdip候选样式	√,Gdip候选样式
-		else if ToolTipStyle ~="i)off"
-			Menu, Tip_Style, Rename, Gui候选样式	√,Gui候选样式
-		global ToolTipStyle :=WubiIni.TipStyle["ToolTipStyle"] :="on"
-		global FontSize :=WubiIni.TipStyle["FontSize"] :="14"
-	}
-	else if A_ThisMenuItem ~="i)Gui"&&ToolTipStyle<>"off"{
-		Menu, Tip_Style, Rename, Gui候选样式,Gui候选样式	√
-		if ToolTipStyle ~="i)gdip"
-			Menu, Tip_Style, Rename, Gdip候选样式	√,Gdip候选样式
-		else if ToolTipStyle ~="i)on"
-			Menu, Tip_Style, Rename, ToolTip样式	√,ToolTip样式
-		global ToolTipStyle :=WubiIni.TipStyle["ToolTipStyle"] :="off"
-		global FontSize :=WubiIni.TipStyle["FontSize"] :="16"
-	}
-	else if A_ThisMenuItem ~="i)Gdip"&&ToolTipStyle<>"gdip"{
-		Menu, Tip_Style, Rename, Gdip候选样式,Gdip候选样式	√
-		if ToolTipStyle ~="i)off"
-			Menu, Tip_Style, Rename, Gui候选样式	√,Gui候选样式
-		else if ToolTipStyle ~="i)on"
-			Menu, Tip_Style, Rename, ToolTip样式	√,ToolTip样式
-		global ToolTipStyle :=WubiIni.TipStyle["ToolTipStyle"] :="gdip"
-		global FontSize :=WubiIni.TipStyle["FontSize"] :="20"
-	}
-	WubiIni.save()
-	Gui, houxuankuang:Destroy
-	Gosub houxuankuangguicreate
-Return
-
 ;挂起操作
 OnSuspend:
 	Suspend
@@ -630,6 +506,7 @@ return
 OnReload:
 	if Logo_Switch ~="i)on"
 		Gosub Write_Pos
+	Json_ObjToFile({Time:SubStr(A_Now,1,8),Num:CharsCount},A_Temp "\User.json","UTF-8")
 	reload
 return
 
@@ -662,6 +539,7 @@ return
 OnExit:
 	DB.CloseDB()
 	;FileDelete, %A_ScriptDir%\Config\Script\wubi98_ci.json
+	Json_ObjToFile({Time:SubStr(A_Now,1,8),Num:CharsCount},A_Temp "\User.json","UTF-8")
 	;Gosub Backup_Conf
 	if Logo_Switch ~="i)on"
 		Gosub Write_Pos
@@ -779,13 +657,11 @@ Return
 Frequency:
 	Frequency:=WubiIni.Settings["Frequency"]:=Frequency?0:1, WubiIni.save()
 	if !Frequency {
-		GuiControl, 98:Disable, FTip
-		GuiControl, 98:Disable, set_Frequency
-		GuiControl, 98:Disable, RestDB
+		For k,v In ["FTip","set_Frequency","RestDB"]
+			GuiControl, 98:Disable, %v%
 	}else{
-		GuiControl, 98:Enable, FTip
-		GuiControl, 98:Enable, set_Frequency
-		GuiControl, 98:Enable, RestDB
+		For k,v In ["FTip","set_Frequency","RestDB"]
+			GuiControl, 98:Enable, %v%
 	}
 Return
 
@@ -1064,8 +940,16 @@ srf_value_off:
 	srf_for_select_Array :=select_arr:=srf_for_select_obj:=select_value_arr:=add_Result:=add_Array:=Result_:=Results_:=Result:=[],Select_result:=selectallvalue:="",code_status:=localpos:=srfCounts:=select_pos:=1
 Return
 
-diyColor:
+DestroyGui:
+	Gui, IM:Destroy
+	Gui, label:Destroy
+	Gui, themes:Destroy
+	Gui, DB:Destroy
 	Gui, diy:Destroy
+Return
+
+diyColor:
+	Gosub DestroyGui
 	Gui, diy: +hwndDIYTheme +AlwaysOnTop -DPIScale +Owner
 	Gui,diy:Font, s10 Bold, %font_%
 	Gui diy:Add, GroupBox, y+15 w385 h250, 配色项
@@ -1107,18 +991,36 @@ Return
 
 ;样式面板
 More_Setting:
+	Gui, 98:Destroy
+	Gui, 98:Default
+	Menu, SchemaList, Add, 98五笔•含词, sChoice4
+	Menu, SchemaList, Add, 98五笔•单字, sChoice4
+	Menu, SchemaList, Add, 98五笔•超集, sChoice4
+	Menu, SchemaList, Add, 98五笔•字根, sChoice4
 	Menu, StyleMenu, Add, Tooltip样式, Export
 	Menu, StyleMenu, Add, Gui候选框样式, Export
 	Menu, StyleMenu, Add, Gdip候选框样式, Export
 	if A_OSVersion ~="i)WIN_XP"
 		Menu, StyleMenu, Disable, Gdip候选框样式
 	HMENU := Menu_GetMenuByName("StyleMenu")
-	Gui, 98:Destroy
-	Gui, 98:Default
-	Gui, 98: +hwndhwndgui98 +AlwaysOnTop -DPIScale  ;+ToolWindow
+	SMENU := Menu_GetMenuByName("SchemaList")
+	Menu, MainMenu, Add, 方案选择, :SchemaList
+	Menu, MainMenu, Add, 词库导入, ciku1
+	Menu, MainMenu, Add, 词库合并导出, ciku2
+	Menu, MainMenu, Add, 用户词管理, DB_management
+	Menu, Main, Add, 方案管理, :MainMenu
+	Menu, Custom, Add, 自定义配色, diyColor
+	Menu, Custom, Add, 主题管理, themelists
+	Menu, Custom, Add, 候选框风格, :StyleMenu
+	Menu, Main, Add, 候选框 , :Custom
+	Menu, ExtendTool, Add, 标签管理, Label_management
+	Menu, Main, Add, 扩展工具, :ExtendTool
+	Gui, 98: +hwndhwndgui98 +AlwaysOnTop -DPIScale +OwnDialogs ;+ToolWindow
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
-	Gui, 98:Add, TreeView,x10 y10 h400 w150 AltSubmit 0x20 0x200 -Buttons -WantF2 gTVGUI vTVGUI   ;-Buttons 
+	Gui, 98:Menu, Main
+	Gui, 98:Add, Custom, ClassToolbarWindow32 hwndTopBar vTop 0x0800 0x0100 0x0020 0x0040
+	Gui, 98:Add, TreeView,x10 yp h400 w150 AltSubmit 0x20 0x200 -Buttons -WantF2 gTVGUI vTVGUI   ;-Buttons 
 	TV1 := TV_Add("基础设置",, "Bold")
 	TV1_1 := TV_Add("主题设置", TV1)  ; 指定项目的父项目.
 	TV_Modify(TV1, "Expand"),TV_Modify(TV1_1, "Select")
@@ -1128,23 +1030,20 @@ More_Setting:
 	TV2_3 := TV_Add("上屏设定", TV2)
 	TV_Modify(TV2, "Expand")
 	TV3 := TV_Add("快捷键设置",, "Bold")
-	TV4 := TV_Add("标签管理",, "Bold")
-	TV5 := TV_Add("码表管理",, "Bold")
-	TV6 := TV_Add("关于",, "Bold")
+	TV4 := TV_Add("码表管理",, "Bold")
+	TV5 := TV_Add("关于",, "Bold")
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
-
 	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","SBA13","TextInfo1","TextInfo0","SrfSlider","SizeValue","set_SizeValue","ExSty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4"]
 		,GBoxList2:["GBox2","TextInfo11","TextInfo25","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
 		,GBoxList3:["GBox3","SBA7","SBA23","SBA24","UIAccess","SBA6","SBA14","SBA21","SBA3","TextInfo13","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
-		,GBoxList6:["GBox6","Dlabel","Rlabel","Blabel","Wlabel","Ulabel","Setlabel","Savelabel","MyLabel"]
-		,GBoxList7:["GBox7","TextInfo21","sChoice4","ciku1","ciku9","ciku2","TextInfo22","ciku8","ciku7","yaml_","TextInfo23","ciku3","ciku4","TextInfo24","ciku5","ciku6","TextInfo26","ciku10","ciku11"]
-		,GBoxList8:["GBox8","linkinfo1","linkinfo2","linkinfo3","versionsinfo","infos_"]}
+		,GBoxList6:["GBox6","TextInfo21","sChoice4","ciku1","ciku9","ciku2","TextInfo22","ciku8","ciku7","yaml_","TextInfo23","ciku3","ciku4","TextInfo24","ciku5","ciku6","TextInfo26","ciku10","ciku11"]
+		,GBoxList7:["GBox7","linkinfo1","linkinfo2","linkinfo3","versionsinfo","infos_"]}
 
 	Gui, 98:Add, GroupBox,x+10 yp w400 h400 vGBox1, 主题配置
-	Gui, 98:Add, Picture,xp+80 yp+30 h-1 vthemelogo, Config\Skins\preview\默认.png
+	Gui, 98:Add, Picture,xp+100 yp+30 h-1 vthemelogo, Config\Skins\preview\默认.png
 	if FileExist(A_ScriptDir "\Config\Skins\preview\" ThemeName ".png")
 		GuiControl,98:, themelogo,Config\Skins\preview\%ThemeName%.png
 	else
@@ -1158,9 +1057,9 @@ More_Setting:
 	Loop Files, config\Skins\*.json
 		themelist.="|" SubStr(A_LoopFileName,1,-5)
 	Gui, 98:Add, DDL,x+5 yp vselect_theme gselect_theme, % RegExReplace(themelist,"^\|")
-	Gui, 98:Add, Text,x190 y+10  vTextInfo2 left, 主题管理：
-	Gui, 98:Add, Button,x+5 yp-2 cred gdiycolor vdiycolor,自定义配色
-	Gui, 98:Add, Button,x+5 cred gthemelists vthemelists,主题管理
+	;Gui, 98:Add, Text,x190 y+10  vTextInfo2 left, 主题管理：
+	;Gui, 98:Add, Button,x+5 yp-2 cred gdiycolor vdiycolor,自定义配色
+	;Gui, 98:Add, Button,x+5 cred gthemelists vthemelists,主题管理
 	Gui, 98:Add, Text,x190 y+10 vTextInfo3 left, 配置管理：
 	Gui, 98:Add, Button,x+5 yp-2 cred gBackup_Conf vBackup_Conf,备份配置
 	Gui, 98:Add, Button,x+20 yp cred gRest_Conf vRest_Conf,恢复配置
@@ -1184,13 +1083,14 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox2, 候选框参数
 	Gui,98:Font
-	Gui,98:Font, s9, %font_%
-	Gui, 98:Add, Text, x190 yp+40 left vTextInfo11, 选框风格：
-	Gui,98:Font
-	Gui,98:Font, s8, %font_%
-	Gui, 98:Add, Button,x+0 w125 hwndHExportBtn gStyleMenu vStyleMenu, % ToolTipStyle~="i)on"?"Tooltip样式":ToolTipStyle~="i)off"?"Gui候选框样式":"Gdip候选框样式"
-	Gui, 98:Add, CheckBox,yp+0 x+15 vSBA5 gSBA5, 固定`n位置
-	Gui, 98:Add, Button,yp+5 x+5 vSBA0 gSBA0, 坐标设置
+	;Gui,98:Font, s9, %font_%
+	;Gui, 98:Add, Text, x190 yp+40 left vTextInfo11, 选框风格：
+	;Gui,98:Font
+	;Gui,98:Font, s8, %font_%
+	;Gui, 98:Add, Button,x+0 w125 hwndHExportBtn gStyleMenu vStyleMenu, % ToolTipStyle~="i)on"?"Tooltip样式":ToolTipStyle~="i)off"?"Gui候选框样式":"Gdip候选框样式"
+	Gui,98:Font, s10, %font_%
+	Gui, 98:Add, CheckBox,x190 yp+40 vSBA5 gSBA5, 候选框位置固定
+	Gui, 98:Add, Button,yp-3 x+5 vSBA0 gSBA0, 坐标设置
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo12
@@ -1234,9 +1134,9 @@ More_Setting:
 	Gui, 98:Add, Edit, x%EditVar1X% yp-3 w60 Limit2 Number vfont_value gfont_value
 	Gui, 98:Add, UpDown, x+0 w160 Range9-40 gfont_size vfont_size, %FontSize%
 	For Section, element In TV_obj
-		if (Section="GBoxList2")
-			Loop, % TV_obj[Section].Length()
-				GuiControl, 98:Hide, % TV_obj[Section,A_Index]
+		For key,value In element
+			if (Section="GBoxList2")
+				GuiControl, 98:Hide, % value
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox3, 输入设定
@@ -1281,9 +1181,9 @@ More_Setting:
 	if !IStatus
 		GuiControl,98:Disable,WinMode
 	For Section, element In TV_obj
-		if (Section="GBoxList3")
-			Loop, % TV_obj[Section].Length()
-				GuiControl, 98:Hide, % TV_obj[Section,A_Index]
+		For key,value In element
+			if (Section="GBoxList3")
+				GuiControl, 98:Hide, % value
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox4, 上屏设定
@@ -1309,11 +1209,10 @@ More_Setting:
 	Gui, 98:Add, Text, x190 yp+45  left vTextInfo20, 默认状态：
 	Gui, 98:Add, Radio,yp+0 x+30 vSetInput_CNMode gSetInput_Mode, 中文
 	Gui, 98:Add, Radio,yp+0 x+30 vSetInput_ENMode gSetInput_Mode, 英文
-
 	For Section, element In TV_obj
-		if (Section="GBoxList4")
-			Loop, % TV_obj[Section].Length()
-				GuiControl, 98:Hide, % TV_obj[Section,A_Index]
+		For key,value In element
+			if (Section="GBoxList4")
+				GuiControl, 98:Hide, % value
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox5, 快捷键设置
@@ -1332,42 +1231,18 @@ More_Setting:
 	Gui, 98:Add, CheckBox,x190 yp+45 vSBA22 gSBA22 Checked%Exit_switch%, 快捷退出>>
 	Gui, 98:Add, Hotkey, x+0 yp-3 vExit_hotkey gExit_hotkey,% exithotkey
 	For Section, element In TV_obj
-		if (Section="GBoxList5")
-			Loop, % TV_obj[Section].Length()
-				GuiControl, 98:Hide, % TV_obj[Section,A_Index]
+		For key,value In element
+			if (Section="GBoxList5")
+				GuiControl, 98:Hide, % value
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
-	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox6, 标签管理
-	Gui,98:Font
-	Gui,98:Font, s9, %font_%
-	Gui, 98:Add,Button,x190 yp+40 gDlabel vDlabel, 删除
-	GuiControl, 98:Disable, Dlabel
-	Gui, 98:Add, Button,x+5 gRlabel vRlabel, 重置
-	Gui, 98:Add, Button,x+5 gBlabel vBlabel, 导出
-	Gui, 98:Add, Button,x+5 gWlabel vWlabel, 导入
-	Gui, 98:Add, Button,x+5 gUlabel vUlabel, 编辑
-	Gui, 98:Add, Edit, x+5 R1 w65 vSetlabel WantTab hWndLEdit
-	Gui, 98:Add, Button,x+5 gSavelabel vSavelabel, 确定
-	GuiControl, 98:Hide, Setlabel
-	GuiControl, 98:Hide, Savelabel
-	Gui,98:Font
-	Gui,98:Font, s8, %font_%
-	Gui, 98:Add, ListView,x180 y+15 h300 w380 Grid AltSubmit NoSortHdr NoSort -WantF2 Checked -ReadOnly -Multi 0x8 LV0x40 -LV0x10 gMyLabel vMyLabel hwndHLV, 别名|标签名|标签说明
-	GuiControl, +Hdr, MyLabel
-	Gosub Glabel
-	For Section, element In TV_obj
-		if (Section="GBoxList6")
-			Loop, % TV_obj[Section].Length()
-				GuiControl, 98:Hide, % TV_obj[Section,A_Index]
-	Gui,98:Font
-	Gui,98:Font, s10 bold, %font_%
-	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox7, 码表管理
+	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox6, 码表管理
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
-	Gui, 98:Add, Text, x190 yp+45 vTextInfo21 left, 码表选择：
-	Gui, 98:Add, DDL,x+10 w100 vsChoice4 gsChoice4, 含词码表|单字码表|超集码表|字根码表
-	Gui, 98:Add, Button, x+10 yp-1 vciku1 gciku1,导入
-	Gui, 98:Add, Button, x+10 yp vciku9 gciku9,自造词管理
+	;Gui, 98:Add, Text, x190 yp+45 vTextInfo21 left, 码表选择：
+	;Gui, 98:Add, DDL,x+10 w100 vsChoice4 gsChoice4, 含词码表|单字码表|超集码表|字根码表
+	;Gui, 98:Add, Button, x+10 yp-1 vciku1 gciku1,导入
+	;Gui, 98:Add, Button, x+10 yp vciku9 gciku9,自造词管理
 	Gui, 98:Add, Text, x190 yp+45 left vTextInfo22, 码表导出：
 	Gui, 98:Add, Button, x+10 yp-1 vciku2 gciku2,码表合并导出
 	Gui, 98:Add, Button, x+20 yp vciku8 gciku8,含词主码表导出
@@ -1382,18 +1257,16 @@ More_Setting:
 	Gui, 98:Add, Text, x190 yp+45 vTextInfo24 left, 特殊符号：
 	Gui, 98:Add, Button, x+10 yp-1 vciku5 gciku5,导入
 	Gui, 98:Add, Button, x+5 yp-1 vciku6 gciku6,导出
-
 	Gui, 98:Add, Text, x190 yp+45 vTextInfo26 left, 汉字拼音：
 	Gui, 98:Add, Button, x+10 yp-1 vciku10 gciku10,导入
 	Gui, 98:Add, Button, x+5 yp-1 vciku11 gciku11,导出
-
 	For Section, element In TV_obj
-		if (Section="GBoxList7")
-			Loop, % TV_obj[Section].Length()
-				GuiControl, 98:Hide, % TV_obj[Section,A_Index]
+		For key,value In element
+			if (Section="GBoxList6")
+				GuiControl, 98:Hide, % value
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
-	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox8, 关于
+	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox7, 关于
 	Gui,98:Font
 	Gui,98:Font, s9 c757575, %font_%
 	Gui,98:Add, Text, x190 yp+35 w360 vinfos_ , `t%Startup_Name%是以AutoHotkey脚本语言编写的外挂类型形码输入法，借用同类型的「影子输入法」的实现思路通过调用众多WinAPI整合SQLite数据库实现文字输出等一系列功能。以「数据库码表性能」和「前端呈现」（调用Windows的GdiPlus.dll）两方面对文字内容直接发送上屏，而不进行传统输入法的转换操作，从XP至Win10皆能流畅运行。此版本为王码五笔98版专用，非98五笔的用户移步至「影子输入法」。
@@ -1404,9 +1277,9 @@ More_Setting:
 	Gui,98:Add, Link, y+5 vlinkinfo3, 查看码元图：<a href="config\码元图.jpg">点我查看五笔98版码元图</a>
 	Gui,98:Add, Text, y+5 vversionsinfo, 版本日期：%Versions%
 	For Section, element In TV_obj
-		if (Section="GBoxList8")
-			Loop, % TV_obj[Section].Length()
-				GuiControl, 98:Hide, % TV_obj[Section,A_Index]
+		For key,value In element
+			if (Section="GBoxList7")
+				GuiControl, 98:Hide, % value
 	Gui 98:color,ffffff
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
@@ -1414,7 +1287,6 @@ More_Setting:
 	SB_SetText(A_Is64bitOS?"运行环境：" ComInfo.GetOSVersionInfo() "〔 AHK " A_AhkVersion "#64位 〕":"运行环境：" ComInfo.GetOSVersionInfo() "〔 AHK " A_AhkVersion "#32位 〕" )
 	Gui, 98:Show,AutoSize,输入法设置
 	Gosub ControlGui
-
 Return
 
 ExSty:
@@ -1426,6 +1298,8 @@ ExSty:
 	}
 	Gosub ShowSrfTip
 Return
+
+
 
 SrfSlider:
 	transparentX:=WubiIni.TipStyle["transparentX"]:=SrfSlider, WubiIni.save()
@@ -1474,7 +1348,7 @@ FontIN:
 		FileCopy, Font\*.otf, %A_WinDir%\Fonts,1
 		DllCall("gdi32\EnumFontFamilies","uint",DllCall("GetDC","uint",0),"uint",0,"uint",RegisterCallback("EnumFontFamilies"),"uint",a_FontList:="")
 		If a_FontList~="i)五笔拆字字根字体|98WB-3|98WB-ZG|98WB-0" {
-			Gui,98:Hide
+			Gui +OwnDialogs
 			Loop,Files,Font\*.Reg
 				RunWait,%A_LoopFileLongPath%
 			if CutFontName:=GetCutModeFont() {
@@ -1482,7 +1356,6 @@ FontIN:
 				GuiControl,98:, FontType , |%a_FontList%
 				GuiControl, 98:ChooseString, FontType, %CutFontName%
 			}
-			Gui,98:Show
 		}
 
 	}else{
@@ -1551,7 +1424,7 @@ InputStatus:
 Return
 
 WinMode:
-	Gui, IM:Destroy
+	Gosub DestroyGui
 	Gui IM:Default
 	Gui IM:+LastFound +AlwaysOnTop +Owner
 	Gui, IM:Add, Button, y+10 vDTxck gDTxck,删除
@@ -1641,7 +1514,8 @@ AddProcess:
 	MouseGetPos, , , id
 	WinGet, win_exe, ProcessName, ahk_id %id%,
 	Set_IMode:=IMEmode~="i)off"?"EN":"CN", IModeCount:=Set_IMode~="i)EN"?"CN":"EN"
-	If win_exe~="i)\.exe" {
+	If win_exe~="i)\.exe" 
+	{
 		if !Array_isInValue(EXEList_obj[Set_IMode], win_exe){
 			if Array_isInValue(EXEList_obj[IModeCount], win_exe){
 				Loop, % EXEList_obj[IModeCount].Length()
@@ -1658,8 +1532,7 @@ AddProcess:
 					EXEList_obj[Set_IMode]:=[ win_exe ],LV_Insert(LV_GetCount() ,"", win_exe, IMEmode~="i)off"?"英文":"中文")
 			}
 			Json_ObjToFile(EXEList_obj, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
-			LV_ModifyCol(2,"100 center")
-			ColWidth:=0
+			LV_ModifyCol(2,"100 center"), ColWidth:=0
 			GuiControlGet, IMVar, Pos , IPView
 			Loop % LV_GetCount("Column")
 			{
@@ -1668,7 +1541,7 @@ AddProcess:
 				ColWidth+=ErrorLevel
 			}
 			GuiControl, IM:Move, IPView, % "w" (A_ScreenDPI/96>1?ColWidth/(A_ScreenDPI/96):ColWidth)
-		}else{
+		}else
 			Traytip,,该进程已存在！
 	}
 	Gui, 98:Show
@@ -1685,7 +1558,8 @@ Return
 
 IM_DDL:
 	GuiControlGet, IM_DDL,, IM_DDL, text 
-	if (IM_DDL<>LVName_&&IM_DDL<>""&&LVName_<>""&&LVName~="i)\.exe$"&&IM_DDL<>"") {
+	if (IM_DDL<>LVName_&&IM_DDL<>""&&LVName_<>""&&LVName~="i)\.exe$"&&IM_DDL<>"") 
+	{
 		if IM_DDL ~="中文" {
 			if EXEList_obj["CN"].Length()>0
 			{
@@ -1693,7 +1567,6 @@ IM_DDL:
 					Loop, % EXEList_obj["EN"].Length()
 						if (EXEList_obj["EN",A_Index]=LVName)
 							EXEList_obj["EN"].RemoveAt(A_Index), LV_Modify(LVPOS,"text",LVName,"中文"), EXEList_obj["CN"].Push(LVName)
-					}
 				}else
 					EXEList_obj["CN"].Push(LVName)
 			}else{
@@ -1760,6 +1633,7 @@ DelRows(deb=""){
 98GuiClose:
 98GuiEscape:
 	Gui, 98:Destroy
+	Gosub DestroyGui
 	LsVar:=opvar:=posInfo:=""
 	Result_:=Results_:=Result:=[]
 	WubiIni.Save()
@@ -1783,14 +1657,41 @@ costomcolor:
 	Gosub diyColor
 Return
 
+Label_management:
+	Gosub DestroyGui
+	Gui, label:Default
+	Gui, label: +hwndGuiLabel +Owner98 +OwnDialogs +AlwaysOnTop -DPIScale  ;+ToolWindow
+	Gui,label:Font
+	Gui,label:Font, s10 bold, %font_%
+	Gui label:Add, GroupBox, y+10 w500 h450 vGBox8, 标签管理
+	Gui,label:Font
+	Gui,label:Font, s10, %font_%
+	Gui, label:Add,Button,xm+15 yp+40 gDlabel vDlabel, 删除
+	GuiControl, label:Disable, Dlabel
+	Gui, label:Add, Button,x+5 gRlabel vRlabel, 重置
+	Gui, label:Add, Button,x+5 gBlabel vBlabel, 导出
+	Gui, label:Add, Button,x+5 gWlabel vWlabel, 导入
+	Gui, label:Add, Button,x+5 gUlabel vUlabel, 编辑
+	Gui, label:Add, Edit, x+5 R1 w65 vSetlabel WantTab hWndLEdit
+	Gui, label:Add, Button,x+5 gSavelabel vSavelabel, 确定
+	GuiControl, label:Hide, Setlabel
+	GuiControl, label:Hide, Savelabel
+	Gui,label:Font
+	Gui,label:Font, s9, %font_%
+	Gui, label:Add, ListView,xm+15 y+15 h350 w470 Grid AltSubmit NoSortHdr NoSort -WantF2 Checked -ReadOnly -Multi 0x8 LV0x40 -LV0x10 gMyLabel vMyLabel hwndHLV, 别名|标签名|标签说明
+	GuiControl, +Hdr, MyLabel
+	Gosub Glabel
+	Gui, label:Color,ffffff
+	Gui, label:Show,AutoSize, 标签管理
+Return
+
 Glabel:
 	If DB.gettable("SELECT * FROM label", Result){
 		loop, % Result.RowCount
 		{
 			LV_Add("", Result.Rows[A_index,2], Result.Rows[A_index,3],SubStr(Result.Rows[A_index,4],2)), LV_ModifyCol()
 		}
-		LV_ModifyCol(2,"120 left")
-		;LV_ModifyCol(4,"60 left")
+		LV_ModifyCol(2,"150 left")
 		CLV := New LV_Colors(HLV)
 		CLV.SelectionColors(0xfecd1b)
 	}
@@ -1800,43 +1701,48 @@ MyLabel:
 	if (A_GuiEvent = "Normal")
 	{
 		LV_GetText(labelName, A_EventInfo), posInfo:=A_EventInfo
-		GuiControlGet, LsVar, 98:Visible , Setlabel
+		GuiControlGet, LsVar, label:Visible , Setlabel
 		loop, % LV_GetCount()+1
 		{
 			if LV_GetNext( A_Index-1, "Checked" ){
-				GuiControl, 98:Enable, Dlabel
+				GuiControl, label:Enable, Dlabel
 				if LsVar {
-					GuiControl, 98:Disable, Setlabel
-					GuiControl, 98:Disable, Savelabel
+					For k,v In ["Setlabel","Savelabel"]
+						GuiControl, label:Disable, %v%
 				}
 				break
 			}else{
-				GuiControl, 98:Disable, Dlabel
+				GuiControl, label:Disable, Dlabel
 				if LsVar {
-					GuiControl, 98:Enable, Setlabel
-					GuiControl, 98:Enable, Savelabel
-					GuiControl,98:, Setlabel ,
+					For k,v In ["Setlabel","Savelabel"]
+						GuiControl, label:Enable, %v%
+					GuiControl,label:, Setlabel ,
 				}
 				break
 			}
 		}
 		if LsVar
 			EM_SetCueBanner(LEdit, labelName)
-			;GuiControl,98:, Setlabel ,% labelName
+			;GuiControl,label:, Setlabel ,% labelName
 	}
 return
 
 Rlabel:
-	LV_Delete()
-	if DB.Exec("DROP TABLE label")>0
+	Gui +OwnDialogs
+	MsgBox, 262452, 提示, 是否重置所有标签?
+	IfMsgBox, Yes
 	{
-		DB.Exec("create table label as select * from label_init")
-		Gosub Glabel
+		LV_Delete()
+		if DB.Exec("DROP TABLE label")>0
+		{
+			DB.Exec("create table label as select * from label_init")
+			Gosub Glabel
+		}
 	}
 return
 
 Blabel:
-	Gui,98:Hide
+	Gui +OwnDialogs
 	FileSelectFolder, OutFolder,,3,请选择导出后保存的位置
 	if OutFolder<>
 	{
@@ -1851,11 +1757,10 @@ Blabel:
 			Resoure_ :=OutFolder :=""
 		}
 	}
-	Gui, 98:show,NA
 Return
 
 Wlabel:
-	Gui,98:Hide
+	Gui +OwnDialogs
 	FileSelectFile, LabelFile, 3, , 导入标签文件, Text Documents (*.txt)
 	SplitPath, LabelFile, , , , filename
 	If (LabelFile = ""){
@@ -1899,7 +1804,6 @@ Wlabel:
 		}
 	}
 	label_all:=Insert_label:=""
-	Gui, 98:show,NA
 Return
 
 Dlabel:
@@ -1920,22 +1824,22 @@ DelLabel(deb =""){
 }
 
 Ulabel:
-	GuiControlGet, LsVar, 98:Visible , Setlabel
+	GuiControlGet, LsVar, label:Visible , Setlabel
 	if LsVar {
-		GuiControl, 98:Hide, Setlabel
-		GuiControl, 98:Hide, Savelabel
-		GuiControl, 98:Disable, Setlabel
-		GuiControl, 98:Disable, Savelabel
-		GuiControl,98:, Setlabel ,
+		For k,v In ["Setlabel","Savelabel"]
+			GuiControl, label:Hide, %v%
+		For k,v In ["Setlabel","Savelabel"]
+			GuiControl, label:Disable, %v%
+		GuiControl,label:, Setlabel ,
 	}else if (posInfo<>""&&!LsVar){
-		GuiControlGet, opvar, 98:Enabled , Dlabel
-		GuiControl, 98:Show, Setlabel
-		GuiControl, 98:Show, Savelabel
+		GuiControlGet, opvar, label:Enabled , Dlabel
+		For k,v In ["Setlabel","Savelabel"]
+			GuiControl, label:Show, %v%
 		EM_SetCueBanner(LEdit, labelName)
-		;GuiControl,98:, Setlabel ,% labelName
+		;GuiControl,label:, Setlabel ,% labelName
 		if opvar {
-			GuiControl, 98:Disable, Setlabel
-			GuiControl, 98:Disable, Savelabel
+			For k,v In ["Setlabel","Savelabel"]
+				GuiControl, label:Disable, %v%
 		}
 	}
 Return
@@ -1948,9 +1852,9 @@ Savelabel:
 			LV_Modify(posInfo,"text",Setlabel)
 			TrayTip,, 修改成功
 		}
-		GuiControl, 98:Hide, Setlabel
-		GuiControl, 98:Hide, Savelabel
-		GuiControl,98:, Setlabel ,
+		For k,v In ["Setlabel","Savelabel"]
+			GuiControl, label:Hide, %v%
+		GuiControl,label:, Setlabel ,
 	}
 Return
 
@@ -2076,50 +1980,50 @@ yaml_:
 Return
 
 ControlGui:
-	if (ToolTipStyle~="i)on")
-		Menu_CheckRadioItem(HMENU, 1)
-	else if (ToolTipStyle~="i)off")
-		Menu_CheckRadioItem(HMENU, 2)
-	else if (ToolTipStyle~="i)Gdip")
-		Menu_CheckRadioItem(HMENU, 3)
-	if ToolTipStyle ~="i)off|on"{
-		GuiControl, 98:Disable, SBA9
-		GuiControl, 98:Disable, SBA12
-		GuiControl, 98:Disable, SBA10
-		GuiControl, 98:Disable, SBA19
+	For k,v In ["on","off","Gdip","ci","zi","chaoji","zg"]
+	{
+		if (ToolTipStyle~="i)" v)
+			Menu_CheckRadioItem(HMENU, k)
+		if (Wubi_Schema~="i)" v){
+			Menu_CheckRadioItem(SMENU, k-3)
+			GuiControl,98:choose, sChoice4 , % k-3
+		}
 	}
-	if Logo_ExStyle
-		GuiControl,98:, ExSty , 1
+	if ToolTipStyle ~="i)off|on"{
+		For k,v In ["SBA12","SBA9","SBA10","SBA19"]
+			GuiControl, 98:Disable, %v%
+	}
+	For k,v In {Logo_ExStyle:"ExSty",PromptChar:"SBA24",BUyaml:"yaml_",PageShow:"SBA20",sym_match:"SBA21",Exit_switch:"SBA22",FocusStyle:"SBA19",UIAccess:"UIAccess",symb_mode:"SBA14"}
+		If (%k%)
+			GuiControl,98:, %v% , 1
+	For k,v In ["Ctrl","Shift","Alt","LWin"]
+		if Srf_Hotkey~="i)" v
+			GuiControl,98:choose, sethotkey_1 , %k%
+	For k,v In {Radius:"SBA9",FontStyle:"SBA12",Logo_Switch:"SBA13",Gdip_Line:"SBA10",Fix_Switch:"SBA5",Prompt_Word:"SBA3",symb_send:"SBA6",limit_code:"SBA7"}
+		if (%k%~="i)on")
+			GuiControl,98:, %v% , 1
+	if Logo_Switch~="off" {
+		For k,v In ["SrfSlider","select_logo","ExSty","set_SizeValue","SizeValue"]
+			GuiControl, 98:Disable, %v%
+	}
+	if ToolTipStyle ~="i)on|off"{
+		For k,v In ["LineColor","BorderColor","SBA19"]
+			GuiControl, 98:Disable, %v%
+	}
+	if Wubi_Schema~="zi|zg"{
+		For k,v In ["ciku1","ciku2"]
+			GuiControl, 98:Disable, %v%
+	}
+	GuiControl, 98:ChooseString, set_Frequency, %Freq_Count%
 	if themelist~=ThemeName "|"
 		GuiControl, 98:ChooseString, select_theme, % ThemeName
 	else
 		GuiControl, 98:Choose, select_theme, 0
-	if PromptChar
-		GuiControl,98:, SBA24 , 1
-	GuiControl, 98:ChooseString, set_Frequency, %Freq_Count%
-	if Radius~="i)on" {
-		GuiControl,98:, SBA9 , 1
-	}
-	if Logo_Switch~="off" {
-		GuiControl, 98:Disable, SrfSlider
-		GuiControl, 98:Disable, select_logo
-		GuiControl, 98:Disable, ExSty
-		GuiControl, 98:Disable, set_SizeValue
-		GuiControl, 98:Disable, SizeValue
-	}
-	if FontStyle~="i)on" {
-		GuiControl,98:, SBA12 , 1
-	}
-	if Logo_Switch~="i)on|off" {
-		GuiControl,98:, SBA13 , 1
-	}
+
 	if IMEmode~="on"
 		GuiControl,98:, SetInput_CNMode , 1
 	else
 		GuiControl,98:, SetInput_ENMode , 1
-
-	if BUyaml
-		GuiControl,98:, yaml_ , 1
 
 	if !rlk_switch
 		GuiControl, 98:Disable, tip_hotkey
@@ -2133,35 +2037,7 @@ ControlGui:
 		GuiControl, 98:Disable, Addcode_hotkey
 	else
 		GuiControl,98:, SBA17 , 1
-	if Gdip_Line~="i)on" {
-		GuiControl,98:, SBA10 , 1
-	}
-	if Fix_Switch~="i)on" {
-		GuiControl,98:, SBA5 , 1
-	}
-	if ToolTipStyle ~="i)on|off"{
-		GuiControl, 98:Disable, LineColor
-		GuiControl, 98:Disable, BorderColor
-		GuiControl, 98:Disable, SBA19
-	}
-	if PageShow
-		GuiControl,98:, SBA20 , 1
-	if sym_match
-		GuiControl,98:, SBA21 , 1
-	if Exit_switch
-		GuiControl,98:, SBA22 , 1
-	if Wubi_Schema~="zi|zg"{
-		GuiControl, 98:Disable, ciku1
-		GuiControl, 98:Disable, ciku2
-	}
-	if Srf_Hotkey~="i)Ctrl"
-		GuiControl,98:choose, sethotkey_1 , 1
-	else if Srf_Hotkey~="i)Shift"
-		GuiControl,98:choose, sethotkey_1 , 2
-	else if Srf_Hotkey~="i)Alt"
-		GuiControl,98:choose, sethotkey_1 , 3
-	else if Srf_Hotkey~="i)LWin"
-		GuiControl,98:choose, sethotkey_1 , 4
+
 	if Initial_Mode~="i)on" {
 		GuiControl,98:choose, sChoice1 , 2
 	}else{
@@ -2177,17 +2053,8 @@ ControlGui:
 	}else{
 		GuiControl,98:choose, sChoice3 , 1
 	}
-	if FocusStyle
-		GuiControl,98:, SBA19 , 1
-	if Wubi_Schema~="i)ci" {
-		GuiControl,98:choose, sChoice4 , 1
-	}else if Wubi_Schema~="i)zi" {
-		GuiControl,98:choose, sChoice4 , 2
-	}else if Wubi_Schema~="i)chaoji" {
-		GuiControl,98:choose, sChoice4 , 3
-	}else if Wubi_Schema~="i)zg" {
-		GuiControl,98:choose, sChoice4 , 4
-	}
+
+
 	if !GET_IMESt(){
 		GuiControl,98:choose, mothod , 1
 	}else{
@@ -2198,8 +2065,7 @@ ControlGui:
 	}else{
 		GuiControl, 98:Disable, SBA0
 	}
-	if UIAccess
-		GuiControl,98:, UIAccess , 1
+
 	if cf_swtich {
 		GuiControl,98:, SBA2 , 1
 	}else{
@@ -2212,9 +2078,7 @@ ControlGui:
 	}else{
 		GuiControl, 98:Disable, s2t_hotkeys
 	}
-	if Prompt_Word~="i)on" {
-		GuiControl,98:, SBA3 , 1
-	}
+
 	if Startup~="i)on" {
 		GuiControl,98:choose, SBA4 , 1
 	}else if Startup~="i)sc"{
@@ -2222,22 +2086,14 @@ ControlGui:
 	}else{
 		GuiControl,98:choose, SBA4 , 3
 	}
-	if symb_send~="i)on" {
-		GuiControl,98:, SBA6 , 1
-	}
-	if limit_code~="i)on" {
-		GuiControl,98:, SBA7 , 1
-	}
-	if (symb_mode=1) {
-		GuiControl,98:, SBA14 , 1
-	}
+
 	if ToolTipStyle ~="i)off|gdip" {
-		GuiControl, 98:Disable, set_regulate_Hx
-		GuiControl, 98:Disable, set_regulate
+		For k,v In ["set_regulate_Hx","set_regulate"]
+			GuiControl, 98:Disable, %v%
 	}
 	if (ToolTipStyle ~="i)off|on"||Radius~="i)off") {
-		GuiControl, 98:Disable, set_GdipRadius
-		GuiControl, 98:Disable, GdipRadius
+		For k,v In ["set_GdipRadius","GdipRadius"]
+			GuiControl, 98:Disable, %v%
 	}
 Return
 
@@ -2309,7 +2165,7 @@ sChoice2:
 Return
 
 themelists:
-	Gui, themes:Destroy
+	Gosub DestroyGui
 	Gui, themes:Default
 	Gui, themes: +AlwaysOnTop -DPIScale +Owner  ;+ToolWindow
 	Gui, themes:Add, ListView, r15 w425 Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 Checked -Multi 0x8 LV0x40 -LV0x10 gMyTheme vMyTheme hwndThemeLV, 主题名称|预览图|文件路径
@@ -2499,66 +2355,58 @@ sChoice3:
 Return
 
 sChoice4:
+	Menu_CheckRadioItem(SMENU, A_ThisMenuItemPos)
 	GuiControlGet, sChoice4,, sChoice4, text
-	if sChoice4~="词" {
+	if (sChoice4~="词"||A_ThisMenuItem~="词") {
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="ci",WubiIni.save()
 		Menu, Tray, Enable, 批量造词
 		Menu, Tray, Enable, 导入词库
 		Menu, Tray, Enable, 导出词库
-		GuiControl, 98:Enable, ciku1
-		GuiControl, 98:Enable, ciku2
-		GuiControl, 98:Disable, SBA23
+		For k,v In ["ciku1","ciku2"]
+			GuiControl, 98:Enable, %v%
+		For k,v In ["SBA23"]
+			GuiControl, 98:Disable, %v%
 		GuiControl,logo:, MoveGui,*Icon11 config\Skins\logoStyle\%StyleN%.icl
 		GuiControl, 98:Enable, Frequency
 		if !Frequency {
-			GuiControl, 98:Disable, FTip
-			GuiControl, 98:Disable, set_Frequency
-			GuiControl, 98:Disable, RestDB
+			For k,v In ["FTip","set_Frequency","RestDB"]
+				GuiControl, 98:Disable, %v%
 		}else{
-			GuiControl, 98:Enable, FTip
-			GuiControl, 98:Enable, set_Frequency
-			GuiControl, 98:Enable, RestDB
+			For k,v In ["FTip","set_Frequency","RestDB"]
+				GuiControl, 98:Enable, %v%
 		}
-	}else if sChoice4~="单"{
+	}else if (sChoice4~="单"||A_ThisMenuItem~="单"){
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="zi",WubiIni.save()
 		Menu, Tray, Disable, 批量造词
 		Menu, Tray, Disable, 导入词库
 		Menu, Tray, Disable, 导出词库
-		GuiControl, 98:Disable, ciku1
-		GuiControl, 98:Disable, ciku2
+		For k,v In ["ciku1","ciku2"]
+			GuiControl, 98:Disable, %v%
 		if FileExist("config\GB*.txt")
 			GuiControl, 98:Enable, SBA23
 		GuiControl,logo:, MoveGui,*Icon13 config\Skins\logoStyle\%StyleN%.icl
-		GuiControl, 98:Disable, Frequency
-		GuiControl, 98:Disable, FTip
-		GuiControl, 98:Disable, set_Frequency
-		GuiControl, 98:Disable, RestDB
-	}else if sChoice4~="超"{
+		For k,v In ["FTip","set_Frequency","RestDB","Frequency"]
+			GuiControl, 98:Disable, %v%
+	}else if (sChoice4~="超"||A_ThisMenuItem~="超") {
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="chaoji",WubiIni.save()
 		Menu, Tray, Disable, 批量造词
 		Menu, Tray, Enable, 导入词库
 		Menu, Tray, Enable, 导出词库
-		GuiControl, 98:Enable, ciku1
-		GuiControl, 98:Enable, ciku2
-		GuiControl, 98:Disable, SBA23
+		For k,v In ["ciku1","ciku2"]
+			GuiControl, 98:Enable, %v%
+		For k,v In ["SBA23"]
+			GuiControl, 98:Disable, %v%
 		GuiControl,logo:, MoveGui,*Icon12 config\Skins\logoStyle\%StyleN%.icl
-		GuiControl, 98:Disable, Frequency
-		GuiControl, 98:Disable, FTip
-		GuiControl, 98:Disable, set_Frequency
-		GuiControl, 98:Disable, RestDB
-	}else if sChoice4~="字根"{
+		For k,v In ["FTip","set_Frequency","RestDB","Frequency"]
+			GuiControl, 98:Disable, %v%
+	}else if (sChoice4~="字根"||A_ThisMenuItem~="字根") {
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="zg",WubiIni.save()
 		Menu, Tray, Disable, 批量造词
 		Menu, Tray, Disable, 导入词库
 		Menu, Tray, Disable, 导出词库
-		GuiControl, 98:Disable, ciku1
-		GuiControl, 98:Disable, ciku2
-		GuiControl, 98:Disable, SBA23
+		For k,v In ["ciku1", "ciku2", "SBA23", "Frequency", "FTip", "set_Frequency", "RestDB"]
+			GuiControl, 98:Disable, %v%
 		GuiControl,logo:, MoveGui,*Icon14 config\Skins\logoStyle\%StyleN%.icl
-		GuiControl, 98:Disable, Frequency
-		GuiControl, 98:Disable, FTip
-		GuiControl, 98:Disable, set_Frequency
-		GuiControl, 98:Disable, RestDB
 	}
 Return
 
@@ -2588,25 +2436,20 @@ mothod:
 Return
 
 ciku1:
-	Gui,98:Hide
 	GuiControlGet, Choice,, sChoice4, text
 	Gosub Write_DB
 	keywait, LControl, D T1
 	keywait, LControl
-	Gui, 98:show,NA
 Return
 
 ciku2:
-	Gui,98:Hide
 	GuiControlGet, Choice,, sChoice4, text
 	Gosub Backup_DB
 	keywait, LControl, D T1
 	keywait, LControl
-	Gui, 98:show,NA
 Return
 
 ciku3:
-	Gui,98:Hide
 	GuiControlGet, ck3,, ciku3, text
 	bd:=""
 	if ck3 {
@@ -2615,11 +2458,9 @@ ciku3:
 	}
 	keywait, LControl, D T1
 	keywait, LControl
-	Gui, 98:show,NA
 Return
 
 ciku4:
-	Gui,98:Hide
 	GuiControlGet, ck4,, ciku4, text
 	bd:=""
 	if ck4 {
@@ -2628,11 +2469,9 @@ ciku4:
 	}
 	keywait, LControl, D T1
 	keywait, LControl
-	Gui, 98:show,NA
 Return
 
 ciku5:
-	Gui,98:Hide
 	GuiControlGet, ck5,, ciku5, text
 	bd:=""
 	if ck5 {
@@ -2641,11 +2480,9 @@ ciku5:
 	}
 	keywait, LControl, D T1
 	keywait, LControl
-	Gui, 98:show,NA
 Return
 
 ciku6:
-	Gui,98:Hide
 	GuiControlGet, ck6,, ciku6, text
 	bd:=""
 	if ck6 {
@@ -2654,21 +2491,16 @@ ciku6:
 	}
 	keywait, LControl, D T1
 	keywait, LControl
-	Gui, 98:show,NA
 Return
 
 ciku7:
-	Gui,98:Hide
 	custom_db:=1
 	Gosub Backup_DB
-	Gui, 98:show,NA
 Return
 
 ciku8:
-	Gui, 98:Hide
 	init_db:=1
 	Gosub Backup_DB
-	Gui, 98:show,NA
 Return
 
 ciku9:
@@ -2676,7 +2508,7 @@ ciku9:
 Return
 
 ciku10:
-	Gui,98:Hide
+	Gui +OwnDialogs
 	FileSelectFile, FileNamePath, 3,%A_Desktop%\ , 导入单字读音词库, Text Documents (*.txt)
 	If (FileNamePath<>"") {
 		MsgBox, 262452, 提示, 要导入以下词库进行替换？`n〔 单字+Tab+读音 〕
@@ -2696,11 +2528,10 @@ ciku10:
 		}
 	}else
 		Traytip,,导入已取消！
-	Gui, 98:show,NA
 Return
 
 ciku11:
-	Gui,98:Hide
+	Gui +OwnDialogs
 	FileSelectFolder, OutFolder,*%A_Desktop%\,3,请选择导出后保存的位置
 	if (OutFolder<>"")
 	{
@@ -2709,7 +2540,6 @@ ciku11:
 		else
 			Traytip,,导出失败！
 	}
-	Gui, 98:show,NA
 Return
 
 DB_WritePy(Strs){
@@ -2798,23 +2628,17 @@ SBA3:
 		if PromptChar
 			GuiControl,98:, SBA24 , 0
 		Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="on",PromptChar:=WubiIni.Settings["PromptChar"]:=0,WubiIni.save()
-		Menu, setting, Rename, 空码提示	× , 空码提示	√
-		GuiControl, 98:Disable, Frequency
-		GuiControl, 98:Disable, FTip
-		GuiControl, 98:Disable, set_Frequency
-		GuiControl, 98:Disable, RestDB
+		For k,v In ["Frequency","FTip","set_Frequency","RestDB"]
+			GuiControl, 98:Disable, %v%
 	}else{
 		Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="off",WubiIni.save()
-		Menu, setting, Rename, 空码提示	√ , 空码提示	×
 		GuiControl, 98:Enable, Frequency
 		if Frequency {
-			GuiControl, 98:Enable, FTip
-			GuiControl, 98:Enable, set_Frequency
-			GuiControl, 98:Enable, RestDB
+			For k,v In ["FTip","set_Frequency","RestDB"]
+				GuiControl, 98:Enable, %v%
 		}else{
-			GuiControl, 98:Disable, FTip
-			GuiControl, 98:Disable, set_Frequency
-			GuiControl, 98:Disable, RestDB
+			For k,v In ["FTip","set_Frequency","RestDB"]
+				GuiControl, 98:Disable, %v%
 		}
 	}
 Return
@@ -2863,10 +2687,8 @@ SBA7:
 	GuiControlGet, SBA ,, SBA7, Checkbox
 	if (SBA==1) {
 		limit_code:=WubiIni.Settings["limit_code"]:="on",WubiIni.save()
-		Menu, setting, Rename, 四码上屏	× , 四码上屏	√
 	}else{
 		limit_code:=WubiIni.Settings["limit_code"]:="off",WubiIni.save()
-		Menu, setting, Rename, 四码上屏	√ , 四码上屏	×
 	}
 Return
 
@@ -2874,12 +2696,12 @@ SBA9:
 	GuiControlGet, SBA ,, SBA9, Checkbox
 	if (SBA==1) {
 		Radius:=WubiIni.TipStyle["Radius"]:="on",WubiIni.save()
-		GuiControl, 98:Enable, set_GdipRadius
-		GuiControl, 98:Enable, GdipRadius
+		For k,v In ["set_GdipRadius","GdipRadius"]
+			GuiControl, 98:Enable, %v%
 	}else{
 		Radius:=WubiIni.TipStyle["Radius"]:="off",WubiIni.save()
-		GuiControl, 98:Disable, set_GdipRadius
-		GuiControl, 98:Disable, GdipRadius
+		For k,v In ["set_GdipRadius","GdipRadius"]
+			GuiControl, 98:Disable, %v%
 	}
 Return
 
@@ -2906,17 +2728,11 @@ Return
 SBA13:
 	Gosub Logo_Switch
 	if Logo_Switch~="off" {
-		GuiControl, 98:Disable, ExSty
-		GuiControl, 98:Disable, SrfSlider
-		GuiControl, 98:Disable, select_logo
-		GuiControl, 98:Disable, set_SizeValue
-		GuiControl, 98:Disable, SizeValue
+		For k,v In ["ExSty","SrfSlider","select_logo","set_SizeValue","SizeValue"]
+			GuiControl, 98:Disable, %v%
 	}else{
-		GuiControl, 98:Enable, ExSty
-		GuiControl, 98:Enable, SrfSlider
-		GuiControl, 98:Enable, select_logo
-		GuiControl, 98:Enable, set_SizeValue
-		GuiControl, 98:Enable, SizeValue
+		For k,v In ["ExSty","SrfSlider","select_logo","set_SizeValue","SizeValue"]
+			GuiControl, 98:Enable, %v%
 	}
 Return
 
@@ -3090,15 +2906,19 @@ StyleMenu:
 	X += W // 2
 	Menu_ShowAligned(HMENU, hwndgui98, X, Y, "Center", "Bottom")
 	if A_ThisMenuItem~="i)gdip" {
-		GuiControl, 98:Enable, SBA12
-		GuiControl, 98:Enable, SBA9
-		GuiControl, 98:Enable, SBA10
-		GuiControl, 98:Enable, SBA19
+		For k,v In ["SBA12","SBA9","SBA10","SBA19"]
+			GuiControl, 98:Enable, %v%
+	}else if A_ThisMenuItem~="i)on|off" {
+		For k,v In ["SBA12","SBA9","SBA10","SBA19"]
+			GuiControl, 98:Disable, %v%
 	}else{
-		GuiControl, 98:Disable, SBA9
-		GuiControl, 98:Disable, SBA10
-		GuiControl, 98:Disable, SBA12
-		GuiControl, 98:Disable, SBA19
+		if ToolTipStyle~="i)Gdip" {
+			For k,v In ["SBA12","SBA9","SBA10","SBA19"]
+				GuiControl, 98:Enable, %v%
+		}else{
+			For k,v In ["SBA12","SBA9","SBA10","SBA19"]
+				GuiControl, 98:Disable, %v%
+		}
 	}
 	if A_ThisMenuItem~="i)ToolTip" {
 		GuiControl, 98:Enable, set_regulate_Hx
@@ -3111,57 +2931,29 @@ Export:
 	Menu_CheckRadioItem(HMENU, A_ThisMenuItemPos)
 	if A_ThisMenuItem~="i)gdip"{
 		GuiControl, 98:Text, StyleMenu , % A_ThisMenuItem
-		if not ToolTipStyle ~="i)gdip"
-			Menu, Tip_Style, Rename, Gdip候选样式,Gdip候选样式	√
-		if ToolTipStyle ~="i)off"
-			Menu, Tip_Style, Rename, Gui候选样式	√,Gui候选样式
-		else if ToolTipStyle ~="i)on"
-			Menu, Tip_Style, Rename, ToolTip样式	√,ToolTip样式
 		global ToolTipStyle :=WubiIni.TipStyle["ToolTipStyle"] :="Gdip"
 		global FontSize :=WubiIni.TipStyle["FontSize"] :="20"
 	}else if A_ThisMenuItem~="i)Gui"{
 		GuiControl, 98:Text, StyleMenu , % A_ThisMenuItem
-		if not ToolTipStyle ~="i)off"
-			Menu, Tip_Style, Rename, Gui候选样式,Gui候选样式	√
-		if ToolTipStyle ~="i)on"
-			Menu, Tip_Style, Rename, ToolTip样式	√,ToolTip样式
-		else if ToolTipStyle ~="i)gdip"
-			Menu, Tip_Style, Rename, Gdip候选样式	√,Gdip候选样式
 		global ToolTipStyle :=WubiIni.TipStyle["ToolTipStyle"] :="off"
 		global FontSize :=WubiIni.TipStyle["FontSize"] :="14"
 	}else if A_ThisMenuItem~="i)ToolTip"{
 		GuiControl, 98:Text, StyleMenu , % A_ThisMenuItem
-		if not ToolTipStyle ~="i)on"
-			Menu, Tip_Style, Rename, ToolTip样式,ToolTip样式	√
-		if ToolTipStyle ~="i)off"
-			Menu, Tip_Style, Rename, Gui候选样式	√,Gui候选样式
-		else if ToolTipStyle ~="i)gdip"
-			Menu, Tip_Style, Rename, Gdip候选样式	√,Gdip候选样式
 		global ToolTipStyle :=WubiIni.TipStyle["ToolTipStyle"] :="on"
 		global FontSize :=WubiIni.TipStyle["FontSize"] :="14"
 	}
 	WubiIni.Save()
 	if ToolTipStyle ~="i)on|off"{
-		GuiControl, 98:Disable, LineColor
-		GuiControl, 98:Disable, BorderColor
-		GuiControl, 98:Disable, set_GdipRadius
-		GuiControl, 98:Disable, GdipRadius
-		GuiControl, 98:Disable, SBA9
-		GuiControl, 98:Disable, SBA10
-		GuiControl, 98:Disable, SBA12
-		GuiControl, 98:Disable, SBA19
+		For k,v In ["LineColor","BorderColor","set_GdipRadius","GdipRadius","SBA9","SBA10","SBA12","SBA19"]
+			GuiControl, 98:Disable, %v%
 		Gui, houxuankuang:Destroy
 		Gosub houxuankuangguicreate
 	}else{
-		GuiControl, 98:Enable, LineColor
-		GuiControl, 98:Enable, BorderColor
-		GuiControl, 98:Enable, SBA9
-		GuiControl, 98:Enable, SBA10
-		GuiControl, 98:Enable, SBA12
-		GuiControl, 98:Enable, SBA19
+		For k,v In ["LineColor","BorderColor","SBA9","SBA10","SBA12","SBA19"]
+			GuiControl, 98:Enable, %v%
 		if Radius~="i)on" {
-			GuiControl, 98:Enable, set_GdipRadius
-			GuiControl, 98:Enable, GdipRadius
+			For k,v In ["set_GdipRadius","GdipRadius"]
+				GuiControl, 98:Enable, %v%
 		}
 	}
 Return
@@ -3452,14 +3244,8 @@ Return
 ;字根拆分
 Cut_Mode:
 	Cut_Mode :=WubiIni.Settings["Cut_Mode"] :=Cut_Mode~="i)off"?"on":"off", WubiIni.save()
-	if Cut_Mode~="i)off"
-		Menu, setting, Rename, 拆分显示	√ , 拆分显示	×
-	else{
-		Menu, setting, Rename, 拆分显示	× , 拆分显示	√
-		if (GetCutModeFont()&&not FontType~=FontExtend){
-			FontType :=WubiIni.TipStyle["FontType"]:= GetCutModeFont(), WubiIni.Save()
-		}
-	}
+	if (GetCutModeFont()&&not FontType~=FontExtend)
+		FontType :=WubiIni.TipStyle["FontType"]:= GetCutModeFont(), WubiIni.Save()
 	if srf_all_input
 		Gosub srf_tooltip_fanye
 return
@@ -3467,22 +3253,11 @@ return
 ;四码上屏
 limit_code:
 	limit_code :=WubiIni.Settings["limit_code"] :=limit_code~="i)off"?"on":"off", WubiIni.save()
-	if limit_code~="i)off"
-		Menu, setting, Rename, 四码上屏	√ , 四码上屏	×
-	else
-		Menu, setting, Rename, 四码上屏	× , 四码上屏	√
 return
 
 ;简繁转换
 Trad_Mode:
 	Trad_Mode :=WubiIni.Settings["Trad_Mode"] :=Trad_Mode~="i)off"?"on":"off", WubiIni.save()
-	if Trad_Mode~="off"{
-		Menu, setting, Rename, 中文繁体 , 中文简体
-		GuiControl,logo:, Pics2,*Icon5 config\Skins\logoStyle\%StyleN%.icl
-	}else{
-		Menu, setting, Rename, 中文简体 , 中文繁体
-		GuiControl,logo:, Pics2,*Icon6 config\Skins\logoStyle\%StyleN%.icl
-	}
 	if srf_all_input
 		Gosub srf_tooltip_fanye
 return
@@ -3502,16 +3277,12 @@ ToolTipStyle:
 		ToolTip(1), ToolTip(2)
 		global ToolTipStyle :="off"
 		global FontSize :=WubiIni.TipStyle["FontSize"]:=16
-		Menu, Tip_Style, Rename, ToolTip样式	√,ToolTip样式
-		Menu, Tip_Style, Rename, Gui候选样式,Gui候选样式	√
 		WubiIni.TipStyle["ToolTipStyle"]:=ToolTipStyle, WubiIni.save()
 	}
 	else if ToolTipStyle ~="i)off"
 	{
 		Gui, houxuankuang:Hide
 		global ToolTipStyle :="gdip"
-		Menu, Tip_Style, Rename, Gui候选样式	√,Gui候选样式
-		Menu, Tip_Style, Rename, Gdip候选样式,Gdip候选样式	√
 		global FontSize :=WubiIni.TipStyle["FontSize"]:=20
 		WubiIni.TipStyle["ToolTipStyle"]:=ToolTipStyle, WubiIni.save()
 	}
@@ -3519,8 +3290,6 @@ ToolTipStyle:
 	{
 		GdipText(""), FocusGdipGui("", "")
 		global ToolTipStyle :="on"
-		Menu, Tip_Style, Rename, Gdip候选样式	√,Gdip候选样式
-		Menu, Tip_Style, Rename, ToolTip样式,ToolTip样式	√
 		global FontSize :=WubiIni.TipStyle["FontSize"]:=14
 		WubiIni.TipStyle["ToolTipStyle"]:=ToolTipStyle, WubiIni.save()
 	}
@@ -3627,6 +3396,7 @@ return
 
 ;方案词库导入（超集+含词+单字）
 Write_DB:
+	Gui +OwnDialogs
 	FileSelectFile, MaBiaoFile, 3, , 导入词库, Text Documents (*.txt)
 	SplitPath, MaBiaoFile, , , , filename
 	If (MaBiaoFile = ""){
@@ -3693,6 +3463,7 @@ return
 
 ;词库导入（英文+symbols）
 Write_En:
+	Gui +OwnDialogs
 	FileSelectFile, MaBiaoFile, 3, , 导入词库, Text Documents (*.txt)
 	SplitPath, MaBiaoFile, , , , filename
 	If (MaBiaoFile = ""){
@@ -3744,6 +3515,7 @@ return
 
 ;备份自造词
 Backup_CustomDB:
+	Gui +OwnDialogs
 	if DB.GetTable("SELECT aim_chars,A_Key,B_Key FROM ci WHERE C_Key IS NULL AND B_Key>0 ORDER BY A_Key,B_Key DESC;",Result)>0{
 		CFileName:="自造词_" A_Now ".txt"
 		if Result.RowCount>0{
@@ -3838,23 +3610,13 @@ return
 ;候选横竖排
 Textdirection:
 	Textdirection :=(Textdirection="vertical"?"horizontal":"vertical")
-	if Textdirection~="i)horizontal"
-		Menu, setting, Rename, 候选竖排 , 候选横排
-	else
-		Menu, setting, Rename, 候选横排 , 候选竖排
-	WubiIni.TipStyle["Textdirection"] :=Textdirection
-	WubiIni.save()
+	WubiIni.TipStyle["Textdirection"] :=Textdirection， WubiIni.save()
 return
 
 ;回车设定
 Select_Enter:
 	Select_Enter :=(Select_Enter="send"?"clean":"send")
-	if Select_Enter~="i)send"
-		Menu, setting, Rename, 回车清屏 , 回车上屏
-	else
-		Menu, setting, Rename, 回车上屏 , 回车清屏
-	WubiIni.Settings["Select_Enter"] :=Select_Enter
-	WubiIni.save()
+	WubiIni.Settings["Select_Enter"] :=Select_Enter, WubiIni.save()
 return
 
 ;划词反查ToolTip窗口关闭设定
@@ -4013,7 +3775,7 @@ else
 return
 
 DB_management:
-	Gui, DB:Destroy
+	Gosub DestroyGui
 	Gui, DB:Default
 	Gui, DB: +hwndDB_ +AlwaysOnTop +OwnDialogs +LastFound   ;+ToolWindow -DPIScale +OwnDialogs +MinSize435x470 +MaxSize550x520 -MaximizeBox +Resize
 	Gui,DB:Font, s10 , %Font_%
@@ -4103,10 +3865,8 @@ DB_reload:
 Return
 
 DB_BU:
-	Gui, DB:Hide
 	custom_db:=1
 	Gosub Backup_DB
-	Gui, DB:show,NA
 Return
 
 uppage:
@@ -4153,18 +3913,18 @@ NextRows:
 */
 	}
 	if (Ceil(Result_.RowCount/DB_Count)<>1&&DB_Page<Ceil(Result_.RowCount/DB_Count)){
-		GuiControl, DB:Enable, nextpage
-		GuiControl, DB:Enable, Lastpage
+		For k,v In ["nextpage","Lastpage"]
+			GuiControl, DB:Enable, %v%
 	}else{
-		GuiControl, DB:Disable, nextpage
-		GuiControl, DB:Disable, Lastpage
+		For k,v In ["nextpage","Lastpage"]
+			GuiControl, DB:Disable, %v%
 	}
 	if (DB_Page<2){
-		GuiControl, DB:Disable, uppage
-		GuiControl, DB:Disable, Toppage
+		For k,v In ["uppage","Toppage"]
+			GuiControl, DB:Disable, %v%
 	}else{
-		GuiControl, DB:Enable, uppage
-		GuiControl, DB:Enable, Toppage
+		For k,v In ["uppage","Toppage"]
+			GuiControl, DB:Enable, %v%
 	}
 	;GuiControlGet, BUVar, Pos , DB_BU
 	SB_SetText(A_Space "[  " (DB_Page-1)*DB_Count+1 . " / " Result_.RowCount " 条  ]")
@@ -4184,18 +3944,18 @@ ReadDB:
 		}
 	}
 	if (Ceil(Result_.RowCount/DB_Count)<>1&&DB_Page<Ceil(Result_.RowCount/DB_Count)){
-		GuiControl, DB:Enable, nextpage
-		GuiControl, DB:Enable, Lastpage
+		For k,v In ["nextpage","Lastpage"]
+			GuiControl, DB:Enable, %v%
 	}else{
-		GuiControl, DB:Disable, nextpage
-		GuiControl, DB:Disable, Lastpage
+		For k,v In ["nextpage","Lastpage"]
+			GuiControl, DB:Disable, %v%
 	}
 	if (DB_Page<2){
-		GuiControl, DB:Disable, uppage
-		GuiControl, DB:Disable, Toppage
+		For k,v In ["uppage","Toppage"]
+			GuiControl, DB:Disable, %v%
 	}else{
-		GuiControl, DB:Enable, uppage
-		GuiControl, DB:Enable, Toppage
+		For k,v In ["uppage","Toppage"]
+			GuiControl, DB:Enable, %v%
 	}
 	;GuiControlGet, BUVar, Pos , DB_BU
 	SB_SetText(A_Space "[  " (DB_Page-1)*DB_Count+1 . " / " Result_.RowCount " 条  ]")
@@ -4204,13 +3964,13 @@ Return
 DB_search:
 	GuiControlGet, tVar, DB:Visible , search_text
 	if !tVar{
-		GuiControl, DB:Show, search_text
-		GuiControl, DB:Show, search_1
-		GuiControl, DB:Disable, uppage
-		GuiControl, DB:Disable, nextpage
+		For k,v In ["search_text","search_1"]
+			GuiControl, DB:Show, %v%
+		For k,v In ["uppage","nextpage"]
+			GuiControl, DB:Disable, %v%
 	}else{
-		GuiControl, DB:Hide, search_text
-		GuiControl, DB:Hide, search_1
+		For k,v In ["search_text","search_1"]
+			GuiControl, DB:Hide, %v%
 		GuiControl,DB:, search_text ,
 		GuiControl,DB:, search_1 , 0
 		LV_Delete(),ss:=ResultCount:=RCount:=search_1:=0
@@ -4236,14 +3996,14 @@ search_text:
 	GuiControlGet, tVar, DB:Visible , search_text
 	GuiControlGet, search_text,, search_text, text
 	If (search_text<>""&&tVar){
-		GuiControl, DB:Disable, uppage
-		GuiControl, DB:Disable, nextpage
-		GuiControl, DB:Disable, Lastpage
-		GuiControl, DB:Disable, Toppage
-		GuiControl, DB:Enable, search_1
+		For k,v In ["uppage","nextpage","Lastpage","Toppage"]
+			GuiControl, DB:Disable, %v%
+		For k,v In ["search_1"]
+			GuiControl, DB:Enable, %v%
 		Gosub search_result
 	}else if (search_text=""&&tVar){
-		GuiControl, DB:Disable, search_1
+		For k,v In ["search_1"]
+			GuiControl, DB:Disable, %v%
 		ss:=0
 		LV_Delete()
 		Gosub ReadDB
