@@ -74,6 +74,7 @@ Return
 
 logoGuiDropFiles:
 SrfTipGuiDropFiles:
+	Gui +OwnDialogs
 	MsgBoxRenBtn("保存","不保存","单/多义互转")
 	MsgBox, 266243,TXT码表处理,正在执行批量生词,是否保存至词库?
 	IfMsgBox, No
@@ -506,7 +507,7 @@ return
 OnReload:
 	if Logo_Switch ~="i)on"
 		Gosub Write_Pos
-	Json_ObjToFile({Time:SubStr(A_Now,1,8),Num:CharsCount},A_Temp "\User.json","UTF-8")
+	;Json_ObjToFile({Time:SubStr(A_Now,1,8),Num:CharsCount},A_Temp "\User.json","UTF-8")
 	reload
 return
 
@@ -539,7 +540,7 @@ return
 OnExit:
 	DB.CloseDB()
 	;FileDelete, %A_ScriptDir%\Config\Script\wubi98_ci.json
-	Json_ObjToFile({Time:SubStr(A_Now,1,8),Num:CharsCount},A_Temp "\User.json","UTF-8")
+	;Json_ObjToFile({Time:SubStr(A_Now,1,8),Num:CharsCount},A_Temp "\User.json","UTF-8")
 	;Gosub Backup_Conf
 	if Logo_Switch ~="i)on"
 		Gosub Write_Pos
@@ -671,6 +672,7 @@ set_Frequency:
 Return
 
 RestDB:
+	Gui +OwnDialogs
 	MsgBox, 262404,重置确认, 是否重置词频？
 	IfMsgBox Yes
 		if DB.Exec("UPDATE ci SET D_Key=B_Key;")>0
@@ -986,7 +988,10 @@ diyColor:
 	CreateImageButton(hwndFocusBackColor,[{BC: FocusBackColor, 3D: 0}],5)
 	CreateImageButton(hwndFocusColor,[{BC: FocusColor, 3D: 0}],5)
 	CreateImageButton(hwndFocusCodeColor,[{BC: FocusCodeColor, 3D: 0}],5)
-	Gui, diy:Show,NA,配色管理
+	Gosub ChangeWinIcon
+	Gui, diy:Color,ffffff
+	Gui, diy:Show,AutoSize,配色管理
+	ControlFocus , Edit1, A
 Return
 
 ;样式面板
@@ -1286,8 +1291,37 @@ More_Setting:
 	Gui, 98:Add, StatusBar,, 设置面板
 	SB_SetText(A_Is64bitOS?"运行环境：" ComInfo.GetOSVersionInfo() "〔 AHK " A_AhkVersion "#64位 〕":"运行环境：" ComInfo.GetOSVersionInfo() "〔 AHK " A_AhkVersion "#32位 〕" )
 	Gui, 98:Show,AutoSize,输入法设置
+	Gosub ChangeWinIcon
 	Gosub ControlGui
 Return
+
+ChangeWinIcon:
+	;ChangeWindowIcon(IconName_)
+	ChangeWindowIcon(A_ScriptDir "\Config\wubi98.icl",, 30)
+Return
+
+ChangeWindowIcon(IconFile, WinSpec:="A", IconNumber:=1, IconSize:=128) {    ;ico图标文件IconNumber和IconSize不用填，如果是icl图标库需要填
+	hWnd := WinExist(WinSpec)
+	if (!hWnd)
+		return "窗口不存在！"
+	if IconFile~="\.icl$"
+		hIcon := LoadIcon(IconFile, 30, IconSize)
+	else
+		hIcon := DllCall("LoadImage", uint, 0, str, IconFile, uint, 1, int, 0, int, 0, uint, LR_LOADFROMFILE:=0x10)
+	if (!hIcon)
+		return "图标文件不存在！"
+	SendMessage, WM_SETICON:=0x80, ICON_SMALL2:=0, hIcon,, ahk_id %hWnd%  ; Set the window's small icon
+	;;;SendMessage, STM_SETICON:=0x0170, hIcon, 0,, Ahk_ID %hWnd%
+	SendMessage, WM_SETICON:=0x80, ICON_BIG:=1   , hIcon,, ahk_id %hWnd%  ; Set the window's big icon to the same one.
+}
+
+LoadIcon(Filename, IconNumber, IconSize)
+{
+	if DllCall("PrivateExtractIcons"
+		, "str", Filename, "int", IconNumber-1, "int", IconSize, "int", IconSize
+		, "ptr*", hIcon, "uint*", 0, "uint", 1, "uint", 0, "ptr")
+		return hIcon
+}
 
 ExSty:
 	GuiControlGet, ExSty ,, ExSty, Checkbox
@@ -1451,6 +1485,7 @@ WinMode:
 	Gui, IM:Add, Button, y+10 vRTxck gRTxck,刷新列表
 	GuiControl, IM:Move, IPView, % "w" (A_ScreenDPI/96>1?ColWidth/(A_ScreenDPI/96):ColWidth)
 	Gui,IM:Show, AutoSize,程序配置
+	Gosub ChangeWinIcon
 Return
 
 IsProcessInfo(ProcessName){
@@ -1683,6 +1718,7 @@ Label_management:
 	Gosub Glabel
 	Gui, label:Color,ffffff
 	Gui, label:Show,AutoSize, 标签管理
+	Gosub ChangeWinIcon
 Return
 
 Glabel:
@@ -1771,6 +1807,7 @@ Wlabel:
 	}
 	If !filename
 		Return
+	Gui +OwnDialogs
 	MsgBox, 262452, 提示, 要导入以下标签文件进行替换？`n标签格式为：标签别名+Tab+标签名+Tab+标签说明
 	IfMsgBox, No
 	{
@@ -1835,6 +1872,7 @@ Ulabel:
 		GuiControlGet, opvar, label:Enabled , Dlabel
 		For k,v In ["Setlabel","Savelabel"]
 			GuiControl, label:Show, %v%
+		ControlFocus , Edit1, A
 		EM_SetCueBanner(LEdit, labelName)
 		;GuiControl,label:, Setlabel ,% labelName
 		if opvar {
@@ -2098,11 +2136,7 @@ ControlGui:
 Return
 
 Show_Setting:
-	;if GET_IMESt()
-	;	SwitchToEngIME()
-	Gui, 98:Destroy
 	Gosub More_Setting
-	Gui,98:Show,NA
 Return
 
 EnableUIAccess(hwnd:=""){
@@ -2199,7 +2233,8 @@ themelists:
 	GuiControl, themes:Move, MyTheme, w%colum%
 	SB_SetText(A_Space LV_GetCount() . "个主题")
 	SB_SetIcon("Config\wubi98.icl",30)
-	Gui, themes:show,NA w%colum_%, 主题管理
+	Gosub ChangeWinIcon
+	Gui, themes:show, w%colum_%, 主题管理
 Return
 
 themesGuiClose:
@@ -3307,18 +3342,22 @@ else
 {
 	Gui, 29:Default              ;A_ScreenDPI/96
 	Gui, 29: +AlwaysOnTop +LastFound hwndEditPlus    ;+ToolWindow +OwnDialogs +MinSize260x250 -MaximizeBox +Resize 
-	Gui,29:Add, Edit, x8 y+8 vSet_Value +Multi hwndCodeEdit  ;+Multi
-	Gui, 29:Add, Button, gSave vSave, 确定
-	Gui, 29:Add, CheckBox,x+20 yp+5 glastp vlastp, 连续造词
+	Gui, 29:Font,c1E90FF
+	Gui,29:Add, text,w300,输入中文词条添加时会自动生成编码，每个词条后面加分号快捷自动添加！双击删除指定的词条。单行单义词条拖至本窗口自动添加，批量录入后直接保存写入。
+	Gui, 29:Font
+	Gui,29:Add, ListBox, y+8 r15 w300 gSet_Value vSet_Value +Multi hwndCodeEdit  ;+Multi
+	Gui, 29: add, Edit, r1 y+10 w200 gEditBox2 vEditBox2 hwndCodeEdit2, 
+	Gui, 29: add, Button,x+10 w60 gaddChars , 添加
+	Gui, 29:font,
+	Gui, 29:font,s11 bold
+	Gui, 29:Add, Button,xm gSave vSave, 保存
+	Gui, 29:font,
 	Gui, 29:Submit
-	Gui,29:show,w260 h250,造词窗口
-	EM_SetCueBanner(CodeEdit, "造词格式有两种：⑴、无编码词条，例如「五笔」。⑵、固定格式，例如「ggte=五笔」。<<<多个词条以换行符隔开！>>>")
+	Gui,29:show,AutoSize,造词窗口
+	Gosub ChangeWinIcon
+	EM_SetCueBanner(CodeEdit2, "请输入词条,以分号结尾自动添加")
 	;SendMessage, 0x1501, 1, "造词格式有两种：⑴、无编码词条，例如「五笔」。⑵、固定格式，例如「ggte=五笔」。<<<多个词条以换行符隔开！>>>", Edit1, ahk_id%EditPlus%
-	GuiControl, 29:Move, Set_Value,% "w240 h200"
-	GuiControlGet, EdVar, Pos , Set_Value
-	GuiControl, 29:Move, Save,% "y+" EdVarY+EdVarH+6
-	GuiControl, 29:Move, lastp,% "y+" EdVarY+EdVarH+10
-	CBVar:=0
+	ControlFocus , Edit1, A
 }
 return
 
@@ -3328,70 +3367,110 @@ EM_SetCueBanner(hWnd, Cue)
 	return DllCall("User32.dll\SendMessage", "Ptr", hWnd, "UInt", EM_SETCUEBANNER, "Ptr", True, "WStr", Cue)
 }
 
-/*
-29GuiSize:
-	GuiControlGet, EdVar, Pos , Set_Value
-	if A_GuiWidth>260
-	{
-		GuiControl, 29:Move, Set_Value,% "w" A_GuiWidth-18
-	}
-	if A_GuiHeight>250
-	{
-		GuiControl, 29:Move, Set_Value, % "h" A_GuiHeight-45
-		GuiControl, 29:Move, Save,% "y+" EdVarY+EdVarH+6
-		GuiControl, 29:Move, lastp,% "y+" EdVarY+EdVarH+10
+EditBox2:
+	ControlGetText, EditBox2, Edit1
+	if EditBox2~="\;$|；$" {
+		EditBox2:=RegExReplace(EditBox2,"\;|；")
+		Gosub addChars
 	}
 Return
-*/
+
+Set_Value:
+	If (A_GuiEvent ="DoubleClick"&&A_EventInfo) {
+		ControlGet, ListContent, List, Count,ListBox1, A
+		GuiControlGet, Content ,, Set_Value, ListBox
+		if (ListContent&&Content) {
+			List_Content:=ListContent~="\n"?RegExReplace(ListContent,(A_EventInfo=1?Content "\n":"\n" Content)):""
+			GuiControl,29:, Set_Value ,% "|" RegExReplace(List_Content,"`n","|")
+			ControlFocus , Edit1, A
+		}
+	}
+Return
+
+addChars:
+	if not EditBox2~="\=|^\;|^\；" {
+		GuiControl,29:, Set_Value ,% get_en_code(EditBox2) "=" EditBox2 "|"
+		GuiControl,29:, EditBox2 ,
+	}else if EditBox2~="\=" {
+		GuiControl,29:, Set_Value ,% RegExReplace(EditBox2,"^\s+|\s+$") "|"
+		GuiControl,29:, EditBox2 ,
+	}
+	ControlFocus , Edit1, A
+Return
 
 29GuiDropFiles:
 	OPCode_all:=OPCode_part:=OPCode:=""
-	Loop, Parse, A_GuiEvent, `n, `r
+	Loop, % (_FilesPath:= StrSplit(A_GuiEvent,"`n")).Length()
 	{
-		FileRead, OPCode, %A_LoopField%
-		if OPCode~="\t[a-z]+"{
-			Loop, Parse, OPCode, `n, `r
-			{
+		FileRead, OPCode, % _FilesPath[A_Index]
+		Loop, Parse, OPCode, `n, `r
+		{
+			if A_LoopField~="\t[a-z]+"{
 				RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"(?<=\t)[a-z]+",L_)
 				RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"^.+(?=\t[a-z])",R_)
 				if (StrLen(L_)>1&&StrLen(L_)<5)
-					OPCode_part .=L_ "=" R_  "`n"
+					OPCode_part :=L_ "=" R_ 
+			}else if A_LoopField~="^[a-z]+\="{
+				OPCode_part:=RegExReplace(A_LoopField,"^\s+|\s+$")
+			}else if not A_LoopField~="^[a-z0-9]+|\s+" {
+				OPCode_part:=get_en_code(A_LoopField) "=" A_LoopField
 			}
-		}else{
-			OPCode_part:=RegExReplace(OPCode,"\t\d+|\t[a-z]+")
+			OPCode_all.=OPCode_part "|", OPCode_part:=""
 		}
-		OPCode_all.=OPCode_part "`n"
 	}
-	GuiControl,29:, Set_Value ,% RegExReplace(OPCode_all,"^\n|\n$")
-Return
-
-lastp:
-	GuiControlGet, CBVar ,, lastp, CheckBox
+	GuiControl,29:, Set_Value ,% OPCode_all
 Return
 
 ;造词窗口关闭销毁
 29GuiClose:
+29GuiEscape:
+	ControlGet, mb_add, List, Count,ListBox1, A
+	if mb_add {
+		Gui +OwnDialogs
+		MsgBox, 262452,退出提示, 检测到你还没有保存，是否写入至词库？
+		IfMsgBox, Yes
+		{
+			Gosub DROP_Status
+			return_num :=Save_word(mb_add)
+			if (return_num>0)
+			{
+				if (NotCount:=_ListCount-return_num)>0
+					TrayTip,, 写入成功%return_num%条`n重复NotCount条
+				else
+					TrayTip,, 写入成功%return_num%条。
+			}
+			else
+				TrayTip,, 词条已存在或格式不正确！
+			ToolTip(1, "")
+		}
+	}
 	Gui, 29:Destroy
-	CBVar:=0, Result_:=Results_:=Result:=[]
-	29GuiEscape:
+	Result_:=Results_:=Result:=[]
 Return
 
 ;造词保存处理
 Save:
-	GuiControlGet, mb_add,, Set_Value, text
-	Gosub DROP_Status
-	return_num :=Save_word(mb_add)
-	if (return_num>0)
-	{
-		if !CBVar
-			Gosub 29GuiClose
-		else
-			GuiControl,29:, Set_Value ,
-		TrayTip,, 写入成功%return_num%个
+	ControlGet, mb_add, List, Count,ListBox1, A
+	if mb_add {
+		Gui +OwnDialogs
+		MsgBox, 262452,批量造词,% "是否写入" _ListCount:= StrSplit(mb_add,"`n").Length() "行数据？"
+		IfMsgBox, Yes
+		{
+			Gosub DROP_Status
+			return_num :=Save_word(mb_add)
+			if (return_num>0)
+			{
+				if (NotCount:=_ListCount-return_num)>0
+					TrayTip,, 写入成功%return_num%条`n重复NotCount条
+				else
+					TrayTip,, 写入成功%return_num%条。
+			}
+			else
+				TrayTip,, 词条已存在或格式不正确！
+			ToolTip(1, "")
+		}
+		Gui, 29:Destroy
 	}
-	else
-		TrayTip,, 该词条已存在或自由选词格式不正确！
-	ToolTip(1, "")
 return
 
 ;方案词库导入（超集+含词+单字）
@@ -3407,6 +3486,7 @@ Write_DB:
 	}
 	If !filename
 		Return
+	Gui +OwnDialogs
 	MsgBox, 262452, 提示, 要导入以下词库进行替换？`n词库格式为：单行单义/单行多义
 	IfMsgBox, No
 	{
@@ -3474,6 +3554,7 @@ Write_En:
 	}
 	If !filename
 		Return
+	Gui +OwnDialogs
 	MsgBox, 262452, 提示, 要导入以下词库进行替换？
 	IfMsgBox, No
 	{
@@ -3537,6 +3618,7 @@ Return
 
 ;词库导出（超集+含词+单字）
 Backup_DB:
+	Gui +OwnDialogs
 	FileSelectFolder, OutFolder,*%A_ScriptDir%\Sync\,3,请选择导出后保存的位置
 	if OutFolder<>
 	{
@@ -3586,6 +3668,7 @@ return
 
 ;词库导出（英文db+特殊符号db）	
 Backup_En:
+	Gui +OwnDialogs
 	FileSelectFolder, OutFolder,*%A_ScriptDir%\Sync\,3,请选择导出后保存的位置
 	if OutFolder<>
 	{
@@ -3821,7 +3904,8 @@ DB_management:
 	SB_SetText(A_Space "[  " (DB_Page-1)*DB_Count+1 . " / " Result_.RowCount " 条  ]")
 	;SB_SetIcon("Config\wubi98.icl",30)
 	EM_SetCueBanner(DBEdit, "请输入搜索的字词或编码")
-	Gui,DB:Show,w435,自造词管理
+	Gui,DB:Show,AutoSize,自造词管理
+	Gosub ChangeWinIcon
 Return
 
 DBGuiClose:
@@ -3968,6 +4052,7 @@ DB_search:
 			GuiControl, DB:Show, %v%
 		For k,v In ["uppage","nextpage"]
 			GuiControl, DB:Disable, %v%
+		ControlFocus , Edit1, A
 	}else{
 		For k,v In ["search_text","search_1"]
 			GuiControl, DB:Hide, %v%
