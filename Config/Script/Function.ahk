@@ -471,7 +471,7 @@ SetTextAndResize(controlHwnd, newText) {
 }
 
 ;Print Objects 对象
-PrintArr(Arr, Option := "AutoSize",LineNum:=15, GuiName := "PrintArr", font:="98wb-0") {
+PrintObjects(Arr, Option := "AutoSize",LineNum:=15, GuiName := "PrintObjects", font:="98wb-0") {
 	Gui, %GuiName%: Destroy
 	If (Arr.Length()&&Arr[1].Length()) {
 		for index, obj in Arr {
@@ -534,6 +534,12 @@ PrintArr(Arr, Option := "AutoSize",LineNum:=15, GuiName := "PrintArr", font:="98
 		TV_Modify(TVP1, "Select")
 		Gui, %GuiName%: Show,%Option%, % "「 Object对象显示 」"
 	}
+	WinGetTitle, _WinTitle, A
+	hWnd := WinExist(_WinTitle)
+	DllCall("PrivateExtractIcons", "str", "Shell32.Dll", "int", 24, "int", IconSize, "int", 32, "ptr*"
+		, hIcon, "uint*", 0, "uint", 1, "uint", 0, "ptr")
+	SendMessage, WM_SETICON:=0x80, ICON_SMALL2:=0, hIcon,, ahk_id %hWnd%
+	SendMessage, WM_SETICON:=0x80, ICON_BIG:=1   , hIcon,, ahk_id %hWnd%
 }
 
 
