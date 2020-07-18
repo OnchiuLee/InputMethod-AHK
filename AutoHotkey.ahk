@@ -181,7 +181,11 @@ if FileExist(A_Startup "\" Startup_Name ".lnk"){
 }else{
 	Startup :=WubiIni.Settings["Startup"]:=zq_~=Startup_Name?"on":"off"
 }
-versions :=WubiIni.Versions["Version"]:=A_YYYY A_MM A_DD "-1"      ;版本日期设置
+
+
+If (SubStr((versions :=WubiIni.Versions["Version"]),1,8)<SubStr(A_Now,1,8))
+	;versions :=WubiIni.Versions["Version"]:=SubStr(A_Now,1,8) "-1"      ;版本日期设置
+
 if not Srf_Hotkey ~="i)Ctrl|Shift|Alt|LWin"||Srf_Hotkey ~="\&$"
 	Srf_Hotkey:=WubiIni.Settings["Srf_Hotkey"]:="Shift"
 WubiIni.Save()
@@ -275,6 +279,9 @@ If FileExist("Config\GB*.txt") {
 }
 ;}}}}}
 
+TransGui("正在整理词库，请等待片刻。。。", A_ScreenWidth/4 , 50 , "s28","bold","cred")
+CheckDB(DB,"zi"), CheckDB(DB,"chaoji"), CheckDB(DB,"ci")
+TransGui()
 ;SwitchToEngIME()
 
 ;{{常用变量值初始化
@@ -490,7 +497,10 @@ ShellIMEMessage( wParam,lParam ) {
 		LastWinEXE:=WinEXE_, Eid:=WinExist()
 		program:="※ " Startup_Name " ※`n版本日期：" Versions "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "〖 " A_DDDD " 〗`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2)) "`n上屏统计：" CharsCount "字"
 		Menu,Tray,Tip,%program%
-		Json_ObjToFile({Time:SubStr(A_Now,1,8),Num:CharsCount},A_Temp "\User.json","UTF-8")
+		If (Json_FileToObj(A_Temp "\User.json")["Time"]=SubStr(A_Now,1,8))
+			Json_ObjToFile({Time:SubStr(A_Now,1,8),Num:CharsCount},A_Temp "\User.json","UTF-8")
+		else
+			Json_ObjToFile({Time:SubStr(A_Now,1,8),Num:0},A_Temp "\User.json","UTF-8")
 	Return
 }
 ;}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
