@@ -284,6 +284,8 @@ CheckDB(DB,"zi"), CheckDB(DB,"chaoji"), CheckDB(DB,"ci")
 TransGui()
 ;SwitchToEngIME()
 
+
+;PrintObjects(WubiIni)
 ;{{常用变量值初始化
 global recent:=Carets:={}
 global code_status:=localpos:=srfCounts:=select_pos:=1
