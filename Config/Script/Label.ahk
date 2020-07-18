@@ -1000,9 +1000,9 @@ diyColor:
 	CreateImageButton(hwndFocusBackColor,[{BC: FocusBackColor, 3D: 0}],5)
 	CreateImageButton(hwndFocusColor,[{BC: FocusColor, 3D: 0}],5)
 	CreateImageButton(hwndFocusCodeColor,[{BC: FocusCodeColor, 3D: 0}],5)
-	Gosub ChangeWinIcon
 	Gui, diy:Color,ffffff
 	Gui, diy:Show,AutoSize,配色管理
+	Gosub ChangeWinIcon
 	ControlFocus , Edit1, A
 Return
 
@@ -2246,8 +2246,8 @@ themelists:
 	GuiControl, themes:Move, MyTheme, w%colum%
 	SB_SetText(A_Space LV_GetCount() . "个主题")
 	SB_SetIcon("Config\wubi98.icl",30)
-	Gosub ChangeWinIcon
 	Gui, themes:show, w%colum_%, 主题管理
+	Gosub ChangeWinIcon
 Return
 
 themesGuiClose:
