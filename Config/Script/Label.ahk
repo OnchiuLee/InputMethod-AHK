@@ -173,9 +173,9 @@ SrfTipGuiDropFiles:
 Return
 
 DROP_Status:
-	WinGetPos, Xs, Ys, , , sign_wb
+	WinGetPos,,,,Shell_Wnd ,ahk_class Shell_TrayWnd
 	ToolTip(1, "", "Q1 B" BgColor " T" FontCodeColor " S" 12 " F" Font_)
-	ToolTip(1, "词条处理中。。。", "x" Xs " y" Ys-35)
+	ToolTip(1, "词条处理中。。。", "x" A_ScreenWidth-300 " y" A_ScreenHeight-Shell_Wnd-40)
 Return
 
 Get_IME:
@@ -413,12 +413,12 @@ TRAY_Menu:
 	Menu, Tray, Add
 	;Menu, Tray, Default, 高级设置
 	Menu, Tray, Add, 导入词库,OnWrite
-	if Wubi_Schema~="i)zi"
+	if Wubi_Schema~="i)zi|zg"
 		Menu, Tray, Disable, 导入词库
 	Menu, TRAY, Icon, 导入词库, config\wubi98.icl, 10
 	Menu, Tray, Add
 	Menu, Tray, Add, 导出词库,OnBackup
-	if Wubi_Schema~="i)zi"
+	if Wubi_Schema~="i)zi|zg"
 		Menu, Tray, Disable, 导出词库
 	Menu, TRAY, Icon, 导出词库, config\wubi98.icl, 11
 	Menu, Tray, Add
@@ -807,26 +807,36 @@ srf_tooltip_cut:
 	, loopindex:=(loopindex>ListNum?ListNum:loopindex)
 	If (Textdirection="horizontal")
 	{
-		Loop %loopindex%
+
+		for Section,element In srf_for_select_Array
 		{
-			if srf_for_select_Array[ListNum*waitnum+A_Index,1] {
-				srf_for_select_part:=((StrLen(srf_for_select_Array[ListNum*waitnum+A_Index,1])>25&&srf_all_input~="^[a-y]"?SubStr(srf_for_select_Array[ListNum*waitnum+A_Index,1],1,25) " •••••":srf_for_select_Array[ListNum*waitnum+A_Index,1]) (Cut_Mode="on"&&a_FontList ~="i)" FontExtend &&FontType ~="i)" FontExtend &&srf_for_select_Array[ListNum*waitnum+A_Index, valueindex]<>""?(srf_all_input~="^[a-z]+"?"〔":A_Space) . srf_for_select_Array[ListNum*waitnum+A_Index, valueindex] . (srf_all_input~="^[a-z]+"?"〕":A_Space):A_Space . srf_for_select_Array[ListNum*waitnum+A_Index, 3]))
-				if (srf_for_select_part<>""){
-					srf_for_select_string.=((srf_all_Input~="/\d+"?A_Space A_Space SubStr(Select_Code, A_Index , 1):(Cut_Mode~="on"?A_Space:A_Space A_Space) A_Index) "." srf_for_select_part)
-					srf_for_select_obj.Push(((srf_all_Input~="/\d+"?SubStr(Select_Code, A_Index , 1):A_Space A_Index) "." srf_for_select_part))
+			for key,value in element
+			{
+				if (Section>ListNum*waitnum&&Section<=ListNum*(waitnum+1)){
+					if (key=1) {
+						srf_for_select_part:= (StrLen(value)>25&&srf_all_input~="^[a-y]"?SubStr(value,1,25) " •••••":value) ( Cut_Mode="on"&&a_FontList ~="i)" FontExtend &&FontType ~="i)" FontExtend &&srf_for_select_Array[Section, valueindex]<>""?(srf_all_input~="^[a-z]+"?"〔":A_Space) . srf_for_select_Array[Section, valueindex] . (srf_all_input~="^[a-z]+"?"〕":A_Space):A_Space . srf_for_select_Array[Section, 3])
+						if (srf_for_select_part<>"") {
+							srf_for_select_string.=((srf_all_Input~="/\d+"?A_Space A_Space SubStr(Select_Code, Section-ListNum*waitnum , 1):(Cut_Mode~="on"?A_Space:A_Space A_Space) Section-ListNum*waitnum) "." srf_for_select_part), srf_for_select_obj.Push(((srf_all_Input~="/\d+"?SubStr(Select_Code, Section-ListNum*waitnum , 1):A_Space Section-ListNum*waitnum) "." srf_for_select_part))
+						}
+					}
 				}
 			}
 		}
 	}
 	Else
 	{
-		Loop %loopindex%
+		for Section,element In srf_for_select_Array
 		{
-			if srf_for_select_Array[ListNum*waitnum+A_Index,1] {
-				srf_for_select_part:=(srf_for_select_Array[ListNum*waitnum+A_Index, 1] (Cut_Mode="on"&&a_FontList ~="i)" FontExtend &&FontType ~="i)" FontExtend &&srf_for_select_Array[ListNum*waitnum+A_Index, valueindex]<>""?(srf_all_input~="^[a-z]+"?"〔":A_Space) . srf_for_select_Array[ListNum*waitnum+A_Index, valueindex] . (srf_all_input~="^[a-z]+"?"〕":A_Space):A_Space . srf_for_select_Array[ListNum*waitnum+A_Index, 3]))
-				if (srf_for_select_part<>""){
-					srf_for_select_string.=("`n" (srf_all_Input~="/\d+"?SubStr(Select_Code, A_Index , 1):A_Index) "." srf_for_select_part)
-					srf_for_select_obj.Push(((srf_all_Input~="/\d+"?SubStr(Select_Code, A_Index , 1):A_Space A_Index) "." srf_for_select_part))
+			for key,value in element
+			{
+				if (Section>ListNum*waitnum&&Section<=ListNum*(waitnum+1)){
+					if (key=1) {
+						srf_for_select_part:=(value (Cut_Mode="on"&&a_FontList ~="i)" FontExtend &&FontType ~="i)" FontExtend &&srf_for_select_Array[Section, valueindex]<>""?(srf_all_input~="^[a-z]+"?"〔":A_Space) . srf_for_select_Array[Section, valueindex] . (srf_all_input~="^[a-z]+"?"〕":A_Space):A_Space . srf_for_select_Array[Section, 3]))
+						if (srf_for_select_part<>""){
+							srf_for_select_string.=("`n" (srf_all_Input~="/\d+"?SubStr(Select_Code, Section-ListNum*waitnum , 1):Section-ListNum*waitnum) "." srf_for_select_part)
+							srf_for_select_obj.Push(((srf_all_Input~="/\d+"?SubStr(Select_Code, Section-ListNum*waitnum , 1):A_Space Section-ListNum*waitnum) "." srf_for_select_part))
+						}
+					}
 				}
 			}
 		}
@@ -3197,10 +3207,8 @@ return
 ;空码提示
 Prompt_Word:
 	Prompt_Word :=WubiIni.Settings["Prompt_Word"] :=Prompt_Word~="i)off"?"on":"off", WubiIni.save()
-	if Prompt_Word ~="i)off"
-		Menu, setting, Rename, 空码提示	√,空码提示	×
-	else
-		Menu, setting, Rename,空码提示	×,空码提示	√
+	if Prompt_Word ~="i)on"
+		PromptChar:=WubiIni.Settings["PromptChar"] :=1?0:PromptChar, WubiIni.save()
 return
 
 ;含词/单字选择
@@ -3293,6 +3301,10 @@ return
 ;简繁转换
 Trad_Mode:
 	Trad_Mode :=WubiIni.Settings["Trad_Mode"] :=Trad_Mode~="i)off"?"on":"off", WubiIni.save()
+	if Trad_Mode~="i)on"
+		GuiControl,logo:, Pics2,*Icon6 config\Skins\logoStyle\%StyleN%.icl
+	else
+		GuiControl,logo:, Pics2,*Icon5 config\Skins\logoStyle\%StyleN%.icl
 	if srf_all_input
 		Gosub srf_tooltip_fanye
 return
@@ -3497,6 +3509,7 @@ Write_DB:
 			Gosub Backup_CustomDB
 		Start:=A_TickCount
 		TrayTip,, 词库写入中，请稍后...
+		Gosub DROP_Status
 		Create_Ci(DB,MaBiaoFile)
 		tarr:=[],count :=0
 		FileEncoding, UTF-8
@@ -3514,11 +3527,15 @@ Write_DB:
 			if (tarr[3]){
 				if Wubi_Schema~="i)ci"{
 					if tarr[4]
-						Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "','" tarr[4] "','" tarr[5] "')" ","
+						Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "','" tarr[4] "','" tarr[5] "','" split_wubizg(tarr[1]) "','" get_en_code(tarr[1]) "')" ","
 					else
-						Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "','" tarr[3] "','" tarr[3] "')" ","
-				}else
-					Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "')" ","
+						Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "','" tarr[3] "','" tarr[3] "','" split_wubizg(tarr[1]) "','" get_en_code(tarr[1]) "')" ","
+				}else{
+					If not Wubi_Schema~="i)zg"
+						Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "','" split_wubizg(tarr[1]) "','" get_en_code(tarr[1]) "')" ","
+					else
+						Insert_ci .="('" tarr[1] "','" tarr[2] "')" ","
+				}
 			}
 		}
 		if DB.Exec(SQL :="INSERT INTO " Wubi_Schema " VALUES " RegExReplace(Insert_ci,"\,$","") ";")>0
@@ -3537,6 +3554,7 @@ Write_DB:
 			TrayTip,, 格式不对...
 			return
 		}
+		ToolTip(1,"")
 	}
 	MaBiao:=Insert_ci:="",tarr:=[]
 return
@@ -3692,14 +3710,12 @@ return
 
 ;候选横竖排
 Textdirection:
-	Textdirection :=(Textdirection="vertical"?"horizontal":"vertical")
-	WubiIni.TipStyle["Textdirection"] :=Textdirection， WubiIni.save()
+	Textdirection :=WubiIni.TipStyle["Textdirection"] :=(Textdirection="vertical"?"horizontal":"vertical"), WubiIni.save()
 return
 
 ;回车设定
 Select_Enter:
-	Select_Enter :=(Select_Enter="send"?"clean":"send")
-	WubiIni.Settings["Select_Enter"] :=Select_Enter, WubiIni.save()
+	Select_Enter :=WubiIni.Settings["Select_Enter"] :=(Select_Enter="send"?"clean":"send"), WubiIni.save()
 return
 
 ;划词反查ToolTip窗口关闭设定

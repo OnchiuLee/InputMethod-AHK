@@ -135,24 +135,27 @@ set_trad_mode(Arrs){
 		{
 			for Index,value in v
 			{
-				If DB.gettable("SELECT A_Key FROM s2t WHERE aim_chars = '" value "'", Result){
-					if Result_2:=Result.Rows[1,1]
-					{
-						loop,parse,Result_2,%A_space%
-							ResultAll.push([A_LoopField])
-						ResultAll.push([Result_1])
+				If (Index=1) {
+					If (strlen(Arrs[k,Index])=1){
+						DB.gettable("SELECT A_Key FROM s2t WHERE aim_chars = '" Arrs[k,1] "'", Result)
+							if (Result.Rows[1,1]<>"") {
+								for key,values in StrSplit(Result.Rows[1,1],A_space)
+									ResultAll.push([values,split_wubizg(values),get_en_code(values)])
+								
+							}else
+								ResultAll.push(Arrs[k])
 					}else{
-						loop % strlen(value)
+						_str:=longStr:=""
+						loop,% strlen(Arrs[k,Index])
 						{
-							If DB.gettable("SELECT A_Key FROM s2t WHERE aim_chars = '" SubStr(value,a_index,1) "'", Result){
-								If Result_2:=Result.Rows[1,1] {
-									loop,parse,Result_2,%A_space%
-										Result_1 .= A_LoopField
-								}else
-									Result_1 .=SubStr(value,a_index,1)
-							}
+							DB.gettable("SELECT A_Key FROM s2t WHERE aim_chars = '" SubStr(Arrs[k,Index],a_index,1) "'", Result)
+							if (Result.Rows[1,1]<>"") {
+								_str :=Result.Rows[1,1]
+							}else
+								_str :=SubStr(Arrs[k,Index],a_index,1)
+							longStr.=_str
 						}
-						ResultAll.push([Result_1]), Result_1:=""
+						ResultAll.push([longStr,split_wubizg(longStr),get_en_code(longStr)])
 					}
 				}
 			}
@@ -286,8 +289,8 @@ Save_word(chars){
 						DB.gettable("SELECT D_Key,C_Key FROM ci WHERE A_Key = '" Chars_L "' ORDER BY A_Key,D_Key DESC", Result)
 					else
 						DB.gettable("SELECT B_Key,C_Key FROM ci WHERE A_Key = '" Chars_L "' ORDER BY A_Key,B_Key DESC", Result)
-					frist_ci:= Result.RowCount>1?(Result.Rows[2,1]+2):Result.RowCount=1?(Result.Rows[1,1]-2):"64526534"
-					SQL =INSERT INTO ci(aim_chars,A_Key,B_Key,D_Key) SELECT '%Chars_R%', '%Chars_L%', '%frist_ci%', '%frist_ci%' WHERE NOT EXISTS(SELECT 1 FROM ci WHERE aim_chars = '%Chars_R%' AND A_Key = '%Chars_L%');
+					frist_ci:= Result.RowCount>1?(Result.Rows[2,1]+2):Result.RowCount=1?(Result.Rows[1,1]-2):"64526534", CharsCF:=split_wubizg(Chars_R)
+					SQL =INSERT INTO ci(aim_chars,A_Key,B_Key,D_Key,E_Key,F_Key) SELECT '%Chars_R%', '%Chars_L%', '%frist_ci%', '%frist_ci%', '%CharsCF%', '%Chars_L%' WHERE NOT EXISTS(SELECT 1 FROM ci WHERE aim_chars = '%Chars_R%' AND A_Key = '%Chars_L%');
 					if DB.Exec(SQL)>0 
 						count_1++
 					else
@@ -302,8 +305,8 @@ Save_word(chars){
 						DB.gettable("SELECT D_Key,C_Key FROM ci WHERE A_Key = '" Chars_R "' ORDER BY A_Key,D_Key DESC", Result)
 					else
 						DB.gettable("SELECT B_Key,C_Key FROM ci WHERE A_Key = '" Chars_R "' ORDER BY A_Key,B_Key DESC", Result)
-					frist_ci:= Result.RowCount>1?(Result.Rows[2,1]+2):Result.RowCount=1?(Result.Rows[1,1]-2):"64526534"
-					SQL =INSERT INTO ci(aim_chars,A_Key,B_Key,D_Key) SELECT '%Chars_L%', '%Chars_R%', '%frist_ci%', '%frist_ci%' WHERE NOT EXISTS(SELECT 1 FROM ci WHERE aim_chars = '%Chars_L%' AND A_Key = '%Chars_R%');
+					frist_ci:= Result.RowCount>1?(Result.Rows[2,1]+2):Result.RowCount=1?(Result.Rows[1,1]-2):"64526534", CharsCF:=split_wubizg(Chars_L)
+					SQL =INSERT INTO ci(aim_chars,A_Key,B_Key,D_Key,E_Key,F_Key) SELECT '%Chars_L%', '%Chars_R%', '%frist_ci%', '%frist_ci%', '%CharsCF%', '%Chars_R%' WHERE NOT EXISTS(SELECT 1 FROM ci WHERE aim_chars = '%Chars_L%' AND A_Key = '%Chars_R%');
 					if DB.Exec(SQL)>0 
 						count_1++
 					else
@@ -317,8 +320,8 @@ Save_word(chars){
 						DB.gettable("SELECT D_Key,C_Key FROM ci WHERE A_Key = '" mb_code "' ORDER BY A_Key,D_Key DESC", Result)
 					else
 						DB.gettable("SELECT B_Key,C_Key FROM ci WHERE A_Key = '" mb_code "' ORDER BY A_Key,B_Key DESC", Result)
-					frist_ci:= Result.RowCount>1?(Result.Rows[2,1]+2):Result.RowCount=1?(Result.Rows[1,1]-1):"64526534"
-					SQL =INSERT INTO ci(aim_chars,A_Key,B_Key,D_Key) SELECT '%A_LoopField%', '%mb_code%', '%frist_ci%', '%frist_ci%' WHERE NOT EXISTS(SELECT 1 FROM ci WHERE aim_chars = '%A_LoopField%' AND A_Key = '%mb_code%');
+					frist_ci:= Result.RowCount>1?(Result.Rows[2,1]+2):Result.RowCount=1?(Result.Rows[1,1]-1):"64526534", CharsCF:=split_wubizg(A_LoopField)
+					SQL =INSERT INTO ci(aim_chars,A_Key,B_Key,D_Key,E_Key,F_Key) SELECT '%A_LoopField%', '%mb_code%', '%frist_ci%', '%frist_ci%', '%CharsCF%', '%mb_code%' WHERE NOT EXISTS(SELECT 1 FROM ci WHERE aim_chars = '%A_LoopField%' AND A_Key = '%mb_code%');
 					if DB.Exec(SQL)>0 
 						count_1++
 					else
@@ -397,12 +400,12 @@ Select_add(list_num){
 
 ;词条提取
 get_word(input, cikuname){
-	global
+	global Frequency, Prompt_Word, Trad_Mode, PromptChar, srf_all_Input, lianx
 	If (input="")
 		Return []
 	If (cikuname~="chaoji|zi|ci|labal|zg")
 	{
-		lianx :=""
+		lianx :="", flag:=0
 		if input ~="^z"
 		{
 			lianx :="on"
@@ -412,109 +415,87 @@ get_word(input, cikuname){
 		}else if input ~="^[a-y]+"{
 			if cikuname~="i)ci"{
 				if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"){
+					flag:=1
 					if (PromptChar&&StrLen(input)<4)
-						SQL :="SELECT aim_chars FROM(SELECT aim_chars FROM ci WHERE A_Key ='" input "' AND D_Key >0 ORDER BY A_Key,D_Key DESC) UNION ALL SELECT aim_chars FROM(SELECT aim_chars FROM ci WHERE A_Key LIKE'" input "_' AND D_Key >0 ORDER BY A_Key,D_Key DESC);"
+						SQL :="SELECT aim_chars,E_Key,F_Key FROM(SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key ='" input "' AND D_Key >0 ORDER BY A_Key,D_Key DESC) UNION ALL SELECT aim_chars,E_Key,F_Key FROM(SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key LIKE'" input "_' AND D_Key >0 ORDER BY A_Key,D_Key DESC);"
 					else
-						SQL :="select aim_chars from ci WHERE A_Key ='" input "' AND D_Key >0 ORDER BY A_Key,D_Key DESC;"
+						SQL :="select aim_chars,E_Key,F_Key from ci WHERE A_Key ='" input "' AND D_Key >0 ORDER BY A_Key,D_Key DESC;"
 				}else{
 					if (PromptChar&&StrLen(input)<4)
-						SQL :="SELECT aim_chars FROM(SELECT aim_chars FROM ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars FROM(SELECT aim_chars FROM ci WHERE A_Key LIKE'" input "_' AND B_Key >0 ORDER BY A_Key,B_Key DESC);"
+						flag:=1, SQL :="SELECT aim_chars,E_Key,F_Key FROM(SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars,E_Key,F_Key FROM(SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key LIKE'" input "_' AND B_Key >0 ORDER BY A_Key,B_Key DESC);"
 					else
-						SQL :="select aim_chars from ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC;"
+						SQL :="select aim_chars,E_Key,F_Key from ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC;"
 				}
 			}else{
 				if cikuname~="i)zi"{
 					if (PromptChar&&StrLen(input)<4)
-						SQL :="SELECT aim_chars FROM(SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars FROM(SELECT aim_chars FROM " cikuname " WHERE A_Key LIKE '" input "_' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC);"
+						flag:=1, SQL :="SELECT aim_chars,C_Key,D_Key FROM(SELECT aim_chars,C_Key,D_Key FROM " cikuname " WHERE A_Key = '" input "' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars,C_Key,D_Key FROM(SELECT aim_chars,C_Key,D_Key FROM " cikuname " WHERE A_Key LIKE '" input "_' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC);"
 					else
-						SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC;"
+						SQL :="SELECT aim_chars,C_Key,D_Key FROM " cikuname " WHERE A_Key = '" input "' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC;"
 				}else{
 					if (PromptChar&&StrLen(input)<4)
 					{
+						flag:=1
 						if cikuname~="i)zg"
 							SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "';"
 						else
-							SQL :="SELECT aim_chars FROM(SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "' ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars FROM(SELECT aim_chars FROM " cikuname " WHERE A_Key LIKE'" input "_' ORDER BY A_Key,B_Key DESC);"
-					}else
-						SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "'" (not cikuname~="i)zg"?"ORDER BY A_Key,B_Key DESC":"") ";"
+							SQL :="SELECT aim_chars,C_Key,D_Key FROM(SELECT aim_chars,C_Key,D_Key FROM " cikuname " WHERE A_Key = '" input "' ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars,C_Key,D_Key FROM(SELECT aim_chars,C_Key,D_Key FROM " cikuname " WHERE A_Key LIKE'" input "_' ORDER BY A_Key,B_Key DESC);"
+					}else{
+						if cikuname~="i)zg"
+							SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "'" (not cikuname~="i)zg"?"ORDER BY A_Key,B_Key DESC":"") ";"
+						else
+							SQL :="SELECT aim_chars,C_Key,D_Key FROM " cikuname " WHERE A_Key = '" input "'" (not cikuname~="i)zg"?"ORDER BY A_Key,B_Key DESC":"") ";"
+					}
 				}
 			}
 			If DB.GetTable(SQL, Result)
 			{
-				if (Result.Rows[1,1]=""&&strlen(input)>1&&Prompt_Word ~="on"||Result.Rows[1,1]=""&&strlen(input)<4&&Prompt_Word ~="on")
+				if (Result.Rows[1,1]=""&&strlen(input)>1&&Prompt_Word ~="on"&&not cikuname~="i)zg"&&!PromptChar||Result.Rows[1,1]=""&&strlen(input)<4&&Prompt_Word ~="on"&&not cikuname~="i)zg"&&!PromptChar)
 				{
-					lianx :="on"
-					SQL :="SELECT aim_chars FROM " cikuname " WHERE A_key LIKE '" input "_'"
-					If DB.GetTable(SQL, Result){
-						if Trad_Mode~="off"{
-								loop, % Result.RowCount
-									Result.Rows[a_index,2]:=Prompt_Word~="on"&&Cut_Mode~="i)on"?split_wubizg(Result.Rows[a_index,1]):"", Result.Rows[a_index,3]:=Prompt_Word~="on"&&Cut_Mode~="i)off"?RegExReplace(get_en_code(Result.Rows[a_index,1]),"^" input):""
-						}
-						else
-						{
-							loop, % Result.RowCount
-							{
-								if set_trad_mode(Result.Rows[a_index,1])
-									Result_ :=set_trad_mode(Result.Rows[a_index,1])
-								Result_part_all .=RegExReplace(Result_,"\s+","`n") "`n"
-							}
-							loop,parse,Result_part_all,`n
-							{
-								if A_LoopField
-								{
-									Result.Rows[a_index,1] :=A_LoopField
-									Result.Rows[a_index,2]:=split_wubizg(A_LoopField)
-								}
-							}
-						}	Result_ :=Result_part_all:=""
-					}
+					DB.GetTable("SELECT ", Result)
+					lianx :="on", flag:=1
+					If cikuname~="i)ci"
+						SQL :="SELECT aim_chars,E_Key,F_Key FROM(SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars,E_Key,F_Key FROM(SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key LIKE'" input "_' AND B_Key >0 ORDER BY A_Key,B_Key DESC);"
+					else If cikuname~="i)zi"
+						SQL :="SELECT aim_chars,C_Key,D_Key FROM(SELECT aim_chars,C_Key,D_Key FROM " cikuname " WHERE A_Key = '" input "' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars,C_Key,D_Key FROM(SELECT aim_chars,C_Key,D_Key FROM " cikuname " WHERE A_Key LIKE '" input "_' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC);"
+					else If cikuname~="i)chaoji"
+						SQL :="SELECT aim_chars,C_Key,D_Key FROM(SELECT aim_chars,C_Key,D_Key FROM " cikuname " WHERE A_Key = '" input "' ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars,C_Key,D_Key FROM(SELECT aim_chars,C_Key,D_Key FROM " cikuname " WHERE A_Key LIKE'" input "_' ORDER BY A_Key,B_Key DESC);"
+					else
+						SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "'" (not cikuname~="i)zg"?"ORDER BY A_Key,B_Key DESC":"") ";"
+					DB.GetTable(SQL, Result)
 				}
-				else
-				{
-					if Trad_Mode~="off" {
-						cArr_count:=[], c_count:=0
-						loop, % Result.RowCount
+				if Trad_Mode~="off" {
+					GetValues:=[]
+					For Section, element In Result.Rows
+					{
+						for key,value In element
 						{
-							If cc_count:=Array_isInValueCount(Result.Rows, Result.Rows[a_index,1]){
-								If cc_count>1
-								{
-									If Array_isInValue(cArr_count, Result.Rows[a_index,1]){
-										c_count++, Result.Rows.RemoveAt(a_index)
-										If !Array_isInValue(cArr_count, Result.Rows[a_index,1])
-											Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar&&getEnCode)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
-										else
-											Result.Rows.RemoveAt(a_index)
-									}else
-										Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar&&getEnCode)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
-									cArr_count.Push(Result.Rows[a_index,1])
-								}else
-									Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar&&getEnCode)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
-							}
+							if (key=1) {
+								if !Array_isInValue(GetValues, value)
+									GetValues[Section,1]:=value
+							}else if (key>1&&GetValues[Section].Length()>0)
+								GetValues[Section].push(key=3?(strlen(input)<>strlen(value)&&PromptChar&&flag||strlen(input)<>strlen(value)&&Prompt_Word~="i)on"&&flag?RegExReplace(value,"^" input,"~"):""):value)
 						}
-					}else{
-						lianx :="on", cArr_count:=[], c_count:=0, Result.Rows:=set_trad_mode(Result.Rows)
-						loop, % Result.RowCount
+					}
+				}else{
+					lianx :="on", GetValues:=[], Result.Rows:=set_trad_mode(Result.Rows)
+					For Section, element In Result.Rows
+					{
+						for key,value In element
 						{
-							If cc_count:=Array_isInValueCount(Result.Rows, Result.Rows[a_index,1]){
-								If cc_count>1
-								{
-									If Array_isInValue(cArr_count, Result.Rows[a_index,1]){
-										c_count++, Result.Rows.RemoveAt(a_index)
-										If !Array_isInValue(cArr_count, Result.Rows[a_index,1])
-											Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar&&getEnCode)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
-										else
-											Result.Rows.RemoveAt(a_index)
-									}else
-										Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar&&getEnCode)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
-									cArr_count.Push(Result.Rows[a_index,1])
-								}else
-									Result.Rows[a_index,2]:=split_wubizg(Result.Rows[a_index,1]), Result.Rows[a_index,3]:=((getEnCode:=get_en_code(Result.Rows[a_index,1]))<>srf_all_Input&&PromptChar&&getEnCode)?"~" SubStr(getEnCode,StrLen(srf_all_Input)+1):""
+							If (key=1) {
+								if (!Array_isInValue(GetValues, value)&&value)
+									GetValues[Section,1]:=value
+							}else if (key>1&&GetValues[Section].Length()>0&&value){
+								GetValues[Section].push( key=3?(strlen(input)<>strlen(value)&&PromptChar||strlen(input)<>strlen(value)&&Prompt_Word~="i)on"?RegExReplace(value,"^" input,"~"):""):value)
 							}
 						}
 					}
 				}
+			;if strlen(input)>1
+			;	msgbox % PrintArr(GetValues)
 			}
-			Return Result.Rows
+			Return GetValues
 		}
 	}
 }
@@ -849,10 +830,15 @@ Create_Ci(DB,Name)
 	DB.Exec(SQL)
 	DB.Exec("BEGIN TRANSACTION;")
 	if Wubi_Schema~="i)ci"
-		_SQL := "CREATE TABLE ci ('aim_chars' TEXT,'A_Key' TEXT ,'B_Key' INTEGER,'C_Key' INTEGER,'D_Key' INTEGER);"
-	else
-		_SQL := "CREATE TABLE " Wubi_Schema " ('aim_chars' TEXT,'A_Key' TEXT ,'B_Key' INTEGER);"
+		_SQL := "CREATE TABLE ci ('aim_chars' TEXT,'A_Key' TEXT ,'B_Key' INTEGER,'C_Key' INTEGER,'D_Key' INTEGER,'E_Key' TEXT,'F_Key' TEXT);"
+	else{
+		If not Wubi_Schema~="i)zg"
+			_SQL := "CREATE TABLE " Wubi_Schema " ('aim_chars' TEXT,'A_Key' TEXT ,'B_Key' INTEGER,'C_Key' TEXT,'D_Key' TEXT);"
+		else
+			_SQL := "CREATE TABLE " Wubi_Schema " ('aim_chars' TEXT,'A_Key' TEXT );"
+	}
 	DB.Exec(_SQL)
+	DB.Exec("CREATE INDEX IF NOT EXISTS 'main'.'sy_" Wubi_Schema "' ON '" Wubi_Schema "' ('A_Key');")
 	DB.Exec("COMMIT TRANSACTION;VACUUM;")
 }
 
@@ -875,6 +861,7 @@ Create_pinyin(DB){
 	DB.Exec("BEGIN TRANSACTION;")
 	_SQL = CREATE TABLE PY ("list" INTEGER PRIMARY KEY AUTOINCREMENT,"aim_chars" TEXT,"A_Key" TEXT,"B_Key" TEXT);
 	DB.Exec(_SQL)
+	DB.Exec("CREATE INDEX IF NOT EXISTS 'main'.'sy_PY' ON 'PY' ('aim_chars');")
 	DB.Exec("COMMIT TRANSACTION;VACUUM;")
 }
 
@@ -886,9 +873,46 @@ Create_En(DB,Name){
 	bd~="i)En"?(DB.Exec("DROP TABLE IF EXISTS encode;")):(DB.Exec("DROP TABLE IF EXISTS symbols;"))
 	DB.Exec("BEGIN TRANSACTION;")
 	If bd~="i)En"
-		_SQL = CREATE TABLE encode ("aim_chars" TEXT,"A_Key" INTEGER);
+		_SQL = CREATE TABLE encode ("aim_chars" TEXT,"A_Key" INTEGER);CREATE INDEX IF NOT EXISTS 'main'.'sy_encode' ON 'encode' ('aim_chars');
 	else
-		_SQL = CREATE TABLE symbols ("aim_chars" TEXT,"A_Key" TEXT);
+		_SQL = CREATE TABLE symbols ("aim_chars" TEXT,"A_Key" TEXT);CREATE INDEX IF NOT EXISTS 'main'.'sy_symbols' ON 'symbols' ('aim_chars');
 	DB.Exec(_SQL)
+	
 	DB.Exec("COMMIT TRANSACTION;VACUUM;")
+}
+
+CheckDB(DB,cikuName){
+	if cikuName~="i)ci"
+		SQL:="select * from sqlite_master where name='" cikuName "' and sql like '%E_Key%';"
+	else
+		SQL:="select * from sqlite_master where name='" cikuName "' and sql like '%C_Key%';"
+	DB.GetTable(SQL,Result)
+	If !Result.rowCount {
+		if cikuName~="i)ci"
+			SQL:="ALTER TABLE " cikuName " ADD COLUMN E_Key TEXT;ALTER TABLE " cikuName " ADD COLUMN F_Key TEXT;"
+		else
+			SQL:="ALTER TABLE " cikuName " ADD COLUMN C_Key TEXT;ALTER TABLE " cikuName " ADD COLUMN D_Key TEXT;"
+		If DB.Exec(SQL)>0 {
+			DB.GetTable("select * from " cikuName ";",Results)
+			For Section,element In Results.Rows
+			{
+				For key,value In element
+				{
+					if (key=1) {
+						if cikuName~="i)ci"
+							AlterChars:="('" value "','" Results.Rows[Section,2] "','" Results.Rows[Section,3] "','" Results.Rows[Section,4] "','" Results.Rows[Section,5] "','" split_wubizg(value) "','" get_en_code(value) "')" ","
+						else
+							AlterChars:="('" value "','" Results.Rows[Section,2] "','" Results.Rows[Section,3] "','" split_wubizg(value) "','" get_en_code(value) "')" "," 
+					}
+				}
+				AlterCharsAll.=AlterChars
+			}
+			DB.Exec("delete from " cikuname ";")
+			if DB.Exec("INSERT INTO " cikuname " VALUES " RegExReplace(AlterCharsAll,"\,$") "")>0 {
+				Traytip,,导入完成！
+			}
+			AlterCharsAll:=""
+			Return 1
+		}
+	}
 }

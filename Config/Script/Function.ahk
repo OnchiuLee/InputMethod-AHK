@@ -2822,7 +2822,7 @@ Char2Unicode(cnStr){
 	OldFormat := A_FormatInteger
 	SetFormat, Integer, Hex
 	Loop, Parse, cnStr
-		out .= "\u" . SubStr( Asc(A_LoopField), 3 )
+		out .= "0x" . SubStr( Asc(A_LoopField), 3 )
 	SetFormat, Integer, %OldFormat%
 	Return out
 }
@@ -2935,4 +2935,15 @@ RestoreCursors()
 {
 	SPI_SETCURSORS := 0x57
 	DllCall( "SystemParametersInfo", UInt,SPI_SETCURSORS, UInt,0, UInt,0, UInt,0 )
+}
+
+CheckTickCount(TC:=0){
+	if !TC {
+		DllCall("QueryPerformanceFrequency", "Int64*", freq), DllCall("QueryPerformanceCounter", "Int64*", CounterBefore)
+		Return {CB:CounterBefore,Perf:freq}
+	}Else{
+		DllCall("QueryPerformanceCounter", "Int64*", CounterAfter), t:=(CounterAfter-TC.CB)/TC.Perf
+		TickCount:=t<1?t*1000 "毫秒":(t>60?Floor(t/60) "分" mod(t,60):t "秒")
+		Return TickCount
+	}
 }
