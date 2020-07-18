@@ -470,48 +470,72 @@ SetTextAndResize(controlHwnd, newText) {
 	GuiControl Move, %controlHwnd%, % "h" h " w" w
 }
 
-;Print obj对象
-PrintArr(Arr, Option := "w800 h200", GuiNum := 90) {
-	for index, obj in Arr {
-		if (A_Index = 1) {
-			for k, v in obj {
-				Columns .= k "|"
-				cnt++
-			}
-			Gui, %GuiNum%: Margin, 5, 5
-			Gui, %GuiNum%: Add, ListView, %Option%, % Columns
-		}
-		RowNum := A_Index
-		Gui, %GuiNum%: default
-		LV_Add("")
-		for k, v in obj {
-			LV_GetText(Header, 0, A_Index)
-			if (k <> Header) {
-				FoundHeader := False
-				loop % LV_GetCount("Column") {
-					LV_GetText(Header, 0, A_Index)
-					if (k <> Header)
-						continue
-					else {
-						FoundHeader := A_Index
-						break
-					}
-				}
-				if !(FoundHeader) {
-					LV_InsertCol(cnt + 1, "", k)
+;Print Objects 对象
+PrintArr(Arr, Option := "AutoSize",LineNum:=15, GuiName := "PrintArr", font:="98wb-0") {
+	Gui, %GuiName%: Destroy
+	If (Arr.Length()&&Arr[1].Length()) {
+		for index, obj in Arr {
+			if (A_Index = 1) {
+				for k, v in obj {
+					Columns .= "|" k 
 					cnt++
-					ColNum := "Col" cnt
+				}
+				Gui, %GuiName%: font,s10, %font%
+				Gui, %GuiName%: Margin, 10, 10
+				Gui, %GuiName%: Add, ListView, R%LineNum%, % Columns
+			}
+			RowNum := A_Index
+			Gui, %GuiName%: default
+			Gui, %GuiName%: +AlwaysOnTop
+			LV_Add("","Row" A_Index), LV_ModifyCol()
+			for k, v in obj {
+				LV_GetText(Header, 0, A_Index)
+				if (k <> Header) {
+					FoundHeader := False
+					loop % LV_GetCount("Column") {
+						LV_GetText(Header, 0, A_Index)
+						if (k <> Header)
+							continue
+						else {
+							FoundHeader := A_Index
+							break
+						}
+					}
+					if !(FoundHeader) {
+						LV_InsertCol( cnt + 1, "", k), LV_ModifyCol()
+						cnt++
+						ColNum := "Col" cnt
+					} else
+						ColNum := "Col" FoundHeader
 				} else
-					ColNum := "Col" FoundHeader
-			} else
-				ColNum := "Col" A_Index
-			LV_Modify(RowNum, ColNum, (IsObject(v) ? "Object()" : v))
+					ColNum := "Col" A_Index
+				LV_Modify(RowNum, ColNum, (IsObject(v) ? "Object()" : v))
+			}
 		}
+		loop % LV_GetCount("Column")
+			LV_ModifyCol(A_Index, "AutoHdr")
+		Gui, %GuiName%: Show,%Option%, % "共" Arr.Count() "行"
+	}else If (Arr.Count()>0&&!Arr[1].Length()){
+		Gui, %GuiName%: default
+		Gui, %GuiName%: +AlwaysOnTop
+		Gui, %GuiName%: font,s12, %font%
+		Gui, %GuiName%: Margin, 5, 5
+		Gui, %GuiName%:Add, TreeView, R%LineNum%
+		Count_=0
+		for section, element in arr
+		{
+			Count_++
+			TVP%Count_% := TV_Add(element.Length()||element.Count()? section:section "：" element)
+			for key, value in element
+			{
+				TVP%Count_%C%A_Index% := TV_Add(key "： " value , TVP%Count_%), TV_Modify(TVP%Count_%, "Expand")
+			}
+		}
+		TV_Modify(TVP1, "Select")
+		Gui, %GuiName%: Show,%Option%, % "「 Object对象显示 」"
 	}
-	loop % LV_GetCount("Column")
-		LV_ModifyCol(A_Index, "AutoHdr")
-	Gui, %GuiNum%: Show,, Display Area
 }
+
 
 DateAdd(time)
 {

@@ -493,7 +493,7 @@ get_word(input, cikuname){
 					}
 				}
 			;if strlen(input)>1
-			;	msgbox % PrintArr(GetValues)
+			;	msgbox % PrintObjects(GetValues)
 			}
 			Return GetValues
 		}

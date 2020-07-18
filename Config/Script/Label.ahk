@@ -731,6 +731,7 @@ Return
 
 ;候选词条分页处理
 srf_tooltip_fanye:
+	;PrintObjects(WubiIni)
 	for k,v in ["Textdirection","ListNum","FontSize"]
 		if (WubiIni.TipStyle[v]<>%v%)
 			%v%:=Textdirection:=WubiIni[Array_GetParentKey(WubiIni, v),v]
@@ -805,6 +806,7 @@ srf_tooltip_cut:
 	srf_for_select_string:="", localpos:=1, srf_for_select_obj:=[]
 	, loopindex:=srf_for_select_Array.Length()-ListNum*waitnum
 	, loopindex:=(loopindex>ListNum?ListNum:loopindex)
+	;PrintObjects(srf_for_select_Array)
 	If (Textdirection="horizontal")
 	{
 
@@ -2028,6 +2030,7 @@ yaml_:
 Return
 
 ControlGui:
+	SendMessage,0xC,, "输入法设置"
 	For k,v In ["on","off","Gdip","ci","zi","chaoji","zg"]
 	{
 		if (ToolTipStyle~="i)" v)
@@ -3366,10 +3369,7 @@ else
 	Gui, 29:font,
 	Gui, 29:Submit
 	Gui,29:show,AutoSize,造词窗口
-	Gosub ChangeWinIcon
-	EM_SetCueBanner(CodeEdit2, "请输入词条,以分号结尾自动添加")
-	;SendMessage, 0x1501, 1, "造词格式有两种：⑴、无编码词条，例如「五笔」。⑵、固定格式，例如「ggte=五笔」。<<<多个词条以换行符隔开！>>>", Edit1, ahk_id%EditPlus%
-	ControlFocus , Edit1, A
+	Gosub SetGuiTitle
 }
 return
 
@@ -3378,6 +3378,16 @@ EM_SetCueBanner(hWnd, Cue)
 	static EM_SETCUEBANNER := 0x1501
 	return DllCall("User32.dll\SendMessage", "Ptr", hWnd, "UInt", EM_SETCUEBANNER, "Ptr", True, "WStr", Cue)
 }
+
+SetGuiTitle:
+	Gosub ChangeWinIcon
+	; WinGetTitle, _WinTitle, A
+	; WinGetClass, _WinClass, A
+	SendMessage,0xC,, "造词窗口"
+	EM_SetCueBanner(CodeEdit2, "请输入词条,以分号结尾自动添加")
+	;SendMessage, 0x1501, 1, "请输入词条,以分号结尾自动添加", Edit1, ahk_id%EditPlus%
+	ControlFocus , Edit1, A
+Return
 
 EditBox2:
 	ControlGetText, EditBox2, Edit1
@@ -3710,7 +3720,7 @@ return
 
 ;候选横竖排
 Textdirection:
-	Textdirection :=WubiIni.TipStyle["Textdirection"] :=(Textdirection="vertical"?"horizontal":"vertical"), WubiIni.save()
+	Textdirection :=WubiIni.TipStyle["Textdirection"] :=Textdirection="vertical"?"horizontal":"vertical", WubiIni.save()
 return
 
 ;回车设定
