@@ -698,14 +698,15 @@ Return
 helpInfo:
 	if (srf_for_select_Array.Length()=0&&srf_all_Input ="help"){
 		Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10
-		help_info:=[["简繁模式"," 热键" GetkeyName(s2thotkey) " 组合","〔 热键" GetkeyName(s2thotkey) "组合 〕"]
-			,["程序挂起"," 热键" GetkeyName(Suspendhotkey) " 组合","〔 热键" GetkeyName(Suspendhotkey) "组合 〕"]
+		help_info:=[["简繁模式"," 热键" GetkeyName(s2thotkey) " 组合","〔 热键" GetkeyName(s2thotkey) " 组合 〕"]
+			,["程序挂起"," 热键" GetkeyName(Suspendhotkey) " 组合","〔 热键" GetkeyName(Suspendhotkey) " 组合 〕"]
 			,["以形查音"," ~键引导 ","〔 ~键引导 〕"]
 			,["精准造词"," ``键引导+``键分词 ","〔 ``键引导+``键分词 〕"]
+			,["划译反查"," 热键" GetkeyName(tiphotkey) " 开/关 ","〔 热键" GetkeyName(tiphotkey) " 开/关 〕"]
 			,["临时英文"," 双``键引导 ","〔 双``键引导 〕"]
-			,["快捷退出"," 热键" GetkeyName(exithotkey) " 组合","〔 热键" GetkeyName(exithotkey) "组合 〕"]
+			,["快捷退出"," 热键" GetkeyName(exithotkey) " 组合","〔 热键" GetkeyName(exithotkey) " 组合 〕"]
 			,["拼音反查"," z键引导 ","〔 z键引导 〕"]
-			,["拆分显示"," 热键" GetkeyName(cfhotkey) " 组合","〔 热键" GetkeyName(cfhotkey) "组合 〕"]
+			,["拆分显示"," 热键" GetkeyName(cfhotkey) " 组合","〔 热键" GetkeyName(cfhotkey) " 组合 〕"]
 			,["批量造词"," 热键" GetkeyName(AddCodehotkey) " 组合 ","〔 热键" GetkeyName(AddCodehotkey) " 组合 〕"]], srf_for_select_Array:=help_info
 	}else if (srf_for_select_Array.Length()=0&&srf_all_Input ="mac"){
 		Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10
