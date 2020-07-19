@@ -1313,12 +1313,13 @@ ChangeWinIcon:
 	ChangeWindowIcon(A_ScriptDir "\Config\wubi98.icl",, 30)
 Return
 
-ChangeWindowIcon(IconFile, WinSpec:="A", IconNumber:=1, IconSize:=128) {    ;ico图标文件IconNumber和IconSize不用填，如果是icl图标库需要填
-	hWnd := WinExist(WinSpec)
+ChangeWindowIcon(IconFile, hWnd:="A", IconNumber:=1, IconSize:=128) {    ;ico图标文件IconNumber和IconSize不用填，如果是icl图标库需要填
+	if (hWnd="A")
+		hWnd := WinExist(hWnd)
 	if (!hWnd)
 		return "窗口不存在！"
 	if IconFile~="\.icl$"
-		hIcon := LoadIcon(IconFile, 30, IconSize)
+		hIcon := LoadIcon(IconFile, IconNumber, IconSize)
 	else
 		hIcon := DllCall("LoadImage", uint, 0, str, IconFile, uint, 1, int, 0, int, 0, uint, LR_LOADFROMFILE:=0x10)
 	if (!hIcon)
@@ -1328,6 +1329,8 @@ ChangeWindowIcon(IconFile, WinSpec:="A", IconNumber:=1, IconSize:=128) {    ;ico
 	SendMessage, WM_SETICON:=0x80, ICON_BIG:=1   , hIcon,, ahk_id %hWnd%  ; Set the window's big icon to the same one.
 }
 
+
+;获取exe/dll/icl文件中指定图标找返回
 LoadIcon(Filename, IconNumber, IconSize)
 {
 	if DllCall("PrivateExtractIcons"
