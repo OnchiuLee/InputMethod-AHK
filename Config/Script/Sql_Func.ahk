@@ -400,7 +400,7 @@ Select_add(list_num){
 
 ;词条提取
 get_word(input, cikuname){
-	global Frequency, Prompt_Word, Trad_Mode, PromptChar, srf_all_Input, lianx
+	global Frequency, Prompt_Word, Trad_Mode, PromptChar, srf_all_Input, lianx, CharFliter
 	If (input="")
 		Return []
 	If (cikuname~="chaoji|zi|ci|labal|zg")
