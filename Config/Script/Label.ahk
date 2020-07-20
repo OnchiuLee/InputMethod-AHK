@@ -1318,7 +1318,7 @@ ChangeWindowIcon(IconFile, hWnd:="A", IconNumber:=1, IconSize:=128) {    ;ico图
 		hWnd := WinExist(hWnd)
 	if (!hWnd)
 		return "窗口不存在！"
-	if IconFile~="\.icl$"
+	if not IconFile~="\.ico$"
 		hIcon := LoadIcon(IconFile, IconNumber, IconSize)
 	else
 		hIcon := DllCall("LoadImage", uint, 0, str, IconFile, uint, 1, int, 0, int, 0, uint, LR_LOADFROMFILE:=0x10)
