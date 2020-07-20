@@ -182,9 +182,7 @@ if FileExist(A_Startup "\" Startup_Name ".lnk"){
 	Startup :=WubiIni.Settings["Startup"]:=zq_~=Startup_Name?"on":"off"
 }
 
-
-If (SubStr((versions :=WubiIni.Versions["Version"]),1,8)<SubStr(A_Now,1,8))
-	;versions :=WubiIni.Versions["Version"]:=SubStr(A_Now,1,8) "-1"      ;版本日期设置
+versions :=WubiIni.Versions["Version"]:=SubStr(A_Now,1,8) "-1"
 
 if not Srf_Hotkey ~="i)Ctrl|Shift|Alt|LWin"||Srf_Hotkey ~="\&$"
 	Srf_Hotkey:=WubiIni.Settings["Srf_Hotkey"]:="Shift"
@@ -220,8 +218,6 @@ if !InitStatus {
 if (ToolTipStyle ~="i)gdip"&&A_OSVersion ~="i)WIN_XP") {
 	;Traytip,,你的系统不支持当前Gdip候选框样式,请切换!,,2
 	ToolTipStyle:=WubiIni.TipStyle["ToolTipStyle"]:="on", FontSize:=WubiIni.Settings["FontSize"]:=16, WubiIni.Save()
-	Menu, Tip_Style, Rename, Gdip候选样式	√,Gdip候选样式
-	Menu, Tip_Style, Rename, ToolTip样式,ToolTip样式	√
 }
 
 ;{{{{{快捷键注册
