@@ -2907,8 +2907,10 @@ Return
 CharFliter:
 	if Wubi_Schema~="i)zi"
 		CharFliter:=WubiIni.Settings["CharFliter"]:=CharFliter?0:1,WubiIni.save()
-	else
-		CharFliter:=WubiIni.Settings["CharFliter"]:=CharFliter,WubiIni.save()
+	else{
+		CharFliter:=WubiIni.Settings["CharFliter"]:=0,WubiIni.save()
+		Traytip,  警告提示:,当前方案无效，请切换至「单字」方案！,,2
+	}
 Return
 
 s2t_hotkeys:
