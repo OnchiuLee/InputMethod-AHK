@@ -395,7 +395,7 @@ GuiControlGet(Subcommand = "", ControlID = "", Param4 = "")
 	GuiControlGet, _v, %Subcommand%, %ControlID%, %Param4%
 	return _v
 }
-FormatTime(YYYYMMDDHH24MISS = "", Format = "")
+FormatTime(YYYYMMDDHH24MISS = "A_Now", Format = "yyyy-MM-d dddd HH:mm:ss")
 {
 	_v := ""
 	FormatTime, _v, %YYYYMMDDHH24MISS%, %Format%
@@ -2976,4 +2976,28 @@ CheckTickCount(TC:=0){
 		TickCount:=t<1?t*1000 "毫秒":(t>60?Floor(t/60) "分" mod(t,60):t "秒")
 		Return TickCount
 	}
+}
+
+;1:elevated
+;0:not elevated
+;-1:error (probably elevated)
+; From https://autohotkey.com/boards/viewtopic.php?p=197426#p197426
+ProcessIsElevated(vPID)
+{
+	;PROCESS_QUERY_LIMITED_INFORMATION := 0x1000
+	if !(hProc := DllCall("kernel32\OpenProcess", "UInt",0x1000, "Int",0, "UInt",vPID, "Ptr"))
+		return -1
+	;TOKEN_QUERY := 0x8
+	hToken := 0
+	if !(DllCall("advapi32\OpenProcessToken", "Ptr",hProc, "UInt",0x8, "Ptr*",hToken))
+	{
+		DllCall("kernel32\CloseHandle", "Ptr",hProc)
+		return -1
+	}
+	;TokenElevation := 20
+	vIsElevated := vSize := 0
+	vRet := (DllCall("advapi32\GetTokenInformation", "Ptr",hToken, "Int",20, "UInt*",vIsElevated, "UInt",4, "UInt*",vSize))
+	DllCall("kernel32\CloseHandle", "Ptr",hToken)
+	DllCall("kernel32\CloseHandle", "Ptr",hProc)
+	return vRet ? vIsElevated : -1
 }
