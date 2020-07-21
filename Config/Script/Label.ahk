@@ -2898,9 +2898,9 @@ SBA24:
 	if (SBA==1) {
 		if Prompt_Word~="i)on"
 			GuiControl,98:, SBA3 , 0
-		PromptChar:=WubiIni.Settings["PromptChar"]:=1,Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="on",WubiIni.save()
+		PromptChar:=WubiIni.Settings["PromptChar"]:=1, Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="off",WubiIni.save()
 	}else{
-		PromptChar:=WubiIni.Settings["PromptChar"]:=0,WubiIni.save()
+		PromptChar:=WubiIni.Settings["PromptChar"]:=0, WubiIni.save()
 	}
 Return
 
