@@ -5,7 +5,7 @@ Srf_Tip:
 	Gui, SrfTip:Default
 	Gui,SrfTip:+LastFound -Caption +AlwaysOnTop ToolWindow -DPIScale +hwndSrf_Tip
 	Gui,SrfTip: Add, Pic,x0 y0 h%SrfTip_Width% w%SrfTip_Height% gTipMore vTipMore HwndMyTextHwnd
-	TipBackgroundBrush := DllCall("CreateSolidBrush", UInt, GetKeyState("CapsLock", "T")?"0x0000ff":srf_mode?"0x008000":"0x00FFFF"),GuiHwnd := WinExist()
+	TipBackgroundBrush := DllCall("CreateSolidBrush", UInt, GetKeyState("CapsLock", "T")?"0x" LogoColor_caps:srf_mode?"0x" LogoColor_cn:"0x" LogoColor_en),GuiHwnd := WinExist()
 	WindowProcNew := RegisterCallback("WindowProc", "", 4, MyTextHwnd)
 	WindowProcOld := DllCall(A_PtrSize=8 ? "SetWindowLongPtr" : "SetWindowLong", Ptr, Srf_Tip, Int, -4, Ptr, WindowProcNew, Ptr) ; 返回值必须设置为 Ptr 或 UPtr 而不是 Int.
 	if Logo_Switch ~="i)off"
@@ -186,22 +186,22 @@ Get_IME:
 			if not A_OSVersion ~="i)WIN_XP"
 			{
 				Gosub Ime_Tips
-				Sleep,400
+				Sleep,200
 				Gui, tips: Destroy
 			}else{
 				ToolTip,中,% GetCaretPos().x ,% GetCaretPos().y+30
-				Sleep,400
+				Sleep,200
 				ToolTip
 			}
 		}else{
 			if not A_OSVersion ~="i)WIN_XP"
 			{
 				Gosub Ime_Tips
-				Sleep,400
+				Sleep,200
 				Gui, tips: Destroy
 			}else{
 				ToolTip, 英,% GetCaretPos().x ,% GetCaretPos().y+30
-				Sleep,400
+				Sleep,200
 				ToolTip
 			}
 		}
@@ -211,24 +211,24 @@ Get_IME:
 			if not A_OSVersion ~="i)WIN_XP"
 			{
 				Gosub Ime_Tips
-				Sleep,400
+				Sleep,200
 				Gui, tips: Destroy
 			}else{
 				WinGetPos,,,,Shell_Wnd ,ahk_class Shell_TrayWnd
 				ToolTip,中,% A_ScreenWidth-50 ,% A_ScreenHeight-Shell_Wnd-40
-				Sleep,400
+				Sleep,200
 				ToolTip
 			}
 		}else{
 			if not A_OSVersion ~="i)WIN_XP"
 			{
 				Gosub Ime_Tips
-				Sleep,400
+				Sleep,200
 				Gui, tips: Destroy
 			}else{
 				WinGetPos,,,,Shell_Wnd ,ahk_class Shell_TrayWnd
 				ToolTip, 英, % A_ScreenWidth-50,% A_ScreenHeight-Shell_Wnd-40
-				Sleep,400
+				Sleep,200
 				ToolTip
 			}
 		}
@@ -1052,7 +1052,7 @@ More_Setting:
 	TV5 := TV_Add("关于",, "Bold")
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
-	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","SBA13","TextInfo1","TextInfo0","SrfSlider","SizeValue","set_SizeValue","ExSty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4"]
+	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","SBA13","TextInfo1","TextInfo0","SrfSlider","SizeValue","set_SizeValue","ExSty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","TextInfo27","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 		,GBoxList2:["GBox2","TextInfo11","TextInfo25","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
 		,GBoxList3:["GBox3","SBA7","SBA23","SBA24","UIAccess","SBA6","SBA14","SBA21","SBA3","TextInfo13","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
@@ -1087,10 +1087,17 @@ More_Setting:
 		logoList.="|" SubStr(A_LoopFileName,1,-4)
 	GuiControlGet, scvar, Pos , Backup_Conf
 	Gui, 98:Add, Text,x190 y+10 vTextInfo4 left, 功能条：
-	Gui, 98:Add, DDL,x%scvarX% yp w150 vselect_logo gselect_logo , % RegExReplace(logoList,"^\|")
+	Gui, 98:Add, DDL,x%scvarX% yp vselect_logo gselect_logo , % RegExReplace(logoList,"^\|")
 	GuiControl, 98:ChooseString, select_logo, %StyleN%
 	If Logo_Switch~="i)off"
 		GuiControl, 98:Disable, select_logo
+	Gui, 98:Add, Text,x190 y+10 vTextInfo27 left, 色块调整：
+	Gui, 98:Add, Button, x%scvarX% yp w60 h30 hwndhwndLogoColor_cn gsetlogocolor vLogoColor_cn
+	Gui, 98:Add, Button, x+5 w60 h30 hwndhwndLogoColor_en gsetlogocolor vLogoColor_en
+	Gui, 98:Add, Button, x+5 w60 h30 hwndhwndLogoColor_caps gsetlogocolor vLogoColor_caps
+	CreateImageButton(hwndLogoColor_cn,[{BC: SubStr(LogoColor_cn,5,2) SubStr(LogoColor_cn,3,2) SubStr(LogoColor_cn,1,2), 3D: 0}],5)
+	CreateImageButton(hwndLogoColor_en,[{BC: SubStr(LogoColor_en,5,2) SubStr(LogoColor_en,3,2) SubStr(LogoColor_en,1,2), 3D: 0}],5)
+	CreateImageButton(hwndLogoColor_caps,[{BC: SubStr(LogoColor_caps,5,2) SubStr(LogoColor_caps,3,2) SubStr(LogoColor_caps,1,2), 3D: 0}],5)
 	Gui, 98:Add, Edit, x+10 w60 Limit3 Number vSizeValue gSizeValue
 	Gui, 98:Add, UpDown, x+0 w160 Range1-150 gset_SizeValue vset_SizeValue, % (LogoSize>0&&LogoSize<=150?LogoSize:36)
 	Gui, 98:Add, Text,x190 y+10 vTextInfo0 left, 色块透明：
@@ -2058,7 +2065,7 @@ ControlGui:
 		if (%k%~="i)on")
 			GuiControl,98:, %v% , 1
 	if Logo_Switch~="off" {
-		For k,v In ["SrfSlider","select_logo","ExSty","set_SizeValue","SizeValue"]
+		For k,v In ["SrfSlider","select_logo","ExSty","set_SizeValue","SizeValue","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 			GuiControl, 98:Disable, %v%
 	}
 	if ToolTipStyle ~="i)on|off"{
@@ -2780,10 +2787,10 @@ Return
 SBA13:
 	Gosub Logo_Switch
 	if Logo_Switch~="off" {
-		For k,v In ["ExSty","SrfSlider","select_logo","set_SizeValue","SizeValue"]
+		For k,v In ["ExSty","SrfSlider","select_logo","set_SizeValue","SizeValue","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 			GuiControl, 98:Disable, %v%
 	}else{
-		For k,v In ["ExSty","SrfSlider","select_logo","set_SizeValue","SizeValue"]
+		For k,v In ["ExSty","SrfSlider","select_logo","set_SizeValue","SizeValue","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 			GuiControl, 98:Enable, %v%
 	}
 Return
@@ -3047,8 +3054,7 @@ Initial_Mode:
 	WubiIni.save()
 Return
 
-;选色面板结果处理
-setcolor:
+SetCustomColors:
 	CustomColors :=[]
 	loop,parse,Color_Row1,`,
 	{
@@ -3065,6 +3071,11 @@ setcolor:
 		WubiIni.CustomColors["Color_Row1"]:= "0x1C7399,0xEEEEEC,0x014E8B,0x444444,0x009FE8,0xDEF9FA,0xF8B62D,0x90FC0F"
 		WubiIni.CustomColors["Color_Row2"]:= "0x0078D7,0x0D1B0A,0xB9D497,0x00ADEF,0x1778BF,0xFDF6E3,0x002B36,0xDEDEDE"
 	}
+Return
+
+;选色面板结果处理
+setcolor:
+	Gosub SetCustomColors
 	If Dlg_Color(tempColor, DIYTheme, CustomColors*){
 		WubiIni.TipStyle[A_GuiControl]:=%A_GuiControl%:=SubStr(tempColor, 3)
 		CreateImageButton(hwnd%A_GuiControl%,[{BC: %A_GuiControl%, 3D: 0}],5)
@@ -3075,6 +3086,15 @@ setcolor:
 	WubiIni.Save()
 	Gui, houxuankuang:Destroy
 	Gosub houxuankuangguicreate
+Return
+
+setlogocolor:
+	Gosub SetCustomColors
+	If Dlg_Color(tempColor, hwndgui98, CustomColors*){
+		%A_GuiControl%:=WubiIni.LogoColor[A_GuiControl]:=SubStr(SubStr(tempColor, 3),5,2) SubStr(SubStr(tempColor, 3),3,2) SubStr(SubStr(tempColor, 3),1,2), WubiIni.Save()
+		CreateImageButton(hwnd%A_GuiControl%,[{BC: SubStr(tempColor, 3), 3D: 0}],5)
+	}
+	Gosub ShowSrfTip
 Return
 
 ;设置页面字号输入结果处理
