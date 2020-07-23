@@ -965,7 +965,7 @@ Return
 
 diyColor:
 	Gosub DestroyGui
-	Gui, diy: +hwndDIYTheme +AlwaysOnTop -DPIScale +Owner
+	Gui, diy: +hwndDIYTheme +AlwaysOnTop +Owner   ; -DPIScale
 	Gui,diy:Font, s10 Bold, %font_%
 	Gui diy:Add, GroupBox, y+15 w385 h250, 配色项
 	Gui,diy:Font
@@ -1033,7 +1033,7 @@ More_Setting:
 	Menu, Main, Add, 候选框 , :Custom
 	Menu, ExtendTool, Add, 标签管理, Label_management
 	Menu, Main, Add, 扩展工具, :ExtendTool
-	Gui, 98: +hwndhwndgui98 +AlwaysOnTop -DPIScale +OwnDialogs ;+ToolWindow
+	Gui, 98: +hwndhwndgui98 +AlwaysOnTop +OwnDialogs ;+ToolWindow -DPIScale
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui, 98:Menu, Main
@@ -1719,7 +1719,7 @@ Return
 Label_management:
 	Gosub DestroyGui
 	Gui, label:Default
-	Gui, label: +hwndGuiLabel +Owner98 +OwnDialogs +AlwaysOnTop -DPIScale  ;+ToolWindow
+	Gui, label: +hwndGuiLabel +Owner98 +OwnDialogs +AlwaysOnTop ;+ToolWindow -DPIScale
 	Gui,label:Font
 	Gui,label:Font, s10 bold, %font_%
 	Gui label:Add, GroupBox, y+10 w500 h450 vGBox8, 标签管理
@@ -1749,9 +1749,11 @@ Glabel:
 	If DB.gettable("SELECT * FROM label", Result){
 		loop, % Result.RowCount
 		{
-			LV_Add("", Result.Rows[A_index,2], Result.Rows[A_index,3],SubStr(Result.Rows[A_index,4],2)), LV_ModifyCol()
+			LV_Add("", Result.Rows[A_index,2], Result.Rows[A_index,3],SubStr(Result.Rows[A_index,4],2))    ;, LV_ModifyCol()
 		}
-		LV_ModifyCol(2,"150 left")
+		LV_ModifyCol(1,"80 left")
+		LV_ModifyCol(2,"180 left")
+		LV_ModifyCol(3,"190 left")
 		CLV := New LV_Colors(HLV)
 		CLV.SelectionColors(0xfecd1b)
 	}
@@ -2226,7 +2228,7 @@ Return
 themelists:
 	Gosub DestroyGui
 	Gui, themes:Default
-	Gui, themes: +AlwaysOnTop -DPIScale +Owner  ;+ToolWindow
+	Gui, themes: +AlwaysOnTop +Owner  ;+ToolWindow -DPIScale
 	Gui, themes:Add, ListView, r15 w425 Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 Checked -Multi 0x8 LV0x40 -LV0x10 gMyTheme vMyTheme hwndThemeLV, 主题名称|预览图|文件路径
 	themelist:=""
 	Loop Files, config\Skins\*.json
@@ -2254,7 +2256,7 @@ themelists:
 		SendMessage, 4125, %Index%, , , ahk_id %ThemeLV%  ; 4125 为 LVM_GETCOLUMNWIDTH.
 		colum%A_Index%:=ErrorLevel, colum+=ErrorLevel
 	}
-	colum:=colum+25, colum_:=colum+30
+	colum:=colum/(A_ScreenDPI/96)+20, colum_:=colum+30
 	GuiControl, themes:Move, MyTheme, w%colum%
 	SB_SetText(A_Space LV_GetCount() . "个主题")
 	SB_SetIcon("Config\wubi98.icl",30)
@@ -3913,7 +3915,7 @@ return
 DB_management:
 	Gosub DestroyGui
 	Gui, DB:Default
-	Gui, DB: +hwndDB_ +AlwaysOnTop +OwnDialogs +LastFound   ;+ToolWindow -DPIScale +OwnDialogs +MinSize435x470 +MaxSize550x520 -MaximizeBox +Resize
+	Gui, DB: +hwndDB_ +AlwaysOnTop +OwnDialogs +LastFound   ;+ToolWindow +OwnDialogs +MinSize435x470 +MaxSize550x520 -MaximizeBox +Resize -DPIScale
 	Gui,DB:Font, s10 , %Font_%
 	Gui, DB:Add, Button,y+10 Section gDB_Delete vDB_Delete, 删除
 	Gui, DB:Add, Button,x+8 Section gDB_reload vDB_reload, 刷新
