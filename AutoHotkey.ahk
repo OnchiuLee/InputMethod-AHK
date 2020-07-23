@@ -69,14 +69,14 @@ DetectHiddenText, On
 WinGetPos,,,,Shell_Wnd ,ahk_class Shell_TrayWnd
 global y2 :=A_ScreenHeight-Shell_Wnd-40, CpuID:=ComInfo.GetCpuID_2()
 font_:=ComInfo.GetDefaultFontName(), font_:=font_?font_:"Microsoft YaHei UI"
-
+/*
 WinGet, aPID, PID, A
 if(!A_IsAdmin || ProcessIsElevated(aPID)<>1)
 {
 	MsgBox,262160, 无法操作, 目标窗口或本脚本不具有管理员权限！
 	ExitApp
 }
-
+*/
 ;;===============输入法名称（可修改）==================
 global Startup_Name :="五笔98版"   
 ;拆分字体名变量，拆分开启时用来过滤字体以完美显示拆分
