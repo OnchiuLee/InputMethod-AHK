@@ -1052,7 +1052,7 @@ More_Setting:
 	TV5 := TV_Add("关于",, "Bold")
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
-	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","SBA13","TextInfo1","TextInfo0","SrfSlider","SizeValue","set_SizeValue","ExSty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","TextInfo27","LogoColor_cn","LogoColor_en","LogoColor_caps"]
+	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","SBA13","TextInfo1","SrfSlider","SizeValue","set_SizeValue","ExSty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","TextInfo27","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 		,GBoxList2:["GBox2","TextInfo11","TextInfo25","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
 		,GBoxList3:["GBox3","SBA7","SBA23","SBA24","UIAccess","SBA6","SBA14","SBA21","SBA3","TextInfo13","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
@@ -1100,8 +1100,7 @@ More_Setting:
 	CreateImageButton(hwndLogoColor_caps,[{BC: SubStr(LogoColor_caps,5,2) SubStr(LogoColor_caps,3,2) SubStr(LogoColor_caps,1,2), 3D: 0}],5)
 	Gui, 98:Add, Edit, x+10 w60 Limit3 Number vSizeValue gSizeValue
 	Gui, 98:Add, UpDown, x+0 w160 Range1-150 gset_SizeValue vset_SizeValue, % (LogoSize>0&&LogoSize<=150?LogoSize:36)
-	Gui, 98:Add, Text,x190 y+10 vTextInfo0 left, 色块透明：
-	Gui, 98:Add, Slider,x%scvarX% yp gSrfSlider vSrfSlider Center TickInterval10 ToolTipLeft Range0-255, % transparentX
+	Gui, 98:Add, Slider,x%scvarX% y+5 gSrfSlider vSrfSlider Center TickInterval10 ToolTipLeft Range0-255, % transparentX
 	Gui, 98:Add, CheckBox,x%scvarX% y+5 vSBA13 gSBA13, 色块显隐
 	Gui, 98:Add, CheckBox,x+15 Checked%Logo_ExStyle% vExSty gExSty, 鼠标穿透
 	Gui,98:Font
