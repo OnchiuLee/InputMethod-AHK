@@ -1100,7 +1100,7 @@ More_Setting:
 	CreateImageButton(hwndLogoColor_caps,[{BC: SubStr(LogoColor_caps,5,2) SubStr(LogoColor_caps,3,2) SubStr(LogoColor_caps,1,2), 3D: 0}],5)
 	Gui, 98:Add, Edit, x+10 w60 Limit3 Number vSizeValue gSizeValue
 	Gui, 98:Add, UpDown, x+0 w160 Range1-150 gset_SizeValue vset_SizeValue, % (LogoSize>0&&LogoSize<=150?LogoSize:36)
-	Gui, 98:Add, Slider,x%scvarX% y+5 gSrfSlider vSrfSlider Center TickInterval10 ToolTipLeft Range0-255, % transparentX
+	Gui, 98:Add, Slider,x%scvarX% y+10 gSrfSlider vSrfSlider Center TickInterval10 ToolTipLeft Range0-255, % transparentX
 	Gui, 98:Add, CheckBox,x%scvarX% y+5 vSBA13 gSBA13, 色块显隐
 	Gui, 98:Add, CheckBox,x+15 Checked%Logo_ExStyle% vExSty gExSty, 鼠标穿透
 	Gui,98:Font
