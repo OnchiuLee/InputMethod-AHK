@@ -16,16 +16,6 @@
 #WinActivateForce
 #Include %A_ScriptDir%
 ;;{{{{{启动文件位数判断
-/*
-Loop, Files, main\*.exe
-{
-	if (A_LoopFileFullPath~="i)AutoHotkey|U64"&&A_PtrSize=4&&A_Is64bitOS){
-		Run *RunAs "%A_LoopFileFullPath%" /restart "%A_ScriptFullPath%" 
-		break
-	}
-}
-*/
-
 Loop, Files, main\*.exe
 {
 	If (InStr( GetFileInfo(A_LoopFileLongPath), 64)&&InStr( GetFileInfo(A_AhkPath), 32)&&A_Is64bitOS) {
@@ -408,18 +398,20 @@ WM_MOUSEMOVE()
 		SetTimer, DisplayToolTip, 500
 		PrevControl := CurRControl
 	}
-
-	aero_link:="C:\Windows\Cursors\aero_link.cur" ;小手
-	;aero_arrow_l:="C:\Windows\Cursors\aero_arrow_l.cur" ;箭头
-	if (A_GuiControl~="i)nextpage|uppage|MyDB|Lastpage|Toppage|Pics2|Pics3|Pics4"&&FileExist(aero_link)){
-		CursorHandle := DllCall( "LoadCursorFromFile", Str,aero_link )
-		DllCall( "SetSystemCursor", Uint,CursorHandle, Int,32512 )
-	}else{
-		DllCall( "SystemParametersInfo", UInt,0x57, UInt,0, UInt,0, UInt,0 )
-	}
-
-	SetTimer, Tip_timer, 500
+	
+	SetTimer, Tip_timer, 1000
 	Tip_timer:
+		;aero_link:="C:\Windows\Cursors\aero_link.cur" ;小手
+		;aero_arrow_l:="C:\Windows\Cursors\aero_arrow_l.cur" ;箭头
+		if (A_GuiControl~="i)nextpage|uppage|MyDB|Lastpage|Toppage|Pics2|Pics3|Pics4"){  ;&&FileExist(aero_link)
+			;CursorHandle := DllCall( "LoadCursorFromFile", Str,aero_link )
+			;DllCall( "SetSystemCursor", Uint,CursorHandle, Int,32512 )
+			SetSystemCursor( "IDC_HAND" )
+		}else{
+			;DllCall( "SystemParametersInfo", UInt,0x57, UInt,0, UInt,0, UInt,0 )
+			RestoreCursors()
+		}
+
 		x_:=Logo_X+SrfTip_Width+5, Y_:=LogoSize>=36?Logo_Y+(LogoSize-36)/2:Logo_Y-(36-LogoSize)/2
 		if (A_Gui~="i)SrfTip|logo"&&!Logo_ExStyle) {
 			Gosub Write_Pos
