@@ -412,7 +412,7 @@ WM_MOUSEMOVE()
 			RestoreCursors()
 		}
 
-		x_:=Logo_X+SrfTip_Width+5, Y_:=LogoSize>=36?Logo_Y+(LogoSize-36)/2:Logo_Y-(36-LogoSize)/2
+		x_:=Logo_X+SrfTip_Width+LogoSize-26, Y_:=LogoSize>=36?Logo_Y+(LogoSize-36)/2:Logo_Y-(36-LogoSize)/2
 		if (A_Gui~="i)SrfTip|logo"&&!Logo_ExStyle) {
 			Gosub Write_Pos
 			Gui, logo:Show, NA h36 x%x_% y%Y_%,sign_wb
