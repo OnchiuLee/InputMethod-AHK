@@ -371,6 +371,35 @@ format_word(input){
 	}
 }
 
+;精准造词首位匹配组合
+Combin_Arr(code_arr,DB){
+	if !arrs.Length() {
+		arrs:=[],TolValue:="",index:=0
+		loop % code_arr.Length()
+		{
+			if code_arr[a_index] {
+				If DB.GetTable("SELECT aim_chars FROM zi WHERE A_Key = '" code_arr[a_index] "'", Result)
+				{
+					if (Result.Rows[1,1]<>""){
+						Index++
+						loop, % Result.RowCount
+						{
+							arrs[Index,a_index]:=Result.Rows[a_index,1]
+		}}}}}
+	}
+	;PrintObjects(arrs)
+	For section,element In arrs
+	{
+		for key,Value In element
+		{
+			if (key=1)
+				TolValue_part:=Value
+		}
+		TolValue.=TolValue_part
+	}
+	return [TolValue]
+}
+
 ;精准造词选词
 Select_add(list_num){
 	global ListNum,srf_for_select_Array,waitnum,Select_result,select_value_arr
