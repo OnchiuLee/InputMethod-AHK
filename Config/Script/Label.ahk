@@ -1092,9 +1092,9 @@ More_Setting:
 	If Logo_Switch~="i)off"
 		GuiControl, 98:Disable, select_logo
 	Gui, 98:Add, Text,x190 y+10 vTextInfo27 left, 色块调整：
-	Gui, 98:Add, Button, x%scvarX% yp w60 h30 hwndhwndLogoColor_cn gsetlogocolor vLogoColor_cn
-	Gui, 98:Add, Button, x+5 w60 h30 hwndhwndLogoColor_en gsetlogocolor vLogoColor_en
-	Gui, 98:Add, Button, x+5 w60 h30 hwndhwndLogoColor_caps gsetlogocolor vLogoColor_caps
+	Gui, 98:Add, Button, x%scvarX% yp w60 hwndhwndLogoColor_cn gsetlogocolor vLogoColor_cn
+	Gui, 98:Add, Button, x+5 w60 hwndhwndLogoColor_en gsetlogocolor vLogoColor_en
+	Gui, 98:Add, Button, x+5 w60 hwndhwndLogoColor_caps gsetlogocolor vLogoColor_caps
 	CreateImageButton(hwndLogoColor_cn,[{BC: SubStr(LogoColor_cn,5,2) SubStr(LogoColor_cn,3,2) SubStr(LogoColor_cn,1,2), 3D: 0}],5)
 	CreateImageButton(hwndLogoColor_en,[{BC: SubStr(LogoColor_en,5,2) SubStr(LogoColor_en,3,2) SubStr(LogoColor_en,1,2), 3D: 0}],5)
 	CreateImageButton(hwndLogoColor_caps,[{BC: SubStr(LogoColor_caps,5,2) SubStr(LogoColor_caps,3,2) SubStr(LogoColor_caps,1,2), 3D: 0}],5)
