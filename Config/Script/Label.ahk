@@ -3,7 +3,7 @@ Srf_Tip:
 	SrfTip_Width:=SrfTip_Height:=LogoSize   ;方块Logo长宽尺寸
 	Gui, SrfTip:Destroy
 	Gui, SrfTip:Default
-	Gui,SrfTip:+LastFound -Caption +AlwaysOnTop ToolWindow -DPIScale +hwndSrf_Tip
+	Gui,SrfTip:+LastFound -Caption +AlwaysOnTop ToolWindow +hwndSrf_Tip  ; -DPIScale
 	Gui,SrfTip: Add, Pic,x0 y0 h%SrfTip_Width% w%SrfTip_Height% gTipMore vTipMore HwndMyTextHwnd
 	TipBackgroundBrush := DllCall("CreateSolidBrush", UInt, GetKeyState("CapsLock", "T")?"0x" LogoColor_caps:srf_mode?"0x" LogoColor_cn:"0x" LogoColor_en),GuiHwnd := WinExist()
 	WindowProcNew := RegisterCallback("WindowProc", "", 4, MyTextHwnd)
@@ -25,16 +25,16 @@ Return
 Schema_logo:
 	Gui, logo:Destroy
 	Gui, logo:Default
-	Gui, logo: -Caption +AlwaysOnTop ToolWindow border -DPIScale +hwndWubi_Gui          ;  -DPIScale 禁止放大
+	Gui, logo: -Caption +AlwaysOnTop ToolWindow border +hwndWubi_Gui          ;  -DPIScale 禁止放大
 	if FileExist(A_ScriptDir "\config\background.png"){
-		Gui, logo:Add, Picture,x2 y0 w190,config\background.png
-		Gui, logo:Add, Picture,x4 y4 h26 w181 border, config\background.png
+		Gui, logo:Add, Picture,x2 y0 w191,config\background.png
+		Gui, logo:Add, Picture,x6 y4 h26 w181 border, config\background.png
 	}else{
-		Gui, logo:Add, Picture,x2 y0 w190 Icon33,config\wubi98.icl
-		Gui, logo:Add, Picture,x4 y4 h26 w181 border Icon33, config\wubi98.icl
+		Gui, logo:Add, Picture,x2 y0 w191 Icon33,config\wubi98.icl
+		Gui, logo:Add, Picture,x6 y4 h26 w181 border Icon33, config\wubi98.icl
 	}
-	Gui, logo:Add, Picture,xp+3 yp+2 w22 BackgroundTrans Icon9 vPics gPics, config\Skins\logoStyle\%StyleN%.icl
-	Gui, logo:Add, text,x+3 yp-2 h28 w1 border
+	Gui, logo:Add, Picture,xp+3 yp+1 w22 BackgroundTrans Icon9 vPics gPics, config\Skins\logoStyle\%StyleN%.icl
+	Gui, logo:Add, text,x+3 yp-1 h28 w1 border
 	Gui, logo:Add, Picture,x+3 yp+3 w22 BackgroundTrans Icon5 vPics2 gPics2, config\Skins\logoStyle\%StyleN%.icl
 	Gui, logo:Add, text,x+3 yp-3 h28 w1 border
 	Gui, logo:Add, Picture,x+3 yp+3 w22 BackgroundTrans Icon7 vPics3 gPics3, config\Skins\logoStyle\%StyleN%.icl
