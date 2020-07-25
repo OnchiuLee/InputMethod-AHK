@@ -95,7 +95,7 @@ set_add(list_num){
 		}
 	}
 	else
-		TrayTip,, 置顶失败，不符合条件！
+		TrayTip,, 调整失败，不符合条件！
 
 }
 
@@ -120,7 +120,7 @@ set_next(list_num){
 		}
 	}
 	else
-		TrayTip,, 置顶失败，不符合条件！
+		TrayTip,, 调整失败，不符合条件！
 }
 
 ;简体转繁体

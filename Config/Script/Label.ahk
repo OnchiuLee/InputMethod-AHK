@@ -411,7 +411,7 @@ TRAY_Menu:
 	Menu, Tray, Add, 使用帮助,OnHelp
 	Menu, TRAY, Icon, 使用帮助, config\wubi98.icl, 3
 	Menu, Tray, Add
-	;Menu, Tray, Default, 高级设置
+	;Menu, Tray, Default, 更多设置
 	Menu, Tray, Add, 导入词库,OnWrite
 	if Wubi_Schema~="i)zi|zg"
 		Menu, Tray, Disable, 导入词库
@@ -425,8 +425,8 @@ TRAY_Menu:
 	Menu, Tray, Add, 词库管理,DB_management
 	Menu, TRAY, Icon, 词库管理, config\wubi98.icl, 35
 	Menu, Tray, Add
-	Menu, Tray, Add, 高级设置, Onconfig
-	Menu, TRAY, Icon, 高级设置, config\wubi98.icl, 6
+	Menu, Tray, Add, 更多设置, Onconfig
+	Menu, TRAY, Icon, 更多设置, config\wubi98.icl, 6
 	Menu, Tray, Add
 	Menu, Tray, Add, 批量造词,Add_Code
 	if (Wubi_Schema~="i)zi|chaoji"&&!Addcode_switch)
@@ -444,7 +444,8 @@ TRAY_Menu:
 	Menu, Tray, Add
 	Menu, Tray, Add, 退出程序,OnExit
 	Menu, TRAY, Icon, 退出程序, config\wubi98.icl, 7
-	Menu, Tray, Default,高级设置
+	Menu, Tray, Default,更多设置
+	Menu, Tray, Color, FFFFFF
 	;Menu, Tray, Click, 1
 	Menu,Tray,Tip,%program%
 return
@@ -732,7 +733,7 @@ Return
 
 ;候选词条分页处理
 srf_tooltip_fanye:
-	;PrintObjects(WubiIni)
+	;PrintObjects(srf_for_select_Array)
 	for k,v in ["Textdirection","ListNum","FontSize"]
 		if (WubiIni.TipStyle[v]<>%v%)
 			%v%:=Textdirection:=WubiIni[Array_GetParentKey(WubiIni, v),v]
@@ -3289,7 +3290,7 @@ Extend_Schema:
 			GuiControl,logo:, MoveGui,*Icon14 config\Skins\logoStyle\%StyleN%.icl
 	}
 	if (Wubi_Schema<>"chaoji"){
-		Traytip,  失败提示,您的电脑可能没有安装支持超集的字体`n或多次操作无效，当前切换为「98含词」方案!
+		Traytip,提示,当前切换为「98含词」方案!
 		WubiIni.Settings["Wubi_Schema"]:=Wubi_Schema
 		GuiControl,logo:, MoveGui,*Icon11 config\Skins\logoStyle\%StyleN%.icl
 	}
@@ -3319,7 +3320,7 @@ Return
 ;字根拆分
 Cut_Mode:
 	Cut_Mode :=WubiIni.Settings["Cut_Mode"] :=Cut_Mode~="i)off"?"on":"off", WubiIni.save()
-	if (GetCutModeFont()&&not FontType~=FontExtend)
+	if (GetCutModeFont()&&not FontExtend~=FontType)
 		FontType :=WubiIni.TipStyle["FontType"]:= GetCutModeFont(), WubiIni.Save()
 	if srf_all_input
 		Gosub srf_tooltip_fanye
@@ -3386,11 +3387,11 @@ else
 {
 	Gui, 29:Default              ;A_ScreenDPI/96
 	Gui, 29: +AlwaysOnTop +LastFound hwndEditPlus    ;+ToolWindow +OwnDialogs +MinSize260x250 -MaximizeBox +Resize 
-	Gui, 29:Font,c1E90FF
-	Gui,29:Add, text,w300,输入中文词条添加时会自动生成编码，每个词条后面加分号快捷自动添加！双击删除指定的词条。单行单义词条拖至本窗口自动添加，批量录入后直接保存写入。
+	Gui, 29:Font,cc24704
+	Gui,29:Add, text,w400,❶.输入格式：纯中文词条或自定义格式（编码=词条）。`n❷.添加方式：手动输入词条单击「添加」或输入分号自动添加。`n❸.批量添加方式：纯词条多行TXT文本或者单行单义TXT文本或多行「编码=词条」格式TXT文本拖曳至本窗口或桌面色块。`n❹.双击指定行进行删除操作，点击「保存」进行提交。
 	Gui, 29:Font
-	Gui,29:Add, ListBox, y+8 r15 w300 gSet_Value vSet_Value +Multi hwndCodeEdit  ;+Multi
-	Gui, 29: add, Edit, r1 y+10 w200 gEditBox2 vEditBox2 hwndCodeEdit2, 
+	Gui,29:Add, ListBox, y+8 r15 w400 gSet_Value vSet_Value +Multi hwndCodeEdit  ;+Multi
+	Gui, 29: add, Edit, r1 y+10 w300 gEditBox2 vEditBox2 hwndCodeEdit2, 
 	Gui, 29: add, Button,x+10 w60 gaddChars , 添加
 	Gui, 29:font,
 	Gui, 29:font,s11 bold
