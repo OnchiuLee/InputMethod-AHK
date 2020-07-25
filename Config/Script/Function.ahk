@@ -471,64 +471,83 @@ SetTextAndResize(controlHwnd, newText) {
 }
 
 ;Print Objects 对象
-PrintObjects(Arr, Option := "AutoSize",LineNum:=15, GuiName := "PrintObjects", font:="98wb-0") {
+PrintObjects(Arr, Option := "AutoSize x50 y50",LineNum:=15, GuiName := "PrintObjects", font:="98wb-0") {
 	Gui, %GuiName%: Destroy
-	If (Arr.Length()&&Arr[1].Length()) {
-		for index, obj in Arr {
-			if (A_Index = 1) {
-				for k, v in obj {
-					Columns .= "|" k 
-					cnt++
+	dim := DllCall("oleaut32\SafeArrayGetDim", "ptr", ComObjValue(arr))
+	If !dim {
+		If (Arr.Length()&&Arr[1].Length()) {
+			for index, obj in Arr {
+				if (A_Index = 1) {
+					for k, v in obj {
+						Columns .= "|" k 
+						cnt++
+					}
+					Gui, %GuiName%: font,s10, %font%
+					Gui, %GuiName%: Margin, 10, 10
+					Gui, %GuiName%: Add, ListView, R%LineNum%, % Columns
 				}
-				Gui, %GuiName%: font,s10, %font%
-				Gui, %GuiName%: Margin, 10, 10
-				Gui, %GuiName%: Add, ListView, R%LineNum%, % Columns
+				RowNum := A_Index
+				Gui, %GuiName%: default
+				Gui, %GuiName%: +AlwaysOnTop
+				LV_Add("","Row" A_Index), LV_ModifyCol()
+				for k, v in obj {
+					LV_GetText(Header, 0, A_Index)
+					if (k <> Header) {
+						FoundHeader := False
+						loop % LV_GetCount("Column") {
+							LV_GetText(Header, 0, A_Index)
+							if (k <> Header)
+								continue
+							else {
+								FoundHeader := A_Index
+								break
+							}
+						}
+						if !(FoundHeader) {
+							LV_InsertCol( cnt + 1, "", k), LV_ModifyCol()
+							cnt++
+							ColNum := "Col" cnt
+						} else
+							ColNum := "Col" FoundHeader
+					} else
+						ColNum := "Col" A_Index
+					LV_Modify(RowNum, ColNum, (IsObject(v) ? "Object()" : v))
+				}
 			}
-			RowNum := A_Index
+			loop % LV_GetCount("Column")
+				LV_ModifyCol(A_Index, "AutoHdr")
+			Gui, %GuiName%: Show,%Option%, % "共" Arr.Count() "行"
+		}else If (Arr.Count()>0&&!Arr[1].Length()){
 			Gui, %GuiName%: default
 			Gui, %GuiName%: +AlwaysOnTop
-			LV_Add("","Row" A_Index), LV_ModifyCol()
-			for k, v in obj {
-				LV_GetText(Header, 0, A_Index)
-				if (k <> Header) {
-					FoundHeader := False
-					loop % LV_GetCount("Column") {
-						LV_GetText(Header, 0, A_Index)
-						if (k <> Header)
-							continue
-						else {
-							FoundHeader := A_Index
-							break
-						}
-					}
-					if !(FoundHeader) {
-						LV_InsertCol( cnt + 1, "", k), LV_ModifyCol()
-						cnt++
-						ColNum := "Col" cnt
-					} else
-						ColNum := "Col" FoundHeader
-				} else
-					ColNum := "Col" A_Index
-				LV_Modify(RowNum, ColNum, (IsObject(v) ? "Object()" : v))
+			Gui, %GuiName%: font,s12, %font%
+			Gui, %GuiName%: Margin, 5, 5
+			Gui, %GuiName%:Add, TreeView, R%LineNum%
+			Count_=0
+			for section, element in arr
+			{
+				Count_++
+				TVP%Count_% := TV_Add(element.Length()||element.Count()? section:section "：" element)
+				for key, value in element
+				{
+					TVP%Count_%C%A_Index% := TV_Add(key "： " value , TVP%Count_%), TV_Modify(TVP%Count_%, "Expand")
+				}
 			}
+			TV_Modify(TVP1, "Select")
+			Gui, %GuiName%: Show,%Option%, % "「 Object对象显示 」"
 		}
-		loop % LV_GetCount("Column")
-			LV_ModifyCol(A_Index, "AutoHdr")
-		Gui, %GuiName%: Show,%Option%, % "共" Arr.Count() "行"
-	}else If (Arr.Count()>0&&!Arr[1].Length()){
+	}else{
 		Gui, %GuiName%: default
 		Gui, %GuiName%: +AlwaysOnTop
 		Gui, %GuiName%: font,s12, %font%
 		Gui, %GuiName%: Margin, 5, 5
 		Gui, %GuiName%:Add, TreeView, R%LineNum%
-		Count_=0
-		for section, element in arr
-		{
-			Count_++
-			TVP%Count_% := TV_Add(element.Length()||element.Count()? section:section "：" element)
-			for key, value in element
+		while A_Index<=dim {
+			Index:=A_index
+			TVP%Index% := TV_Add("第" Index "列")
+			loop,% Arr.MaxIndex(Index)
 			{
-				TVP%Count_%C%A_Index% := TV_Add(key "： " value , TVP%Count_%), TV_Modify(TVP%Count_%, "Expand")
+				TVP%Index%C%A_index% := TV_Add(arr[A_index,index], TVP%Index%)   ;, TV_Modify(TVP%Index%, "Expand")
 			}
 		}
 		TV_Modify(TVP1, "Select")
@@ -541,7 +560,6 @@ PrintObjects(Arr, Option := "AutoSize",LineNum:=15, GuiName := "PrintObjects", f
 	SendMessage, WM_SETICON:=0x80, ICON_SMALL2:=0, hIcon,, ahk_id %hWnd%
 	SendMessage, WM_SETICON:=0x80, ICON_BIG:=1   , hIcon,, ahk_id %hWnd%
 }
-
 
 DateAdd(time)
 {
