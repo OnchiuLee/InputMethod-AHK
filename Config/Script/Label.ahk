@@ -966,7 +966,7 @@ Return
 
 diyColor:
 	Gosub DestroyGui
-	Gui, diy: +hwndDIYTheme +AlwaysOnTop +Owner   ; -DPIScale
+	Gui, diy: +hwndDIYTheme +AlwaysOnTop +Owner98   ; -DPIScale
 	Gui,diy:Font, s10 Bold, %font_%
 	Gui diy:Add, GroupBox, y+15 w385 h250, 配色项
 	Gui,diy:Font
@@ -1485,7 +1485,7 @@ Return
 WinMode:
 	Gosub DestroyGui
 	Gui IM:Default
-	Gui IM:+LastFound +AlwaysOnTop +Owner
+	Gui IM:+LastFound +AlwaysOnTop +Owner98
 	Gui, IM:Add, Button, y+10 vDTxck gDTxck,删除
 	GuiControl,IM:Disable,DTxck
 	Gui, IM:Add, Button, x+10 vAddProcess gAddProcess,添加
@@ -1950,7 +1950,7 @@ Key_:
 	s6:=[ ["Ctrl",w2],["Win",w2],["Alt",w2],["",w3-w2*7-2*7],["Alt",w2],["Win",w2],["App",w2],["Ctrl",w2],["←",w2,10],["↓",w2],["→",w2] ]
 
 	Gui, Key: Destroy
-	Gui, Key: +AlwaysOnTop +Owner +ToolWindow +E0x08000000
+	Gui, Key: +AlwaysOnTop +Owner98 +ToolWindow +E0x08000000
 	Gui, Key: Font, s9, Verdana
 	Gui, Key: Margin, 10, 10
 	Gui, Key: Color, ffffff
@@ -2229,7 +2229,7 @@ Return
 themelists:
 	Gosub DestroyGui
 	Gui, themes:Default
-	Gui, themes: +AlwaysOnTop +Owner  ;+ToolWindow -DPIScale
+	Gui, themes: +AlwaysOnTop +Owner98  ;+ToolWindow -DPIScale
 	Gui, themes:Add, ListView, r15 w425 Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 Checked -Multi 0x8 LV0x40 -LV0x10 gMyTheme vMyTheme hwndThemeLV, 主题名称|预览图|文件路径
 	themelist:=""
 	Loop Files, config\Skins\*.json
