@@ -535,7 +535,7 @@ srf_select(list_num){
 	local selectvalue, Result, Index, yhnum, tt, Match, lastvalue
 	If (list_num>ListNum)||(list_num=0)
 		Return
-	selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,1],CharsCount:=CharsCount+strlen(selectvalue)   ; ClipSaved := ClipboardAll
+	selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,1]   ; ClipSaved := ClipboardAll
 	if selectvalue~="\#\〔"
 	{
 		Gosub % RegExReplace(selectvalue,"\#\〔.+","")

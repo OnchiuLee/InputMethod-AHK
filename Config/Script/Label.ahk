@@ -508,7 +508,6 @@ return
 OnReload:
 	if Logo_Switch ~="i)on"
 		Gosub Write_Pos
-	;Json_ObjToFile({Time:SubStr(A_Now,1,8),Num:CharsCount},A_Temp "\User.json","UTF-8")
 	reload
 return
 
@@ -541,7 +540,6 @@ return
 OnExit:
 	DB.CloseDB()
 	;FileDelete, %A_ScriptDir%\Config\Script\wubi98_ci.json
-	;Json_ObjToFile({Time:SubStr(A_Now,1,8),Num:CharsCount},A_Temp "\User.json","UTF-8")
 	;Gosub Backup_Conf
 	if Logo_Switch ~="i)on"
 		Gosub Write_Pos

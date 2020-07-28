@@ -2954,3 +2954,39 @@ ProcessIsElevated(vPID)
 	DllCall("kernel32\CloseHandle", "Ptr",hProc)
 	return vRet ? vIsElevated : -1
 }
+
+RegistryFile(flag:=""){
+	If (flag<>"AutohotkeyScript") {
+		localPath:=RegExreplace(A_ahkpath,"\\","\\")
+		Regtext =
+		(
+			Windows Registry Editor Version 5.00
+			`n`[-HKEY_CLASSES_ROOT`\.ahk`]
+			`[-HKEY_CLASSES_ROOT`\AhkScript`]
+			`~
+			`[HKEY_CLASSES_ROOT`\.ahk`]
+			`@`=`"AhkScript`"
+			`n`[HKEY_CLASSES_ROOT`\AhkScript`]
+			`@`=`"AhkScript`"
+			`n`[HKEY_CLASSES_ROOT`\AhkScript`\DefaultIcon`]
+			`@`=`"`@`%SystemRoot`%`\`\system32`\`\shell32.dll,72`"
+			`n`[HKEY_CLASSES_ROOT`\AhkScript`\Shell`]
+			`@`=`"Open`"
+			`n`[HKEY_CLASSES_ROOT`\AhkScript`\Shell`\Edit`]
+			`@`=`"编辑脚本`"
+			`n`[HKEY_CLASSES_ROOT`\AhkScript`\Shell`\Edit`\Command`]
+			`@`=`"notepad.exe `%1`"
+			`n`[HKEY_CLASSES_ROOT`\AhkScript`\Shell`\Open`]
+			`@`=`"运行脚本`"
+			`n`[HKEY_CLASSES_ROOT`\AhkScript`\Shell`\Open`\Command`]
+			`@=`"`\`"%localPath%`\`" `\`"`%1`\`" `%`*`"
+			`n`[HKEY_CLASSES_ROOT`\AhkScript`\Shell`\RunAs`]
+			`"HasLUAShield`"`=`"`"
+			`n`[HKEY_CLASSES_ROOT`\AhkScript`\Shell`\RunAs`\Command`]
+			`@`=`"`\`"%localPath%`\`" `\`"`%1`\`" `%`*`"
+		)
+		FileDelete,ahk关联启动.Reg
+		Regtext:=RegExreplace(Regtext, "\t")
+		FileAppend ,%Regtext%,ahk关联启动.Reg,CP936
+	}
+}
