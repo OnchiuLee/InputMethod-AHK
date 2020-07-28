@@ -15,14 +15,18 @@
 #Persistent
 #WinActivateForce
 #Include %A_ScriptDir%
+
 ;;{{{{{启动文件位数判断
+ProcessName :=RegExReplace(A_AhkPath,".+\\") 
 Loop, Files, main\*.exe
 {
 	If (InStr( GetFileInfo(A_LoopFileLongPath), 64)&&InStr( GetFileInfo(A_AhkPath), 32)&&A_Is64bitOS) {
 		Run *RunAs "%A_LoopFileLongPath%" /restart "%A_ScriptFullPath%"
+		runwait, %ComSpec% /c taskkill /f /IM %ProcessName%, , Hide
 		break
 	}
 }
+
 ;}}}}}
 
 if FileExist(A_ScriptDir "\Config\Theme_Color\")
@@ -197,10 +201,17 @@ If (UIAccess&&CNID=CpuID){             ;FileExist(RegExReplace(A_AhkPath,RegExRe
 }else If (UIAccess&&not RegExReplace(A_AhkPath,".+\\")~="i)\_UIA"){
 	UIAccess:=WubiIni.Settings["UIAccess"]:=0,CNID:=WubiIni.Settings["CNID"]:=CpuID, WubiIni.Save()
 }
+
+RegRead, _keyName, HKEY_CLASSES_ROOT\.ahk
+RegistryFile(_keyName)   ;生成注册表关联启动
+
 Gosub TRAY_Menu
 if FileExist(A_ScriptDir "\*.ico") {
 	Loop,Files,*.ico
-		IconName_:=A_LoopFileLongPath, break
+	{
+		IconName_:=A_LoopFileLongPath   ;获取主目录第一个ico图标名称作为托盘图标
+		break
+	}
 	Menu, Tray, Icon, %IconName_%
 }else
 	Menu, Tray, Icon, config\wubi98.icl,30
@@ -285,7 +296,7 @@ TransGui()
 global recent:=Carets:={}
 global code_status:=localpos:=srfCounts:=select_pos:=1
 global valueindex:=Cut_Mode?2:1
-global waitnum:=select_sym:=sym_qmarks:=PosLimit:=PosIndex:=InitSetting:=CharsCount:=0
+global waitnum:=select_sym:=sym_qmarks:=PosLimit:=PosIndex:=InitSetting:=0
 Select_Code=gfdsahjklm;'space           ;字母选词
 global num__:=Result_Char:=Select_result :=selectallvalue:=""
 global select_arr:=select_value_arr:=srf_bianma:=add_Array:=add_Result:=Split_code:=[]
@@ -299,9 +310,6 @@ else{
 		if v.length()<1
 			Frequency_obj:={}
 }
-
-If (Json_FileToObj(A_Temp "\User.json")["Time"]=SubStr(A_Now,1,8))
-	CharsCount:= Json_FileToObj(A_Temp "\User.json")["Num"]
 
 ;中英标点符号映射
 srf_symblos:={"``":["``","·"], "~":["~","～"], "!":["`!","！"], "@":["@","@"], "#":["#","#"]
@@ -445,7 +453,7 @@ DllCall( "RegisterShellHookWindow", UInt,WinExist() )   ;WinActive()
 OnMessage( DllCall( "RegisterWindowMessage", Str,"SHELLHOOK" ), "ShellIMEMessage")
 ShellIMEMessage( wParam,lParam ) {
 	global srf_mode, EXEList_obj, Initial_Mode, WubiIni,StyleN,IStatus, Versions, program, IMEmode
-		, Startup_Name, Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, CharsCount, srf_all_input
+		, Startup_Name, Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, srf_all_input
 	If (wParam = 1 ){    ; wParam = 6
 		WinGet, WinEXE, ProcessName , ahk_id %lParam%
 		WinGetclass, WinClass, ahk_id %lParam%
@@ -494,12 +502,8 @@ ShellIMEMessage( wParam,lParam ) {
 			}
 		}
 		LastWinEXE:=WinEXE_, Eid:=WinExist()
-		program:="※ " Startup_Name " ※`n版本日期：" Versions "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "〖 " A_DDDD " 〗`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2)) "`n上屏统计：" CharsCount "字"
+		program:="※ " Startup_Name " ※`n版本日期：" Versions "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "〖 " A_DDDD " 〗`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2)) ""
 		Menu,Tray,Tip,%program%
-		If (Json_FileToObj(A_Temp "\User.json")["Time"]=SubStr(A_Now,1,8))
-			Json_ObjToFile({Time:SubStr(A_Now,1,8),Num:CharsCount},A_Temp "\User.json","UTF-8")
-		else
-			Json_ObjToFile({Time:SubStr(A_Now,1,8),Num:0},A_Temp "\User.json","UTF-8")
 	Return
 }
 ;}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
