@@ -2410,9 +2410,10 @@ Return
 sChoice3:
 	GuiControlGet, sChoice3,, sChoice3, text
 	if sChoice3~="横"
-		Textdirection:=WubiIni.Settings["Textdirection"]:="horizontal",WubiIni.save()
+		Textdirection:=WubiIni.TipStyle["Textdirection"]:="horizontal" ,WubiIni.save()
 	else
-		Textdirection:=WubiIni.Settings["Textdirection"]:="vertical",WubiIni.save()
+		Textdirection:=WubiIni.TipStyle["Textdirection"]:="vertical" ,WubiIni.save()
+	WubiIni.save()
 Return
 
 sChoice4:
