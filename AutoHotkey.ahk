@@ -62,6 +62,7 @@ DetectHiddenWindows, On
 DetectHiddenText, On
 WinGetPos,,,,Shell_Wnd ,ahk_class Shell_TrayWnd
 global y2 :=A_ScreenHeight-Shell_Wnd-40, CpuID:=ComInfo.GetCpuID_2()
+DllCall("gdi32\EnumFontFamilies","uint",DllCall("GetDC","uint",0),"uint",0,"uint",RegisterCallback("EnumFontFamilies"),"uint",a_FontList:="")
 font_:=ComInfo.GetDefaultFontName(), font_:=font_?font_:"Microsoft YaHei UI"
 /*
 WinGet, aPID, PID, A
@@ -74,9 +75,13 @@ if(!A_IsAdmin || ProcessIsElevated(aPID)<>1)
 ;;===============输入法名称（可修改）==================
 global Startup_Name :="五笔98版"   
 ;拆分字体名变量，拆分开启时用来过滤字体以完美显示拆分
-FontExtend:="98WB-U|98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_
-;;====================================================
+RegRead, FontVar, HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows NT\CurrentVersion\FontLink\SystemLink, 98WB-0
+if FontVar
+	FontExtend:="98WB-U|98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_
+else
+	FontExtend:="98WB-U|98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|"
 
+;;======================================================
 ;;{{{{{config.ini去重
 FileRead,content,config.ini
 New_Content:=""
@@ -215,6 +220,15 @@ if FileExist(A_ScriptDir "\*.ico") {
 	Menu, Tray, Icon, %IconName_%
 }else
 	Menu, Tray, Icon, config\wubi98.icl,30
+
+;;=======================字体注册=========================
+if not a_FontList~="98WB-0" and FileExist("Font\*.otf") {
+	Loop,Files,Font\*.otf
+		DllCall("GDI32.DLL\AddFontResource", str, A_LoopFileLongPath)
+	PostMessage, 0x1D,,,, ahk_id 0xFFFF
+	FontType:=WubiIni.TipStyle["FontType"]:="98WB-0", WubiIni.Save()
+}
+
 
 srf_mode :=IMEmode~="off"?0:1
 if !InitStatus {
