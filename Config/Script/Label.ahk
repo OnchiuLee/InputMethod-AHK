@@ -1138,7 +1138,7 @@ More_Setting:
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	;GuiControlGet, FontVar, Pos , FontType
-	Gui, 98:Add, Button, x+5 yp-3 cred gFontIN vFontIN,安装字体
+	;Gui, 98:Add, Button, x+5 yp-3 cred gFontIN vFontIN,安装字体
 	if !FileExist("Font\*.otf")
 		GuiControl, 98:Disable, FontIN
 	Gui, 98:Add, Text, x190 y+15 left vTextInfo8, 候选框偏移：
@@ -1402,19 +1402,13 @@ Return
 FontIN:
 	If FileExist("Font\*.otf") {
 		Traytip,,字体安装中。。。
-		FileCopy, Font\*.otf, %A_WinDir%\Fonts,1
+		Loop,Files,Font\*.otf
+			DllCall("GDI32.DLL\AddFontResource", str, A_LoopFileLongPath)
+		PostMessage, 0x1D,,,, ahk_id 0xFFFF
+		FontType:=WubiIni.TipStyle["FontType"]:="98WB-0", Cut_Mode:=WubiIni.Settings["Cut_Mode"] :="on", WubiIni.Save()
 		DllCall("gdi32\EnumFontFamilies","uint",DllCall("GetDC","uint",0),"uint",0,"uint",RegisterCallback("EnumFontFamilies"),"uint",a_FontList:="")
-		If a_FontList~="i)五笔拆字字根字体|98WB-3|98WB-ZG|98WB-0" {
-			Gui +OwnDialogs
-			Loop,Files,Font\*.Reg
-				RunWait,%A_LoopFileLongPath%
-			if CutFontName:=GetCutModeFont() {
-				Cut_Mode:=WubiIni.Settings["Cut_Mode"] :="on",FontType :=WubiIni.TipStyle["FontType"]:= CutFontName, WubiIni.save()
-				GuiControl,98:, FontType , |%a_FontList%
-				GuiControl, 98:ChooseString, FontType, %CutFontName%
-			}
-		}
-
+		GuiControl,98:, FontType , |%a_FontList%
+		GuiControl, 98:ChooseString, FontType, 98WB-0
 	}else{
 		Traytip,文件不存在！,,,3
 	}
@@ -3319,8 +3313,7 @@ Return
 ;字根拆分
 Cut_Mode:
 	Cut_Mode :=WubiIni.Settings["Cut_Mode"] :=Cut_Mode~="i)off"?"on":"off", WubiIni.save()
-	if (GetCutModeFont()&&not FontExtend~=FontType)
-		FontType :=WubiIni.TipStyle["FontType"]:= GetCutModeFont(), WubiIni.Save()
+	FontType :=WubiIni.TipStyle["FontType"]:="98WB-0", WubiIni.Save()
 	if srf_all_input
 		Gosub srf_tooltip_fanye
 return
