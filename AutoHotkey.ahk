@@ -28,12 +28,24 @@ Loop, Files, main\*.exe
 }
 
 ;}}}}}
-
-if FileExist(A_ScriptDir "\Config\Theme_Color\")
-	FileRemoveDir, %A_ScriptDir%\Config\Theme_Color , 1
-if FileExist(A_ScriptDir "\Config\*.ahk")
-	Loop Files, %A_ScriptDir%\Config\*.ahk
-		FileDelete, %A_LoopFileLongPath%
+If !FileExist(A_Temp "\InputMethodData")
+	FileCreateDir,%A_Temp%\InputMethodData
+If !FileExist(A_Temp "\InputMethodData\Config.ini") {
+	FileDelete,main\*_UIA.exe
+	FileDelete,*_UIA.exe
+}else{
+	FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
+	RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
+	tName:=tName?tName:"经典商务风格", ThemeObject:= Json_FileToObj("Config\Skins\" tName ".json")
+	Bg_Color :=SubStr(ThemeObject["color_scheme","BgColor"],5,2) SubStr(ThemeObject["color_scheme","BgColor"],3,2) SubStr(ThemeObject["color_scheme","BgColor"],1,2)
+	Border_Color:=SubStr(ThemeObject["color_scheme","BorderColor"],5,2) SubStr(ThemeObject["color_scheme","BorderColor"],3,2) SubStr(ThemeObject["color_scheme","BorderColor"],1,2)
+	FocusBack_Color:=SubStr(ThemeObject["color_scheme","FocusBackColor"],5,2) SubStr(ThemeObject["color_scheme","FocusBackColor"],3,2) SubStr(ThemeObject["color_scheme","FocusBackColor"],1,2)
+	FocusCode_Color:=SubStr(ThemeObject["color_scheme","FocusCodeColor"],5,2) SubStr(ThemeObject["color_scheme","FocusCodeColor"],3,2) SubStr(ThemeObject["color_scheme","FocusCodeColor"],1,2)
+	Focus_Color:=SubStr(ThemeObject["color_scheme","FocusColor"],5,2) SubStr(ThemeObject["color_scheme","FocusColor"],3,2) SubStr(ThemeObject["color_scheme","FocusColor"],1,2)
+	FontCode_Color:=SubStr(ThemeObject["color_scheme","FontCodeColor"],5,2) SubStr(ThemeObject["color_scheme","FontCodeColor"],3,2) SubStr(ThemeObject["color_scheme","FontCodeColor"],1,2)
+	Font_Color:=SubStr(ThemeObject["color_scheme","FontColor"],5,2) SubStr(ThemeObject["color_scheme","FontColor"],3,2) SubStr(ThemeObject["color_scheme","FontColor"],1,2)
+	Line_Color:=SubStr(ThemeObject["color_scheme","LineColor"],5,2) SubStr(ThemeObject["color_scheme","LineColor"],3,2) SubStr(ThemeObject["color_scheme","LineColor"],1,2)
+}
 
 #Include Config\Lib\Class_Gdip.ahk
 #Include Config\Lib\Class_EasyIni.ahk
@@ -83,13 +95,13 @@ else
 
 ;;======================================================
 ;;{{{{{config.ini去重
-FileRead,content,config.ini
+FileRead,content,%A_Temp%\InputMethodData\Config.ini
 New_Content:=""
 Loop,parse,content, `n ,`r
 	IfNotInString,New_Content,%A_LoopField%
 		New_Content.=A_LoopField "`r`n"
-FileDelete, config.ini
-FileAppend,%New_Content%,config.ini,utf-8
+FileDelete, %A_Temp%\InputMethodData\Config.ini
+FileAppend,%New_Content%,%A_Temp%\InputMethodData\Config.ini,utf-8
 New_Content:=""
 Loop Files, config\Skins\logoStyle\*.icl
 {
@@ -101,27 +113,26 @@ Loop Files, config\Skins\logoStyle\*.icl
 ;}}}}}
 
 ;{{{{{读取配置及配置检测
-global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni("config.ini")
+global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni(A_Temp "\InputMethodData\Config.ini")
 	srf_default_obj:={LogoColor:{LogoColor_cn:"008000",LogoColor_en:"00FFFF",LogoColor_caps:"0000ff"}
 		,Settings:{Startup:"off",CNID:CpuID,IStatus:1,CharFliter:0,Exit_switch:1,PromptChar:0
 				,Exit_hotkey:"^esc", symb_mode:2,sym_match:0,Frequency:0,Freq_Count:3
 				, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f"
-				, cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"200", Logo_Y:y2
+				, cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"10", Logo_Y:A_ScreenHeight/2
 				, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock", Suspend_switch:1
 				, Suspend_hotkey:"!z", tip_hotkey:"!q", rlk_switch:0, Logo_Switch:"on",Srf_Hotkey:"Shift"
 				, Select_Enter:"clean", Initial_Mode:"off", symb_send:"on", set_color:"on", Wubi_Schema:"ci"
 				,Cut_Mode:"off", limit_code:"on", Trad_Mode:"off", IMEmode:"on",InitStatus:0}
 		, TipStyle:{ThemeName:"经典商务风格", StyleN:StyleName,Logo_ExStyle:0,transparentX:180,LogoSize:36, FontType:font_
-				, FontSize:20, FontColor:"2C3D4F",FocusBackColor:"2C3D4F",FocusColor:"CA3936",FocusCodeColor:"DEDEDE"
-				,FocusRadius:5, FontStyle:"off", FontCodeColor:"2C3D4F",LineColor:"444444",BorderColor:"ECF0F1"
-				, Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"off", BgColor:"ECF0F1", ListNum:5,Gdip_Radius:5
+				, FontSize:20, FontColor:Font_Color,FocusBackColor:FocusBack_Color,FocusColor:Focus_Color,FocusCodeColor:FocusCode_Color
+				,FocusRadius:5, FontStyle:"off", FontCodeColor:FontCode_Color,LineColor:Line_Color,BorderColor:Border_Color
+				, Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"off", BgColor:Bg_Color, ListNum:5,Gdip_Radius:5
 				, Textdirection:"horizontal", Set_Range:3, Fix_Switch:"off",Fix_X:A_ScreenWidth/2,Fix_Y:10}  ;竖排--vertical
 		, CustomColors:{Color_Row1:"0x1C7399,0xEEEEEC,0x014E8B,0x444444,0x009FE8,0xDEF9FA,0xF8B62D,0x90FC0F", Color_Row2:"0x0078D7,0x0D1B0A,0xB9D497,0x00ADEF,0x1778BF,0xFDF6E3,0x002B36,0xDEDEDE"}
-		, Versions:{Version:A_YYYY A_MM A_DD "-1"}
-		, YSDllPath:{SQLDllPath_x86:"config\SQLite3_x86\SQLite3.dll", SQLDllPath_x64:"config\SQLite3_x64\SQLite3.dll"}}
+		, YSDllPath:{SQLDllPath_x86:RegExReplace(A_ScriptDir,"\\main") "\config\SQLite3_x86\SQLite3.dll", SQLDllPath_x64:RegExReplace(A_ScriptDir,"\\main") "\config\SQLite3_x64\SQLite3.dll"}}
 ;初始化默认配置
 if FileExist(A_ScriptDir "\Sync\Default.json"){
-	srf_default_value:=Json_FileToObj(A_ScriptDir "\Sync\Default.json")
+	srf_default_value:=Json_FileToObj(A_ScriptDir "\Sync\Default.json"), srf_default_value["Settings","CNID"]=CpuID
 	For Section, element In srf_default_obj
 	{
 		For key,value In element
@@ -158,7 +169,6 @@ config_tip:={LogoColor:{LogoColor_cn:"桌面色块中文状态颜色",LogoColor_
 			, ToolTipStyle:"候选框风格<on为tooltip样式/off为Gui候选样式/Gdip为Gdip候选样式>", Radius:"Gdip候选样式圆角开关<on/off>",Gdip_Radius:"Gdip候选框圆角大小", BgColor:"候选框背景色<16进制色值>"
 			, ListNum:"候选数量", Textdirection:"horizontal为横排/vertical为竖排", Set_Range:"ToolTip样式编码与候选词距离", Fix_Switch:"候选框固定开关",Fix_X:"候选框固定x坐标",Fix_Y:"候选框固定y坐标"}
 	, CustomColors:{Color_Row1:"配色对话框自定义颜色区域，第一排", Color_Row2:"配色对话框自定义颜色区域，第二排"}
-	, Versions:{Version:"版本日期"}
 	, YSDllPath:{SQLDllPath_x86:"SQlite数据库dll 32位路径", SQLDllPath_x64:"SQlite数据库dll 64位路径"}}
 ;默认配置检测
 For Section, element In srf_default_value
@@ -169,7 +179,7 @@ For Section, element In srf_default_value
 if !WubiIni.GetTopComments()
 	WubiIni.AddTopComment("程序运行时，配置文件直接修改无效！退出后修改才有效！！！")
 
-FileRead, ini_var, config.ini
+FileRead, ini_var, %A_Temp%\InputMethodData\Config.ini
 For Section, element In config_tip
 	For Comments, value In element
 		If !WubiIni.GetKeyComments(Section, Comments)
@@ -190,7 +200,7 @@ if FileExist(A_Startup "\" Startup_Name ".lnk"){
 	Startup :=WubiIni.Settings["Startup"]:=zq_~=Startup_Name?"on":"off"
 }
 
-versions :=WubiIni.Versions["Version"]:=SubStr(A_Now,1,8) "-1"
+versions :="2020090308"
 
 if not Srf_Hotkey ~="i)Ctrl|Shift|Alt|LWin"||Srf_Hotkey ~="\&$"
 	Srf_Hotkey:=WubiIni.Settings["Srf_Hotkey"]:="Shift"
@@ -221,23 +231,20 @@ if FileExist(A_ScriptDir "\*.ico") {
 }else
 	Menu, Tray, Icon, config\wubi98.icl,30
 
-;;=======================字体注册=========================
-if not a_FontList~="98WB-0" and FileExist("Font\*.otf") {
-	Loop,Files,Font\*.otf
-		DllCall("GDI32.DLL\AddFontResource", str, A_LoopFileLongPath)
-	PostMessage, 0x1D,,,, ahk_id 0xFFFF
-	FontType:=WubiIni.TipStyle["FontType"]:="98WB-0", WubiIni.Save()
-}
-
-
 srf_mode :=IMEmode~="off"?0:1
 if !InitStatus {
-	Run, iexplore.exe "98wb.ys168.com/",, UseErrorLevel
-	Run, config\ReadMe.png,, UseErrorLevel
+	Run, rundll32.exe "%A_ProgramFiles%\Windows Photo Viewer\PhotoViewer.dll"`, ImageView_Fullscreen %A_ScriptDir%\config\ReadMe.png,, UseErrorLevel
 	if (ErrorLevel = "ERROR") {
 		Traytip,, 未找到默认的图片查看器！,,3
 	}
+	Run, iexplore.exe "98wb.ys168.com/",, UseErrorLevel
 	InitStatus:=WubiIni.Settings["InitStatus"]:=1,WubiIni.Save()
+	;;=======================字体注册=========================
+	if not a_FontList~="98WB-0" and FileExist("Font\*.otf") {
+		Loop,Files,Font\*.otf
+			AddFontResource(A_LoopFileLongPath)
+		FontType:=WubiIni.TipStyle["FontType"]:="98WB-0", WubiIni.Save()
+	}
 }
 if (ToolTipStyle ~="i)gdip"&&A_OSVersion ~="i)WIN_XP") {
 	;Traytip,,你的系统不支持当前Gdip候选框样式,请切换!,,2
@@ -299,9 +306,7 @@ If FileExist("Config\GB*.txt") {
 }
 ;}}}}}
 
-TransGui("正在整理词库，请等待片刻。。。", A_ScreenWidth/4 , 50 , "s28","bold","cred")
-CheckDB(DB,"zi"), CheckDB(DB,"chaoji"), CheckDB(DB,"ci")
-TransGui()
+CheckDB(DB,"zi"), CheckDB(DB,"ci"), CheckDB(DB,"chaoji")
 ;SwitchToEngIME()
 
 
@@ -353,7 +358,7 @@ WM_LBUTTONDOWN(){
 WM_RBUTTONDOWN(){
 	global Wubi_Schema, ToolTipStyle, FocusStyle, PosIndex, srf_for_select_Array, Trad_Mode, Prompt_Word, srf_all_input, ListNum, TPosObj, waitnum, Logo_X, Logo_Y
 	PosIndex:=0
-	If (A_Gui="logo"){
+	If (A_Gui="logo"||A_Gui="SrfTip"){
 		Menu, TRAY, Show, x%Logo_X%, y%Logo_Y%
 	}
 	if (A_Gui="TSF"&&Wubi_Schema~="i)ci"&&ToolTipStyle~="i)Gdip"&&FocusStyle&&srf_all_input~="^[a-y]+"&&Prompt_Word~="i)off"&&Trad_Mode~="i)off"){
@@ -425,7 +430,7 @@ WM_MOUSEMOVE()
 	Tip_timer:
 		;aero_link:="C:\Windows\Cursors\aero_link.cur" ;小手
 		;aero_arrow_l:="C:\Windows\Cursors\aero_arrow_l.cur" ;箭头
-		if (A_GuiControl~="i)nextpage|uppage|MyDB|Lastpage|Toppage|Pics2|Pics3|Pics4"){  ;&&FileExist(aero_link)
+		if (A_GuiControl~="i)nextpage|uppage|MyDB|Lastpage|Toppage|Pics2|Pics3|Pics4|MoveGui"){  ;&&FileExist(aero_link)
 			;CursorHandle := DllCall( "LoadCursorFromFile", Str,aero_link )
 			;DllCall( "SetSystemCursor", Uint,CursorHandle, Int,32512 )
 			SetSystemCursor( "IDC_HAND" )
@@ -466,7 +471,7 @@ Gui +LastFound
 DllCall( "RegisterShellHookWindow", UInt,WinExist() )   ;WinActive()
 OnMessage( DllCall( "RegisterWindowMessage", Str,"SHELLHOOK" ), "ShellIMEMessage")
 ShellIMEMessage( wParam,lParam ) {
-	global srf_mode, EXEList_obj, Initial_Mode, WubiIni,StyleN,IStatus, Versions, program, IMEmode
+	global srf_mode, EXEList_obj, Initial_Mode, WubiIni,StyleN,IStatus, program, IMEmode
 		, Startup_Name, Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, srf_all_input
 	If (wParam = 1 ){    ; wParam = 6
 		WinGet, WinEXE, ProcessName , ahk_id %lParam%
@@ -516,7 +521,7 @@ ShellIMEMessage( wParam,lParam ) {
 			}
 		}
 		LastWinEXE:=WinEXE_, Eid:=WinExist()
-		program:="※ " Startup_Name " ※`n版本日期：" Versions "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "〖 " A_DDDD " 〗`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2)) ""
+		program:="※ " Startup_Name " ※`n◆ 当前方案：" (Wubi_Schema~="i)ci"?"【98五笔•含词】":Wubi_Schema~="i)zi"?"【98五笔•单字】":Wubi_Schema~="i)zg"?"【98五笔•字根】":"【98五笔•超集】") "`n◆ 农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "〖 " A_DDDD " 〗`n◆ 农历时辰：" Time_GetShichen(SubStr( A_Now,9,2)) ""
 		Menu,Tray,Tip,%program%
 	Return
 }
