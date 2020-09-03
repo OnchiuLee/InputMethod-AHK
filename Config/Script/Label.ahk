@@ -347,8 +347,33 @@ Return
 
 ;logo双击操作设定
 TipMore:
-MoveGui:
 	if (A_GuiEvent = "DoubleClick")
+	{
+		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:=Wubi_Schema~="ci"?"zi":(Wubi_Schema~="zi"?"chaoji":(Wubi_Schema~="chaoji"?"zg":"ci")), WubiIni.save()
+		sicon_:=Wubi_Schema~="i)ci"?11:(Wubi_Schema~="i)zi"?13:Wubi_Schema~="i)chaoji"?12:14)
+		GuiControl,logo:, MoveGui,*Icon%sicon_% config\Skins\logoStyle\%StyleN%.icl
+		if Wubi_Schema~="ci" {
+			Gosub Enable_Tray
+			Menu, Tray, Enable, 批量造词
+			GuiControl, 98:Disable, SBA23
+		}else if Wubi_Schema~="zi"{
+			Gosub Disable_Tray
+			GuiControl, 98:Enable, SBA23
+			Menu, Tray, Disable, 批量造词
+		}else if Wubi_Schema~="chaoji" {
+			Gosub Enable_Tray
+			GuiControl, 98:Disable, SBA23
+			Menu, Tray, Disable, 批量造词
+		}else if Wubi_Schema~="zg"{
+			Gosub Disable_Tray
+			GuiControl, 98:Disable, SBA23
+			Menu, Tray, Disable, 批量造词
+		}
+	}
+Return
+
+MoveGui:
+	if (A_GuiEvent = "Normal")
 	{
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:=Wubi_Schema~="ci"?"zi":(Wubi_Schema~="zi"?"chaoji":(Wubi_Schema~="chaoji"?"zg":"ci")), WubiIni.save()
 		sicon_:=Wubi_Schema~="i)ci"?11:(Wubi_Schema~="i)zi"?13:Wubi_Schema~="i)chaoji"?12:14)
@@ -407,7 +432,7 @@ TRAY_Menu:
 	global Wubi_Schema
 	Menu, TRAY, NoStandard
 	Menu, TRAY, DeleteAll
-	program:= "※ " Startup_Name " ※`n版本日期：" Versions "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
+	program:= "※ " Startup_Name " ※" "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
 	Menu, Tray, Add, 使用帮助,OnHelp
 	Menu, TRAY, Icon, 使用帮助, config\wubi98.icl, 3
 	Menu, Tray, Add
@@ -439,11 +464,14 @@ TRAY_Menu:
 	Menu, Tray, Add, 启用状态	√,OnSuspend
 	Menu, TRAY, Icon, 启用状态	√, config\wubi98.icl, 18
 	Menu, Tray, Add
-	Menu, Tray, Add, 重载脚本,OnReload
-	Menu, TRAY, Icon, 重载脚本, config\wubi98.icl, 5
+	Menu, Tray, Add, 更新,OnUpdate
+	Menu, TRAY, Icon, 更新, config\wubi98.icl, 36
 	Menu, Tray, Add
-	Menu, Tray, Add, 退出程序,OnExit
-	Menu, TRAY, Icon, 退出程序, config\wubi98.icl, 7
+	Menu, Tray, Add, 重载,OnReload
+	Menu, TRAY, Icon, 重载, config\wubi98.icl, 5
+	Menu, Tray, Add
+	Menu, Tray, Add, 退出,OnExit
+	Menu, TRAY, Icon, 退出, config\wubi98.icl, 7
 	Menu, Tray, Default,更多设置
 	Menu, Tray, Color, FFFFFF
 	;Menu, Tray, Click, 1
@@ -504,6 +532,104 @@ OnSuspend:
 	}
 return
 
+GetVersion(URL,Charset="",Timeout=-1)
+{
+	ComObjError(0)
+	WebRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+	WebRequest.Open("GET", URL, true)
+	WebRequest.Send()
+	WebRequest.WaitForResponse(Timeout)
+	if (Charset=""){
+		RegExMatch(WebRequest.ResponseText(), "20[2-3][0-5][0-9]{6}", UpdateVersion)
+		return,UpdateVersion
+	}else{
+		ADO:=ComObjCreate("adodb.stream"), ADO.Type:=1, ADO.Mode:=3
+		ADO.Open(), ADO.Write(WebRequest.ResponseBody())
+		ADO.Position:=0, ADO.Type:=2, ADO.Charset:=Charset
+		RegExMatch(WebRequest.ResponseText(), "20[2-3][0-5][0-9]{6}", UpdateVersion)
+		return,UpdateVersion
+	}
+}
+
+UrlDownloadToFile(URL, FilePath:="",Timeout=-1){   ;Timeout 超时限制设置 单位为秒 不超时处理为-1 
+	If (FilePath="")
+		FilePath:=Url2Decode(RegExReplace(URL,".+\/"))
+	ComObjError(1)
+	If RegExMatch(LTrim(FilePath, "\"), "(.*\\)?([^\\]+)$", FilePath){
+		Progress,B2 M ZH-1 ZW-1 FS12 WS600, %FilePath%-从GitHub下载中...
+		OnMessage(0x201, "MoveProgress")
+		If (FilePath1&&!FileExist(FilePath1)){
+			FileCreateDir, %FilePath1%
+			If ErrorLevel {
+				Progress, Off
+				Return 0
+			}
+		}
+		WebRequest:=ComObjCreate("WinHttp.WinHttpRequest.5.1")
+		WebRequest.Open("GET", URL, 1)
+		Try {
+			WebRequest.Send()
+			WebRequest.WaitForResponse(Timeout)
+		} Catch {
+			Progress, Off
+			Run, "https://github.com/OnchiuLee/AHK-Input-method",, UseErrorLevel
+			if (ErrorLevel = "ERROR") {
+				Traytip,, 您的电脑未设定默认浏览器！,,3
+			}
+			TrayTip,,下载超时！,,1
+			Return 0
+		}
+		If !WebRequest.ResponseBody() {
+			Progress, Off
+			Traytip,,下载失败！,,3
+			Return 0
+		}
+		ADO:=ComObjCreate("adodb.stream"), ADO.Type:=1, ADO.Mode:=3, ADO.Open()
+		Try ADO.Write(WebRequest.ResponseBody())
+		Try ADO.SaveToFile(A_Desktop "\" FilePath,2)
+		ADO.Close(), WebRequest:=ADO:=""
+		Progress, Off
+		TrayTip,,下载成功，！,,1
+		Return 1
+	} Else{
+		Progress, Off
+		Traytip,,下载失败！,,3
+		Return 0
+	}
+}
+
+MoveProgress() {
+	PostMessage, 0xA1, 2 
+}
+
+Url2Decode(Str)
+{
+	Static doc := ComObjCreate("HTMLfile")
+	Try
+	{
+		doc.write("<body><script>document.body.innerText = decodeURIComponent(""" . Str . """);</script>")
+		Return, doc.body.innerText, doc.body.innerText := ""
+	}
+}
+
+OnUpdate:
+	Sourceurl:="https://github.com/OnchiuLee/AHK-Input-method/blob/master/Version.txt"
+	;;FileGetTime, _VersionVar, % GetModuleExeName(DllCall("GetCurrentProcessId"))
+	If (!DllCall("Wininet.dll\InternetCheckConnection", "Str", Sourceurl, "UInt", 0x1, "UInt", 0x0, "Int"))
+		MsgBox, 16, 检查更新, 网络异常！, 5
+	else{
+		_sj:=GetVersion(Sourceurl)
+		If (_sj>SubStr(Versions,1,10)&&_sj) {
+			MsgBox, 262452, 更新提示, 发现新版本，是否下载至电脑桌面？`n下载过程中，请不要操作！！！
+			IfMsgBox, Yes
+				UrlDownloadToFile("https://github.com/OnchiuLee/AHK-Input-method/archive/master.zip", "柚子98五笔版-" _sj ".zip",900)
+		}else If (_sj<=SubStr(Versions,1,10)&&_sj)
+			Traytip,,已是最新版！,,1
+		else
+			Traytip,,检查失败！,,3
+	}
+Return
+
 ;重载操作
 OnReload:
 	if Logo_Switch ~="i)on"
@@ -523,7 +649,7 @@ Return
 
 ;帮助
 OnHelp:
-	Run  config\ReadMe.png
+	Run, rundll32.exe "%A_ProgramFiles%\Windows Photo Viewer\PhotoViewer.dll"`, ImageView_Fullscreen %A_ScriptDir%\config\ReadMe.png,, UseErrorLevel
 return
 
 ;设置面板
@@ -1403,8 +1529,7 @@ FontIN:
 	If FileExist("Font\*.otf") {
 		Traytip,,字体安装中。。。
 		Loop,Files,Font\*.otf
-			DllCall("GDI32.DLL\AddFontResource", str, A_LoopFileLongPath)
-		PostMessage, 0x1D,,,, ahk_id 0xFFFF
+			AddFontResource(A_LoopFileLongPath)
 		FontType:=WubiIni.TipStyle["FontType"]:="98WB-0", Cut_Mode:=WubiIni.Settings["Cut_Mode"] :="on", WubiIni.Save()
 		DllCall("gdi32\EnumFontFamilies","uint",DllCall("GetDC","uint",0),"uint",0,"uint",RegisterCallback("EnumFontFamilies"),"uint",a_FontList:="")
 		GuiControl,98:, FontType , |%a_FontList%
@@ -2269,6 +2394,7 @@ MyTheme:
 		if pos_name
 			select_theme:=pos_name, lineInfo:=A_EventInfo
 	}else if (A_GuiEvent = "DoubleClick"){
+		LV_GetText(themes_name, A_EventInfo,3)
 		Gosub SelectV3
 	}else if (A_GuiEvent = "Normal"){
 		loop, % LV_GetCount()+1
@@ -2352,7 +2478,8 @@ SelectV2:
 Return
 
 SelectV3:
-	Run,% A_ScriptDir "\config\Skins"
+	Run explorer.exe /select`, %themes_name%
+	WinMinimize, ahk_id %hwndgui98%
 Return
 
 BackLogo:
@@ -3115,11 +3242,11 @@ fonts_type:
 	GuiControlGet, fonts_type_add,, FontType, text
 	FontType :=WubiIni.TipStyle["FontType"]:= fonts_type_add
 	GuiControl, 98:ChooseString, FontType, %FontType%
-	if FontType ~="i)" FontExtend
+	if FontExtend ~="i)" FontType
 		GuiControl, 98:Enable, SBA2
 	else
 		GuiControl, 98:Disable, SBA2
-	if not FontType ~=FontExtend
+	if not FontExtend ~=FontType
 		WubiIni.Settings["Cut_Mode"] :="off"
 	WubiIni.Save()
 	Gui, houxuankuang:Destroy
@@ -3313,7 +3440,8 @@ Return
 ;字根拆分
 Cut_Mode:
 	Cut_Mode :=WubiIni.Settings["Cut_Mode"] :=Cut_Mode~="i)off"?"on":"off", WubiIni.save()
-	FontType :=WubiIni.TipStyle["FontType"]:="98WB-0", WubiIni.Save()
+	If (not FontExtend ~=FontType&&Cut_Mode ~="i)on")
+		FontType :=WubiIni.TipStyle["FontType"]:="98WB-0", WubiIni.Save()
 	if srf_all_input
 		Gosub srf_tooltip_fanye
 return
@@ -3550,6 +3678,9 @@ Write_DB:
 			MaBiao:=Transform_mb(MaBiao)
 		else if not MaBiao~="\t\d+"
 			MaBiao:=Transform_cp(MaBiao)
+		totalCount:=CountLines(MaBiaoFile), num:=Ceil(totalCount/100)
+		tip:=Wubi_Schema~="i)ci"?"【含词】":Wubi_Schema~="i)zi"?"【单字】":"【超集】"
+		Progress, M1 FM14 W350, 1/%totalCount%, %tip%词库写入中..., 1
 		Loop, Parse, MaBiao, `n, `r
 		{
 			count++
@@ -3568,6 +3699,10 @@ Write_DB:
 					else
 						Insert_ci .="('" tarr[1] "','" tarr[2] "')" ","
 				}
+			}
+			If (Mod(count, num)=0) {
+				tx :=Ceil(count/num)
+				Progress, %tx% , %count%/%totalCount%`n, %tip%词库写入中..., 已完成%tx%`%
 			}
 		}
 		if DB.Exec(SQL :="INSERT INTO " Wubi_Schema " VALUES " RegExReplace(Insert_ci,"\,$","") ";")>0
@@ -3588,6 +3723,7 @@ Write_DB:
 		}
 		ToolTip(1,"")
 	}
+	Progress,off
 	MaBiao:=Insert_ci:="",tarr:=[]
 return
 

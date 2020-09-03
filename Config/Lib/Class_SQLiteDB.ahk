@@ -522,13 +522,13 @@ Class SQLiteDB {
 		If (This.Base._RefCount = 0) {
 			SQLiteDLL := This.Base._SQLiteDLL
 			If !FileExist(SQLiteDLL)
-				If FileExist(A_ScriptDir . "\config.ini") {
+				If FileExist(A_Temp . "\InputMethodData\Config.ini") {
 					If (A_PtrSize=4)
-						IniRead, SQLiteDLL,%A_ScriptDir%\config.ini, YSDllPath, SQLDllPath_x86, %SQLiteDLL%
+						SQLiteDLL:=WubiIni["YSDllPath","SQLDllPath_x86"]
 					Else If (A_PtrSize=8)
-						IniRead, SQLiteDLL, %A_ScriptDir%\config.ini, YSDllPath, SQLDllPath_x64, %SQLiteDLL%
+						SQLiteDLL:=WubiIni["YSDllPath","SQLDllPath_x64"]
 					If !InStr(SQLiteDLL, ":\"){
-						SQLiteDLL := StrReplace(A_ScriptDir "\" SQLiteDLL, "\\", "\")
+						SQLiteDLL := StrReplace(RegExReplace(A_ScriptDir,"\\main") "\" SQLiteDLL, "\\", "\")
 					}
 					If !RegExMatch(SQLiteDLL, "i)\\SQLite3.dll$"){
 						MsgBox, 16, SQLiteDB Error, % "SQLite3.dll does not exist!"

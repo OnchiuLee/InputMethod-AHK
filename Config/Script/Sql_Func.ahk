@@ -915,14 +915,16 @@ CheckDB(DB,cikuName){
 		SQL:="select * from sqlite_master where name='" cikuName "' and sql like '%E_Key%';"
 	else
 		SQL:="select * from sqlite_master where name='" cikuName "' and sql like '%C_Key%';"
-	DB.GetTable(SQL,Result)
+	DB.GetTable(SQL,Result), count:=0
 	If !Result.rowCount {
 		if cikuName~="i)ci"
 			SQL:="ALTER TABLE " cikuName " ADD COLUMN E_Key TEXT;ALTER TABLE " cikuName " ADD COLUMN F_Key TEXT;"
 		else
 			SQL:="ALTER TABLE " cikuName " ADD COLUMN C_Key TEXT;ALTER TABLE " cikuName " ADD COLUMN D_Key TEXT;"
 		If DB.Exec(SQL)>0 {
-			DB.GetTable("select * from " cikuName ";",Results)
+			DB.GetTable("select * from " cikuName ";",Results), totalCount:=Results.RowCount, num:=Ceil(totalCount/100)
+			tip:=cikuName~="i)ci"?"【含词】":cikuName~="i)zi"?"【单字】":"【超集】"
+			Progress, M1 FM14 W350, 1/%totalCount%, %tip%词库整理中..., 1
 			For Section,element In Results.Rows
 			{
 				For key,value In element
@@ -934,12 +936,18 @@ CheckDB(DB,cikuName){
 							AlterChars:="('" value "','" Results.Rows[Section,2] "','" Results.Rows[Section,3] "','" split_wubizg(value) "','" get_en_code(value) "')" "," 
 					}
 				}
+				count++
 				AlterCharsAll.=AlterChars
+				If (Mod(count, num)=0) {
+					tx :=Ceil(count/num)
+					Progress, %tx% , %count%/%totalCount%`n, %tip%词库整理中..., 已完成%tx%`%
+				}
 			}
 			DB.Exec("delete from " cikuname ";")
 			if DB.Exec("INSERT INTO " cikuname " VALUES " RegExReplace(AlterCharsAll,"\,$") "")>0 {
-				Traytip,,导入完成！
+				Traytip,,%tip%词库整理完成！
 			}
+			Progress,off
 			AlterCharsAll:=""
 			Return 1
 		}

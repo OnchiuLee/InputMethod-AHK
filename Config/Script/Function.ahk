@@ -2810,6 +2810,89 @@ Char2Unicode(cnStr){
 	Return out
 }
 
+Char2Unicode_2(cnStr){
+	OldFormat := A_FormatInteger
+	SetFormat, Integer, Hex
+	Loop, Parse, cnStr
+		out .= "\u" . SubStr( Asc(A_LoopField), 3 )
+	SetFormat, Integer, %OldFormat%
+	Return out
+}
+
+;==================================================
+
+;note: a 'UTF-8 ini file' will need a comment as the first line
+;e.g. ';my comment'
+JEE_IniReadUtf8(vPath, vSection:="", vKey:="", vDefault:="")
+{
+	local vOutput
+	vSection := JEE_StrTextToUtf8Bytes(vSection)
+	vKey := JEE_StrTextToUtf8Bytes(vKey)
+	IniRead, vOutput, % vPath, % vSection, % vKey, % vDefault
+	if !ErrorLevel
+		return JEE_StrUtf8BytesToText(vOutput)
+}
+
+;==================================================
+
+JEE_IniWriteUtf8(vValue, vPath, vSection, vKey:="")
+{
+	vSection := JEE_StrTextToUtf8Bytes(vSection)
+	vKey := JEE_StrTextToUtf8Bytes(vKey)
+	vValue := JEE_StrTextToUtf8Bytes(vValue)
+	IniWrite, % vValue, % vPath, % vSection, % vKey
+	return !ErrorLevel
+}
+
+;==================================================
+
+JEE_IniDeleteUtf8(vPath, vSection, vKey:="")
+{
+	vSection := JEE_StrTextToUtf8Bytes(vSection)
+	vKey := JEE_StrTextToUtf8Bytes(vKey)
+	IniDelete, % vPath, % vSection, % vKey
+	return !ErrorLevel
+}
+
+;==================================================
+
+JEE_StrUtf8BytesToText(vUtf8)
+{
+	if A_IsUnicode
+	{
+		VarSetCapacity(vUtf8X, StrPut(vUtf8, "CP0"))
+		StrPut(vUtf8, &vUtf8X, "CP0")
+		return StrGet(&vUtf8X, "UTF-8")
+	}
+	else
+		return StrGet(&vUtf8, "UTF-8")
+}
+
+ConvertUtf8(string)
+{
+	var := "x"
+	; Ensure capacity.
+	len := StrPut(string, "UTF-8")    
+	VarSetCapacity( var, len)
+	; convert the string.
+	StrPut(string, &var, len, "UTF-8")
+	return StrGet(&var, len, "CP1252")        
+}
+
+StrPutVar(string, ByRef var, encoding)
+{
+	VarSetCapacity( var, StrPut(string, encoding) * ((encoding="utf-16"||encoding="cp1200") ? 2 : 1) )
+	return StrPut(string, &var, encoding)
+}
+;==================================================
+
+JEE_StrTextToUtf8Bytes(vText)
+{
+	VarSetCapacity(vUtf8, StrPut(vText, "UTF-8"))
+	StrPut(vText, &vUtf8, "UTF-8")
+	return StrGet(&vUtf8, "CP0")
+}
+
 ; Unicode编码转正常字符
 Unicode2Char(Unicode){
 	Loop, Parse, Unicode, u, \
@@ -2956,7 +3039,7 @@ ProcessIsElevated(vPID)
 }
 
 RegistryFile(flag:=""){
-	If (flag<>"AutohotkeyScript") {
+	;If (flag<>"AutohotkeyScript") {
 		localPath:=RegExreplace(A_ahkpath,"\\","\\")
 		Regtext =
 		(
@@ -2966,6 +3049,9 @@ RegistryFile(flag:=""){
 			`~
 			`[HKEY_CLASSES_ROOT`\.ahk`]
 			`@`=`"AhkScript`"
+			`n`[HKEY_CLASSES_ROOT`\.Ahk`\ShellNew`]
+			`"NullFile`"`=`"`"
+			`"FileName`"`=`"AutoHotkey脚本.ahk`"
 			`n`[HKEY_CLASSES_ROOT`\AhkScript`]
 			`@`=`"AhkScript`"
 			`n`[HKEY_CLASSES_ROOT`\AhkScript`\DefaultIcon`]
@@ -2985,8 +3071,43 @@ RegistryFile(flag:=""){
 			`n`[HKEY_CLASSES_ROOT`\AhkScript`\Shell`\RunAs`\Command`]
 			`@`=`"`\`"%localPath%`\`" `\`"`%1`\`" `%`*`"
 		)
-		FileDelete,ahk关联启动.Reg
+		FileDelete,Sync\ahk关联启动.Reg
 		Regtext:=RegExreplace(Regtext, "\t")
-		FileAppend ,%Regtext%,ahk关联启动.Reg,CP936
+		FileAppend ,%Regtext%,Sync\ahk关联启动.Reg,CP936
+	;}
+}
+
+;载入字体
+AddFontResource(FontPath){
+	If FileExist(FontPath){
+		DllCall("GDI32.DLL\AddFontResource", str, FontPath)
+		PostMessage, 0x1D,,,, ahk_id 0xFFFF
+		return 1
 	}
+}
+;移除字体
+RemoveFontResource(FontPath){
+	DllCall("GDI32.DLL\RemoveFontResource", Str, FontPath)
+	PostMessage, 0x1D,,,, ahk_id 0xFFFF
+}
+
+Encode(Str, Encoding, Separator = "")
+{
+	StrCap := StrPut(Str, Encoding)
+	VarSetCapacity(ObjStr, StrCap)
+	StrPut(Str, &ObjStr, Encoding)
+	Loop, % StrCap - 1
+	{
+		ObjCodes .= Separator . SubStr(NumGet(ObjStr, A_Index - 1, "UChar"), 3)
+	}
+	Return, ObjCodes
+}
+
+CountLines(File){ 
+
+	FileRead, Text, %file%
+	StringReplace, Text, Text, `n, `n, UseErrorLevel
+	Text:=""
+	Return ErrorLevel + 1
+
 }
