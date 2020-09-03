@@ -3508,11 +3508,12 @@ else
 	Gui, 29:Default              ;A_ScreenDPI/96
 	Gui, 29: +AlwaysOnTop +LastFound hwndEditPlus    ;+ToolWindow +OwnDialogs +MinSize260x250 -MaximizeBox +Resize 
 	Gui, 29:Font,cc24704
-	Gui,29:Add, text,w400,❶.输入格式：纯中文词条或自定义格式（编码=词条）。`n❷.添加方式：手动输入词条单击「添加」或输入分号自动添加。`n❸.批量添加方式：纯词条多行TXT文本或者单行单义TXT文本或多行「编码=词条」格式TXT文本拖曳至本窗口或桌面色块。`n❹.双击指定行进行删除操作，点击「保存」进行提交。
+	Gui,29:Add, text,w400,❶.输入格式：纯中文词条或自定义格式（编码=词条）。`n❷.添加方式：手动输入词条单击「添加」或输入分号自动添加。`n❸.批量添加方式：纯词条多行TXT文本或者单行单义TXT文本或多行「编码=词条」格式TXT文本拖曳至本窗口或桌面色块。`n❹.双击指定行进行删除操作，点击「保存」进行提交。`n❺.文件拖拽功能在部分系统可以会失效，请导入txt文本进行批量造词。
 	Gui, 29:Font
 	Gui,29:Add, ListBox, y+8 r15 w400 gSet_Value vSet_Value +Multi hwndCodeEdit  ;+Multi
-	Gui, 29: add, Edit, r1 y+10 w300 gEditBox2 vEditBox2 hwndCodeEdit2, 
-	Gui, 29: add, Button,x+10 w60 gaddChars , 添加
+	Gui, 29: add, Edit, r1 y+10 w280 gEditBox2 vEditBox2 hwndCodeEdit2, 
+	Gui, 29: add, Button,x+10 gaddChars , 添加
+	Gui, 29: add, Button,x+5 w60 gaddFiles vaddFiles , 词条导入
 	Gui, 29:font,
 	Gui, 29:font,s11 bold
 	Gui, 29:Add, Button,xm gSave vSave, 保存
@@ -3570,10 +3571,43 @@ addChars:
 	ControlFocus , Edit1, A
 Return
 
+addFiles:
+	Gui +OwnDialogs
+	FileSelectFile, SelectedFile, M3, %A_Desktop%, 选择你的纯词条文本文件, Documents (*.txt; *.yaml)
+	if SelectedFile {
+		FileArr:= StrSplit(SelectedFile,"`n"), OPCode_all:=OPCode_part:=OPCode:=ResultsAll:=""
+		Loop, % FileArr.Length() 
+		{
+			if A_Index>1
+			{
+				FileEncoding,UTF-8
+				FileRead, OPCode, %  FileArr[1] "\" FileArr[A_Index]
+				Loop, Parse, OPCode, `n, `r
+				{
+					if A_LoopField~="\t[a-z]+"{
+						RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"(?<=\t)[a-z]+",L_)
+						RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"^.+(?=\t[a-z])",R_)
+						if (StrLen(L_)>1&&StrLen(L_)<5)
+							OPCode_part :=L_ "=" R_ 
+					}else if A_LoopField~="^[a-z]+\="{
+						OPCode_part:=RegExReplace(A_LoopField,"^\s+|\s+$")
+					}else if not A_LoopField~="^[a-z0-9]+|\s+" {
+						OPCode_part:=get_en_code(A_LoopField) "=" A_LoopField
+					}
+					OPCode_all.=OPCode_part "|", OPCode_part:=""
+				}
+				ResultsAll.=OPCode_all "|", OPCode_all:=""
+			}
+		}
+		GuiControl,29:, Set_Value ,% ResultsAll
+	}
+Return
+
 29GuiDropFiles:
-	OPCode_all:=OPCode_part:=OPCode:=""
+	OPCode_all:=OPCode_part:=OPCode:=ResultsAll:=""
 	Loop, % (_FilesPath:= StrSplit(A_GuiEvent,"`n")).Length()
 	{
+		FileEncoding,UTF-8
 		FileRead, OPCode, % _FilesPath[A_Index]
 		Loop, Parse, OPCode, `n, `r
 		{
@@ -3589,8 +3623,9 @@ Return
 			}
 			OPCode_all.=OPCode_part "|", OPCode_part:=""
 		}
+		ResultsAll.=OPCode_all "|", OPCode_all:=""
 	}
-	GuiControl,29:, Set_Value ,% OPCode_all
+	GuiControl,29:, Set_Value ,% ResultsAll
 Return
 
 ;造词窗口关闭销毁
