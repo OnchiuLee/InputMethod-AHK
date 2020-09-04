@@ -33,19 +33,21 @@ If !FileExist(A_Temp "\InputMethodData")
 If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 	FileDelete,main\*_UIA.exe
 	FileDelete,*_UIA.exe
-}else{
-	FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
-	RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
-	tName:=tName?tName:"经典商务风格", ThemeObject:= Json_FileToObj("Config\Skins\" tName ".json")
-	Bg_Color :=SubStr(ThemeObject["color_scheme","BgColor"],5,2) SubStr(ThemeObject["color_scheme","BgColor"],3,2) SubStr(ThemeObject["color_scheme","BgColor"],1,2)
-	Border_Color:=SubStr(ThemeObject["color_scheme","BorderColor"],5,2) SubStr(ThemeObject["color_scheme","BorderColor"],3,2) SubStr(ThemeObject["color_scheme","BorderColor"],1,2)
-	FocusBack_Color:=SubStr(ThemeObject["color_scheme","FocusBackColor"],5,2) SubStr(ThemeObject["color_scheme","FocusBackColor"],3,2) SubStr(ThemeObject["color_scheme","FocusBackColor"],1,2)
-	FocusCode_Color:=SubStr(ThemeObject["color_scheme","FocusCodeColor"],5,2) SubStr(ThemeObject["color_scheme","FocusCodeColor"],3,2) SubStr(ThemeObject["color_scheme","FocusCodeColor"],1,2)
-	Focus_Color:=SubStr(ThemeObject["color_scheme","FocusColor"],5,2) SubStr(ThemeObject["color_scheme","FocusColor"],3,2) SubStr(ThemeObject["color_scheme","FocusColor"],1,2)
-	FontCode_Color:=SubStr(ThemeObject["color_scheme","FontCodeColor"],5,2) SubStr(ThemeObject["color_scheme","FontCodeColor"],3,2) SubStr(ThemeObject["color_scheme","FontCodeColor"],1,2)
-	Font_Color:=SubStr(ThemeObject["color_scheme","FontColor"],5,2) SubStr(ThemeObject["color_scheme","FontColor"],3,2) SubStr(ThemeObject["color_scheme","FontColor"],1,2)
-	Line_Color:=SubStr(ThemeObject["color_scheme","LineColor"],5,2) SubStr(ThemeObject["color_scheme","LineColor"],3,2) SubStr(ThemeObject["color_scheme","LineColor"],1,2)
 }
+
+;;{{{{{{{{{{{{{{{{主题配色获取
+FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
+RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
+tName:=tName?tName:"经典商务风格", ThemeObject:= Json_FileToObj("Config\Skins\" tName ".json")
+Bg_Color :=SubStr(ThemeObject["color_scheme","BgColor"],5,2) SubStr(ThemeObject["color_scheme","BgColor"],3,2) SubStr(ThemeObject["color_scheme","BgColor"],1,2)
+Border_Color:=SubStr(ThemeObject["color_scheme","BorderColor"],5,2) SubStr(ThemeObject["color_scheme","BorderColor"],3,2) SubStr(ThemeObject["color_scheme","BorderColor"],1,2)
+FocusBack_Color:=SubStr(ThemeObject["color_scheme","FocusBackColor"],5,2) SubStr(ThemeObject["color_scheme","FocusBackColor"],3,2) SubStr(ThemeObject["color_scheme","FocusBackColor"],1,2)
+FocusCode_Color:=SubStr(ThemeObject["color_scheme","FocusCodeColor"],5,2) SubStr(ThemeObject["color_scheme","FocusCodeColor"],3,2) SubStr(ThemeObject["color_scheme","FocusCodeColor"],1,2)
+Focus_Color:=SubStr(ThemeObject["color_scheme","FocusColor"],5,2) SubStr(ThemeObject["color_scheme","FocusColor"],3,2) SubStr(ThemeObject["color_scheme","FocusColor"],1,2)
+FontCode_Color:=SubStr(ThemeObject["color_scheme","FontCodeColor"],5,2) SubStr(ThemeObject["color_scheme","FontCodeColor"],3,2) SubStr(ThemeObject["color_scheme","FontCodeColor"],1,2)
+Font_Color:=SubStr(ThemeObject["color_scheme","FontColor"],5,2) SubStr(ThemeObject["color_scheme","FontColor"],3,2) SubStr(ThemeObject["color_scheme","FontColor"],1,2)
+Line_Color:=SubStr(ThemeObject["color_scheme","LineColor"],5,2) SubStr(ThemeObject["color_scheme","LineColor"],3,2) SubStr(ThemeObject["color_scheme","LineColor"],1,2)
+;;}}}}}}}}}}}}}}}
 
 #Include Config\Lib\Class_Gdip.ahk
 #Include Config\Lib\Class_EasyIni.ahk
