@@ -3249,11 +3249,11 @@ fonts_type:
 	GuiControlGet, fonts_type_add,, FontType, text
 	FontType :=WubiIni.TipStyle["FontType"]:= fonts_type_add
 	GuiControl, 98:ChooseString, FontType, %FontType%
-	if FontExtend ~="i)" FontType
+	if FontType ~="i)" FontExtend
 		GuiControl, 98:Enable, SBA2
 	else
 		GuiControl, 98:Disable, SBA2
-	if not FontExtend ~=FontType
+	if not FontType ~="i)" FontExtend
 		WubiIni.Settings["Cut_Mode"] :="off"
 	WubiIni.Save()
 	Gui, houxuankuang:Destroy
@@ -3447,7 +3447,7 @@ Return
 ;字根拆分
 Cut_Mode:
 	Cut_Mode :=WubiIni.Settings["Cut_Mode"] :=Cut_Mode~="i)off"?"on":"off", WubiIni.save()
-	If (not FontExtend ~=FontType&&Cut_Mode ~="i)on")
+	If (not FontType ~=FontExtend&&Cut_Mode ~="i)on")
 		FontType :=WubiIni.TipStyle["FontType"]:="98WB-0", WubiIni.Save()
 	if srf_all_input
 		Gosub srf_tooltip_fanye
