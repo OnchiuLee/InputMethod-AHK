@@ -36,9 +36,11 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 }
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
+DefaultThemeName:="经典商务风格"    ;默认的主题配色
+;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
-tName:=tName?tName:"经典商务风格", ThemeObject:= Json_FileToObj("Config\Skins\" tName ".json")
+tName:=tName?tName:DefaultThemeName, ThemeObject:= Json_FileToObj("Config\Skins\" tName ".json")
 Bg_Color :=SubStr(ThemeObject["color_scheme","BgColor"],5,2) SubStr(ThemeObject["color_scheme","BgColor"],3,2) SubStr(ThemeObject["color_scheme","BgColor"],1,2)
 Border_Color:=SubStr(ThemeObject["color_scheme","BorderColor"],5,2) SubStr(ThemeObject["color_scheme","BorderColor"],3,2) SubStr(ThemeObject["color_scheme","BorderColor"],1,2)
 FocusBack_Color:=SubStr(ThemeObject["color_scheme","FocusBackColor"],5,2) SubStr(ThemeObject["color_scheme","FocusBackColor"],3,2) SubStr(ThemeObject["color_scheme","FocusBackColor"],1,2)
@@ -93,7 +95,7 @@ RegRead, FontVar, HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows NT\C
 if FontVar
 	FontExtend:="98WB-U|98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_
 else
-	FontExtend:="98WB-U|98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|"
+	FontExtend:="98WB-U|98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0"
 
 ;;======================================================
 ;;{{{{{config.ini去重
@@ -124,8 +126,8 @@ global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni(A_Te
 				, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock", Suspend_switch:1
 				, Suspend_hotkey:"!z", tip_hotkey:"!q", rlk_switch:0, Logo_Switch:"on",Srf_Hotkey:"Shift"
 				, Select_Enter:"clean", Initial_Mode:"off", symb_send:"on", set_color:"on", Wubi_Schema:"ci"
-				,Cut_Mode:"off", limit_code:"on", Trad_Mode:"off", IMEmode:"on",InitStatus:0}
-		, TipStyle:{ThemeName:"经典商务风格", StyleN:StyleName,Logo_ExStyle:0,transparentX:180,LogoSize:36, FontType:font_
+				,Cut_Mode:"off", limit_code:"on", Trad_Mode:"off", IMEmode:"on",InitStatus:0,EN_Mode:0}
+		, TipStyle:{ThemeName:DefaultThemeName, StyleN:StyleName,Logo_ExStyle:0,transparentX:180,LogoSize:36, FontType:font_
 				, FontSize:20, FontColor:Font_Color,FocusBackColor:FocusBack_Color,FocusColor:Focus_Color,FocusCodeColor:FocusCode_Color
 				,FocusRadius:5, FontStyle:"off", FontCodeColor:FontCode_Color,LineColor:Line_Color,BorderColor:Border_Color
 				, Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"off", BgColor:Bg_Color, ListNum:5,Gdip_Radius:5
@@ -156,7 +158,7 @@ config_tip:={LogoColor:{LogoColor_cn:"桌面色块中文状态颜色",LogoColor_
 	,Settings:{Startup:"开机自启设置<on为建立系统计划任务实现自启/off为关闭开机自启/sc为在系统自启目录建立快捷方式实现自启>"
 			, CharFliter:"单字方案GB2312过滤",IStatus:"窗口程序输入状态配置开关",Exit_switch:"快捷退出快捷键启用开关",PromptChar:"逐码提示"
 			, Exit_hotkey:"快捷退出快捷键",BUyaml:"导出文件为yaml格式文件，需要文件头支持才能导出",Frequency:"动态调频〔只对含词方案有效〕"
-			, Freq_Count:"调频参数〔词条上屏次数〕",FocusStyle:"焦点候选样式<1为启用,反之>",sym_match:"引号成对上屏光标并居中"
+			, Freq_Count:"调频参数〔词条上屏次数〕",FocusStyle:"焦点候选样式<1为启用,反之>",sym_match:"引号成对上屏光标并居中",EN_Mode:"英文模式"
 			, PageShow:"候选框页数显示", s2t_swtich:"简繁模式切换开关", s2t_hotkey:"简繁模式切换功能快捷键", cf_swtich:"拆分显示功能开关"
 			, cf_hotkey:"字根拆分快捷键", UIAccess:"候选框UI层级权限提升,1为开启 0为关闭", Addcode_switch:"批量造词开关<1为开启,0为关闭>"
 			, Addcode_hotkey:"批量造词热键设置", Suspend_switch:"脚本挂起启用开关<1为开启,0为关闭>", Suspend_hotkey:"脚本挂起启用快捷键设置"
@@ -202,7 +204,7 @@ if FileExist(A_Startup "\" Startup_Name ".lnk"){
 	Startup :=WubiIni.Settings["Startup"]:=zq_~=Startup_Name?"on":"off"
 }
 
-versions :="2020090315"
+versions :="2020090412"
 
 if not Srf_Hotkey ~="i)Ctrl|Shift|Alt|LWin"||Srf_Hotkey ~="\&$"
 	Srf_Hotkey:=WubiIni.Settings["Srf_Hotkey"]:="Shift"
@@ -293,6 +295,13 @@ If !DB.OpenDB(DBFileName)
 	MsgBox, 16, 数据库DB错误, % "消息:`t" DB.ErrorMsg "`n代码:`t" DB.ErrorCode
 Gosub Backup_CustomDB
 
+;;=======================================
+labelArr:=[["en","EN_Mode","英文输入模式开关"]
+	, ["yw","SwitchToEngIME","切换至英文键盘模式"]
+	, ["zw","SwitchToChsIME","切换至中文键盘模式"]
+	, ["gl","CharFliter","单字方案GB2312过滤开关"]]
+CheckLabel(DB,labelArr)
+;;=======================================
 If FileExist("Config\GB*.txt") {
 	__Chars:=_Chars:=""
 	DB.GetTable("select count(*) from sqlite_master where type='table' and name = 'GBChars';",Result)
