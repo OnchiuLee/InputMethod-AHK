@@ -202,7 +202,7 @@ if FileExist(A_Startup "\" Startup_Name ".lnk"){
 	Startup :=WubiIni.Settings["Startup"]:=zq_~=Startup_Name?"on":"off"
 }
 
-versions :="2020090308"
+versions :="2020090315"
 
 if not Srf_Hotkey ~="i)Ctrl|Shift|Alt|LWin"||Srf_Hotkey ~="\&$"
 	Srf_Hotkey:=WubiIni.Settings["Srf_Hotkey"]:="Shift"
