@@ -322,10 +322,8 @@ Logo_Switch:
 	Logo_Switch :=(Logo_Switch~="i)off"?"on":"off")
 	if Logo_Switch ~="i)off"{
 		Gui, SrfTip:Destroy
-		Menu, Tray, Rename, 显隐图标,显隐图标	×
 	}else{
 		Gosub Srf_Tip
-		Menu, Tray, Rename, 显隐图标	×,显隐图标
 	}
 	WubiIni.Settings["Logo_Switch"] :=Logo_Switch, WubiIni.save()
 Return
@@ -457,9 +455,6 @@ TRAY_Menu:
 	if (Wubi_Schema~="i)zi|chaoji"&&!Addcode_switch)
 		Menu, Tray, Disable, 批量造词
 	Menu, TRAY, Icon, 批量造词, config\wubi98.icl, 13
-	Menu, Tray, Add
-	Menu, Tray, Add, 显隐图标,Logo_Switch
-	Menu, TRAY, Icon, 显隐图标, config\wubi98.icl, 2
 	Menu, Tray, Add
 	Menu, Tray, Add, 启用状态	√,OnSuspend
 	Menu, TRAY, Icon, 启用状态	√, config\wubi98.icl, 18
@@ -708,7 +703,7 @@ srf_tooltip:
 		}
 	}
 
-	If limit_code ~="i)on"
+	If (limit_code ~="i)on"&&!EN_Mode)
 	{
 		if (StrLen(srf_all_input)=4&&srf_all_input ~="^[a-yA-Y]")
 		{
@@ -910,9 +905,15 @@ srf_tooltip_fanye:
 			Sym_Array:=[],Sym_Array[1,1]:=srf_all_Input, Sym_Array[2,1]:="～",srf_for_select_Array:=Sym_Array
 		Gosub srf_tooltip_cut
 	}else{
-		srf_for_select_Array:=get_word(srf_all_Input, Wubi_Schema)
-		Gosub helpInfo
-		Gosub srf_tooltip_cut
+		If !EN_Mode {
+			srf_for_select_Array:=get_word(srf_all_Input, Wubi_Schema)
+			Gosub helpInfo
+			Gosub srf_tooltip_cut
+		}else{
+			srf_for_select_Array:=Get_EnWord(srf_all_Input)
+			Gosub srf_tooltip_cut
+		} 
+
 	}
 Return
 
@@ -1179,7 +1180,7 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","SBA13","TextInfo1","SrfSlider","SizeValue","set_SizeValue","ExSty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","TextInfo27","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 		,GBoxList2:["GBox2","TextInfo11","TextInfo25","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
-		,GBoxList3:["GBox3","SBA7","SBA23","SBA24","UIAccess","SBA6","SBA14","SBA21","SBA3","TextInfo13","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
+		,GBoxList3:["GBox3","SBA7","SBA23","SBA24","UIAccess","SBA6","SBA14","SBA21","SBA3","SBA25","TextInfo13","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","TextInfo21","sChoice4","ciku1","ciku9","ciku2","TextInfo22","ciku8","ciku7","yaml_","TextInfo23","ciku3","ciku4","TextInfo24","ciku5","ciku6","TextInfo26","ciku10","ciku11"]
@@ -1312,6 +1313,7 @@ More_Setting:
 		GuiControl,98:, SBA3 , 0
 	}
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA23 gSBA23 Checked%CharFliter%, GB2312过滤（单字方案）
+	Gui, 98:Add, CheckBox,x%CheckVar2X% yp+0 vSBA25 gSBA25 Checked%EN_Mode%, 英文模式
 	if (not Wubi_Schema ~="i)zi"||!FileExist("config\GB*.txt"))
 		GuiControl, 98:Disable, SBA23
 	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo13
@@ -1352,7 +1354,7 @@ More_Setting:
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
 	Gui, 98:Add, DDL, vsethotkey_1 gsethotkey_1 x+25 yp-1 w60, Ctrl|Shift|Alt|LWin
-	Gui 98:Add, Text, yp x+10 h30 w65 Center Border cblue vsethotkey_2 gsethotkey_2, % RegExReplace(Srf_Hotkey,"i)Shift|Ctrl|Alt|LWin|&","")
+	Gui 98:Add, Text, yp x+10 h22 w65 Center Border cblue vsethotkey_2 gsethotkey_2, % RegExReplace(Srf_Hotkey,"i)Shift|Ctrl|Alt|LWin|&","")
 	Gui, 98:Add, Button, yp+0 x+10 vhk_1 ghk_1, 设置
 	Gui, 98:Add, text, yp+5 x+5 w70 cred vtip_text, %A_Space%
 	Gui,98:Font
@@ -3035,6 +3037,11 @@ SBA24:
 	}
 Return
 
+SBA25:
+	GuiControlGet, SBA ,, SBA25, Checkbox
+	EN_Mode:=WubiIni.Settings["EN_Mode"]:=SBA, WubiIni.save()
+Return
+
 CharFliter:
 	if Wubi_Schema~="i)zi"
 		CharFliter:=WubiIni.Settings["CharFliter"]:=CharFliter?0:1,WubiIni.save()
@@ -3445,6 +3452,10 @@ Cut_Mode:
 	if srf_all_input
 		Gosub srf_tooltip_fanye
 return
+
+EN_Mode:
+	EN_Mode :=WubiIni.Settings["EN_Mode"] :=EN_Mode?0:1, WubiIni.save()
+Return
 
 ;四码上屏
 limit_code:

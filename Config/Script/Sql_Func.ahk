@@ -427,12 +427,24 @@ Select_add(list_num){
 	}
 }
 
+;英文输入模式提词
+Get_EnWord(input){
+	If (input="")
+		Return []
+	SQL :="SELECT aim_chars FROM encode WHERE aim_chars LIKE '" input "%' ORDER BY A_Key DESC;"
+	If DB.GetTable(SQL, Result){
+		if !Result.Rows[1,1]
+			Result.Rows[1,1]:=input,Result.Rows[2,1]:=StringUpper(input),Result.Rows[3,1]:=StringUpper(input,"T")
+		Return Result.Rows
+	}
+}
+
 ;词条提取
 get_word(input, cikuname){
 	global Frequency, Prompt_Word, Trad_Mode, PromptChar, srf_all_Input, lianx, CharFliter
 	If (input="")
 		Return []
-	If (cikuname~="chaoji|zi|ci|labal|zg")
+	If (cikuname~="chaoji|zi|ci|label|zg")
 	{
 		lianx :="", flag:=0
 		if input ~="^z"
@@ -951,5 +963,14 @@ CheckDB(DB,cikuName){
 			AlterCharsAll:=""
 			Return 1
 		}
+	}
+}
+
+CheckLabel(DB,labelArr){
+	for key,value In labelArr
+	{
+		DB.GetTable("select B_Key from label_init where C_Key='" value[2] "';",Result)
+		If !Result.RowCount
+			DB.Exec("INSERT INTO label_init (B_Key,C_Key,D_Key) VALUES('" value[1] "','" value[2] "','#〔" value[3] "〕');INSERT INTO label (B_Key,C_Key,D_Key) VALUES('" value[1] "','" value[2] "','#〔" value[3] "〕');")
 	}
 }
