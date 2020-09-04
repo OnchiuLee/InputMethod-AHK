@@ -589,7 +589,7 @@ UrlDownloadToFile(URL, FilePath:="",Timeout=-1){   ;Timeout 超时限制设置 �
 		Try ADO.SaveToFile(A_Desktop "\" FilePath,2)
 		ADO.Close(), WebRequest:=ADO:=""
 		Progress, Off
-		TrayTip,,下载成功，！,,1
+		TrayTip,下载成功,文件%FilePath%在电脑桌面请解压更新！,,1
 		Return 1
 	} Else{
 		Progress, Off
