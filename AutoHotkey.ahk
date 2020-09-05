@@ -37,7 +37,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="经典商务风格"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020090509"
+version :="2020090510"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
