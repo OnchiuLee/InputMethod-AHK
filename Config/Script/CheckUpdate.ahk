@@ -11,10 +11,11 @@ else{
 		MsgBox, 262452, 更新提示, 发现新版本，是否下载至电脑桌面？`n下载过程中，请不要操作！！！
 		IfMsgBox, Yes
 			UrlDownloadToFile("https://github.com/OnchiuLee/AHK-Input-method/archive/master.zip", "柚子98五笔版-" _sj ".zip",900)
-	}else If (_sj<=SubStr(Versions,1,10)&&_sj)
-		Traytip,,已是最新版！,,1
-	else
-		Traytip,,检查失败！,,3
+	}else If (_sj<=SubStr(Versions,1,10)&&_sj) {
+		MsgBox, 64, 检查更新, 已是最新版！, 5
+	}else{
+		MsgBox, 16, 检查更新, 检查失败！, 5
+	}
 }
 ExitApp
 
@@ -60,14 +61,14 @@ UrlDownloadToFile(URL, FilePath:="",Timeout=-1){   ;Timeout 超时限制设置 �
 			Progress, Off
 			Run, "https://github.com/OnchiuLee/AHK-Input-method",, UseErrorLevel
 			if (ErrorLevel = "ERROR") {
-				Traytip,, 您的电脑未设定默认浏览器！,,3
+				MsgBox, 16, 检查更新, 您的电脑未设定默认浏览器！, 5
 			}
-			TrayTip,,下载超时！,,1
+			MsgBox, 48, 检查更新, 下载超时！, 5
 			Return 0
 		}
 		If !WebRequest.ResponseBody() {
 			Progress, Off
-			Traytip,,下载失败！,,3
+			MsgBox, 48, 检查更新, 下载失败！, 5
 			Return 0
 		}
 		ADO:=ComObjCreate("adodb.stream"), ADO.Type:=1, ADO.Mode:=3, ADO.Open()
@@ -75,11 +76,11 @@ UrlDownloadToFile(URL, FilePath:="",Timeout=-1){   ;Timeout 超时限制设置 �
 		Try ADO.SaveToFile(A_Desktop "\" FilePath,2)
 		ADO.Close(), WebRequest:=ADO:=""
 		Progress, Off
-		TrayTip,下载成功,文件%FilePath%在电脑桌面请解压更新！,,1
+		MsgBox, 64, 检查更新, 下载成功，文件%FilePath%在电脑桌面请解压更新！！, 5
 		Return 1
 	} Else{
 		Progress, Off
-		Traytip,,下载失败！,,3
+		MsgBox, 48, 检查更新, 下载失败！, 5
 		Return 0
 	}
 }
