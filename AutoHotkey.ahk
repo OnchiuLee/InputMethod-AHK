@@ -236,6 +236,12 @@ if FileExist(A_ScriptDir "\*.ico") {
 	Menu, Tray, Icon, config\wubi98.icl,30
 
 srf_mode :=IMEmode~="off"?0:1
+;;=======================字体注册=========================
+if not a_FontList~="98WB-0" and FileExist("Font\*.otf") {
+	Loop,Files,Font\*.otf
+		AddFontResource(A_LoopFileLongPath)
+	FontType:=WubiIni.TipStyle["FontType"]:="98WB-0", WubiIni.Save()
+}
 if !InitStatus {
 	Run, rundll32.exe "%A_ProgramFiles%\Windows Photo Viewer\PhotoViewer.dll"`, ImageView_Fullscreen %A_ScriptDir%\config\ReadMe.png,, UseErrorLevel
 	if (ErrorLevel = "ERROR") {
@@ -243,12 +249,6 @@ if !InitStatus {
 	}
 	Run, iexplore.exe "98wb.ys168.com/",, UseErrorLevel
 	InitStatus:=WubiIni.Settings["InitStatus"]:=1,WubiIni.Save()
-	;;=======================字体注册=========================
-	if not a_FontList~="98WB-0" and FileExist("Font\*.otf") {
-		Loop,Files,Font\*.otf
-			AddFontResource(A_LoopFileLongPath)
-		FontType:=WubiIni.TipStyle["FontType"]:="98WB-0", WubiIni.Save()
-	}
 }
 if (ToolTipStyle ~="i)gdip"&&A_OSVersion ~="i)WIN_XP") {
 	;Traytip,,你的系统不支持当前Gdip候选框样式,请切换!,,2
