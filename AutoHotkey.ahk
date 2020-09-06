@@ -16,6 +16,10 @@
 #WinActivateForce
 #Include %A_ScriptDir%
 
+If (A_AhkVersion < "1.1.33.02") {
+	MsgBox, 16, 兼容警告, 主程序版本过低使用过程中可能会出现未知Bug`n推荐ahk版本不小于1.1.33.02！, 5
+}
+
 ;;{{{{{启动文件位数判断
 ProcessName :=RegExReplace(A_AhkPath,".+\\") 
 Loop, Files, main\*.exe
@@ -37,7 +41,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="经典商务风格"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020090512"
+version :="2020090612"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -60,6 +64,7 @@ Line_Color:=SubStr(ThemeObject["color_scheme","LineColor"],5,2) SubStr(ThemeObje
 #Include Config\Lib\Class_ToolTip.ahk
 #Include Config\Lib\Class_Toolbar.ahk
 #Include Config\Lib\Class_Json.ahk
+#Include Config\Lib\Class_LV_InCellEdit.ahk
 #Include Config\Script\Function.ahk
 #Include Config\Script\Sql_Func.ahk
 SendMode Input
@@ -121,7 +126,7 @@ Loop Files, config\Skins\logoStyle\*.icl
 global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni(A_Temp "\InputMethodData\Config.ini")
 	srf_default_obj:={LogoColor:{LogoColor_cn:"008000",LogoColor_en:"00FFFF",LogoColor_caps:"0000ff"}
 		,Settings:{Startup:"off",CNID:CpuID,IStatus:1,CharFliter:0,Exit_switch:1,PromptChar:0
-				,Exit_hotkey:"^esc", symb_mode:2,sym_match:0,Frequency:0,Freq_Count:3
+				,Exit_hotkey:"^esc", symb_mode:2,Frequency:0,Freq_Count:3
 				, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f",versions:version
 				, cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"10", Logo_Y:A_ScreenHeight/2
 				, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock", Suspend_switch:1
@@ -129,7 +134,7 @@ global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni(A_Te
 				, Select_Enter:"clean", Initial_Mode:"off", symb_send:"on", set_color:"on", Wubi_Schema:"ci"
 				,Cut_Mode:"off", limit_code:"on", Trad_Mode:"off", IMEmode:"on",InitStatus:0,EN_Mode:0}
 		, TipStyle:{ThemeName:DefaultThemeName, StyleN:StyleName,Logo_ExStyle:0,transparentX:180,LogoSize:36, FontType:font_
-				, FontSize:20, FontColor:Font_Color,FocusBackColor:FocusBack_Color,FocusColor:Focus_Color,FocusCodeColor:FocusCode_Color
+				, FontSize:22, FontColor:Font_Color,FocusBackColor:FocusBack_Color,FocusColor:Focus_Color,FocusCodeColor:FocusCode_Color
 				,FocusRadius:5, FontStyle:"off", FontCodeColor:FontCode_Color,LineColor:Line_Color,BorderColor:Border_Color
 				, Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"off", BgColor:Bg_Color, ListNum:5,Gdip_Radius:5
 				, Textdirection:"horizontal", Set_Range:3, Fix_Switch:"off",Fix_X:A_ScreenWidth/2,Fix_Y:10}  ;竖排--vertical
@@ -159,7 +164,7 @@ config_tip:={LogoColor:{LogoColor_cn:"桌面色块中文状态颜色",LogoColor_
 	,Settings:{Startup:"开机自启设置<on为建立系统计划任务实现自启/off为关闭开机自启/sc为在系统自启目录建立快捷方式实现自启>", versions:"版本日期"
 			, CharFliter:"单字方案GB2312过滤",IStatus:"窗口程序输入状态配置开关",Exit_switch:"快捷退出快捷键启用开关",PromptChar:"逐码提示"
 			, Exit_hotkey:"快捷退出快捷键",BUyaml:"导出文件为yaml格式文件，需要文件头支持才能导出",Frequency:"动态调频〔只对含词方案有效〕"
-			, Freq_Count:"调频参数〔词条上屏次数〕",FocusStyle:"焦点候选样式<1为启用,反之>",sym_match:"引号成对上屏光标并居中",EN_Mode:"英文模式"
+			, Freq_Count:"调频参数〔词条上屏次数〕",FocusStyle:"焦点候选样式<1为启用,反之>",EN_Mode:"英文模式"
 			, PageShow:"候选框页数显示", s2t_swtich:"简繁模式切换开关", s2t_hotkey:"简繁模式切换功能快捷键", cf_swtich:"拆分显示功能开关"
 			, cf_hotkey:"字根拆分快捷键", UIAccess:"候选框UI层级权限提升,1为开启 0为关闭", Addcode_switch:"批量造词开关<1为开启,0为关闭>"
 			, Addcode_hotkey:"批量造词热键设置", Suspend_switch:"脚本挂起启用开关<1为开启,0为关闭>", Suspend_hotkey:"脚本挂起启用快捷键设置"
@@ -326,7 +331,7 @@ CheckDB(DB,"zi"), CheckDB(DB,"ci"), CheckDB(DB,"chaoji")
 global recent:=Carets:={}
 global code_status:=localpos:=srfCounts:=select_pos:=1
 global valueindex:=Cut_Mode?2:1
-global waitnum:=select_sym:=sym_qmarks:=PosLimit:=PosIndex:=InitSetting:=0
+global waitnum:=select_sym:=PosLimit:=PosIndex:=InitSetting:=0
 Select_Code=gfdsahjklm;'space           ;字母选词
 global num__:=Result_Char:=Select_result :=selectallvalue:=""
 global select_arr:=select_value_arr:=srf_bianma:=add_Array:=add_Result:=Split_code:=[]
@@ -341,13 +346,22 @@ else{
 			Frequency_obj:={}
 }
 
-;中英标点符号映射
-srf_symblos:={"``":["``","·"], "~":["~","～"], "!":["`!","！"], "@":["@","@"], "#":["#","#"]
+;中英标点符号初始化映射
+Default_symblos:={"``":["``","·"], "~":["~","～"], "!":["`!","！"], "@":["@","@"], "#":["#","#"]
 	, "$":["$","￥"], "%":["`%","`%"], "^":["^","……"], "&":["&","&"], "*":["*","*"], "(":["(","（）{Left}"]
 	, ")":[")","）"], "-":["-","-"], "=":["=","="], "[":["[","「"], "]":["]","」"]
-	, "{":["{{}{}}{Left}","【】{Left}"], "}":["{}}","】"], "\":["\","、"], "|":["|","|"], ";":[";","；"], ":":[":","："]
+	, "{":["`{`}{Left}","【】{Left}"], "}":["`}","】"], "\":["\","、"], "|":["|","|"], ";":[";","；"], ":":[":","："]
 	, "'":["'","‘"], "<":["<","《》{Left}"],">":[">","》"],",":[",","，"]
-	,".":[".","。"], "/":["/","/"], "?":["?","？"], """":["""""{Left}","“"]}           ;中文单引号"‘’"
+	,".":[".","。"], "/":["/","/"], "?":["?","？"], """":["""""{Left}","“"]}
+If !FileExist("Sync\srf_symblos.json") {
+	Json_ObjToFile(Default_symblos, "Sync\srf_symblos.json"), srf_symblos:=Default_symblos
+}else{
+	srf_symblos:=Json_FileToObj("Sync\srf_symblos.json")
+	For Section,element In srf_symblos
+		For key,value In element
+			If (value="")
+				srf_symblos[Section,key]:=Default_symblos[Section,key], Json_ObjToFile(srf_symblos, "Sync\srf_symblos.json")
+}
 
 WM_LBUTTONDOWN(){
 	global Wubi_Schema, ToolTipStyle, FocusStyle, PosIndex
@@ -453,9 +467,13 @@ WM_MOUSEMOVE()
 		x_:=LogoSize<=36?Logo_X+SrfTip_Width+10:Logo_X+SrfTip_Width+LogoSize-26, Y_:=LogoSize>=36?Logo_Y+(LogoSize-36)/2:Logo_Y-(36-LogoSize)/2
 		if (A_Gui~="i)SrfTip|logo"&&!Logo_ExStyle) {
 			Gosub Write_Pos
-			Gui, logo:Show, NA h36 x%x_% y%Y_%,sign_wb
+			DetectHiddenWindows On
+			;If !DllCall("user32\IsWindowVisible", "Ptr", WinExist("sign_wb"))
+				Gui, logo:Show, NA h36 x%x_% y%Y_%,sign_wb
+			;ToolTip, 双击「色块」或者单击「指示条」方案名称`n来切换方案，其它部位单击可进行切换操作！
 		}else{
 			Gui, logo:Hide
+			;ToolTip
 		}
 	Return
 
