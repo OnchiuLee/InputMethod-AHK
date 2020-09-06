@@ -3084,7 +3084,7 @@ Export:
 	if A_ThisMenuItem~="i)gdip"{
 		GuiControl, 98:Text, StyleMenu , % A_ThisMenuItem
 		global ToolTipStyle :=WubiIni.TipStyle["ToolTipStyle"] :="Gdip"
-		global FontSize :=WubiIni.TipStyle["FontSize"] :="20"
+		global FontSize :=WubiIni.TipStyle["FontSize"] :="22"
 	}else if A_ThisMenuItem~="i)Gui"{
 		GuiControl, 98:Text, StyleMenu , % A_ThisMenuItem
 		global ToolTipStyle :=WubiIni.TipStyle["ToolTipStyle"] :="off"
@@ -3454,7 +3454,7 @@ ToolTipStyle:
 	{
 		Gui, houxuankuang:Hide
 		global ToolTipStyle :="gdip"
-		global FontSize :=WubiIni.TipStyle["FontSize"]:=20
+		global FontSize :=WubiIni.TipStyle["FontSize"]:=22
 		WubiIni.TipStyle["ToolTipStyle"]:=ToolTipStyle, WubiIni.save()
 	}
 	else if ToolTipStyle ~="i)gdip"
