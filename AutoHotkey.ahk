@@ -40,12 +40,12 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 }
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
-DefaultThemeName:="经典商务风格"    ;默认的主题配色，主题文件在config\Skins目录
+DefaultThemeName:="Steams"    ;默认的主题配色，主题文件在config\Skins目录
 version :="2020090612"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
-tName:=tName?tName:DefaultThemeName, ThemeObject:= Json_FileToObj("Config\Skins\" tName ".json")
+tName:=tName?tName:(FileExist("Config\Skins\" DefaultThemeName ".json")?DefaultThemeName:"Steam"), ThemeObject:= Json_FileToObj("Config\Skins\" tName ".json")
 Bg_Color :=SubStr(ThemeObject["color_scheme","BgColor"],5,2) SubStr(ThemeObject["color_scheme","BgColor"],3,2) SubStr(ThemeObject["color_scheme","BgColor"],1,2)
 Border_Color:=SubStr(ThemeObject["color_scheme","BorderColor"],5,2) SubStr(ThemeObject["color_scheme","BorderColor"],3,2) SubStr(ThemeObject["color_scheme","BorderColor"],1,2)
 FocusBack_Color:=SubStr(ThemeObject["color_scheme","FocusBackColor"],5,2) SubStr(ThemeObject["color_scheme","FocusBackColor"],3,2) SubStr(ThemeObject["color_scheme","FocusBackColor"],1,2)
