@@ -171,20 +171,10 @@ Return
 	+[::send % srf_symblos["{",symb_mode]
 	+]::send % srf_symblos["}",symb_mode]
 	'::
-		if sym_match {
-			srf_symblos["'",symb_mode]:=symb_mode=2?"‘’{Left}":srf_symblos["'",symb_mode]     ;引号光标并居中
-			sym_qmarks:=0
-		}else
-			srf_symblos["'",symb_mode]:=symb_mode=2?(sym_qmarks?"’":"‘"):srf_symblos["'",symb_mode], sym_qmarks:=symb_mode=2?(sym_qmarks?0:1):0  ;引号智能左右匹配
 		send % srf_symblos["'",symb_mode]
 	return
 
 	+'::
-		if sym_match {
-			srf_symblos["""",symb_mode]:=symb_mode=2?"“”{left}":srf_symblos["""",symb_mode]     ;双引号光标并居中
-			sym_qmarks:=0
-		}else
-			srf_symblos["""",symb_mode]:=symb_mode=2?(sym_qmarks?"”":"“"):srf_symblos["""",symb_mode], sym_qmarks:=symb_mode=2?(sym_qmarks?0:1):0  ;单引号智能左右匹配
 		send % srf_symblos["""",symb_mode]
 	return
 
@@ -250,11 +240,7 @@ return
 
 #if !srf_mode&&!srf_all_input
 	+'::
-		if sym_match {
-			send {"}{"}{left}
-			sym_qmarks:=0
-		}else
-			send {"}
+		send {"}
 	return
 
 	;快速多行注释
@@ -560,7 +546,6 @@ Return
 
 	Esc::
 		Gosub srf_value_off
-		sym_qmarks:=0
 	Return
 	BackSpace::
 		if (srf_all_input~="\``[a-z]"&&code_status&&select_arr.Length()>1&&srf_bianma[srf_bianma.Length()]=RegExReplace(srf_all_input,"^``")){

@@ -994,6 +994,7 @@ DestroyGui:
 	Gui, themes:Destroy
 	Gui, DB:Destroy
 	Gui, diy:Destroy
+	Gui, Sym:Destroy
 Return
 
 diyColor:
@@ -1064,7 +1065,8 @@ More_Setting:
 	Menu, Custom, Add, 主题管理, themelists
 	Menu, Custom, Add, 候选框风格, :StyleMenu
 	Menu, Main, Add, 候选框 , :Custom
-	Menu, ExtendTool, Add, 标签管理, Label_management
+	Menu, ExtendTool, Add, 超级标签管理, Label_management
+	Menu, ExtendTool, Add, 标点符号映射, Sym_Gui
 	Menu, Main, Add, 扩展工具, :ExtendTool
 	Gui, 98: +hwndhwndgui98 +AlwaysOnTop +OwnDialogs ;+ToolWindow -DPIScale
 	Gui,98:Font
@@ -1087,7 +1089,7 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","SBA13","TextInfo1","SrfSlider","SizeValue","set_SizeValue","ExSty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","TextInfo27","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 		,GBoxList2:["GBox2","TextInfo11","TextInfo25","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
-		,GBoxList3:["GBox3","SBA7","SBA23","SBA24","UIAccess","SBA6","SBA14","SBA21","SBA3","SBA25","TextInfo13","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
+		,GBoxList3:["GBox3","SBA7","SBA23","SBA24","UIAccess","SBA6","SBA14","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","TextInfo21","sChoice4","ciku1","ciku9","ciku2","TextInfo22","ciku8","ciku7","yaml_","TextInfo23","ciku3","ciku4","TextInfo24","ciku5","ciku6","TextInfo26","ciku10","ciku11"]
@@ -1211,18 +1213,21 @@ More_Setting:
 		Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="off"
 		GuiControl,98:, SBA24 , 0
 	}
-	Gui, 98:Add, CheckBox,x190 y+10 vSBA14 gSBA14, 中文模式使用英文标点
+	Gui, 98:Add, CheckBox,x190 y+10 vSBA24 gSBA24 Checked%PromptChar%, 逐码提示
+	Gui, 98:Add, CheckBox,x%CheckVar1X% yp+0 vSBA25 gSBA25 Checked%EN_Mode%, 英文模式
 	Gui, 98:Add, CheckBox,x%CheckVar2X% yp+0 vSBA7 gSBA7, 四码上屏
-	Gui, 98:Add, CheckBox,x190 y+10 vSBA21 gSBA21, 引号成对光标并居中
-	Gui, 98:Add, CheckBox,x%CheckVar2X% yp+0 vSBA24 gSBA24 Checked%PromptChar%, 逐码提示
+	
 	if Prompt_Word~="i)on" {
 		PromptChar:=WubiIni.Settings["PromptChar"]:=0
 		GuiControl,98:, SBA3 , 0
 	}
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA23 gSBA23 Checked%CharFliter%, GB2312过滤（单字方案）
-	Gui, 98:Add, CheckBox,x%CheckVar2X% yp+0 vSBA25 gSBA25 Checked%EN_Mode%, 英文模式
+	
 	if (not Wubi_Schema ~="i)zi"||!FileExist("config\GB*.txt"))
 		GuiControl, 98:Disable, SBA23
+	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo28
+	Gui, 98:Add, CheckBox,x190 y+10 vSBA14 gSBA14, 中文模式使用英文标点
+	Gui, 98:Add, Button,x+10 yp-2 vSBA21 gSBA21, 标点映射设置
 	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo13
 	Gui, 98:Add, CheckBox,x190 y+10 Checked%Frequency% vFrequency gFrequency, 动态调频
 	if (not Wubi_Schema~="i)ci"||Trad_Mode~="i)on"||Prompt_Word~="i)on")
@@ -2085,7 +2090,7 @@ ControlGui:
 		For k,v In ["SBA12","SBA9","SBA10","SBA19"]
 			GuiControl, 98:Disable, %v%
 	}
-	For k,v In {Logo_ExStyle:"ExSty",PromptChar:"SBA24",BUyaml:"yaml_",PageShow:"SBA20",sym_match:"SBA21",Exit_switch:"SBA22",FocusStyle:"SBA19",UIAccess:"UIAccess",symb_mode:"SBA14"}
+	For k,v In {Logo_ExStyle:"ExSty",PromptChar:"SBA24",BUyaml:"yaml_",PageShow:"SBA20",Exit_switch:"SBA22",FocusStyle:"SBA19",UIAccess:"UIAccess",symb_mode:"SBA14"}
 		If (%k%)
 			GuiControl,98:, %v% , 1
 	For k,v In ["Ctrl","Shift","Alt","LWin"]
@@ -2899,12 +2904,60 @@ SBA20:
 		PageShow:=WubiIni.Settings["PageShow"]:=0,WubiIni.save()
 Return
 
+Sym_Gui:
+	Gosub DestroyGui
+	Gui, Sym:Destroy
+	Gui, Sym:Default
+	Gui, Sym: +Owner98
+	Gui, Sym:Font, s10, %Font_%
+	Gui, Sym:Add, CheckBox, h20 vHL gHiddenCol1ListView, 更改符号映射（首列禁止修改！）
+	Gui, Sym:Add, ListView, xm y+10 w320 -Readonly Grid NoSortHdr NoSort r15 gSubLV2 hwndHLV2 AltSubmit vLV2, 标点|英文|中文
+		For Section, element In srf_symblos
+		{
+			LV_Add(“”,Section,element[1],element[2])
+		}
+		LV_ModifyCol(1, "60"), LV_ModifyCol(2, "120"), LV_ModifyCol(3, "120")
+	ICELV2 := New LV_InCellEdit(HLV2, True, True)
+	ICELV2.OnMessage(False)
+	Gui, Sym:Margin, 10, 10
+	Gui, Sym:Color,ffffff
+	Gui, Sym:Add, StatusBar,, 1
+	SB_SetText("共计"LV_GetCount() . "组标点")
+	Gui, Sym:Show, , 标点符号映射 
+	Gosub ChangeWinIcon
+Return
+
+HiddenCol1ListView:
+	GuiControlGet, HL,, HL, Checkbox
+	If (HL)
+		ICELV2.OnMessage()
+	Else
+		ICELV2.OnMessage(False)
+Return
+
+SubLV2:
+	If A_EventInfo
+		LV_GetText(keys,A_EventInfo)
+	If (A_GuiEvent == "K") && (Chr(A_EventInfo) = "e") {
+		Gui, Sym:ListView, %A_GuiControl%
+		If (Row := LV_GetNext(0, "Focused")) {
+			ICELV2.EditCell(Row)
+		}
+	}else If (A_GuiEvent == "F") {
+		If (ICELV2["Changed"]) {
+			RowN:=ICELV2["Changed"][1,"Row"], ColN:=ICELV2["Changed"][1,"Col"]
+			GetValue:=ICELV2["Changed"][1,"Txt"]
+			srf_symblos[keys,ColN-1]:=GetValue
+			ToolTip, % srf_symblos[keys,ColN-1] 
+			ICELV2.Remove("Changed")
+			Json_ObjToFile(srf_symblos, "Sync\srf_symblos.json")
+		}
+	}
+Return
+
+
 SBA21:
-	GuiControlGet, SBA ,, SBA21, Checkbox
-	if SBA
-		sym_match:=WubiIni.Settings["sym_match"]:=1,WubiIni.save()
-	else
-		sym_match:=WubiIni.Settings["sym_match"]:=0,WubiIni.save()
+	Gosub Sym_Gui
 Return
 
 SBA22:
