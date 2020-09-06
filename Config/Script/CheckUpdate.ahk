@@ -8,9 +8,9 @@ If (!DllCall("Wininet.dll\InternetCheckConnection", "Str", Sourceurl, "UInt", 0x
 else{
 	_sj:=GetVersion(Sourceurl)
 	If (_sj>SubStr(Versions,1,10)&&_sj) {
-		MsgBox, 262452, 更新提示, 发现新版本，是否下载至电脑桌面？`n下载过程中，请不要操作！！！
+		MsgBox, 262452, 更新提示, 发现新版本，是否下载至电脑桌面？`n下载过程中，请该干嘛去干嘛！！！
 		IfMsgBox, Yes
-			UrlDownloadToFile("https://github.com/OnchiuLee/AHK-Input-method/archive/master.zip", "柚子98五笔版-" _sj ".zip",1800)
+			UrlDownloadToFile("https://github.com/OnchiuLee/AHK-Input-method/archive/master.zip", "柚子98五笔版-" _sj ".zip",1200)
 	}else If (_sj<=SubStr(Versions,1,10)&&_sj) {
 		MsgBox, 64, 检查更新, 已是最新版！, 5
 	}else{
