@@ -2911,7 +2911,7 @@ Sym_Gui:
 	Gui, Sym: +Owner98
 	Gui, Sym:Font, s10, %Font_%
 	Gui, Sym:Add, CheckBox, h20 vHL gHiddenCol1ListView, 更改符号映射（首列禁止修改！）
-	Gui, Sym:Add, ListView, xm y+10 w320 -Readonly Grid NoSortHdr NoSort r15 gSubLV2 hwndHLV2 AltSubmit vLV2, 标点|英文|中文
+	Gui, Sym:Add, ListView, xm y+10 w320 -Readonly Grid NoSortHdr NoSort -WantF2 r15 gSubLV2 hwndHLV2 AltSubmit vLV2, 标点|英文|中文
 		For Section, element In srf_symblos
 		{
 			LV_Add(“”,Section,element[1],element[2])
