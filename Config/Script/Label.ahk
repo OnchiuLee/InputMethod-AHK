@@ -2947,8 +2947,8 @@ SubLV2:
 		If (ICELV2["Changed"]) {
 			RowN:=ICELV2["Changed"][1,"Row"], ColN:=ICELV2["Changed"][1,"Col"]
 			GetValue:=ICELV2["Changed"][1,"Txt"]
-			srf_symblos[keys,ColN-1]:=GetValue
-			ToolTip, % srf_symblos[keys,ColN-1] 
+			srf_symblos[keys,ColN-1]:=GetValue?GetValue:Default_symblos[keys,ColN-1]
+			;ToolTip, % srf_symblos[keys,ColN-1] 
 			ICELV2.Remove("Changed")
 			Json_ObjToFile(srf_symblos, "Sync\srf_symblos.json")
 		}
