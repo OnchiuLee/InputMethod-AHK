@@ -186,22 +186,22 @@ Get_IME:
 			if not A_OSVersion ~="i)WIN_XP"
 			{
 				Gosub Ime_Tips
-				Sleep,200
+				Sleep,400
 				Gui, tips: Destroy
 			}else{
 				ToolTip,中,% GetCaretPos().x ,% GetCaretPos().y+30
-				Sleep,200
+				Sleep,400
 				ToolTip
 			}
 		}else{
 			if not A_OSVersion ~="i)WIN_XP"
 			{
 				Gosub Ime_Tips
-				Sleep,200
+				Sleep,400
 				Gui, tips: Destroy
 			}else{
 				ToolTip, 英,% GetCaretPos().x ,% GetCaretPos().y+30
-				Sleep,200
+				Sleep,400
 				ToolTip
 			}
 		}
@@ -995,6 +995,7 @@ DestroyGui:
 	Gui, DB:Destroy
 	Gui, diy:Destroy
 	Gui, Sym:Destroy
+	Gui, SymList:Destroy
 Return
 
 diyColor:
@@ -2909,9 +2910,12 @@ Sym_Gui:
 	Gui, Sym:Destroy
 	Gui, Sym:Default
 	Gui, Sym: +Owner98
-	Gui, Sym:Font, s10, %Font_%
+	Gui, Sym:Font, s10 bold, %Font_%
 	Gui, Sym:Add,Button,gInsert_sym,刷新
-	Gui, Sym:Add, CheckBox,x+20 yp+5 h20 vHL gHiddenCol1ListView, 更改符号映射（首列禁止修改！）
+	Gui, Sym:Add,Button,x+10 yp gShowSymList,符号列表
+	Gui, Sym:Font, s10 underline, %Font_%
+	Gui, Sym:Add, CheckBox,x+10 yp+5 h20 vHL gHiddenCol1ListView, 更改（首列禁止修改！）
+	Gui, Sym:Font, s10 norm, %Font_%
 	Gui, Sym:Add, ListView, xm y+10 w320 Grid NoSortHdr NoSort -WantF2 r15 gSubLV2 hwndHLV2 AltSubmit vLV2, 基础|英文标点|中文标点
 	Gosub Insert_sym
 	LV_ModifyCol(1, "60 Center"), LV_ModifyCol(2, "120 Center"), LV_ModifyCol(3, "120 Center")
@@ -2965,6 +2969,55 @@ SubLV2:
 	}
 Return
 
+ShowSymList:
+	Gui, SymList:Destroy
+	Gui, SymList:Default
+	Gui, SymList: +OwnerSym -DPIScale
+	Gui, SymList:Font, s10, %Font_%
+	counts_:=0
+	Gui, SymList:Add, ListView, xm y+10 w565 Grid NoSortHdr NoSort -WantF2 R15 gSubLV1 hwndHLV1 AltSubmit vLV1, 名称|标点|名称|标点|名称|标点
+	For setion,element In SymObiect
+	{
+		for key,value In element
+		{
+			If (counts_>30&&counts_<61)
+				LV_Modify(counts_-30 , "", , ,value[1],value[2])
+			else If (counts_>60)
+				LV_Modify(counts_-60 , "", , , , ,value[1],value[2])
+			else
+				LV_Add("",value[1],value[2])
+			counts_++
+		}
+	}
+	Loop 6
+		LV_ModifyCol(A_Index, Mod(A_Index, 2)?"120 Left":"60 Center")
+	Gui, SymList:Color,ffffff
+	Gui, SymList:Add, StatusBar,, 1
+	SB_SetText("双击复制到剪切板")
+	Gui, SymList:show,AutoSize,标点符号选取列表
+	Gosub ChangeWinIcon
+Return
+
+SubLV1:
+	If (A_GuiEvent = "DoubleClick"&&A_EventInfo) {
+		Column := LV_SubItemHitTest(HLV1)
+		If (!Mod(Column, 2)&&Column) {
+			LV_GetText(ColVar, A_EventInfo , Column), Clipboard:=ColVar
+			ToolTip, 已复制到剪切板！
+			Sleep 400
+			Gosub SymListGuiClose
+		}
+	}
+Return
+
+KillToolTip:
+	ToolTip
+Return
+
+SymListGuiClose:
+SymListGuiEscape:
+	Gui, SymList:Destroy
+Return
 
 SBA21:
 	Gosub Sym_Gui
