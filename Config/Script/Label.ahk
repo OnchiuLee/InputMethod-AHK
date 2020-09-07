@@ -2910,13 +2910,11 @@ Sym_Gui:
 	Gui, Sym:Default
 	Gui, Sym: +Owner98
 	Gui, Sym:Font, s10, %Font_%
-	Gui, Sym:Add, CheckBox, h20 vHL gHiddenCol1ListView, 更改符号映射（首列禁止修改！）
-	Gui, Sym:Add, ListView, xm y+10 w320 -Readonly Grid NoSortHdr NoSort -WantF2 r15 gSubLV2 hwndHLV2 AltSubmit vLV2, 标点|英文|中文
-		For Section, element In srf_symblos
-		{
-			LV_Add(“”,Section,element[1],element[2])
-		}
-		LV_ModifyCol(1, "60"), LV_ModifyCol(2, "120"), LV_ModifyCol(3, "120")
+	Gui, Sym:Add,Button,gInsert_sym,刷新
+	Gui, Sym:Add, CheckBox,x+20 yp+5 h20 vHL gHiddenCol1ListView, 更改符号映射（首列禁止修改！）
+	Gui, Sym:Add, ListView, xm y+10 w320 Grid NoSortHdr NoSort -WantF2 r15 gSubLV2 hwndHLV2 AltSubmit vLV2, 基础|英文标点|中文标点
+	Gosub Insert_sym
+	LV_ModifyCol(1, "60 Center"), LV_ModifyCol(2, "120 Center"), LV_ModifyCol(3, "120 Center")
 	ICELV2 := New LV_InCellEdit(HLV2, True, True)
 	ICELV2.OnMessage(False)
 	Gui, Sym:Margin, 10, 10
@@ -2927,12 +2925,24 @@ Sym_Gui:
 	Gosub ChangeWinIcon
 Return
 
+Insert_sym:
+	LV_Delete()
+	For Section, element In srf_symblos
+	{
+		LV_Add(“”,Section,element[1],element[2])
+	}
+	SB_SetText("共计"LV_GetCount() . "组标点")
+Return
+
 HiddenCol1ListView:
 	GuiControlGet, HL,, HL, Checkbox
-	If (HL)
+	If (HL) {
+		GuiControl, -Readonly, LV2
 		ICELV2.OnMessage()
-	Else
+	}Else{
+		GuiControl, +Readonly, LV2
 		ICELV2.OnMessage(False)
+	}
 Return
 
 SubLV2:

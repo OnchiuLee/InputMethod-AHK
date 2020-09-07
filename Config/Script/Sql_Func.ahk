@@ -570,7 +570,7 @@ srf_select(list_num){
 				Save_word(selectvalue)
 			}
 	}}
-	if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci"&&list_num>1&&srf_all_Input~="^[a-y]+"&&srf_for_select_Array.Length()>1){
+	if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci"&&list_num>1&&srf_all_Input~="^[a-y]+"&&srf_for_select_Array.Length()>1&&!EN_Mode){
 		if (Frequency_obj[selectvalue,1]&&Frequency_obj[selectvalue,2]=srf_all_Input) {
 			Frequency_obj[selectvalue,1]:=Frequency_obj[selectvalue,1]+1
 			if (Frequency_obj[selectvalue,1]>Freq_Count) {
@@ -936,7 +936,7 @@ CheckDB(DB,cikuName){
 		If DB.Exec(SQL)>0 {
 			DB.GetTable("select * from " cikuName ";",Results), totalCount:=Results.RowCount, num:=Ceil(totalCount/100)
 			tip:=cikuName~="i)ci"?"【含词】":cikuName~="i)zi"?"【单字】":"【超集】"
-			Progress, M1 FM14 W350, 1/%totalCount%, %tip%词库整理中..., 1
+			Progress, M1 FM14 W350, 1/%totalCount%, %tip%词库整理中..., 已完成1`%
 			For Section,element In Results.Rows
 			{
 				For key,value In element
@@ -956,7 +956,7 @@ CheckDB(DB,cikuName){
 				}
 			}
 			DB.Exec("delete from " cikuname ";")
-			if DB.Exec("INSERT INTO " cikuname " VALUES " RegExReplace(AlterCharsAll,"\,$") "")>0 {
+			if DB.Exec("INSERT INTO " cikuname " VALUES " RegExReplace(AlterCharsAll,"\,$") ";VACUUM")>0 {
 				Traytip,,%tip%词库整理完成！
 			}
 			Progress,off
