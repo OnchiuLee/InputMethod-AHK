@@ -1000,7 +1000,7 @@ Return
 
 diyColor:
 	Gosub DestroyGui
-	Gui, diy: +hwndDIYTheme +AlwaysOnTop +Owner98   ; -DPIScale
+	Gui, diy: +hwndDIYTheme +Owner98   ; -DPIScale +AlwaysOnTop
 	Gui,diy:Font, s10 Bold, %font_%
 	Gui diy:Add, GroupBox, y+15 w385 h250, 配色项
 	Gui,diy:Font
@@ -1069,7 +1069,7 @@ More_Setting:
 	Menu, ExtendTool, Add, 超级标签管理, Label_management
 	Menu, ExtendTool, Add, 标点符号映射, Sym_Gui
 	Menu, Main, Add, 扩展工具, :ExtendTool
-	Gui, 98: +hwndhwndgui98 +AlwaysOnTop +OwnDialogs ;+ToolWindow -DPIScale
+	Gui, 98: +hwndhwndgui98 +OwnDialogs ;+ToolWindow -DPIScale +AlwaysOnTop
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui, 98:Menu, Main
@@ -1517,7 +1517,7 @@ Return
 WinMode:
 	Gosub DestroyGui
 	Gui IM:Default
-	Gui IM:+LastFound +AlwaysOnTop +Owner98
+	Gui IM:+LastFound +Owner98  ; +AlwaysOnTop
 	Gui, IM:Add, Button, y+10 vDTxck gDTxck,删除
 	GuiControl,IM:Disable,DTxck
 	Gui, IM:Add, Button, x+10 vAddProcess gAddProcess,添加
@@ -1752,7 +1752,7 @@ Return
 Label_management:
 	Gosub DestroyGui
 	Gui, label:Default
-	Gui, label: +hwndGuiLabel +Owner98 +OwnDialogs +AlwaysOnTop ;+ToolWindow -DPIScale
+	Gui, label: +hwndGuiLabel +Owner98 +OwnDialogs ;+ToolWindow -DPIScale +AlwaysOnTop
 	Gui,label:Font
 	Gui,label:Font, s10 bold, %font_%
 	Gui label:Add, GroupBox, y+10 w500 h450 vGBox8, 标签管理
@@ -1982,7 +1982,7 @@ Key_:
 	s6:=[ ["Ctrl",w2],["Win",w2],["Alt",w2],["",w3-w2*7-2*7],["Alt",w2],["Win",w2],["App",w2],["Ctrl",w2],["←",w2,10],["↓",w2],["→",w2] ]
 
 	Gui, Key: Destroy
-	Gui, Key: +AlwaysOnTop +Owner98 +ToolWindow +E0x08000000
+	Gui, Key: +Owner98 +ToolWindow +E0x08000000  +AlwaysOnTop
 	Gui, Key: Font, s9, Verdana
 	Gui, Key: Margin, 10, 10
 	Gui, Key: Color, ffffff
@@ -2261,7 +2261,7 @@ Return
 themelists:
 	Gosub DestroyGui
 	Gui, themes:Default
-	Gui, themes: +AlwaysOnTop +Owner98  ;+ToolWindow -DPIScale
+	Gui, themes: +Owner98  ;+ToolWindow -DPIScale +AlwaysOnTop
 	Gui, themes:Add, ListView, r15 w425 Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 Checked -Multi 0x8 LV0x40 -LV0x10 gMyTheme vMyTheme hwndThemeLV, 主题名称|预览图|文件路径
 	themelist:=""
 	Loop Files, config\Skins\*.json
@@ -2289,11 +2289,12 @@ themelists:
 		SendMessage, 4125, %Index%, , , ahk_id %ThemeLV%  ; 4125 为 LVM_GETCOLUMNWIDTH.
 		colum%A_Index%:=ErrorLevel, colum+=ErrorLevel
 	}
-	colum:=colum/(A_ScreenDPI/96)+20, colum_:=colum+30
+	SysGet, CXVSCROLL, 2
+	colum:=colum/(A_ScreenDPI/96)+CXVSCROLL, colum_:=colum+30
 	GuiControl, themes:Move, MyTheme, w%colum%
 	SB_SetText(A_Space LV_GetCount() . "个主题")
 	SB_SetIcon("Config\wubi98.icl",30)
-	Gui, themes:show, w%colum_%, 主题管理
+	Gui, themes:show, AutoSize, 主题管理
 	Gosub ChangeWinIcon
 Return
 
@@ -2912,7 +2913,7 @@ Sym_Gui:
 	Gui, Sym: +Owner98
 	Gui, Sym:Font, s10 bold, %Font_%
 	Gui, Sym:Add,Button,gInsert_sym,刷新
-	Gui, Sym:Add,Button,x+10 yp gShowSymList,符号列表
+	Gui, Sym:Add,Button,x+10 yp gShowSymList vShowSymList,符号列表
 	Gui, Sym:Font, s10 underline, %Font_%
 	Gui, Sym:Add, CheckBox,x+10 yp+5 h20 vHL gHiddenCol1ListView, 更改（首列禁止修改！）
 	Gui, Sym:Font, s10 norm, %Font_%
@@ -2972,7 +2973,7 @@ Return
 ShowSymList:
 	Gui, SymList:Destroy
 	Gui, SymList:Default
-	Gui, SymList: +OwnerSym -DPIScale
+	Gui, SymList: +OwnerSym ; -DPIScale
 	Gui, SymList:Font, s10, %Font_%
 	counts_:=0
 	Gui, SymList:Add, ListView, xm y+10 Grid NoSortHdr NoSort -WantF2 R15 gSubLV1 hwndHLV1 AltSubmit vLV1, 名称|标点|名称|标点|名称|标点|名称|标点
@@ -3000,7 +3001,8 @@ ShowSymList:
 		SendMessage, 4125, A_Index - 1, 0, SysListView321  ; 4125 为 LVM_GETCOLUMNWIDTH.
 		TotalWidth:=TotalWidth+ErrorLevel
 	}
-	GuiControl,SymList:Move,LV1,% "w" TotalWidth+25
+	SysGet, CXVSCROLL, 2
+	GuiControl,SymList:Move,LV1,% "w" TotalWidth/(A_ScreenDPI/96)+CXVSCROLL
 	Gui, SymList:Color,ffffff
 	Gui, SymList:Add, StatusBar,, 1
 	SB_SetText("双击复制到剪切板")
