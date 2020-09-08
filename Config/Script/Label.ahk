@@ -2975,22 +2975,32 @@ ShowSymList:
 	Gui, SymList: +OwnerSym -DPIScale
 	Gui, SymList:Font, s10, %Font_%
 	counts_:=0
-	Gui, SymList:Add, ListView, xm y+10 w565 Grid NoSortHdr NoSort -WantF2 R15 gSubLV1 hwndHLV1 AltSubmit vLV1, 名称|标点|名称|标点|名称|标点
+	Gui, SymList:Add, ListView, xm y+10 Grid NoSortHdr NoSort -WantF2 R15 gSubLV1 hwndHLV1 AltSubmit vLV1, 名称|标点|名称|标点|名称|标点|名称|标点
 	For setion,element In SymObiect
 	{
 		for key,value In element
 		{
+			counts_++
 			If (counts_>30&&counts_<61)
 				LV_Modify(counts_-30 , "", , ,value[1],value[2])
-			else If (counts_>60)
+			else If (counts_>60&&counts_<91)
 				LV_Modify(counts_-60 , "", , , , ,value[1],value[2])
+			else If (counts_>90)
+				LV_Modify(counts_-90 , "", , , , , , ,value[1],value[2])
 			else
 				LV_Add("",value[1],value[2])
-			counts_++
 		}
 	}
-	Loop 6
-		LV_ModifyCol(A_Index, Mod(A_Index, 2)?"120 Left":"60 Center")
+	Loop 8
+		LV_ModifyCol(A_Index, Mod(A_Index, 2)?"AutoHdr Left":"AutoHdr Center")
+	Gui +LastFound
+	TotalWidth:=0
+	Loop % LV_GetCount("Column")
+	{
+		SendMessage, 4125, A_Index - 1, 0, SysListView321  ; 4125 为 LVM_GETCOLUMNWIDTH.
+		TotalWidth:=TotalWidth+ErrorLevel
+	}
+	GuiControl,SymList:Move,LV1,% "w" TotalWidth+25
 	Gui, SymList:Color,ffffff
 	Gui, SymList:Add, StatusBar,, 1
 	SB_SetText("双击复制到剪切板")
