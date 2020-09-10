@@ -41,7 +41,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020090811"
+version :="2020090815"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -461,7 +461,7 @@ WM_MOUSEMOVE()
 		SetTimer, DisplayToolTip, 500
 		PrevControl := CurRControl
 	}
-	
+/*
 	SetTimer, Tip_timer, 1000
 	Tip_timer:
 		;aero_link:="C:\Windows\Cursors\aero_link.cur" ;小手
@@ -474,7 +474,7 @@ WM_MOUSEMOVE()
 			;DllCall( "SystemParametersInfo", UInt,0x57, UInt,0, UInt,0, UInt,0 )
 			RestoreCursors()
 		}
-
+*/
 		x_:=LogoSize<=36?Logo_X+SrfTip_Width+10:Logo_X+SrfTip_Width+LogoSize-26, Y_:=LogoSize>=36?Logo_Y+(LogoSize-36)/2:Logo_Y-(36-LogoSize)/2
 		if (A_Gui~="i)SrfTip|logo"&&!Logo_ExStyle) {
 			Gosub Write_Pos
