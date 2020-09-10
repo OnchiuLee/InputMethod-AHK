@@ -3067,8 +3067,12 @@ SBA24:
 		if Prompt_Word~="i)on"
 			GuiControl,98:, SBA3 , 0
 		PromptChar:=WubiIni.Settings["PromptChar"]:=1, Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="off",WubiIni.save()
+		For k,v In ["Frequency","FTip","set_Frequency","RestDB"]
+			GuiControl, 98:Enable, %v%
 	}else{
 		PromptChar:=WubiIni.Settings["PromptChar"]:=0, WubiIni.save()
+		For k,v In ["Frequency","FTip","set_Frequency","RestDB"]
+			GuiControl, 98:Disable, %v%
 	}
 Return
 
@@ -4023,14 +4027,14 @@ Ime_Tips:
 	hwnd1 := WinExist(),hbm := CreateDIBSection(Width, Height)
 	hdc := CreateCompatibleDC(),obm := SelectObject(hdc, hbm),G := Gdip_GraphicsFromHDC(hdc),Gdip_SetSmoothingMode(G, 4)
 	pBrush := Gdip_BrushCreateSolid("0x" SubStr("FF" FocusBackColor, -7))   ;"0xaa" FocusBackColor
-	Gdip_FillRoundedRectangle(G, pBrush, 0, 0, Width, Height, A_Cursor ~= "i)IBeam"?Gdip_Radius*(A_ScreenDPI/96):0),Gdip_DeleteBrush(pBrush)
-	tips_text:=GetKeyState("CapsLock", "T")?"A":srf_mode?"中":"英",tipSize:=A_Cursor ~= "i)IBeam"?"22":"28"
+	Gdip_FillRoundedRectangle(G, pBrush, 0, 0, Width, Height, 0),Gdip_DeleteBrush(pBrush)
+	tips_text:=GetKeyState("CapsLock", "T")?"A":srf_mode?"中":"英",tipSize:=A_Cursor ~= "i)IBeam"?"24":"28"
 	If !Gdip_FontFamilyCreate(Font_)
 	{
 		MsgBox, 48, Font error!, The font you have specified does not exist on the system
 		Gui, tips: Destroy
 	}
-	pPen := Gdip_CreatePen("0x" SubStr("FF" FocusBackColor, -7), 2), Gdip_DrawRoundedRectangle(G, pPen, 0, 0, Width-2, Height-2, A_Cursor ~= "i)IBeam"?Gdip_Radius*(A_ScreenDPI/96):0)
+	pPen := Gdip_CreatePen("0x" SubStr("FF" FocusBackColor, -7), 1), Gdip_DrawRoundedRectangle(G, pPen, 0, 0, Width-2, Height-2, 0)
 	Gdip_TextToGraphics(G, tips_text, "Center" "c" SubStr("ff" FocusColor, -7) " r4" "S" tipSize*(A_ScreenDPI/96) "bold", Font_, Width, Height)
 	WinGetPos,,,,Shell_Wnd ,ahk_class Shell_TrayWnd
 	UpdateLayeredWindow(hwnd1, hdc, A_Cursor ~= "i)IBeam"?tip_pos.x:A_ScreenWidth-Width, A_Cursor ~= "i)IBeam"?tip_pos.y:A_ScreenHeight-Shell_Wnd-Height, Width, Height)
