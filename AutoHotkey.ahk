@@ -126,7 +126,7 @@ Loop Files, config\Skins\logoStyle\*.icl
 global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni(A_Temp "\InputMethodData\Config.ini")
 	srf_default_obj:={LogoColor:{LogoColor_cn:"008000",LogoColor_en:"00FFFF",LogoColor_caps:"0000ff"}
 		,Settings:{Startup:"off",CNID:CpuID,IStatus:1,CharFliter:0,Exit_switch:1,PromptChar:0
-				,Exit_hotkey:"^esc", symb_mode:2,Frequency:0,Freq_Count:3
+				,Exit_hotkey:"^esc", symb_mode:2,Frequency:0,Freq_Count:3,srfTool:0
 				, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f",versions:version
 				, cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"10", Logo_Y:A_ScreenHeight/2
 				, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock", Suspend_switch:1
@@ -164,7 +164,7 @@ config_tip:={LogoColor:{LogoColor_cn:"桌面色块中文状态颜色",LogoColor_
 	,Settings:{Startup:"开机自启设置<on为建立系统计划任务实现自启/off为关闭开机自启/sc为在系统自启目录建立快捷方式实现自启>", versions:"版本日期"
 			, CharFliter:"单字方案GB2312过滤",IStatus:"窗口程序输入状态配置开关",Exit_switch:"快捷退出快捷键启用开关",PromptChar:"逐码提示"
 			, Exit_hotkey:"快捷退出快捷键",BUyaml:"导出文件为yaml格式文件，需要文件头支持才能导出",Frequency:"动态调频〔只对含词方案有效〕"
-			, Freq_Count:"调频参数〔词条上屏次数〕",FocusStyle:"焦点候选样式<1为启用,反之>",EN_Mode:"英文模式"
+			, Freq_Count:"调频参数〔词条上屏次数〕",FocusStyle:"焦点候选样式<1为启用,反之>",EN_Mode:"英文模式",srfTool:"输入法指示条独立显示"
 			, PageShow:"候选框页数显示", s2t_swtich:"简繁模式切换开关", s2t_hotkey:"简繁模式切换功能快捷键", cf_swtich:"拆分显示功能开关"
 			, cf_hotkey:"字根拆分快捷键", UIAccess:"候选框UI层级权限提升,1为开启 0为关闭", Addcode_switch:"批量造词开关<1为开启,0为关闭>"
 			, Addcode_hotkey:"批量造词热键设置", Suspend_switch:"脚本挂起启用开关<1为开启,0为关闭>", Suspend_hotkey:"脚本挂起启用快捷键设置"
@@ -374,7 +374,7 @@ If !FileExist("Sync\srf_symblos.json") {
 }
 
 WM_LBUTTONDOWN(){
-	global Wubi_Schema, ToolTipStyle, FocusStyle, PosIndex
+	global Wubi_Schema, ToolTipStyle, FocusStyle, PosIndex, srfTool
 	PosIndex:=0
 	if (A_Gui="TSF"&&Wubi_Schema~="i)ci"&&ToolTipStyle~="i)Gdip"&&FocusStyle){
 		mousegetpos, FX, FY
@@ -384,7 +384,7 @@ WM_LBUTTONDOWN(){
 			srf_select(PosIndex)
 		}
 	}
-	if (A_Gui="TSF"||A_Gui ="houxuankuang"||A_Gui ="SrfTip"){
+	if (A_Gui="TSF"||A_Gui ="houxuankuang"||A_Gui ="SrfTip"||srfTool&&A_Gui="logo"){
 		PostMessage, 0xA1, 2
 		Gosub Write_Pos
 	}
@@ -434,7 +434,7 @@ WM_MOUSEWHEEL(){
 
 WM_MOUSEMOVE()
 {
-	global Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, transparentX, LogoSize, Tip_Show:={LineColor:"Gdip样式中间分隔线颜色",SBA6:"符号顶首选屏并上屏该键符号",font_value:"候选字号大小`n范围[9-40]"
+	global Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, transparentX, LogoSize, srfTool, Tip_Show:={LineColor:"Gdip样式中间分隔线颜色",SBA6:"符号顶首选屏并上屏该键符号",font_value:"候选字号大小`n范围[9-40]"
 		,BorderColor : "Gdip样式四周边框线颜色", SBA16:"冻结/启用程序快捷键启用开关", SBA15:"鼠标划词反查编码功能启用开关", UIAccess:"候选框UI层级权限提升`n看不到候选框时开启",font_size:"候选字号大小`n范围[9-40]"
 		, SBA0 :"候选框固定坐标设置",About:"软件使用说明",ciku3:"英文词库导入`n（单行单义格式，以tab符隔开）`n「英文词条+Tab+词频」",ciku4:"英文词库导出`n（导出为单行单义格式txt码表）"
 		,ciku5:"特殊符号词库导入`n（格式「/引导字母+Tab+多符号以英文逗号隔开」）", SBA5 : "固定候选框的位置，不跟随光标",BgColor:"候选框背景色",FocusBackColor:"候选框焦点选项背景色"
@@ -476,16 +476,18 @@ WM_MOUSEMOVE()
 			RestoreCursors()
 		}
 */
-		x_:=LogoSize<=36?Logo_X+SrfTip_Width+10:Logo_X+SrfTip_Width+LogoSize-26, Y_:=LogoSize>=36?Logo_Y+(LogoSize-36)/2:Logo_Y-(36-LogoSize)/2
-		if (A_Gui~="i)SrfTip|logo"&&!Logo_ExStyle) {
-			Gosub Write_Pos
-			DetectHiddenWindows On
-			;If !DllCall("user32\IsWindowVisible", "Ptr", WinExist("sign_wb"))
-				Gui, logo:Show, NA h36 x%x_% y%Y_%,sign_wb
-			;ToolTip, 双击「色块」或者单击「指示条」方案名称`n来切换方案，其它部位单击可进行切换操作！
-		}else{
-			Gui, logo:Hide
-			;ToolTip
+		If !srfTool {
+			x_:=LogoSize<=36?Logo_X+SrfTip_Width+10:Logo_X+SrfTip_Width+LogoSize-26, Y_:=LogoSize>=36?Logo_Y+(LogoSize-36)/2:Logo_Y-(36-LogoSize)/2
+			if (A_Gui~="i)SrfTip|logo"&&!Logo_ExStyle) {
+				Gosub Write_Pos
+				DetectHiddenWindows On
+				;If !DllCall("user32\IsWindowVisible", "Ptr", WinExist("sign_wb"))
+					Gui, logo:Show, NA h36 x%x_% y%Y_%,sign_wb
+				;ToolTip, 双击「色块」或者单击「指示条」方案名称`n来切换方案，其它部位单击可进行切换操作！
+			}else{
+				Gui, logo:Hide
+				;ToolTip
+			}
 		}
 	Return
 
