@@ -343,10 +343,7 @@ Return
 
 ;logo移动写入坐标
 Write_Pos:
-	If srfTool
-		WinGetPos, X_, Y_, , , sign_wb
-	else
-		WinGetPos, X_, Y_, , , Srf_Tip
+	WinGetPos, X_, Y_, , , % srfTool?"sign_wb":"Srf_Tip"
 	if (X_=""||Y_="")
 		Logo_X :=WubiIni.Settings["Logo_X"]:=200, Logo_Y :=WubiIni.Settings["Logo_Y"]:=y2, WubiIni.save()
 	else
