@@ -242,12 +242,11 @@ Return
 SetHotkey:
 	srf_mode := !srf_mode, IconMode:=srf_mode?1:3
 	SetCapsLockState , off
-	Gosub srf_value_off
 	srf_for_select_Array :=select_arr:=srf_bianma:=[],Select_result:="",code_status:=localpos:=1, select_sym:=PosLimit:=0
 	If !srfTool
 		Gosub ShowSrfTip
 	GuiControl,logo:, Pics,*Icon%IconMode% config\Skins\logoStyle\%StyleN%.icl
-	if  srf_mode
+	if srf_mode
 	{
 		if Logo_Switch ~="on" {
 			Logo_X :=WubiIni.Settings["Logo_X"],Logo_Y :=WubiIni.Settings["Logo_Y"],WubiIni.save()
@@ -260,6 +259,7 @@ SetHotkey:
 		}
 		sendinput % RegExReplace(srf_all_input,"^z\'","")
 	}
+	Gosub srf_value_off
 	Gosub Get_IME
 Return
 
