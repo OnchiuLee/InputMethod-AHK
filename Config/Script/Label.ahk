@@ -8,7 +8,7 @@ Srf_Tip:
 	TipBackgroundBrush := DllCall("CreateSolidBrush", UInt, GetKeyState("CapsLock", "T")?"0x" LogoColor_caps:srf_mode?"0x" LogoColor_cn:"0x" LogoColor_en),GuiHwnd := WinExist()
 	WindowProcNew := RegisterCallback("WindowProc", "", 4, MyTextHwnd)
 	WindowProcOld := DllCall(A_PtrSize=8 ? "SetWindowLongPtr" : "SetWindowLong", Ptr, Srf_Tip, Int, -4, Ptr, WindowProcNew, Ptr) ; 返回值必须设置为 Ptr 或 UPtr 而不是 Int.
-	if Logo_Switch ~="i)off"
+	if (Logo_Switch ~="i)off"||srfTool)
 		Gui, SrfTip:Destroy
 	else
 		Gui,SrfTip: Show,NA h%SrfTip_Width% w%SrfTip_Height% x%Logo_X% y%Logo_Y%,Srf_Tip
@@ -68,7 +68,10 @@ Schema_logo:
 		GuiControl,logo:, Pics4,*Icon9 config\Skins\logoStyle\%StyleN%.icl
 	Gui, logo:Color, EFEFEF
 	Gui, logo:Margin, 2,2
-	Gui, logo:Hide
+	if (Logo_Switch ~="i)off"||!srfTool)
+		Gui, logo:Hide
+	else
+		Gui, logo:Show, NA h36 x%Logo_X% y%Logo_Y%,sign_wb
 	;WinSet, TransColor, EFEFEF %transparentX%,sign_wb   ;方案Logo的透明度 数字越大透明度越低最大255，0为完全透明
 Return
 
@@ -263,15 +266,13 @@ SetHotkey:
 Return
 
 Pics:
-/*
-	if (A_GuiEvent = "Normal")
+	if (A_GuiEvent = "Normal"&&srfTool)
 	{
 			IconMode:=srf_mode?3:1
 			SetCapsLockState , off
 			srf_mode:=srf_mode?0:1
 			GuiControl,logo:, Pics,*Icon%IconMode% config\Skins\logoStyle\%StyleN%.icl
 	}
-*/
 Return
 
 Pics2:
@@ -322,8 +323,14 @@ Logo_Switch:
 	Logo_Switch :=(Logo_Switch~="i)off"?"on":"off")
 	if Logo_Switch ~="i)off"{
 		Gui, SrfTip:Destroy
+		If srfTool
+			Gui, logo:Destroy
 	}else{
-		Gosub Srf_Tip
+		If srfTool {
+			Gosub Schema_logo
+			Gui, logo:Show, NA h36 x%Logo_X% y%Logo_Y%,sign_wb
+		}else
+			Gosub Srf_Tip
 	}
 	WubiIni.Settings["Logo_Switch"] :=Logo_Switch, WubiIni.save()
 Return
@@ -336,7 +343,10 @@ Return
 
 ;logo移动写入坐标
 Write_Pos:
-	WinGetPos, X_, Y_, , , Srf_Tip
+	If srfTool
+		WinGetPos, X_, Y_, , , sign_wb
+	else
+		WinGetPos, X_, Y_, , , Srf_Tip
 	if (X_=""||Y_="")
 		Logo_X :=WubiIni.Settings["Logo_X"]:=200, Logo_Y :=WubiIni.Settings["Logo_Y"]:=y2, WubiIni.save()
 	else
@@ -371,7 +381,7 @@ TipMore:
 Return
 
 MoveGui:
-	if (A_GuiEvent = "Normal")
+	if (A_GuiEvent = "Normal"&&!srfTool||srfTool&&A_GuiEvent = "DoubleClick")
 	{
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:=Wubi_Schema~="ci"?"zi":(Wubi_Schema~="zi"?"chaoji":(Wubi_Schema~="chaoji"?"zg":"ci")), WubiIni.save()
 		sicon_:=Wubi_Schema~="i)ci"?11:(Wubi_Schema~="i)zi"?13:Wubi_Schema~="i)chaoji"?12:14)
@@ -1088,7 +1098,7 @@ More_Setting:
 	TV5 := TV_Add("关于",, "Bold")
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
-	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","SBA13","TextInfo1","SrfSlider","SizeValue","set_SizeValue","ExSty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","TextInfo27","LogoColor_cn","LogoColor_en","LogoColor_caps"]
+	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","SBA13","TextInfo1","showtools","SrfSlider","SizeValue","set_SizeValue","ExSty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","TextInfo27","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 		,GBoxList2:["GBox2","TextInfo11","TextInfo25","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
 		,GBoxList3:["GBox3","SBA7","SBA23","SBA24","UIAccess","SBA6","SBA14","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
@@ -1124,6 +1134,7 @@ More_Setting:
 	GuiControlGet, scvar, Pos , Backup_Conf
 	Gui, 98:Add, Text,x190 y+10 vTextInfo4 left, 功能条：
 	Gui, 98:Add, DDL,x%scvarX% yp vselect_logo gselect_logo , % RegExReplace(logoList,"^\|")
+	Gui, 98:Add, CheckBox,x+10 yp+2 vshowtools gshowtools Checked%srfTool%, 独立显示
 	GuiControl, 98:ChooseString, select_logo, %StyleN%
 	If Logo_Switch~="i)off"
 		GuiControl, 98:Disable, select_logo
@@ -1139,7 +1150,7 @@ More_Setting:
 	GuiControlGet, lcvar, Pos , LogoColor_cn
 	lctY:=lcvarY+lcvarH+10
 	Gui, 98:Add, Slider,x%lcvarX% y%lctY% gSrfSlider vSrfSlider Center TickInterval10 ToolTipLeft Range0-255, % transparentX
-	Gui, 98:Add, CheckBox,x%lcvarX% y+5 vSBA13 gSBA13, 色块显隐
+	Gui, 98:Add, CheckBox,x%lcvarX% y+5 vSBA13 gSBA13, 指示器显隐
 	Gui, 98:Add, CheckBox,x+15 Checked%Logo_ExStyle% vExSty gExSty, 鼠标穿透
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
@@ -2101,7 +2112,11 @@ ControlGui:
 		if (%k%~="i)on")
 			GuiControl,98:, %v% , 1
 	if Logo_Switch~="off" {
-		For k,v In ["SrfSlider","select_logo","ExSty","set_SizeValue","SizeValue","LogoColor_cn","LogoColor_en","LogoColor_caps"]
+		For k,v In ["SrfSlider","select_logo","ExSty","set_SizeValue","SizeValue","LogoColor_cn","LogoColor_en","LogoColor_caps", "showtools"]
+			GuiControl, 98:Disable, %v%
+	}
+	If srfTool {
+		For k,v In ["SrfSlider","ExSty","set_SizeValue","SizeValue","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 			GuiControl, 98:Disable, %v%
 	}
 	if ToolTipStyle ~="i)on|off"{
@@ -2709,6 +2724,23 @@ SBA1:
 	s2t_swtich:=WubiIni.Settings["s2t_swtich"]:=SBA,WubiIni.save()
 Return
 
+showtools:
+	GuiControlGet, showtools ,, showtools, Checkbox
+	srfTool:=WubiIni.Settings["srfTool"]:=showtools,WubiIni.save()
+	If showtools {
+		Gui, SrfTip:Hide
+		Gui, logo:Show, NA h36 x%Logo_X% y%Logo_Y%,sign_wb
+		For k,v In ["SrfSlider","ExSty","set_SizeValue","SizeValue","LogoColor_cn","LogoColor_en","LogoColor_caps"]
+			GuiControl, 98:Disable, %v%
+
+	}else{
+		Gui, logo:Hide
+		Gosub Srf_Tip
+		For k,v In ["SrfSlider","ExSty","set_SizeValue","SizeValue","LogoColor_cn","LogoColor_en","LogoColor_caps"]
+			GuiControl, 98:Enable, %v%
+	}
+Return
+
 SBA2:
 	GuiControlGet, SBA ,, SBA2, Checkbox
 	if SBA {
@@ -2827,11 +2859,16 @@ Return
 SBA13:
 	Gosub Logo_Switch
 	if Logo_Switch~="off" {
-		For k,v In ["ExSty","SrfSlider","select_logo","set_SizeValue","SizeValue","LogoColor_cn","LogoColor_en","LogoColor_caps"]
+		For k,v In ["ExSty","SrfSlider","select_logo","set_SizeValue","SizeValue","LogoColor_cn","LogoColor_en","LogoColor_caps", "showtools"]
 			GuiControl, 98:Disable, %v%
 	}else{
-		For k,v In ["ExSty","SrfSlider","select_logo","set_SizeValue","SizeValue","LogoColor_cn","LogoColor_en","LogoColor_caps"]
-			GuiControl, 98:Enable, %v%
+		For k,v In ["ExSty","SrfSlider","select_logo","set_SizeValue","SizeValue","LogoColor_cn","LogoColor_en","LogoColor_caps", "showtools"]
+		{
+			If (srfTool&&not v~="select_logo|showtools") {
+				GuiControl, 98:Disable, %v%
+			}else
+				GuiControl, 98:Enable, %v%
+		}
 	}
 Return
 
