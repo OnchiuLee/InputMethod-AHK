@@ -450,7 +450,7 @@ get_word(input, cikuname){
 		if input ~="^z"
 		{
 			lianx :="on"
-			SQL :="SELECT aim_chars,C_Key,D_Key FROM pinyin WHERE REPLACE(A_key,' ','') ='" RegExReplace(input,"^z|'","") "' ORDER BY B_Key DESC;"
+			SQL :="SELECT aim_chars,C_Key,D_Key FROM pinyin WHERE REPLACE(A_key,' ','') ='" RegExReplace(input,"^z|'","") "' " (cikuname~="zi|chaoji"?"AND length(aim_chars)=1":"") " ORDER BY B_Key DESC;"
 			If DB.GetTable(SQL, Result)
 				Return Result.Rows
 		}else if input ~="^[a-y]+"{
