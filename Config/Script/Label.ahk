@@ -20,14 +20,16 @@ Srf_Tip:
 Return
 
 ShowSrfTip:
-	Gui, SrfTip:Destroy
-	Gosub Srf_Tip
+	If srfTool
+		Gosub Schema_logo
+	else
+		Gosub Srf_Tip
 Return
 
 Schema_logo:
 	Gui, logo:Destroy
 	Gui, logo:Default
-	Scale:=DPIScale?"+DPIScale":"-DPIScale"
+	Scale:=DPIScale?"+DPIScale":"-DPIScale", IconMode:=srf_mode?1:3
 	Gui, logo: -Caption +AlwaysOnTop ToolWindow border %Scale% +hwndWubi_Gui          ;  -DPIScale 禁止放大
 	if FileExist(A_ScriptDir "\config\background.png"){
 		Gui, logo:Add, Picture,x2 y0 w191,config\background.png
@@ -51,12 +53,7 @@ Schema_logo:
 	if GetKeyState("CapsLock", "T")
 		GuiControl,logo:, Pics,*Icon2 config\Skins\logoStyle\%StyleN%.icl
 	else
-	{
-		if IMEmode~="i)off"
-			GuiControl,logo:, Pics,*Icon3 config\Skins\logoStyle\%StyleN%.icl
-		else
-			GuiControl,logo:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
-	}
+		GuiControl,logo:, Pics,*Icon%IconMode% config\Skins\logoStyle\%StyleN%.icl
 	if (symb_mode=2)
 		GuiControl,logo:, Pics3,*Icon7 config\Skins\logoStyle\%StyleN%.icl
 	else
@@ -243,27 +240,25 @@ Return
 
 ; 中英文切换模式
 SetHotkey:
-	srf_mode := !srf_mode
+	srf_mode := !srf_mode, IconMode:=srf_mode?1:3
+	SetCapsLockState , off
+	Gosub srf_value_off
+	srf_for_select_Array :=select_arr:=srf_bianma:=[],Select_result:="",code_status:=localpos:=1, select_sym:=PosLimit:=0
+	If !srfTool
+		Gosub ShowSrfTip
+	GuiControl,logo:, Pics,*Icon%IconMode% config\Skins\logoStyle\%StyleN%.icl
 	if  srf_mode
 	{
-		if Logo_Switch ~="on"{
+		if Logo_Switch ~="on" {
 			Logo_X :=WubiIni.Settings["Logo_X"],Logo_Y :=WubiIni.Settings["Logo_Y"],WubiIni.save()
 		}
-		GuiControl,logo:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
-		SetCapsLockState , off
-		Gosub ShowSrfTip
-		Gosub srf_value_off
-		srf_for_select_Array :=select_arr:=srf_bianma:=[],Select_result:="",code_status:=localpos:=1, select_sym:=PosLimit:=0
 	}
 	else
 	{
-		Gosub Write_Pos
-		GuiControl,logo:, Pics,*Icon3 config\Skins\logoStyle\%StyleN%.icl
+		if Logo_Switch ~="on" {
+			Gosub Write_Pos
+		}
 		sendinput % RegExReplace(srf_all_input,"^z\'","")
-		Gosub ShowSrfTip
-		SetCapsLockState , off
-		Gosub srf_value_off
-		srf_for_select_Array :=select_arr:=[],Select_result:="",code_status:=localpos:=1, select_sym:=PosLimit:=0
 	}
 	Gosub Get_IME
 Return
@@ -271,9 +266,8 @@ Return
 Pics:
 	if (A_GuiEvent = "Normal"&&srfTool)
 	{
-			IconMode:=srf_mode?3:1
 			SetCapsLockState , off
-			srf_mode:=srf_mode?0:1
+			srf_mode:=srf_mode?0:1, IconMode:=srf_mode?1:3
 			GuiControl,logo:, Pics,*Icon%IconMode% config\Skins\logoStyle\%StyleN%.icl
 	}
 Return
