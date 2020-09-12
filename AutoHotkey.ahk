@@ -41,7 +41,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020091015"
+version :="2020091217"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -292,9 +292,12 @@ if Exit_switch&&Exit_hotkey
 ;}}}}}
 
 ;{{{{{SQlite类创建,db文件读取
+DBFileName:=A_ScriptDir "\DB\wubi98.db"
+If !FileExist(DBFileName)
+	If !Un7Zip(A_ScriptDir "\DB\wubi98.7z",A_ScriptDir "\DB")
+		Traytip,错误警告,DB目录词库错误！,,35
 If (DB._Handle)
 	DB.CloseDB()
-DBFileName:="DB\wubi98.db"
 global DB := New SQLiteDB
 If !DB.OpenDB(DBFileName)
 	MsgBox, 16, 数据库DB错误, % "消息:`t" DB.ErrorMsg "`n代码:`t" DB.ErrorCode
