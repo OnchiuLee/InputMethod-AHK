@@ -3215,3 +3215,19 @@ Url2Decode(Str)
 		Return, doc.body.innerText, doc.body.innerText := ""
 	}
 }
+
+Un7Zip(source,outdir="",Path=""){
+	If !FileExist(source)
+		return 0
+	If (Path="")
+		Path:=A_ScriptDir "\Config\Tools\7za.exe"
+	If (outdir="")
+		outdir=%A_ScriptDir%\
+	If !FileExist(Path){
+		TrayTip,,%source%解压失败！
+		return 0
+	}
+	Runwait, "%path%" x "%source%" -o"%outdir%" -y,,Hide
+	If !A_LastError
+		return 1
+}
