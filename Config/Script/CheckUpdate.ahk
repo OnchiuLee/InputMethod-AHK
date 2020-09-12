@@ -14,8 +14,11 @@ else{
 		IfMsgBox, Yes
 			UrlDownloadToFile("https://github.com/OnchiuLee/AHK-Input-method/archive/master.zip", "柚子98五笔版-" _sj[2] ".zip",1800)
 		else IfMsgBox, No
-			Run, iexplore.exe "https://gitee.com/leeonchiu/AHK-Input-method",, UseErrorLevel
-		else IfMsgBox, Cancel
+		{
+			Run, https://gitee.com/leeonchiu/AHK-Input-method,, UseErrorLevel
+			if (ErrorLevel = "ERROR")
+				Run, iexplore.exe "https://gitee.com/leeonchiu/AHK-Input-method",, UseErrorLevel
+		}else IfMsgBox, Cancel
 			ExitApp
 	}else If (_sj[2]<=SubStr(Versions,1,10)&&_sj.Length()) {
 		MsgBox, 262208, 检查更新, 已是最新版！, 8
