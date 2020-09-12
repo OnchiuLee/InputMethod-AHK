@@ -68,8 +68,9 @@ UrlDownloadToFile(URL, FilePath:="",Timeout=-1){   ;Timeout 超时限制设置 �
 			WebRequest.WaitForResponse(Timeout)
 		} Catch {
 			Progress, Off
-			Run, "https://github.com/OnchiuLee/AHK-Input-method",, UseErrorLevel
+			Run, https://gitee.com/leeonchiu/AHK-Input-method,, UseErrorLevel
 			if (ErrorLevel = "ERROR") {
+				Run, iexplore.exe "https://gitee.com/leeonchiu/AHK-Input-method",, UseErrorLevel
 				MsgBox, 262160, 检查更新, 您的电脑未设定默认浏览器！, 8
 			}
 			MsgBox, 262192, 检查更新, 下载超时！, 8
