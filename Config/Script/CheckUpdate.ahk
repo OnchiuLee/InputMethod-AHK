@@ -1,20 +1,26 @@
 ﻿#NoEnv
 #NoTrayIcon
+#SingleInstance, Force
 Sourceurl:="https://github.com/OnchiuLee/AHK-Input-method/blob/master/Version.txt"
 IniRead, Versions, %A_Temp%\InputMethodData\Config.ini, Settings, versions
 
 If (!DllCall("Wininet.dll\InternetCheckConnection", "Str", Sourceurl, "UInt", 0x1, "UInt", 0x0, "Int"))
-	MsgBox, 16, 检查更新, 网络异常！, 5
+	MsgBox, 262160, 检查更新, 网络异常！, 8
 else{
 	_sj:=StrSplit(GetVersion(Sourceurl), "@")
 	If (_sj[2]>SubStr(Versions,1,10)&&_sj.Length()) {
-		MsgBox, 262452, 更新提示, 发现新版本，是否下载至电脑桌面？`n下载过程中，请该干嘛去干嘛！！！
+		MsgBoxRenBtn("下载","打开下载页","取消")
+		MsgBox, 262723, 更新提示, 发现新版本，是否下载至电脑桌面？`n下载过程中，请该干嘛去干嘛！！！
 		IfMsgBox, Yes
 			UrlDownloadToFile("https://github.com/OnchiuLee/AHK-Input-method/archive/master.zip", "柚子98五笔版-" _sj[2] ".zip",1800)
+		else IfMsgBox, No
+			Run, iexplore.exe "https://gitee.com/leeonchiu/AHK-Input-method",, UseErrorLevel
+		else IfMsgBox, Cancel
+			ExitApp
 	}else If (_sj[2]<=SubStr(Versions,1,10)&&_sj.Length()) {
-		MsgBox, 64, 检查更新, 已是最新版！, 5
+		MsgBox, 262208, 检查更新, 已是最新版！, 8
 	}else{
-		MsgBox, 16, 检查更新, 检查失败！, 5
+		MsgBox, 262160, 检查更新, 检查失败！, 8
 	}
 }
 ExitApp
@@ -61,14 +67,14 @@ UrlDownloadToFile(URL, FilePath:="",Timeout=-1){   ;Timeout 超时限制设置 �
 			Progress, Off
 			Run, "https://github.com/OnchiuLee/AHK-Input-method",, UseErrorLevel
 			if (ErrorLevel = "ERROR") {
-				MsgBox, 16, 检查更新, 您的电脑未设定默认浏览器！, 5
+				MsgBox, 262160, 检查更新, 您的电脑未设定默认浏览器！, 8
 			}
-			MsgBox, 48, 检查更新, 下载超时！, 5
+			MsgBox, 262192, 检查更新, 下载超时！, 8
 			Return 0
 		}
 		If !WebRequest.ResponseBody() {
 			Progress, Off
-			MsgBox, 48, 检查更新, 下载失败！, 5
+			MsgBox, 262192, 检查更新, 下载失败！, 8
 			Return 0
 		}
 		ADO:=ComObjCreate("adodb.stream"), ADO.Type:=1, ADO.Mode:=3, ADO.Open()
@@ -76,11 +82,11 @@ UrlDownloadToFile(URL, FilePath:="",Timeout=-1){   ;Timeout 超时限制设置 �
 		Try ADO.SaveToFile(A_Desktop "\" FilePath,2)
 		ADO.Close(), WebRequest:=ADO:=""
 		Progress, Off
-		MsgBox, 64, 检查更新, 下载成功，文件%FilePath%在电脑桌面请解压更新！！, 5
+		MsgBox, 262208, 检查更新, 下载成功，文件%FilePath%在电脑桌面请解压更新！！, 8
 		Return 1
 	} Else{
 		Progress, Off
-		MsgBox, 48, 检查更新, 下载失败！, 5
+		MsgBox, 262192, 检查更新, 下载失败！, 8
 		Return 0
 	}
 }
@@ -154,6 +160,28 @@ DownloadBin(url, byref buf)
 
 MoveProgress() {
 	PostMessage, 0xA1, 2 
+}
+
+MsgBoxRenBtn(btn1="",btn2="",btn3=""){
+	Static sbtn1:="", sbtn2:="", sbtn3:="", i=0
+	sbtn1 := btn1, sbtn2 := btn2, sbtn3 := btn3, i=0
+	SetTimer, MsgBoxRenBtn, 1
+	Return
+
+	MsgBoxRenBtn:
+		If (hwnd:=WinActive("ahk_class #32770")) {
+			if (sbtn1)
+				ControlSetText, Button1, % sbtn1, ahk_id %hwnd%
+			if (sbtn2)
+				ControlSetText, Button2, % sbtn2, ahk_id %hwnd%
+			if (sbtn3)
+				ControlSetText, Button3, % sbtn3, ahk_id %hwnd%
+			SetTimer, MsgBoxRenBtn, Off
+		}
+		if (i >= 1000)
+			SetTimer, MsgBoxRenBtn, Off
+		i++
+	Return
 }
 
 Url2Decode(Str)
