@@ -1768,6 +1768,9 @@ DelRows(deb=""){
 ;样式面板关闭销毁保存操作
 98GuiClose:
 98GuiEscape:
+	Menu, Custom, Delete,
+	Menu, MainMenu, Delete,
+	Menu, ExtendTool, Delete,
 	Gui, 98:Destroy
 	Gosub DestroyGui
 	LsVar:=opvar:=posInfo:=""
