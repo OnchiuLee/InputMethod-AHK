@@ -3231,3 +3231,17 @@ Un7Zip(source,outdir="",Path=""){
 	If !A_LastError
 		return 1
 }
+
+GetCharsSize(List, Font:="", FontSize:=10, Padding:=6)
+{
+	Loop, Parse, List, |
+	{
+		if Font
+			Gui DropDownSize:Font, s%FontSize%, %Font%
+		Gui DropDownSize:Add, Text, R1, %A_LoopField%
+		GuiControlGet T, DropDownSize:Pos, Static1
+		Gui DropDownSize:Destroy
+		TW > X ? X := TW :
+	}
+	return "w" X + Padding
+}
