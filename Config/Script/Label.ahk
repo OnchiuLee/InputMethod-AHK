@@ -1056,25 +1056,33 @@ More_Setting:
 	Menu, SchemaList, Add, 98五笔•单字, sChoice4
 	Menu, SchemaList, Add, 98五笔•超集, sChoice4
 	Menu, SchemaList, Add, 98五笔•字根, sChoice4
+	Menu, SchemaList, Color, FFFFFF
 	Menu, StyleMenu, Add, Tooltip样式, Export
 	Menu, StyleMenu, Add, Gui候选框样式, Export
 	Menu, StyleMenu, Add, Gdip候选框样式, Export
+	Menu, StyleMenu, Color, FFFFFF
 	if A_OSVersion ~="i)WIN_XP"
 		Menu, StyleMenu, Disable, Gdip候选框样式
 	HMENU := Menu_GetMenuByName("StyleMenu")
 	SMENU := Menu_GetMenuByName("SchemaList")
 	Menu, MainMenu, Add, 方案选择, :SchemaList
+	Menu, MainMenu, Add,
 	Menu, MainMenu, Add, 词库导入, ciku1
 	Menu, MainMenu, Add, 词库合并导出, ciku2
 	Menu, MainMenu, Add, 用户词管理, DB_management
+	Menu, MainMenu, Color, FFFFFF
 	Menu, Main, Add, 方案管理, :MainMenu
 	Menu, Custom, Add, 自定义配色, diyColor
 	Menu, Custom, Add, 主题管理, themelists
+	Menu, Custom, Add,
 	Menu, Custom, Add, 候选框风格, :StyleMenu
+	Menu, Custom, Color, FFFFFF
 	Menu, Main, Add, 候选框 , :Custom
 	Menu, ExtendTool, Add, 超级标签管理, Label_management
 	Menu, ExtendTool, Add, 标点符号映射, Sym_Gui
+	Menu, ExtendTool, Color, FFFFFF
 	Menu, Main, Add, 扩展工具, :ExtendTool
+	Menu, Main, Color, FFFFFF
 	Gui, 98: +hwndhwndgui98 +OwnDialogs ;+ToolWindow -DPIScale +AlwaysOnTop
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
@@ -1135,7 +1143,7 @@ More_Setting:
 	Gui, 98:Add, DDL,x%scvarX% yp vselect_logo gselect_logo hWndSLCT +0x0210, % RegExReplace(logoList,"^\|")
 	OD_Colors.Attach(HDDL,{T: 0xffe89e, B: 0x292421})
 	OD_Colors.Attach(SLCT,{T: 0xffe89e, B: 0x292421})
-	Gui, 98:Add, CheckBox,x+10 yp+2 vshowtools gshowtools Checked%srfTool% , 独立显示
+	Gui, 98:Add, CheckBox,x+10 yp+2 vshowtools gshowtools Checked%srfTool%, 独立显示
 	GuiControl, 98:ChooseString, select_logo, %StyleN%
 	If Logo_Switch~="i)off"
 		GuiControl, 98:Disable, select_logo
