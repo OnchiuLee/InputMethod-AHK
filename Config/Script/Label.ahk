@@ -4235,8 +4235,8 @@ DB_management:
 	GuiControl, DB:Hide, search_1
 	Gui, DB:Add, ListView,R15 w400 xm+0 y+10 Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 Checked -Multi 0x8 LV0x40 -LV0x10 gMyDB vMyDB hwndDBLV, 词条|编码|词频
 	GuiControl, +Hdr, MyDB
-	DLV := New LV_Colors(DBLV)
-	DLV.SelectionColors(0xfecd1b)
+	;;DLV := New LV_Colors(DBLV)
+	;;DLV.SelectionColors(0xfecd1b)
 	Gui,DB:Font,
 	Gui,DB:Font, s10, %font_%
 	Gui, DB:Add, Button,y+10 Section gDB_BU vDB_BU hWndDBBT, 导出全部
@@ -4337,7 +4337,8 @@ Lastpage:
 Return
 
 NextRows:
-	DLV.SelectionColors(0xfecd1b),counts:=0
+	counts:=0
+	;;DLV.SelectionColors(0xfecd1b)
 	if (DB_Page=1||DB_Page=Ceil(Result_.RowCount/DB_Count))
 		LV_Delete()
 	loop % DB_Count
@@ -4378,7 +4379,7 @@ NextRows:
 Return
 
 ReadDB:
-	DLV.SelectionColors(0xfecd1b)
+	;;DLV.SelectionColors(0xfecd1b)
 	if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci")
 		SQL:="SELECT aim_chars,A_Key,D_Key FROM ci WHERE C_Key is NULL or D_Key ='0' ORDER BY A_Key,B_Key DESC;"
 	else
@@ -4461,7 +4462,7 @@ Return
 
 search_result:
 	ss:=0
-	DLV.SelectionColors(0xC0C0C0)
+	;;DLV.SelectionColors(0xC0C0C0)
 	if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci"){
 		if search_1
 			SQL:="SELECT aim_chars,A_Key,D_Key FROM ci WHERE aim_chars LIKE '%" search_text "%' AND D_Key ='0' or A_Key LIKE '%" search_text "%' AND D_Key ='0';"
