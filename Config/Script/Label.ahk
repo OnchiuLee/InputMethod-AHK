@@ -691,9 +691,11 @@ Frequency:
 	if !Frequency {
 		For k,v In ["FTip","set_Frequency","RestDB"]
 			GuiControl, 98:Disable, %v%
+		OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 	}else{
 		For k,v In ["FTip","set_Frequency","RestDB"]
 			GuiControl, 98:Enable, %v%
+		OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x292421})
 	}
 Return
 
@@ -1253,14 +1255,16 @@ More_Setting:
 	ImageButton.Create(BBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo13
 	Gui, 98:Add, CheckBox,x190 y+10 Checked%Frequency% vFrequency gFrequency, 动态调频
-	if (not Wubi_Schema~="i)ci"||Trad_Mode~="i)on"||Prompt_Word~="i)on")
+	if (not Wubi_Schema~="i)ci"||Trad_Mode~="i)on"||Prompt_Word~="i)on") {
 		GuiControl, 98:Disable, Frequency
+	}
 	Gui, 98:Add, Text, x+5 yp vFTip left vTextInfo14, 调频参数：
 	Gui, 98:Add, DDL,x+5 yp-3 w50 vset_Frequency gset_Frequency hWndFRDL +0x0210, 2|3|4|5|6|7|8
 	OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x292421})
 	Gui, 98:Add, Button, x+10 yp-1 vRestDB gRestDB hWndRDBT, 重置词频
 	ImageButton.Create(RDBT, [6, 0x80404040, 0xC0C0C0, "Red"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	if (not Wubi_Schema~="i)ci"||Trad_Mode~="i)on"||Prompt_Word~="i)on"||!Frequency) {
+		OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 		GuiControl, 98:Disable, FTip
 		GuiControl, 98:Disable, set_Frequency
 		GuiControl, 98:Disable, RestDB
@@ -1564,7 +1568,7 @@ WinMode:
 	Gui, IM:Add, Button, x+10 vAddProcess gAddProcess hWndAPBT,添加
 	ImageButton.Create(APBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, IM:Add, DropDownList ,Choose1 w80 x+10 vIM_DDL gIM_DDL hWndIDDL +0x0210, 中文|英文|剪切板
-	OD_Colors.Attach(IDDL,{T: 0xffe89e, B: 0x292421})
+	OD_Colors.Attach(IDDL,{T: 0x546a7c, B: 0xC0C0C0})
 	GuiControl,IM:Disable,IM_DDL
 	Gui, IM:Add, ListView, AltSubmit Grid r15 x10 yp+30 -LV0x10 -Multi Checked NoSortHdr -wscroll -WantF2 0x8 LV0x40 hwndIPView gIPView vIPView  ,进程名|输入状态
 	For Section, element In EXEList_obj
@@ -1617,22 +1621,28 @@ IPView:
 	if A_GuiEvent~="i)Normal" {
 		LV_GetText(LVName_,A_EventInfo,2),LV_GetText(LVName,A_EventInfo,1), LVPOS:= A_EventInfo
 		GuiControl,IM:,IM_DDL,% LVName_~="中文"?"|英文|剪切板":LVName_~="英文"?"|中文|剪切板":LVName_~="剪切板"?"|中文|英文":""
-		;GuiControl, IM:ChooseString, IM_DDL, % LVName_
+		;;GuiControl, IM:ChooseString, IM_DDL, % LVName_
 		GuiControl,IM:Enable,IM_DDL
-		if LVName_~="剪切板"
+		OD_Colors.Attach(IDDL,{T: 0xffe89e, B: 0x292421})
+		if LVName_~="剪切板" {
 			GuiControl,IM:Disable,IM_DDL
-		else
+			OD_Colors.Attach(IDDL,{T: 0x546a7c, B: 0xC0C0C0})
+		}else{
 			GuiControl,IM:Enable,IM_DDL
+			OD_Colors.Attach(IDDL,{T: 0xffe89e, B: 0x292421})
+		}
 		LVName__:=LVName_="中文"?"CN":LVName_="英文"?"EN":"CLIP"
 		loop, % LV_GetCount()+1
 		{
 			if LV_GetNext( A_Index-1, "Checked" ){
 				GuiControl, IM:Enable, DTxck
 				GuiControl,IM:Disable,IM_DDL
+				OD_Colors.Attach(IDDL,{T: 0x546a7c, B: 0xC0C0C0})
 				break
 			}else{
 				GuiControl, IM:Disable, DTxck
 				GuiControl,IM:Enable,IM_DDL
+				OD_Colors.Attach(IDDL,{T: 0xffe89e, B: 0x292421})
 				break
 			}
 		}
@@ -2534,9 +2544,11 @@ sChoice4:
 		if !Frequency {
 			For k,v In ["FTip","set_Frequency","RestDB"]
 				GuiControl, 98:Disable, %v%
+			OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 		}else{
 			For k,v In ["FTip","set_Frequency","RestDB"]
 				GuiControl, 98:Enable, %v%
+			OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x292421})
 		}
 	}else if (sChoice4~="单"||A_ThisMenuItem~="单"){
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="zi",WubiIni.save()
@@ -2550,6 +2562,7 @@ sChoice4:
 		GuiControl,logo:, MoveGui,*Icon13 config\Skins\logoStyle\%StyleN%.icl
 		For k,v In ["FTip","set_Frequency","RestDB","Frequency"]
 			GuiControl, 98:Disable, %v%
+		OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 	}else if (sChoice4~="超"||A_ThisMenuItem~="超") {
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="chaoji",WubiIni.save()
 		Menu, Tray, Disable, 批量造词
@@ -2562,6 +2575,7 @@ sChoice4:
 		GuiControl,logo:, MoveGui,*Icon12 config\Skins\logoStyle\%StyleN%.icl
 		For k,v In ["FTip","set_Frequency","RestDB","Frequency"]
 			GuiControl, 98:Disable, %v%
+		OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 	}else if (sChoice4~="字根"||A_ThisMenuItem~="字根") {
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="zg",WubiIni.save()
 		Menu, Tray, Disable, 批量造词
@@ -2570,6 +2584,7 @@ sChoice4:
 		For k,v In ["ciku1", "ciku2", "SBA23", "Frequency", "FTip", "set_Frequency", "RestDB"]
 			GuiControl, 98:Disable, %v%
 		GuiControl,logo:, MoveGui,*Icon14 config\Skins\logoStyle\%StyleN%.icl
+		OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 	}
 Return
 
@@ -2810,15 +2825,18 @@ SBA3:
 		Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="on",PromptChar:=WubiIni.Settings["PromptChar"]:=0,WubiIni.save()
 		For k,v In ["Frequency","FTip","set_Frequency","RestDB"]
 			GuiControl, 98:Disable, %v%
+		OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 	}else{
 		Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="off",WubiIni.save()
 		GuiControl, 98:Enable, Frequency
 		if Frequency {
 			For k,v In ["FTip","set_Frequency","RestDB"]
 				GuiControl, 98:Enable, %v%
+			OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x292421})
 		}else{
 			For k,v In ["FTip","set_Frequency","RestDB"]
 				GuiControl, 98:Disable, %v%
+			OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 		}
 	}
 Return
@@ -3152,10 +3170,12 @@ SBA24:
 		PromptChar:=WubiIni.Settings["PromptChar"]:=1, Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="off",WubiIni.save()
 		For k,v In ["Frequency","FTip","set_Frequency","RestDB"]
 			GuiControl, 98:Enable, %v%
+		OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x292421})
 	}else{
 		PromptChar:=WubiIni.Settings["PromptChar"]:=0, WubiIni.save()
 		For k,v In ["Frequency","FTip","set_Frequency","RestDB"]
 			GuiControl, 98:Disable, %v%
+		OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 	}
 Return
 
