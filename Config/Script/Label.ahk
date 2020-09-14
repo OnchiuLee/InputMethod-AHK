@@ -3632,32 +3632,35 @@ return
 
 ;批量造词
 Add_Code:
-if WinExist("造词窗口"){
-	Traytip,  警告提示:,不能重复打开「批量造词」窗口！,,2
-	Return
-}
-else
-{
-	Gui, 29:Default              ;A_ScreenDPI/96
-	Gui, 29: +AlwaysOnTop +LastFound hwndEditPlus    ;+ToolWindow +OwnDialogs +MinSize260x250 -MaximizeBox +Resize 
-	Gui, 29:Font,cc24704
-	Gui,29:Add, text,w400,❶.输入格式：纯中文词条或自定义格式（编码=词条）。`n❷.添加方式：手动输入词条单击「添加」或输入分号自动添加。`n❸.批量添加方式：纯词条多行TXT文本或者单行单义TXT文本或多行「编码=词条」格式TXT文本拖曳至本窗口或桌面色块。`n❹.双击指定行进行删除操作，点击「保存」进行提交。`n❺.文件拖拽功能在部分系统可以会失效，请导入txt文本进行批量造词。
-	Gui, 29:Font
-	Gui,29:Add, ListBox, y+8 r15 w400 gSet_Value vSet_Value +Multi hwndCodeEdit  ;+Multi
-	Gui, 29: add, Edit, r1 y+10 w280 gEditBox2 vEditBox2 hwndCodeEdit2, 
-	Gui, 29: add, Button,x+10 gaddChars hWndGCBT, 添加
-	ImageButton.Create(GCBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	Gui, 29: add, Button,x+5 w60 gaddFiles vaddFiles HWNDAFBT, 词条导入
-	ImageButton.Create(AFBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	Gui, 29:font,
-	Gui, 29:font,s11 bold
-	Gui, 29:Add, Button,xm gSave vSave hWndSVBT, 保存
-	ImageButton.Create(SVBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	Gui, 29:font,
-	Gui, 29:Submit
-	Gui,29:show,AutoSize,造词窗口
-	Gosub SetGuiTitle
-}
+	ACTitle:="造词窗口"
+	if WinExist(ACTitle){
+		Traytip,  警告提示:,不能重复打开「批量造词」窗口！,,2
+		Return
+	}
+	else
+	{
+		Gui, 29:Destroy
+		Gui, 29:Default              ;A_ScreenDPI/96
+		Gui, 29: +LastFound hwndEditPlus    ;+ToolWindow +OwnDialogs +MinSize260x250 -MaximizeBox +Resize +AlwaysOnTop
+		Gui, 29:font,s12
+		Gui, 29:Margin,12,12
+		Gui,29:Add, ListBox, r15 w420 gSet_Value vSet_Value +Multi hwndCodeEdit  ;+Multi
+		Gui, 29:Font
+		Gui, 29:font,s10 bold
+		Gui, 29: add, Edit, r1 y+10 w290 gEditBox2 vEditBox2 hwndCodeEdit2, 
+		Gui, 29: add, Button,x+5 gaddChars hWndGCBT, 添加
+		ImageButton.Create(GCBT, [6, 0x80404040, 0xC0C0C0, "Green"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+		Gui, 29: add, Button,x+5 w60 gaddFiles vaddFiles HWNDAFBT, 批量导入
+		ImageButton.Create(AFBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+		Gui, 29:font,
+		Gui, 29:font,s11 bold
+		Gui, 29:Add, Button,xm gSave vSave hWndSVBT, 保存
+		ImageButton.Create(SVBT, [6, 0x80404040, 0xC0C0C0, "Green"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+		Gui, 29:font,
+		Gui, 29:Submit
+		Gui,29:show,AutoSize,%ACTitle%
+		Gosub SetGuiTitle
+	}
 return
 
 EM_SetCueBanner(hWnd, Cue)
@@ -3698,11 +3701,15 @@ Return
 
 addChars:
 	if not EditBox2~="\=|^\;|^\；" {
-		GuiControl,29:, Set_Value ,% get_en_code(EditBox2) "=" EditBox2 "|"
-		GuiControl,29:, EditBox2 ,
+		If StrLen(EditBox2)>0 {
+			GuiControl,29:, Set_Value ,% get_en_code(EditBox2) "=" EditBox2 "|"
+			GuiControl,29:, EditBox2 ,
+		}
 	}else if EditBox2~="\=" {
-		GuiControl,29:, Set_Value ,% RegExReplace(EditBox2,"^\s+|\s+$") "|"
-		GuiControl,29:, EditBox2 ,
+		If StrLen(EditBox2)>0 {
+			GuiControl,29:, Set_Value ,% RegExReplace(EditBox2,"^\s+|\s+$") "|"
+			GuiControl,29:, EditBox2 ,
+		}
 	}
 	ControlFocus , Edit1, A
 Return
