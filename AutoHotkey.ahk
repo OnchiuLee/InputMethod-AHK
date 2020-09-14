@@ -399,7 +399,7 @@ WM_LBUTTONDOWN(){
 WM_RBUTTONDOWN(){
 	global Wubi_Schema, ToolTipStyle, FocusStyle, PosIndex, srf_for_select_Array, Trad_Mode, Prompt_Word, srf_all_input, ListNum, TPosObj, waitnum, Logo_X, Logo_Y, Tip1hWnd, Tip2hWnd
 	PosIndex:=0
-	If (A_Gui="logo"||A_Gui="SrfTip"||A_Gui="TSF"&&!FocusStyle||A_Gui="houxuankuang"||Hex_Dec(WinExist("A"))=Tip2hWnd){
+	If (A_Gui="logo"||A_Gui="SrfTip"||A_Gui="TSF"&&!FocusStyle||A_Gui="houxuankuang"||Hex_Dec(WinExist("A"))=Tip2hWnd||A_Gui="TSF"&&not Wubi_Schema~="i)ci"&&FocusStyle){
 		Menu, TRAY, Show
 	}
 	if (A_Gui="TSF"&&Wubi_Schema~="i)ci"&&ToolTipStyle~="i)Gdip"&&FocusStyle&&srf_all_input~="^[a-y]+"&&Prompt_Word~="i)off"&&Trad_Mode~="i)off"){
