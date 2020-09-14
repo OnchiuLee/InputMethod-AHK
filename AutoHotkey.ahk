@@ -2,7 +2,7 @@
    脚本说明： 98五笔多功能版改装自--@河许人@天黑请闭眼联合开发的「影子输入法」与@hello_srf的柚子输入法代码结构
    资源库:https://wubi98.gitee.io/ && http://98wb.ys168.com/
    GitHub:https://github.com/OnchiuLee/AHK-Input-method
-;~ 环境 版本:   Autohotkey v1.1.32.00
+;~ 环境 版本:   Autohotkey v1.1.33.02
 */
 ;*********************************************************************************
 
@@ -41,7 +41,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020091218"
+version :="2020091311"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -390,17 +390,17 @@ WM_LBUTTONDOWN(){
 			srf_select(PosIndex)
 		}
 	}
-	if (A_Gui="TSF"||A_Gui ="houxuankuang"||A_Gui ="SrfTip"||srfTool&&A_Gui="logo"){
+	if (A_Gui ="SrfTip"||srfTool&&A_Gui="logo"){
 		PostMessage, 0xA1, 2
 		Gosub Write_Pos
 	}
 }
 
 WM_RBUTTONDOWN(){
-	global Wubi_Schema, ToolTipStyle, FocusStyle, PosIndex, srf_for_select_Array, Trad_Mode, Prompt_Word, srf_all_input, ListNum, TPosObj, waitnum, Logo_X, Logo_Y
+	global Wubi_Schema, ToolTipStyle, FocusStyle, PosIndex, srf_for_select_Array, Trad_Mode, Prompt_Word, srf_all_input, ListNum, TPosObj, waitnum, Logo_X, Logo_Y, Tip1hWnd, Tip2hWnd
 	PosIndex:=0
-	If (A_Gui="logo"||A_Gui="SrfTip"){
-		Menu, TRAY, Show, x%Logo_X%, y%Logo_Y%
+	If (A_Gui="logo"||A_Gui="SrfTip"||A_Gui="TSF"&&!FocusStyle||A_Gui="houxuankuang"||Hex_Dec(WinExist("A"))=Tip2hWnd){
+		Menu, TRAY, Show
 	}
 	if (A_Gui="TSF"&&Wubi_Schema~="i)ci"&&ToolTipStyle~="i)Gdip"&&FocusStyle&&srf_all_input~="^[a-y]+"&&Prompt_Word~="i)off"&&Trad_Mode~="i)off"){
 		mousegetpos, FX, FY
@@ -427,7 +427,8 @@ WM_RBUTTONDOWN(){
 			Menu, selectmenu, Add, 删除, Delete_Word   ; +Break
 			Menu, selectmenu, Icon, 删除, config\wubi98.icl, 39
 			Menu, selectmenu, Show
-		}
+		}else
+			Menu, TRAY, Show
 	}
 }
 
