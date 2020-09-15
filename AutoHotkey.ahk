@@ -41,7 +41,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020091511"
+version :="2020091517"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -128,7 +128,7 @@ Loop Files, config\Skins\logoStyle\*.icl
 ;{{{{{读取配置及配置检测
 global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni(A_Temp "\InputMethodData\Config.ini")
 	srf_default_obj:={LogoColor:{LogoColor_cn:"008000",LogoColor_en:"00FFFF",LogoColor_caps:"0000ff"}
-		,Settings:{Startup:"off",CNID:CpuID,IStatus:1,CharFliter:0,Exit_switch:1,PromptChar:0, DPIScale:1
+		,Settings:{Startup:"off",CNID:CpuID,IStatus:1,CharFliter:0,Exit_switch:1,PromptChar:0, DPIScale:1,CursorStatus:0
 				,Exit_hotkey:"^esc", symb_mode:2,Frequency:0,Freq_Count:3,srfTool:0,length_code:"on"
 				, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f",versions:version
 				, cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"10", Logo_Y:A_ScreenHeight/2
@@ -168,7 +168,7 @@ config_tip:={LogoColor:{LogoColor_cn:"桌面色块中文状态颜色",LogoColor_
 			, CharFliter:"单字方案GB2312过滤",IStatus:"窗口程序输入状态配置开关",Exit_switch:"快捷退出快捷键启用开关",PromptChar:"逐码提示"
 			, Exit_hotkey:"快捷退出快捷键",BUyaml:"导出文件为yaml格式文件，需要文件头支持才能导出",Frequency:"动态调频〔只对含词方案有效〕"
 			, Freq_Count:"调频参数〔词条上屏次数〕",FocusStyle:"焦点候选样式<1为启用,反之>",EN_Mode:"英文模式",srfTool:"输入法指示条独立显示"
-			, PageShow:"候选框页数显示", s2t_swtich:"简繁模式切换开关", s2t_hotkey:"简繁模式切换功能快捷键", cf_swtich:"拆分显示功能开关"
+			, PageShow:"候选框页数显示", s2t_swtich:"简繁模式切换开关", s2t_hotkey:"简繁模式切换功能快捷键", cf_swtich:"拆分显示功能开关", CursorStatus:"工型光标为中文状态，反之"
 			, cf_hotkey:"字根拆分快捷键", UIAccess:"候选框UI层级权限提升,1为开启 0为关闭", Addcode_switch:"批量造词开关<1为开启,0为关闭>"
 			, Addcode_hotkey:"批量造词热键设置", Suspend_switch:"脚本挂起启用开关<1为开启,0为关闭>", Suspend_hotkey:"脚本挂起启用快捷键设置"
 			, tip_hotkey:"划词反查快捷键设置", rlk_switch:"划词反查开关<1为开启,0为关闭>", symb_mode:"中英文符号模式，1为英文 2为中文", DPIScale:"指示器放大"
@@ -339,7 +339,7 @@ global code_status:=localpos:=srfCounts:=select_pos:=1
 global valueindex:=Cut_Mode?2:1
 global waitnum:=select_sym:=PosLimit:=PosIndex:=InitSetting:=0
 Select_Code=gfdsahjklm;'space           ;字母选词
-global num__:=Result_Char:=Select_result :=selectallvalue:=""
+global num__:=Result_Char:=Select_result :=selectallvalue:=ID_Cursor:=""
 global select_arr:=select_value_arr:=srf_bianma:=add_Array:=add_Result:=Split_code:=[]
 ;}}
 
@@ -426,6 +426,7 @@ WM_RBUTTONDOWN(){
 				Menu, selectmenu, Enable, 后移
 			Menu, selectmenu, Add, 删除, Delete_Word   ; +Break
 			Menu, selectmenu, Icon, 删除, config\wubi98.icl, 39
+			Menu, selectmenu, color, ffffff
 			Menu, selectmenu, Show
 		}else
 			Menu, TRAY, Show
@@ -443,20 +444,20 @@ WM_MOUSEMOVE()
 {
 	global Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, transparentX, LogoSize, srfTool, Tip_Show:={LineColor:"Gdip样式中间分隔线颜色",SBA6:"符号顶首选屏并上屏该键符号",font_value:"候选字号大小`n范围[9-40]"
 		,BorderColor : "Gdip样式四周边框线颜色", SBA16:"冻结/启用程序快捷键启用开关", SBA15:"鼠标划词反查编码功能启用开关", UIAccess:"候选框UI层级权限提升`n看不到候选框时开启",font_size:"候选字号大小`n范围[9-40]"
-		, SBA0 :"候选框固定坐标设置",About:"软件使用说明",ciku3:"英文词库导入`n（单行单义格式，以tab符隔开）`n「英文词条+Tab+词频」",ciku4:"英文词库导出`n（导出为单行单义格式txt码表）"
+		, SBA0 :"候选框固定坐标设置",About:"软件使用说明",ciku3:"英文词库导入`n（单行单义格式，以tab符隔开）`n「英文词条+Tab+词频」",ciku4:"英文词库导出`n（导出为单行单义格式txt码表）", Cursor_Status:"在不同窗口情况下鼠标为‘工’字形时自动切换至中文状态，反之"
 		,ciku5:"特殊符号词库导入`n（格式「/引导字母+Tab+多符号以英文逗号隔开」）", SBA5 : "固定候选框的位置，不跟随光标",BgColor:"候选框背景色",FocusBackColor:"候选框焦点选项背景色"
 		,FocusColor:"候选框焦点选项字体色", FontColor:"候选词字体颜色", FontCodeColor:"候选框编码字体颜色", SBA1:"繁体开关（输简出繁）快捷键启用开关",select_value:"候选框词条显示数目`n范围[3-10]"
 		, SBA4:"加入开机自启动任务：「`non＝>为建立系统计划任务实现自启`noff＝>为关闭开机自启`nsc＝>为在系统自启目录建立快捷方式实现自启」",ciku6:"特殊符号词库导出`n（导出为txt）",set_GdipRadius:"Gdip候选框圆角大小`n范围[0-15]"
 		,tip_hotkey:"通过快捷键开关划词反查",SizeValue:"桌面色块尺寸`n范围[1-150]",SBA20:"候选框分页数显示",FontIN:"字根拆分字体安装",set_regulate_Hx:"ToolTip候选框编码框`n与选词框距离范围[3-25)]"
 		, SBA13:"显示/隐藏桌面色块图标",SBA19:"有焦点色块选项的候选框",SetInput_CNMode:"程序启动时默认中文输入模式",SetInput_ENMode:"程序启动时默认英文输入模式", SBA12 : "候选词显示粗体",SBA26:"四码唯一时自动上屏〔独立开关〕"
 		,ciku1:"导入txt词库至数据库`ntxt码表格式需为「单行单义」",ciku2:"导出词库为「单行单义」的txt格式文本",SBA2:"拆分功能快捷键启用开关`n（需特殊字体支持，字体在本程序Font目录）",GdipRadius:"Gdip候选框圆角大小`n范围[0-15]"
-		,sethotkey_2:"打开小键盘选取键值",InputStatus:"窗口程序输入状态配置，只对新开窗口有效！",set_SizeValue:"桌面色块尺寸`n范围[1-150]", vset_regulate:"ToolTip候选框编码框`n与选词框距离范围[3-25]"
+		,sethotkey_2:"打开小键盘选取键值",InputStatus:"窗口程序输入状态配置，切换窗口有效！",set_SizeValue:"桌面色块尺寸`n范围[1-150]", vset_regulate:"ToolTip候选框编码框`n与选词框距离范围[3-25]"
 		,set_FocusRadius:"焦点候选框焦点项背景圆角`n范围[0-18]",set_FocusRadius_value:"焦点候选框焦点项背景圆角`n范围[0-18]", SBA3:"当编码无词条时模糊匹配提示",SBA7:"四位编码候选唯一时自动上屏，五码时顶首选上屏"
 		,SBA9:"Gdip候选框圆角开关",SBA10:"Gdip候选样式中间分隔线",yaml_:"导出词库为yaml格式可直接应用于rime平台，`n需Sync目录有header.txt文件头支持",search_1:"〔 词频为0的为主词库已删除的，勾选删除即恢复！ 〕"
 		,IM_DDL:"此处选择你要更改的内容",WinMode:"设置每个有窗口进程的输入状态与上屏方式",SBA22:"程序退出快捷键启用开关",Exit_hotkey:"程序退出操作快捷键",SBA23:"单字方案模式下GB2312字集过滤", showtools:"独立显示指示功能条，不显示色块"
 		,set_select_value:"候选框词条显示数目`n范围[3-10]", Save:"格式：“纯中文词条”或者“编码=词条”",SrfSlider:"当前透明值为：" transparentX,LogoColor_cn:"中文状态色块颜色",LogoColor_en:"英文状态色块颜色",LogoColor_caps:"大写状态色块颜色"
 		,Frequency:"自动根据每个词条的输入频率进行顺序调整",set_Frequency:"设置词条的输入频率值来进行置顶调整",CreateSC:"建立桌面快捷启动图标",ExSty:"使鼠标穿透过色块，不影响正常操作`n开启后无法对色块进行操作"
-		,AddProcess:"只在新开启的窗口有效,在进行窗口切换时没有任何效果!`n添加进程名时,鼠标放在指定的窗口上,按下左Ctrl执行添加`n,20秒内无操作,自动添加当前鼠标所在窗口的进程.",SBA17:"批量造词快捷键启用开关"
+		,AddProcess:"窗口切换有效,在同窗口时没有任何效果!`n添加进程名时,鼠标放在指定的窗口上,按下左Ctrl执行添加`n,20秒内无操作,自动添加当前鼠标所在窗口的进程.",SBA17:"批量造词快捷键启用开关"
 		,ciku10:"汉字读音文件导入`n〔文本格式：单字+Tab+拼音〕",ciku11:"拼音文件导出为单行单义格式", addFiles:"文本中词条格式为：“纯中文词条“ 或者 ”编码=词条”`n多个词组以行隔开！",SBA25:"勾选切换至英文输入模式"
 		,ShowSymList:"提供选择常用的标点符号，成对的标点`n光标居中效果清追加{left}",HL:"标点符号修改开关",DPISty:"桌面输入法指示器启用跟随系统DPI缩放",RestDB:"重置「含词」词库词频为初始状态",SBA21:"修改标点符号映射"}
 
@@ -521,8 +522,8 @@ Gui +LastFound
 DllCall( "RegisterShellHookWindow", UInt,WinExist() )   ;WinActive()
 OnMessage( DllCall( "RegisterWindowMessage", Str,"SHELLHOOK" ), "ShellIMEMessage")
 ShellIMEMessage( wParam,lParam ) {
-	global srf_mode, EXEList_obj, Initial_Mode, WubiIni,StyleN,IStatus, program, IMEmode
-		, Startup_Name, Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, srf_all_input
+	global srf_mode, EXEList_obj, Initial_Mode, WubiIni,StyleN,IStatus, program, IMEmode ,CursorStatus
+		, Startup_Name, Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, srf_all_input, ID_Cursor
 	If (wParam = 1 ){    ; wParam = 6
 		WinGet, WinEXE, ProcessName , ahk_id %lParam%
 		WinGetclass, WinClass, ahk_id %lParam%
@@ -543,6 +544,7 @@ ShellIMEMessage( wParam,lParam ) {
 			}
 		}
 	}
+
 	SetTimer, func_timer, 1000
 
 	func_timer:
@@ -570,6 +572,17 @@ ShellIMEMessage( wParam,lParam ) {
 				Gosub ShowSrfTip
 			}
 		}
+
+		If (A_Cursor ~= "i)IBeam"&&CursorStatus&&!srf_mode&&ID_Cursor<>WinID_) {
+			srf_mode:=1, ID_Cursor:=WinID_
+			GuiControl,logo:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
+			Gosub ShowSrfTip
+		}else If (not A_Cursor ~= "i)IBeam"&&CursorStatus&&srf_mode) {
+			srf_mode:=0
+			GuiControl,logo:, Pics,*Icon3 config\Skins\logoStyle\%StyleN%.icl
+			Gosub ShowSrfTip
+		}
+
 		LastWinEXE:=WinEXE_, Eid:=WinExist()
 		program:="※ " Startup_Name " ※`n◆ 当前方案：" (Wubi_Schema~="i)ci"?"【98五笔•含词】":Wubi_Schema~="i)zi"?"【98五笔•单字】":Wubi_Schema~="i)zg"?"【98五笔•字根】":"【98五笔•超集】") "`n◆ 农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "〖 " A_DDDD " 〗`n◆ 农历时辰：" Time_GetShichen(SubStr( A_Now,9,2)) ""
 		Menu,Tray,Tip,%program%
