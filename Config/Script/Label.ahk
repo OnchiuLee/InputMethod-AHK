@@ -621,7 +621,7 @@ srf_tooltip:
 			if srf_for_select_Array.Length()=0{    ;如果无候选，则自动清空历史
 				srf_for_select_for_tooltip:=
 			}
-			else if srf_for_select_Array.Length()=1 ;如果候选唯一，则自动上屏
+			else if (srf_for_select_Array.Length()=1&&length_code~="i)on") ;如果候选唯一，则自动上屏
 			{
 				srf_select(1)
 				gosub srf_value_off
@@ -1109,7 +1109,7 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","SBA13","TextInfo1","showtools","SrfSlider","SizeValue","set_SizeValue","ExSty","DPISty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","TextInfo27","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 		,GBoxList2:["GBox2","TextInfo11","TextInfo25","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
-		,GBoxList3:["GBox3","SBA7","SBA23","SBA24","UIAccess","SBA6","SBA14","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
+		,GBoxList3:["GBox3","SBA7","SBA26","SBA23","SBA24","UIAccess","SBA6","SBA14","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","sChoice4","ciku1","ciku9","ciku2","ciku8","ciku7","yaml_","ciku3","ciku4","ciku5","ciku6","ciku10","ciku11"]
@@ -1242,14 +1242,15 @@ More_Setting:
 	}
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA24 gSBA24 Checked%PromptChar%, 逐码提示
 	Gui, 98:Add, CheckBox,x%CheckVar1X% yp+0 vSBA25 gSBA25 Checked%EN_Mode%, 英文模式
-	Gui, 98:Add, CheckBox,x%CheckVar2X% yp+0 vSBA7 gSBA7, 四码上屏
-	
+	Gui, 98:Add, CheckBox,x%CheckVar2X% yp+0 vSBA7 gSBA7, 四码唯一`n五码顶屏
+	If limit_code~="i)off"
+		GuiControl,98:Disable,SBA26
 	if Prompt_Word~="i)on" {
 		PromptChar:=WubiIni.Settings["PromptChar"]:=0
 		GuiControl,98:, SBA3 , 0
 	}
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA23 gSBA23 Checked%CharFliter%, GB2312过滤（单字方案）
-	
+	Gui, 98:Add, CheckBox,x%CheckVar2X% yp+0 vSBA26 gSBA26, 四码唯一上屏
 	if (not Wubi_Schema ~="i)zi"||!FileExist("config\GB*.txt"))
 		GuiControl, 98:Disable, SBA23
 	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo28
@@ -2163,7 +2164,7 @@ ControlGui:
 	For k,v In ["Ctrl","Shift","Alt","LWin"]
 		if Srf_Hotkey~="i)" v
 			GuiControl,98:choose, sethotkey_1 , %k%
-	For k,v In {Radius:"SBA9",FontStyle:"SBA12",Logo_Switch:"SBA13",Gdip_Line:"SBA10",Fix_Switch:"SBA5",Prompt_Word:"SBA3",symb_send:"SBA6",limit_code:"SBA7"}
+	For k,v In {Radius:"SBA9",FontStyle:"SBA12",Logo_Switch:"SBA13",Gdip_Line:"SBA10",Fix_Switch:"SBA5",Prompt_Word:"SBA3",symb_send:"SBA6",limit_code:"SBA7",length_code:"SBA26"}
 		if (%k%~="i)on")
 			GuiControl,98:, %v% , 1
 	if Logo_Switch~="off" {
@@ -2883,8 +2884,19 @@ SBA7:
 	GuiControlGet, SBA ,, SBA7, Checkbox
 	if (SBA==1) {
 		limit_code:=WubiIni.Settings["limit_code"]:="on",WubiIni.save()
+		GuiControl,98:Enable,SBA26
 	}else{
 		limit_code:=WubiIni.Settings["limit_code"]:="off",WubiIni.save()
+		GuiControl,98:Disable,SBA26
+	}
+Return
+
+SBA26:
+	GuiControlGet, SBA ,, SBA26, Checkbox
+	if (SBA==1) {
+		length_code:=WubiIni.Settings["length_code"]:="on",WubiIni.save()
+	}else{
+		length_code:=WubiIni.Settings["length_code"]:="off",WubiIni.save()
 	}
 Return
 
@@ -3605,6 +3617,10 @@ Return
 ;四码上屏
 limit_code:
 	limit_code :=WubiIni.Settings["limit_code"] :=limit_code~="i)off"?"on":"off", WubiIni.save()
+	If limit_code~="i)on"
+		GuiControl,98:Enable,SBA26
+	else
+		GuiControl,98:Disable,SBA26
 return
 
 ;简繁转换
