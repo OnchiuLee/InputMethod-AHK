@@ -706,7 +706,7 @@ Return
 
 RestDB:
 	Gui +OwnDialogs
-	MsgBox, 262404,重置确认, 是否重置词频？
+	MsgBox, 262452,重置确认, 是否重置词频？
 	IfMsgBox Yes
 		if DB.Exec("UPDATE ci SET D_Key=B_Key;")>0
 			Traytip,,重置成功！
@@ -1109,7 +1109,7 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","SBA13","TextInfo1","showtools","SrfSlider","SizeValue","set_SizeValue","ExSty","DPISty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","TextInfo27","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 		,GBoxList2:["GBox2","TextInfo11","TextInfo25","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
-		,GBoxList3:["GBox3","SBA7","SBA26","SBA23","SBA24","UIAccess","SBA6","SBA14","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC"]
+		,GBoxList3:["GBox3","SBA7","SBA26","SBA23","SBA24","UIAccess","SBA6","SBA14","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC","Cursor_Status"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","sChoice4","ciku1","ciku9","ciku2","ciku8","ciku7","yaml_","ciku3","ciku4","ciku5","ciku6","ciku10","ciku11"]
@@ -1131,19 +1131,23 @@ More_Setting:
 	Loop Files, config\Skins\*.json
 		themelist.="|" SubStr(A_LoopFileName,1,-5)
 	Gui, 98:Add, DDL,x+5 yp w150 vselect_theme gselect_theme Section hwndHDDL +0x0210, % RegExReplace(themelist,"^\|")
-	;Gui, 98:Add, Text,x190 y+10  vTextInfo2 left, 主题管理：
-	;Gui, 98:Add, Button,x+5 yp-2 cred gdiycolor vdiycolor,自定义配色
-	;Gui, 98:Add, Button,x+5 cred gthemelists vthemelists,主题管理
+	;;Gui, 98:Add, Text,x190 y+10  vTextInfo2 left, 主题管理：
+	;;Gui, 98:Add, Button,x+5 yp-2 cred gdiycolor vdiycolor,自定义配色
+	;;Gui, 98:Add, Button,x+5 cred gthemelists vthemelists,主题管理
 	Gui, 98:Add, Text,x190 y+10 vTextInfo3 left, 配置管理：
+	Gui,98:Font
+	Gui,98:Font, s10 bold, %font_%
 	Gui, 98:Add, Button,x+5 yp-2 cred gBackup_Conf vBackup_Conf hwndCBT,备份配置
-	ImageButton.Create(CBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(CBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, 98:Add, Button,x+20 yp cred gRest_Conf vRest_Conf hwndRBT,恢复配置
-	ImageButton.Create(RBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(RBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	if !FileExist(A_ScriptDir "\Sync\Default.json")
 		GuiControl, 98:Disable, Rest_Conf
 	Loop Files, config\Skins\logoStyle\*.icl
 		logoList.="|" SubStr(A_LoopFileName,1,-4)
 	GuiControlGet, scvar, Pos , Backup_Conf
+	Gui,98:Font
+	Gui,98:Font, s10, %font_%
 	Gui, 98:Add, Text,x190 y+10 vTextInfo4 left, 功能条：
 	Gui, 98:Add, DDL,x%scvarX% yp vselect_logo gselect_logo hWndSLCT +0x0210, % RegExReplace(logoList,"^\|")
 	OD_Colors.Attach(HDDL,{T: 0xffe89e, B: 0x292421})
@@ -1176,10 +1180,10 @@ More_Setting:
 	;Gui,98:Font
 	;Gui,98:Font, s8, %font_%
 	;Gui, 98:Add, Button,x+0 w125 hwndHExportBtn gStyleMenu vStyleMenu, % ToolTipStyle~="i)on"?"Tooltip样式":ToolTipStyle~="i)off"?"Gui候选框样式":"Gdip候选框样式"
-	Gui,98:Font, s10, %font_%
+	Gui,98:Font, s10 bold, %font_%
 	Gui, 98:Add, CheckBox,x190 yp+40 vSBA5 gSBA5, 候选框位置固定
 	Gui, 98:Add, Button,yp-3 x+5 vSBA0 gSBA0 hwndPBT, 坐标设置
-	ImageButton.Create(PBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(PBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo12
@@ -1255,9 +1259,13 @@ More_Setting:
 		GuiControl, 98:Disable, SBA23
 	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo28
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA14 gSBA14, 中文模式使用英文标点
+	Gui,98:Font
+	Gui,98:Font, s10 bold, %font_%
 	Gui, 98:Add, Button,x+10 yp-2 vSBA21 gSBA21 hwndBBT, 标点映射设置
-	ImageButton.Create(BBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(BBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo13
+	Gui,98:Font
+	Gui,98:Font, s10, %font_%
 	Gui, 98:Add, CheckBox,x190 y+10 Checked%Frequency% vFrequency gFrequency, 动态调频
 	if (not Wubi_Schema~="i)ci"||Trad_Mode~="i)on"||Prompt_Word~="i)on") {
 		GuiControl, 98:Disable, Frequency
@@ -1265,6 +1273,8 @@ More_Setting:
 	Gui, 98:Add, Text, x+5 yp vFTip left vTextInfo14, 调频参数：
 	Gui, 98:Add, DDL,x+5 yp-3 w50 vset_Frequency gset_Frequency hWndFRDL +0x0210, 2|3|4|5|6|7|8
 	OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x292421})
+	Gui,98:Font
+	Gui,98:Font, s10 bold, %font_%
 	Gui, 98:Add, Button, x+10 yp-1 vRestDB gRestDB hWndRDBT, 重置词频
 	ImageButton.Create(RDBT, [6, 0x80404040, 0xC0C0C0, "Red"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	if (not Wubi_Schema~="i)ci"||Trad_Mode~="i)on"||Prompt_Word~="i)on"||!Frequency) {
@@ -1273,11 +1283,20 @@ More_Setting:
 		GuiControl, 98:Disable, set_Frequency
 		GuiControl, 98:Disable, RestDB
 	}
+	Gui,98:Font
+	Gui,98:Font, s10, %font_%
 	Gui, 98:Add, CheckBox,x190 y+10 Checked%IStatus% vInputStatus gInputStatus, 输入状态控制
+	Gui,98:Font
+	Gui,98:Font, s10 bold, %font_%
 	Gui, 98:Add, Button, yp-4 x+10 gWinMode vWinMode hWndWMBT,程序设置
-	ImageButton.Create(WMBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	Gui, 98:Add, Button,yp x+10 cred gCreateSC vCreateSC hWndSCBT,建立桌面捷径
-	ImageButton.Create(SCBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(WMBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	Gui,98:Font
+	Gui,98:Font, s10, %font_%
+	Gui, 98:Add, CheckBox,x190 y+10 Checked%CursorStatus% vCursor_Status gCursor_Status, 光标监控
+	Gui,98:Font
+	Gui,98:Font, s10 bold, %font_%
+	Gui, 98:Add, Button,yp-4 x+10 cred gCreateSC vCreateSC hWndSCBT,建立桌面捷径
+	ImageButton.Create(SCBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	if !IStatus
 		GuiControl,98:Disable,WinMode
 	For Section, element In TV_obj
@@ -1307,8 +1326,12 @@ More_Setting:
 	Gui, 98:Add, DDL, vsethotkey_1 gsethotkey_1 x+25 yp-1 w60 HwndHKDL +0x0210, Ctrl|Shift|Alt|LWin
 	OD_Colors.Attach(HKDL,{T: 0xffe89e, B: 0x292421})
 	Gui 98:Add, Text, yp x+10 h22 w65 Center Border cblue vsethotkey_2 gsethotkey_2, % RegExReplace(Srf_Hotkey,"i)Shift|Ctrl|Alt|LWin|&","")
+	Gui,98:Font
+	Gui,98:Font, s9 bold, %font_%
 	Gui, 98:Add, Button, yp+0 x+10 vhk_1 ghk_1 hWndGBKBT, 设置
-	ImageButton.Create(GBKBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(GBKBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	Gui,98:Font
+	Gui,98:Font, s9, %font_%
 	Gui, 98:Add, text, yp+5 x+5 w70 cred vtip_text, %A_Space%
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
@@ -1344,27 +1367,29 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox6, 码表管理
 	Gui,98:Font
-	Gui,98:Font, s10, %font_%
+	Gui,98:Font, s10 bold, %font_%
 	Gui, 98:Add, Button, x220 yp+45 vciku2 gciku2 hwndCKBT1,码表合并导出
-	ImageButton.Create(CKBT1, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(CKBT1, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, 98:Add, Button, x+30 yp vciku8 gciku8 hWndCKBT8,含词主码表导出
-	ImageButton.Create(CKBT8, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(CKBT8, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	GuiControlGet, budbvar, Pos , ciku2
 	Gui, 98:Add, Button, x%budbvarX%  yp+50 vciku3 gciku3 hWndCKBT3,英文词库导入
-	ImageButton.Create(CKBT3, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(CKBT3, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, 98:Add, Button, x+30 yp vciku4 gciku4 hWndCKBT4,英文词库导出
-	ImageButton.Create(CKBT4, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(CKBT4, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, 98:Add, Button, x%budbvarX%  yp+50 vciku5 gciku5 hWndCKBT5,特殊符号导入
-	ImageButton.Create(CKBT5, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(CKBT5, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, 98:Add, Button, x+30 yp vciku6 gciku6 hWndCKBT6,特殊符号导出
-	ImageButton.Create(CKBT6, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(CKBT6, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, 98:Add, Button, x%budbvarX%  yp+50 vciku10 gciku10 hWndCKBT10,汉字拼音导入
-	ImageButton.Create(CKBT10, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(CKBT10, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, 98:Add, Button, x+30 yp vciku11 gciku11 hWndCKBT11,汉字拼音导出
-	ImageButton.Create(CKBT11, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(CKBT11, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, 98:Add, Button, x%budbvarX% yp+50 vciku7 gciku7 hWndCKBT7,自造词条导出
-	ImageButton.Create(CKBT7, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	Gui, 98:Add, CheckBox,x+30 yp+2 vyaml_ gyaml_, 导出为yaml格式文件
+	ImageButton.Create(CKBT7, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	Gui,98:Font
+	Gui,98:Font, s10 norm, %font_%
+	Gui, 98:Add, CheckBox,x+30 yp+5 vyaml_ gyaml_, 导出为yaml格式
 	if !FileExist(A_ScriptDir "\Sync\header.txt")
 		GuiControl, 98:Disable, yaml_
 	For Section, element In TV_obj
@@ -1379,7 +1404,7 @@ More_Setting:
 	Gui,98:Add, Text, x190 yp+35 w360 vinfos_ , `t%Startup_Name%是以AutoHotkey脚本语言编写的外挂类型形码输入法，借用同类型的「影子输入法」的实现思路通过调用众多WinAPI整合SQLite数据库实现文字输出等一系列功能。以「数据库码表性能」和「前端呈现」（调用Windows的GdiPlus.dll）两方面对文字内容直接发送上屏，而不进行传统输入法的转换操作，从XP至Win10皆能流畅运行。此版本为王码五笔98版专用，非98五笔的用户移步至「影子输入法」。
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
-	Gui,98:Add, Link, y+15 vlinkinfo1, 简介：<a href="https://wubi98.gitee.io/2020/04/27/2019-12-03-031.yours/">程序简介</a>`nGitHub：<a href="https://github.com/OnchiuLee/AHK-Input-method">GitHub查看</a>`n使用帮助：<a href="config\ReadMe.png">点我查看详细说明</a>
+	Gui,98:Add, Link, y+15 vlinkinfo1, 简介：<a href="https://wubi98.gitee.io/2020/04/27/2019-12-03-031.yours/">程序简介</a>`nGit：<a href="https://github.com/OnchiuLee/AHK-Input-method">GitHub查看</a> | <a href="https://gitee.com/leeonchiu/AHK-Input-method">Gitee查看</a>`n使用帮助：<a href="config\ReadMe.png">点我查看详细说明</a>
 	Gui,98:Add, Link, y+5 vlinkinfo2, 关于：<a href="https://wubi98.gitee.io/">https://wubi98.gitee.io/</a>`n资源库：<a href="http://98wb.ys168.com">http://98wb.ys168.com</a>
 	Gui,98:Add, Link, y+5 vlinkinfo3, 查看码元图：<a href="config\码元图.jpg">点我查看五笔98版码元图</a>
 	Gui,98:Add, Text, y+5 vversionsinfo, 版本日期：%Versions%
@@ -1556,10 +1581,23 @@ Return
 InputStatus:
 	GuiControlGet, InputStatus ,, InputStatus, Checkbox
 	IStatus :=WubiIni.Settings["IStatus"]:=InputStatus,WubiIni.save()
-	if IStatus
+	if IStatus {
 		GuiControl,98:Enable,WinMode
-	else
+		CursorStatus :=WubiIni.Settings["CursorStatus"]:=0, WubiIni.save()
+		GuiControl,98:, Cursor_Status , 0
+	}else
 		GuiControl,98:Disable,WinMode
+Return
+
+Cursor_Status:
+	GuiControlGet, Cursor_Status ,, Cursor_Status, Checkbox
+	CursorStatus :=WubiIni.Settings["CursorStatus"]:=Cursor_Status,WubiIni.save()
+	if Cursor_Status {
+		IStatus :=WubiIni.Settings["IStatus"]:=0, WubiIni.save()
+		GuiControl,98:, InputStatus , 0
+		GuiControl,98:Disable,WinMode
+	}else
+		GuiControl,98:Enable,WinMode
 Return
 
 WinMode:
@@ -1570,7 +1608,7 @@ WinMode:
 	ImageButton.Create(DTBT, [6, 0x80404040, 0xC0C0C0, "red"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	GuiControl,IM:Disable,DTxck
 	Gui, IM:Add, Button, x+10 vAddProcess gAddProcess hWndAPBT,添加
-	ImageButton.Create(APBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(APBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, IM:Add, DropDownList ,Choose1 w80 x+10 vIM_DDL gIM_DDL hWndIDDL +0x0210, 中文|英文|剪切板
 	OD_Colors.Attach(IDDL,{T: 0x546a7c, B: 0xC0C0C0})
 	GuiControl,IM:Disable,IM_DDL
@@ -1591,7 +1629,7 @@ WinMode:
 	if LV_GetCount()<1
 		ColWidth:=240
 	Gui, IM:Add, Button, y+10 vRTxck gRTxck hWndRTBT,刷新列表
-	ImageButton.Create(RTBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(RTBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	GuiControl, IM:Move, IPView, % "w" (A_ScreenDPI/96>1?ColWidth/(A_ScreenDPI/96):ColWidth)
 	Gui,IM:Show, AutoSize,程序配置
 	Gosub ChangeWinIcon
@@ -1825,14 +1863,14 @@ Label_management:
 	Gui, label:Add, Button,x+5 gRlabel vRlabel hWndRLBT, 重置
 	ImageButton.Create(RLBT, [6, 0x80404040, 0xC0C0C0, "Red"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, label:Add, Button,x+5 gBlabel vBlabel hWndBLBT, 导出
-	ImageButton.Create(BLBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(BLBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, label:Add, Button,x+5 gWlabel vWlabel hWndWLBT, 导入
-	ImageButton.Create(WLBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(WLBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, label:Add, Button,x+5 gUlabel vUlabel hWndULBT, 编辑
 	ImageButton.Create(ULBT, [6, 0x80404040, 0xC0C0C0, "green"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, label:Add, Edit, x+5 R1 w65 vSetlabel WantTab hWndLEdit
 	Gui, label:Add, Button,x+5 gSavelabel vSavelabel hWndSLBT, 确定
-	ImageButton.Create(SLBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(SLBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	GuiControl, label:Hide, Setlabel
 	GuiControl, label:Hide, Savelabel
 	Gui,label:Font
@@ -1854,8 +1892,8 @@ Glabel:
 		LV_ModifyCol(1,"80 left")
 		LV_ModifyCol(2,"180 left")
 		LV_ModifyCol(3,"190 left")
-		CLV := New LV_Colors(HLV)
-		CLV.SelectionColors(0xfecd1b)
+		;;CLV := New LV_Colors(HLV)
+		;;CLV.SelectionColors(0xfecd1b)
 	}
 Return
 
@@ -2356,7 +2394,7 @@ themelists:
 	ImageButton.Create(SEBT, [6, 0x80404040, 0xC0C0C0, "red"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	GuiControl, themes:Disable, SelectV2
 	Gui, themes:Add, Button, x+10 yp Section gSelectV3 hWndODBT, 打开目录
-	ImageButton.Create(ODBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(ODBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, themes:font
 	Gui, themes:font,norm,%Font_%
 	Gui, themes:Add, StatusBar,, 1
@@ -3027,9 +3065,9 @@ Sym_Gui:
 	Gui, Sym: +Owner98
 	Gui, Sym:Font, s10 bold, %Font_%
 	Gui, Sym:Add,Button,gInsert_sym hWndISBT,刷新
-	ImageButton.Create(ISBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(ISBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, Sym:Add,Button,x+10 yp gShowSymList vShowSymList hWndSSLBT,符号列表
-	ImageButton.Create(SSLBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(SSLBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, Sym:Font, s10 underline, %Font_%
 	Gui, Sym:Add, CheckBox,x+10 yp+5 h20 vHL gHiddenCol1ListView, 更改（首列禁止修改！）
 	Gui, Sym:Font, s10 norm, %Font_%
@@ -3690,7 +3728,7 @@ Add_Code:
 		Gui, 29: add, Button,x+5 gaddChars hWndGCBT, 添加
 		ImageButton.Create(GCBT, [6, 0x80404040, 0xC0C0C0, "Green"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 		Gui, 29: add, Button,x+5 w60 gaddFiles vaddFiles HWNDAFBT, 批量导入
-		ImageButton.Create(AFBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+		ImageButton.Create(AFBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 		Gui, 29:font,
 		Gui, 29:font,s11 bold
 		Gui, 29:Add, Button,xm gSave vSave hWndSVBT, 保存
@@ -4266,10 +4304,10 @@ DB_management:
 	Gui, DB:Add, Button,y+10 Section gDB_Delete vDB_Delete hWndDDBT, 删除
 	ImageButton.Create(DDBT, [6, 0x80404040, 0xC0C0C0, "red"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, DB:Add, Button,x+8 Section gDB_reload vDB_reload hWndDRBT, 刷新
-	ImageButton.Create(DRBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(DRBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	GuiControl, DB:Disable, DB_Delete
 	Gui, DB:Add, Button,x+8 Section gDB_search vDB_search hWndDSBT, 搜索
-	ImageButton.Create(DSBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(DSBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, DB:Add, Edit, x+8 yp w180 vsearch_text gsearch_text hwndDBEdit
 	Gui,DB:Font,
 	Gui,DB:Font, s9, %font_%
@@ -4286,11 +4324,11 @@ DB_management:
 	Gui,DB:Font,
 	Gui,DB:Font, s10, %font_%
 	Gui, DB:Add, Button,y+10 Section gDB_BU vDB_BU hWndDBBT, 导出全部
-	ImageButton.Create(DBBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(DBBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,DB:Font,
 	Gui,DB:Font, s9 bold cblue, %font_%
 	Gui, DB:Add, Button,x+150 yp Section vToppage gToppage hWndTPBT,首页
-	ImageButton.Create(TPBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(TPBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,DB:Font,
 	Gui,DB:Font, s9 bold cred, %font_%
 	Gui, DB:Add, Button,x+5 Section vuppage guppage HwndUPBT,上一页
@@ -4300,7 +4338,7 @@ DB_management:
 	Gui,DB:Font,
 	Gui,DB:Font, s9 bold cblue, %font_%
 	Gui, DB:Add, Button,x+5 Section vLastpage gLastpage hWndLPBT,尾页
-	ImageButton.Create(LPBT, [6, 0x80404040, 0xC0C0C0, 0xFFD700], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(LPBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,DB:Font,
 	Gui,DB:Font, s10, %font_%
 	Gui, DB:Add, StatusBar,vSBTIP,
