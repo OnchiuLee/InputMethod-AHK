@@ -4,7 +4,7 @@ Srf_Tip:
 	Gui, SrfTip:Default
 	Scale:=DPIScale?"+DPIScale":"-DPIScale"
 	SrfTip_Width:=SrfTip_Height:=LogoSize   ;方块Logo长宽尺寸
-	Gui,SrfTip:+LastFound -Caption +AlwaysOnTop ToolWindow %Scale% +hwndSrf_Tip  ; -DPIScale
+	Gui,SrfTip:+LastFound -Caption +AlwaysOnTop ToolWindow %Scale% +hwndSrf_Tip      ;; -DPIScale
 	Gui,SrfTip: Add, Pic,x0 y0 h%SrfTip_Width% w%SrfTip_Height% gTipMore vTipMore HwndMyTextHwnd
 	TipBackgroundBrush := DllCall("CreateSolidBrush", UInt, GetKeyState("CapsLock", "T")?"0x" LogoColor_caps:srf_mode?"0x" LogoColor_cn:"0x" LogoColor_en),GuiHwnd := WinExist()
 	WindowProcNew := RegisterCallback("WindowProc", "", 4, MyTextHwnd)
@@ -616,7 +616,7 @@ srf_tooltip:
 
 	If (limit_code ~="i)on"&&!EN_Mode)
 	{
-		if (StrLen(srf_all_input)=4&&srf_all_input ~="^[a-yA-Y]")
+		if (StrLen(srf_all_input)=4&&srf_all_input ~="^[a-yA-Y]*$")
 		{
 			if srf_for_select_Array.Length()=0{    ;如果无候选，则自动清空历史
 				srf_for_select_for_tooltip:=
@@ -628,7 +628,7 @@ srf_tooltip:
 				srf_for_select_Array :=[]
 			}
 		}
-		else if (StrLen(srf_all_input)>4&&srf_all_input ~="^[a-yA-Y]") ;五码顶字上屏，排除编码含z的拼音反查
+		else if (StrLen(srf_all_input)>4&&srf_all_input ~="^[a-yA-Y]*$") ;五码顶字上屏，排除编码含z的拼音反查
 		{
 			if Textdirection ~="i)vertical"
 			{
@@ -649,7 +649,7 @@ srf_tooltip:
 			srf_all_input :=RegExReplace(srf_all_input, "^[a-zA-Z]{4}", "")
 			Gosub srf_tooltip_fanye
 		}
-		else if StrLen(srf_all_input)<4&&srf_for_select_Array.Length()=0&&srf_all_input ~="^[a-yA-Y]"
+		else if StrLen(srf_all_input)<4&&srf_for_select_Array.Length()=0&&srf_all_input ~="^[a-yA-Y]*$"
 		{
 			srf_for_select_for_tooltip :=
 		}
@@ -816,6 +816,9 @@ srf_tooltip_fanye:
 			srf_for_select_Array:=prompt_pinyin(srf_all_Input)
 		else if srf_all_Input ~="^~$"
 			Sym_Array:=[],Sym_Array[1,1]:=srf_all_Input, Sym_Array[2,1]:="～",srf_for_select_Array:=Sym_Array
+		Gosub srf_tooltip_cut
+	}else if srf_all_Input ~="^[a-y]{1,4}``"{
+		srf_for_select_Array:=format_word_2(srf_all_Input)
 		Gosub srf_tooltip_cut
 	}else{
 		If !EN_Mode {
@@ -1085,7 +1088,7 @@ More_Setting:
 	Menu, ExtendTool, Color, FFFFFF
 	Menu, Main, Add, 扩展工具, :ExtendTool
 	Menu, Main, Color, FFFFFF
-	Gui, 98: +hwndhwndgui98 +OwnDialogs ;+ToolWindow -DPIScale +AlwaysOnTop
+	Gui, 98: +hwndhwndgui98 +OwnDialogs    ;;+ToolWindow -DPIScale +AlwaysOnTop
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui, 98:Menu, Main
@@ -1561,7 +1564,7 @@ Return
 WinMode:
 	Gosub DestroyGui
 	Gui IM:Default
-	Gui IM:+LastFound +Owner98  ; +AlwaysOnTop
+	Gui IM:+LastFound +Owner98      ;; +AlwaysOnTop
 	Gui, IM:Add, Button, y+10 vDTxck gDTxck hWndDTBT,删除
 	ImageButton.Create(DTBT, [6, 0x80404040, 0xC0C0C0, "red"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	GuiControl,IM:Disable,DTxck
@@ -1778,11 +1781,11 @@ DelRows(deb=""){
 ;样式面板关闭销毁保存操作
 98GuiClose:
 98GuiEscape:
+	Gui, 98:Destroy
+	Gosub DestroyGui
 	Menu, Custom, Delete,
 	Menu, MainMenu, Delete,
 	Menu, ExtendTool, Delete,
-	Gui, 98:Destroy
-	Gosub DestroyGui
 	LsVar:=opvar:=posInfo:=""
 	Result_:=Results_:=Result:=[]
 	WubiIni.Save()
@@ -1809,7 +1812,7 @@ Return
 Label_management:
 	Gosub DestroyGui
 	Gui, label:Default
-	Gui, label: +hwndGuiLabel +Owner98 +OwnDialogs ;+ToolWindow -DPIScale +AlwaysOnTop
+	Gui, label: +hwndGuiLabel +Owner98 +OwnDialogs      ;+ToolWindow -DPIScale +AlwaysOnTop
 	Gui,label:Font
 	Gui,label:Font, s10 bold, %font_%
 	Gui label:Add, GroupBox, y+10 w500 h450 vGBox8, 标签管理
@@ -2045,7 +2048,7 @@ Key_:
 	s6:=[ ["Ctrl",w2],["Win",w2],["Alt",w2],["",w3-w2*7-2*7],["Alt",w2],["Win",w2],["App",w2],["Ctrl",w2],["←",w2,10],["↓",w2],["→",w2] ]
 
 	Gui, Key: Destroy
-	Gui, Key: +Owner98 +ToolWindow +E0x08000000  +AlwaysOnTop
+	Gui, Key: +Owner98 +ToolWindow +E0x08000000  ;;+AlwaysOnTop
 	Gui, Key: Font, s9, Verdana
 	Gui, Key: Margin, 10, 10
 	Gui, Key: Color, ffffff
@@ -2328,7 +2331,7 @@ Return
 themelists:
 	Gosub DestroyGui
 	Gui, themes:Default
-	Gui, themes: +Owner98  ;+ToolWindow +AlwaysOnTop ;-DPIScale 
+	Gui, themes: +Owner98  ;+ToolWindow   ;;+AlwaysOnTop -DPIScale 
 	Gui, themes:font,,%Font_%
 	Gui, themes:Add, ListView, r15 w425 Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 Checked -Multi 0x8 LV0x40 -LV0x10 gMyTheme vMyTheme hwndThemeLV, 主题名称|预览图|文件路径
 	themelist:=""
@@ -3074,7 +3077,7 @@ Return
 ShowSymList:
 	Gui, SymList:Destroy
 	Gui, SymList:Default
-	Gui, SymList: +OwnerSym ; -DPIScale
+	Gui, SymList: +OwnerSym     ;; -DPIScale
 	Gui, SymList:Font, s10, %Font_%
 	counts_:=0
 	Gui, SymList:Add, ListView, xm y+10 Grid NoSortHdr NoSort -WantF2 R15 gSubLV1 hwndHLV1 AltSubmit vLV1, 名称|标点|名称|标点|名称|标点|名称|标点
@@ -4134,7 +4137,7 @@ Ime_Tips:
 	}
 	OnExit, TipExit
 	Width := A_Cursor ~= "i)IBeam"?34*(A_ScreenDPI/96):38*(A_ScreenDPI/96), Height := A_Cursor ~= "i)IBeam"?34*(A_ScreenDPI/96):38*(A_ScreenDPI/96)
-	Gui, tips: -Caption +E0x80000 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs
+	Gui, tips: -Caption +E0x80000 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs 
 	Gui, tips: Add, Edit, w%Width% h%Height%, vMeEdit
 	Gui, tips: Show, NA
 	hwnd1 := WinExist(),hbm := CreateDIBSection(Width, Height)
@@ -4242,7 +4245,7 @@ return
 DB_management:
 	Gosub DestroyGui
 	Gui, DB:Default
-	Gui, DB: +hwndDB_ +AlwaysOnTop +OwnDialogs +LastFound   ;+ToolWindow +OwnDialogs +MinSize435x470 +MaxSize550x520 -MaximizeBox +Resize -DPIScale
+	Gui, DB: +hwndDB_ +OwnDialogs +LastFound   ;+ToolWindow +OwnDialogs +MinSize435x470 +MaxSize550x520 -MaximizeBox +Resize -DPIScale +AlwaysOnTop
 	Gui,DB:Font, s10 , %Font_%
 	Gui, DB:Add, Button,y+10 Section gDB_Delete vDB_Delete hWndDDBT, 删除
 	ImageButton.Create(DDBT, [6, 0x80404040, 0xC0C0C0, "red"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])

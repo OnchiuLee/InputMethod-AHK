@@ -371,6 +371,19 @@ format_word(input){
 	}
 }
 
+format_word_2(input){
+	If (input="")
+		Return []
+	if (InStr(input,"``")){
+		Split_l:=Result:=[], Split_code:=StrSplit(RegExReplace(input,"^``"), "``")
+		Split_l:= Combin_Arr(Split_code,DB)
+		;PrintObjects(Split_l)
+		For key,value In Split_l
+			Result.InsertAt(key, [value])
+		Return Result
+	}
+}
+
 ;精准造词首位匹配组合
 Combin_Arr(code_arr,DB){
 	if !arrs.Length() {
@@ -390,14 +403,23 @@ Combin_Arr(code_arr,DB){
 	;PrintObjects(arrs)
 	For section,element In arrs
 	{
-		for key,Value In element
-		{
-			if (key=1)
-				TolValue_part:=Value
-		}
-		TolValue.=TolValue_part
+		If (section=1)
+			Result_:=element
+		else
+			Result_:=Array_total(Result_,element)
 	}
-	return [TolValue]
+	Return Result_
+}
+
+Array_total(r,s){
+	If (!IsObject(r)||!IsObject(s))
+		Return []
+	Result:=[]
+	for key,value in r 
+		loop,% s.Length()
+			Result.push(value s[a_index])
+	;;PrintObjects(Result)
+	Return Result
 }
 
 ;精准造词选词
@@ -557,7 +579,7 @@ srf_select(list_num){
 			Clipboard := selectvalue        ;Clipboard := StringUpper(selectvalue, "T")
 			send ^v
 			updateRecent(selectvalue)    ;写入历史记录
-			if srf_all_Input~="^\``[a-z]"{
+			if srf_all_Input~="^\``[a-z]^[a-y]{1,4}``"{
 				Save_word(selectvalue)
 			}
 		}
@@ -566,11 +588,11 @@ srf_select(list_num){
 			SendInput % selectvalue
 			;SendInput % StringUpper(selectvalue, "T")
 			updateRecent(selectvalue)    ;写入历史记录
-			if srf_all_Input~="^\``[a-z]"{
+			if srf_all_Input~="^\``[a-z]|^[a-y]{1,4}``"{
 				Save_word(selectvalue)
 			}
 	}}
-	if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci"&&list_num>1&&srf_all_Input~="^[a-y]+"&&srf_for_select_Array.Length()>1&&!EN_Mode){
+	if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci"&&list_num>1&&srf_all_Input~="^[a-y]+$"&&srf_for_select_Array.Length()>1&&!EN_Mode){
 		if (Frequency_obj[selectvalue,1]&&Frequency_obj[selectvalue,2]=srf_all_Input) {
 			Frequency_obj[selectvalue,1]:=Frequency_obj[selectvalue,1]+1
 			if (Frequency_obj[selectvalue,1]>Freq_Count) {

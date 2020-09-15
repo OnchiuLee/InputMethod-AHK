@@ -31,7 +31,7 @@
 	gosub srf_tooltip_fanye
 return
 
-#if srf_mode&&!GetKeyState("CapsLock", "T")&&not srf_all_input~="\d+"&&srf_all_input~="^``"
+#if srf_mode&&!GetKeyState("CapsLock", "T")&&not srf_all_input~="\d+"&&srf_all_input~="^``|^[a-y]"&&Wubi_Schema~="i)ci"
 	`::
 	srf_all_input .= A_ThisHotkey, waitnum:=select_sym:=PosLimit:=0, num__:="", localpos:=1
 	gosub srf_tooltip_fanye
