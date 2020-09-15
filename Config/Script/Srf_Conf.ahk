@@ -135,7 +135,7 @@ Return
 		send {0}
 		num__:=A_ThisHotkey
 	Return
-
+/*
 	;快速多行注释
 	^/::
 		ClipSaved :=ClipboardAll
@@ -147,7 +147,7 @@ Return
 		Clipboard:=ClipSaved
 		ClipSaved:=""
 	Return
-
+*/
 	`;::send % srf_symblos[";",symb_mode]
 	,::send % srf_symblos[",",symb_mode]
 	\::send % srf_symblos["\",symb_mode]
@@ -242,7 +242,7 @@ return
 	+'::
 		send {"}
 	return
-
+/*
 	;快速多行注释
 	^/::
 		ClipSaved:=ClipboardAll
@@ -252,7 +252,7 @@ return
 		send ^v
 		Clipboard:=ClipSaved, ClipSaved:=""
 	Return
-
+*/
 	CapsLock::
 		if GetKeyState("CapsLock", "T"){
 			SetCapsLockState , off
