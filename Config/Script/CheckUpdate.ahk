@@ -52,7 +52,7 @@ UrlDownloadToFile(URL, FilePath:="",Timeout=-1){   ;Timeout 超时限制设置 �
 		FilePath:=Url2Decode(RegExReplace(URL,".+\/"))
 	ComObjError(1)
 	If RegExMatch(LTrim(FilePath, "\"), "(.*\\)?([^\\]+)$", FilePath){
-		Progress,B2 M ZH-1 ZW-1 Y80 H30 W400 FM12 C0 FS14 WS700 CW0078d7 CTffffff, %FilePath%-从GitHub下载中...
+		Progress,B2 M ZH-1 ZW-1 Y80 W400 FM12 C0 FS14 WS700 CW0078d7 CTffffff, %FilePath%-从GitHub下载中...
 		OnMessage(0x201, "MoveProgress")
 		If (FilePath1&&!FileExist(FilePath1)){
 			FileCreateDir, %FilePath1%
