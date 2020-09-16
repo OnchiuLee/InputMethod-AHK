@@ -356,20 +356,20 @@ TipMore:
 		GuiControl,logo:, MoveGui,*Icon%sicon_% config\Skins\logoStyle\%StyleN%.icl
 		if Wubi_Schema~="ci" {
 			Gosub Enable_Tray
-			Menu, Tray, Enable, 批量造词
+			Menu, More, Enable, 批量造词
 			GuiControl, 98:Disable, SBA23
 		}else if Wubi_Schema~="zi"{
 			Gosub Disable_Tray
 			GuiControl, 98:Enable, SBA23
-			Menu, Tray, Disable, 批量造词
+			Menu, More, Disable, 批量造词
 		}else if Wubi_Schema~="chaoji" {
 			Gosub Enable_Tray
 			GuiControl, 98:Disable, SBA23
-			Menu, Tray, Disable, 批量造词
+			Menu, More, Disable, 批量造词
 		}else if Wubi_Schema~="zg"{
 			Gosub Disable_Tray
 			GuiControl, 98:Disable, SBA23
-			Menu, Tray, Disable, 批量造词
+			Menu, More, Disable, 批量造词
 		}
 	}
 Return
@@ -382,20 +382,20 @@ MoveGui:
 		GuiControl,logo:, MoveGui,*Icon%sicon_% config\Skins\logoStyle\%StyleN%.icl
 		if Wubi_Schema~="ci" {
 			Gosub Enable_Tray
-			Menu, Tray, Enable, 批量造词
+			Menu, More, Enable, 批量造词
 			GuiControl, 98:Disable, SBA23
 		}else if Wubi_Schema~="zi"{
 			Gosub Disable_Tray
 			GuiControl, 98:Enable, SBA23
-			Menu, Tray, Disable, 批量造词
+			Menu, More, Disable, 批量造词
 		}else if Wubi_Schema~="chaoji" {
 			Gosub Enable_Tray
 			GuiControl, 98:Disable, SBA23
-			Menu, Tray, Disable, 批量造词
+			Menu, More, Disable, 批量造词
 		}else if Wubi_Schema~="zg"{
 			Gosub Disable_Tray
 			GuiControl, 98:Disable, SBA23
-			Menu, Tray, Disable, 批量造词
+			Menu, More, Disable, 批量造词
 		}
 	}
 Return
@@ -435,47 +435,65 @@ TRAY_Menu:
 	Menu, TRAY, NoStandard
 	Menu, TRAY, DeleteAll
 	program:= "※ " Startup_Name " ※" "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
-	Menu, Tray, Add, 使用帮助,OnHelp
-	Menu, TRAY, Icon, 使用帮助, config\wubi98.icl, 3
+	Menu, Tray, Add, 帮助,OnHelp
+	Menu, TRAY, Icon, 帮助, shell32.dll, 155
 	Menu, Tray, Add
-	;Menu, Tray, Default, 更多设置
-	Menu, Tray, Add, 导入词库,OnWrite
+	Menu, DB, Add, 词库管理,DB_management
+	Menu, DB, Icon, 词库管理, shell32.dll, 151
+	Menu, DB, Add
+	Menu, DB, Add, 导入词库,OnWrite
 	if Wubi_Schema~="i)zi|zg"
-		Menu, Tray, Disable, 导入词库
-	Menu, TRAY, Icon, 导入词库, config\wubi98.icl, 10
-	Menu, Tray, Add
-	Menu, Tray, Add, 导出词库,OnBackup
+		Menu, DB, Disable, 导入词库
+	Menu, DB, Icon, 导入词库, shell32.dll, 60
+	Menu, DB, Add
+	Menu, DB, Add, 导出词库,OnBackup
 	if Wubi_Schema~="i)zi|zg"
-		Menu, Tray, Disable, 导出词库
-	Menu, TRAY, Icon, 导出词库, config\wubi98.icl, 11
+		Menu, DB, Disable, 导出词库
+	Menu, DB, Icon, 导出词库, shell32.dll, 69
+	Menu, Tray, Add, 词库,:DB
+	Menu, Tray, Icon, 词库, shell32.dll, 131
 	Menu, Tray, Add
-	Menu, Tray, Add, 词库管理,DB_management
-	Menu, TRAY, Icon, 词库管理, config\wubi98.icl, 35
-	Menu, Tray, Add
-	Menu, Tray, Add, 更多设置, Onconfig
-	Menu, TRAY, Icon, 更多设置, config\wubi98.icl, 6
-	Menu, Tray, Add
-	Menu, Tray, Add, 批量造词,Add_Code
+
+	Menu, More, Add, 批量造词,Add_Code
 	if (Wubi_Schema~="i)zi|chaoji"&&!Addcode_switch)
-		Menu, Tray, Disable, 批量造词
-	Menu, TRAY, Icon, 批量造词, config\wubi98.icl, 13
+		Menu, More, Disable, 批量造词
+	Menu, More, Icon, 批量造词, shell32.dll, 281
+	Menu, More, Add
+	Menu, More, Add, 初始化,Initialize
+	Menu, More, Icon, 初始化, shell32.dll, 236
+	Menu, Tray, Add, 更多,:More
+	Menu, Tray, Icon, 更多, shell32.dll, 266
 	Menu, Tray, Add
-	Menu, Tray, Add, 启用状态	√,OnSuspend
-	Menu, TRAY, Icon, 启用状态	√, config\wubi98.icl, 18
+	Menu, Tray, Add, 设置, Onconfig
+	Menu, TRAY, Icon, 设置, shell32.dll, 174
+	Menu, Tray, Add
+	Menu, Tray, Add, 禁用,OnSuspend
+	Menu, TRAY, Icon, 禁用, shell32.dll, 175
 	Menu, Tray, Add
 	Menu, Tray, Add, 更新,OnUpdate
-	Menu, TRAY, Icon, 更新, config\wubi98.icl, 36
+	Menu, TRAY, Icon, 更新, shell32.dll, 14
 	Menu, Tray, Add
 	Menu, Tray, Add, 重载,OnReload
-	Menu, TRAY, Icon, 重载, config\wubi98.icl, 5
+	Menu, TRAY, Icon, 重载, shell32.dll, 240
 	Menu, Tray, Add
 	Menu, Tray, Add, 退出,OnExit
-	Menu, TRAY, Icon, 退出, config\wubi98.icl, 7
-	;Menu, Tray, Default,更多设置
+	Menu, TRAY, Icon, 退出, shell32.dll, 28
+	;Menu, Tray, Default,设置
 	Menu, Tray, Color, FFFFFF
 	;Menu, Tray, Click, 1
 	Menu,Tray,Tip,%program%
 return
+
+Initialize:
+	MsgBox, 262452,重置确认, 是否重置输入法配置重新生成？`n如果出现候选框不显示，请重置！
+	IfMsgBox Yes
+	{
+		For Section,element In srf_default_obj
+			WubiIni.DeleteSection(Section)
+		WubiIni.AddSection("Initialize", "status", 1), WubiIni.save()
+		Gosub OnReload
+	}
+Return
 
 set_top:
 	set_top(PosIndex)
@@ -494,13 +512,13 @@ set_next:
 Return
 
 Disable_Tray:
-	Menu, Tray, Disable, 导入词库
-	Menu, Tray, Disable, 导出词库
+	Menu, DB, Disable, 导入词库
+	Menu, DB, Disable, 导出词库
 return
 
 Enable_Tray:
-	Menu, Tray, Enable, 导入词库
-	Menu, Tray, Enable, 导出词库
+	Menu, DB, Enable, 导入词库
+	Menu, DB, Enable, 导出词库
 return
 
 ;挂起操作
@@ -510,8 +528,8 @@ OnSuspend:
 		Menu, Tray, Icon, config\wubi98.icl,31, 1
 		;if !GET_IMESt()
 		;	SwitchToChsIME()
-		Menu, TRAY, Rename, 启用状态	√ , 挂起状态	×
-		Menu, TRAY, Icon, 挂起状态	×, config\wubi98.icl, 4
+		Menu, TRAY, Rename, 禁用 , 启用
+		Menu, TRAY, Icon, 启用, config\wubi98.icl, 4
 		GuiControl,logo:, Pics,*Icon4 config\Skins\logoStyle\%StyleN%.icl
 		Traytip,  提示:,已切换至挂起状态！
 	}else if !A_IsSuspended {
@@ -519,8 +537,8 @@ OnSuspend:
 			Menu, Tray, Icon, wubi98.ico
 		else
 			Menu, Tray, Icon, config\wubi98.icl,30
-		Menu, TRAY, Rename, 挂起状态	× , 启用状态	√
-		Menu, TRAY, Icon, 启用状态	√, config\wubi98.icl, 18
+		Menu, TRAY, Rename, 启用 , 禁用
+		Menu, TRAY, Icon, 禁用, shell32.dll, 175
 		if srf_mode
 			GuiControl,logo:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
 		else
@@ -2574,9 +2592,9 @@ sChoice4:
 	GuiControlGet, sChoice4,, sChoice4, text
 	if (sChoice4~="词"||A_ThisMenuItem~="词") {
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="ci",WubiIni.save()
-		Menu, Tray, Enable, 批量造词
-		Menu, Tray, Enable, 导入词库
-		Menu, Tray, Enable, 导出词库
+		Menu, More, Enable, 批量造词
+		Menu, DB, Enable, 导入词库
+		Menu, DB, Enable, 导出词库
 		For k,v In ["ciku1","ciku2"]
 			GuiControl, 98:Enable, %v%
 		For k,v In ["SBA23"]
@@ -2594,9 +2612,9 @@ sChoice4:
 		}
 	}else if (sChoice4~="单"||A_ThisMenuItem~="单"){
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="zi",WubiIni.save()
-		Menu, Tray, Disable, 批量造词
-		Menu, Tray, Disable, 导入词库
-		Menu, Tray, Disable, 导出词库
+		Menu, More, Disable, 批量造词
+		Menu, DB, Disable, 导入词库
+		Menu, DB, Disable, 导出词库
 		For k,v In ["ciku1","ciku2"]
 			GuiControl, 98:Disable, %v%
 		if FileExist("config\GB*.txt")
@@ -2607,9 +2625,9 @@ sChoice4:
 		OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 	}else if (sChoice4~="超"||A_ThisMenuItem~="超") {
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="chaoji",WubiIni.save()
-		Menu, Tray, Disable, 批量造词
-		Menu, Tray, Enable, 导入词库
-		Menu, Tray, Enable, 导出词库
+		Menu, More, Disable, 批量造词
+		Menu, DB, Enable, 导入词库
+		Menu, DB, Enable, 导出词库
 		For k,v In ["ciku1","ciku2"]
 			GuiControl, 98:Enable, %v%
 		For k,v In ["SBA23"]
@@ -2620,9 +2638,9 @@ sChoice4:
 		OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 	}else if (sChoice4~="字根"||A_ThisMenuItem~="字根") {
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="zg",WubiIni.save()
-		Menu, Tray, Disable, 批量造词
-		Menu, Tray, Disable, 导入词库
-		Menu, Tray, Disable, 导出词库
+		Menu, More, Disable, 批量造词
+		Menu, DB, Disable, 导入词库
+		Menu, DB, Disable, 导出词库
 		For k,v In ["ciku1", "ciku2", "SBA23", "Frequency", "FTip", "set_Frequency", "RestDB"]
 			GuiControl, 98:Disable, %v%
 		GuiControl,logo:, MoveGui,*Icon14 config\Skins\logoStyle\%StyleN%.icl
@@ -3031,12 +3049,12 @@ SBA17:
 		Addcode_switch:=WubiIni.Settings["Addcode_switch"]:=1,WubiIni.save()
 		Hotkey, %Addcodehotkey%, Batch_AddCode,on
 		if (Wubi_Schema~="i)ci"&&Addcode_switch)
-		Menu, Tray, Enable, 批量造词
+		Menu, More, Enable, 批量造词
 		GuiControl, 98:Enable, Addcode_hotkey
 	}else{
 		Addcode_switch:=WubiIni.Settings["Addcode_switch"]:=0,WubiIni.save()
 		Hotkey, %Addcodehotkey%, Batch_AddCode,off
-		Menu, Tray, Disable, 批量造词
+		Menu, More, Disable, 批量造词
 		GuiControl, 98:Disable, Addcode_hotkey
 	}
 Return
@@ -3571,7 +3589,7 @@ Wubi_Schema:
 	Wubi_Schema :=(Wubi_Schema~="i)zi|chaoji"?"ci":"zi")
 	if Wubi_Schema ~="i)zi|zg"{
 		Gosub Disable_Tray
-		Menu, Tray, Disable, 批量造词
+		Menu, More, Disable, 批量造词
 		if Wubi_Schema~="i)zi"
 			GuiControl,logo:, MoveGui,*Icon13 config\Skins\logoStyle\%StyleN%.icl
 		else
@@ -3580,10 +3598,10 @@ Wubi_Schema:
 	else if Wubi_Schema~="i)ci|chaoji"{
 		Gosub Enable_Tray
 		if Wubi_Schema~="i)ci"{
-			Menu, Tray, Enable, 批量造词
+			Menu, More, Enable, 批量造词
 			GuiControl,logo:, MoveGui,*Icon11 config\Skins\logoStyle\%StyleN%.icl
 		}else{
-			Menu, Tray, Disable, 批量造词
+			Menu, More, Disable, 批量造词
 			GuiControl,logo:, MoveGui,*Icon12 config\Skins\logoStyle\%StyleN%.icl
 		}
 	}
@@ -3597,15 +3615,15 @@ Extend_Schema:
 	if Wubi_Schema~="i)ci|chaoji"{
 		Gosub Enable_Tray
 		if Wubi_Schema~="i)ci"{
-			Menu, Tray, Enable, 批量造词
+			Menu, More, Enable, 批量造词
 			GuiControl,logo:, MoveGui,*Icon11 config\Skins\logoStyle\%StyleN%.icl
 		}else{
-			Menu, Tray, Disable, 批量造词
+			Menu, More, Disable, 批量造词
 			GuiControl,logo:, MoveGui,*Icon12 config\Skins\logoStyle\%StyleN%.icl
 		}
 	}else{
 		Gosub Disable_Tray
-		Menu, Tray, Disable, 批量造词
+		Menu, More, Disable, 批量造词
 		if Wubi_Schema~="i)zi"
 			GuiControl,logo:, MoveGui,*Icon13 config\Skins\logoStyle\%StyleN%.icl
 		else
@@ -3625,13 +3643,13 @@ return
 ZG_Schema:
 	Wubi_Schema :=WubiIni.Settings["Wubi_Schema"]:=Wubi_Schema~="i)zi|ci|chaoji"?"zg":"ci", WubiIni.save()
 	if Wubi_Schema~="i)zg|zi"{
-		Menu, Tray, Disable, 批量造词
+		Menu, More, Disable, 批量造词
 		if Wubi_Schema~="i)zi"
 			GuiControl,logo:, MoveGui,*Icon13 config\Skins\logoStyle\%StyleN%.icl
 		else
 			GuiControl,logo:, MoveGui,*Icon14 config\Skins\logoStyle\%StyleN%.icl
 	}else{
-		Menu, Tray, Enable, 批量造词
+		Menu, More, Enable, 批量造词
 		if Wubi_Schema~="i)ci"
 			GuiControl,logo:, MoveGui,*Icon11 config\Skins\logoStyle\%StyleN%.icl
 		else
@@ -4225,8 +4243,8 @@ SetSuspend:
 		Menu, Tray, Icon, config\wubi98.icl,31, 1
 		;if !GET_IMESt()
 		;	SwitchToChsIME()
-		Menu, TRAY, Rename, 启用状态	√ , 挂起状态	×
-		Menu, TRAY, Icon, 挂起状态	×, config\wubi98.icl, 4
+		Menu, TRAY, Rename, 禁用 , 启用
+		Menu, TRAY, Icon, 启用, config\wubi98.icl, 4
 		GuiControl,logo:, Pics,*Icon4 config\Skins\logoStyle\%StyleN%.icl
 		Traytip,  提示:,已切换至挂起状态！
 	}else if !A_IsSuspended {
@@ -4237,8 +4255,8 @@ SetSuspend:
 		Traytip,  提示:,已切换至启用状态！
 		;if GET_IMESt()
 		;	SwitchToEngIME()
-		Menu, TRAY, Rename, 挂起状态	× , 启用状态	√
-		Menu, TRAY, Icon, 启用状态	√, config\wubi98.icl, 18
+		Menu, TRAY, Rename, 启用 , 禁用
+		Menu, TRAY, Icon, 禁用, shell32.dll, 175
 		if srf_mode
 			GuiControl,logo:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
 		else

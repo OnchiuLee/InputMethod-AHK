@@ -526,35 +526,35 @@ get_word(input, cikuname){
 					DB.GetTable(SQL, Result)
 				}
 				if Trad_Mode~="off" {
-					GetValues:=[]
-					For Section, element In Result.Rows
+					GetValues:=Result.Rows
+					For Section, element In GetValues
 					{
-						for key,value In element
+						index:=a_index, GetValues[section,3]:=(PromptChar&&flag||Prompt_Word~="i)on"&&flag)?(StrLen(input)<4&&input<>GetValues[section,3]?RegExReplace(GetValues[section,3],"^" input,"~"):""):""
+						loop,% GetValues.Length()-index
 						{
-							if (key=1) {
-								if !Array_isInValue(GetValues, value)
-									GetValues[Section,1]:=value
-							}else if (key>1&&GetValues[Section].Length()>0)
-								GetValues[Section].push(key=3?(strlen(input)<>strlen(value)&&PromptChar&&flag||strlen(input)<>strlen(value)&&Prompt_Word~="i)on"&&flag?RegExReplace(value,"^" input,"~"):""):value)
+							If (GetValues[a_index+index,1]=GetValues[section,1])
+								GetValues.RemoveAt(a_index+index)
+							else
+								GetValues[a_index+index,3]:=(PromptChar&&flag||Prompt_Word~="i)on"&&flag)?(StrLen(input)<4&&input<>GetValues[a_index+index,3]?RegExReplace(GetValues[a_index+index,3],"^" input,"~"):""):""
 						}
 					}
+				;PrintObjects(GetValues)
 				}else{
-					lianx :="on", GetValues:=[], Result.Rows:=set_trad_mode(Result.Rows)
-					For Section, element In Result.Rows
+					lianx :="on", GetValues:=set_trad_mode(Result.Rows)
+					For Section, element In GetValues
 					{
-						for key,value In element
+						index:=a_index, GetValues[section,3]:=(PromptChar&&flag||Prompt_Word~="i)on"&&flag)?(StrLen(input)<4&&input<>GetValues[section,3]?RegExReplace(GetValues[section,3],"^" input,"~"):""):""
+						loop,% GetValues.Length()-index
 						{
-							If (key=1) {
-								if (!Array_isInValue(GetValues, value)&&value)
-									GetValues[Section,1]:=value
-							}else if (key>1&&GetValues[Section].Length()>0&&value){
-								GetValues[Section].push( key=3?(strlen(input)<>strlen(value)&&PromptChar||strlen(input)<>strlen(value)&&Prompt_Word~="i)on"?RegExReplace(value,"^" input,"~"):""):value)
-							}
+							If (GetValues[a_index+index,1]=GetValues[section,1])
+								GetValues.RemoveAt(a_index+index)
+							else
+								GetValues[a_index+index,3]:=(PromptChar&&flag||Prompt_Word~="i)on"&&flag)?(StrLen(input)<4&&input<>GetValues[a_index+index,3]?RegExReplace(GetValues[a_index+index,3],"^" input,"~"):""):""
 						}
 					}
 				}
 			;if strlen(input)>1
-			;	msgbox % PrintObjects(GetValues)
+			;	PrintObjects(GetValues)
 			}
 			Return GetValues
 		}
