@@ -124,7 +124,7 @@ Loop Files, config\Skins\logoStyle\*.icl
 	}
 }
 ;}}}}}
-
+IniRead, status, %A_Temp%\InputMethodData\Config.ini, Initialize, status ,0
 ;{{{{{读取配置及配置检测
 global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni(A_Temp "\InputMethodData\Config.ini")
 	srf_default_obj:={LogoColor:{LogoColor_cn:"008000",LogoColor_en:"00FFFF",LogoColor_caps:"0000ff"}
@@ -144,7 +144,7 @@ global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni(A_Te
 		, CustomColors:{Color_Row1:"0x1C7399,0xEEEEEC,0x014E8B,0x444444,0x009FE8,0xDEF9FA,0xF8B62D,0x90FC0F", Color_Row2:"0x0078D7,0x0D1B0A,0xB9D497,0x00ADEF,0x1778BF,0xFDF6E3,0x002B36,0xDEDEDE"}
 		, YSDllPath:{SQLDllPath_x86:RegExReplace(A_ScriptDir,"\\main") "\config\SQLite3_x86\SQLite3.dll", SQLDllPath_x64:RegExReplace(A_ScriptDir,"\\main") "\config\SQLite3_x64\SQLite3.dll"}}
 ;初始化默认配置
-if FileExist(A_ScriptDir "\Sync\Default.json"){
+if (FileExist(A_ScriptDir "\Sync\Default.json")&&!status) {
 	srf_default_value:=Json_FileToObj(A_ScriptDir "\Sync\Default.json"), srf_default_value["Settings","CNID"]=CpuID
 	For Section, element In srf_default_obj
 	{
@@ -189,8 +189,9 @@ For Section, element In srf_default_value
 		If ((%key%:=WubiIni[Section, key])="")
 			%key%:=WubiIni[Section, key]:=value
 ;配置项说明项写入
+_comment:="程序运行时，配置文件直接修改无效！退出后修改才有效！！！"
 if !WubiIni.GetTopComments()
-	WubiIni.AddTopComment("程序运行时，配置文件直接修改无效！退出后修改才有效！！！")
+	WubiIni.AddTopComment(_comment)
 
 FileRead, ini_var, %A_Temp%\InputMethodData\Config.ini
 For Section, element In config_tip
@@ -216,6 +217,11 @@ versions :=WubiIni.Settings["versions"]:=version
 
 if not Srf_Hotkey ~="i)Ctrl|Shift|Alt|LWin"||Srf_Hotkey ~="\&$"
 	Srf_Hotkey:=WubiIni.Settings["Srf_Hotkey"]:="Shift"
+
+If status {
+	WubiIni.DeleteSection("Initialize")
+}
+
 WubiIni.Save()
 ;}}}}}
 
@@ -255,7 +261,10 @@ if !InitStatus {
 	if (ErrorLevel = "ERROR") {
 		Traytip,, 未找到默认的图片查看器！,,3
 	}
-	Run, iexplore.exe "98wb.ys168.com/",, UseErrorLevel
+	Run, http://98wb.ys168.com/,, UseErrorLevel
+	if (ErrorLevel = "ERROR") {
+		Run, iexplore.exe "98wb.ys168.com/",, UseErrorLevel
+	}
 	InitStatus:=WubiIni.Settings["InitStatus"]:=1,WubiIni.Save()
 }
 if (ToolTipStyle ~="i)gdip"&&A_OSVersion ~="i)WIN_XP") {
