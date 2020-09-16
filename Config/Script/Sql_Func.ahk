@@ -131,36 +131,34 @@ set_trad_mode(Arrs){
 	else
 	{
 		ResultAll:=[]
-		for k,v in Arrs
-		{
-			for Index,value in v
-			{
-				If (Index=1) {
-					If (strlen(Arrs[k,Index])=1){
-						DB.gettable("SELECT A_Key FROM s2t WHERE aim_chars = '" Arrs[k,1] "'", Result)
-							if (Result.Rows[1,1]<>"") {
-								for key,values in StrSplit(Result.Rows[1,1],A_space)
-									ResultAll.push([values,split_wubizg(values),get_en_code(values)])
-								
-							}else
-								ResultAll.push(Arrs[k])
-					}else{
-						_str:=longStr:=""
-						loop,% strlen(Arrs[k,Index])
-						{
-							DB.gettable("SELECT A_Key FROM s2t WHERE aim_chars = '" SubStr(Arrs[k,Index],a_index,1) "'", Result)
-							if (Result.Rows[1,1]<>"") {
-								_str :=Result.Rows[1,1]
-							}else
-								_str :=SubStr(Arrs[k,Index],a_index,1)
-							longStr.=_str
-						}
-						ResultAll.push([longStr,split_wubizg(longStr),get_en_code(longStr)])
-					}
-				}
-			}
-		}
+		;PrintObjects(Arrs)
+		for section,element in Arrs
+			for key,value in Simp2Trad(element[1])
+				ResultAll.push([value,split_wubizg(value),get_en_code(value)])
 		Return ResultAll
+	}
+}
+
+Simp2Trad(chars){
+	global DB
+	DB.gettable("SELECT A_Key FROM s2t WHERE aim_chars = '" chars "'", Result)
+	If InStr(Result.Rows[1,1],A_space)
+		Return StrSplit(Result.Rows[1,1],A_space)
+	else If (Result.Rows[1,1]<>""){
+		Return [Result.Rows[1,1]]
+	}else{
+		If !SubStr(chars,1,1)
+			Return [chars]
+		else{
+			t_:=""
+			loop,% strlen(chars)
+			{
+				DB.gettable("SELECT A_Key FROM s2t WHERE aim_chars = '" SubStr(chars,a_index,1) "'", Result)
+					t_.=Result.Rows[1,1]?StrSplit(Result.Rows[1,1],A_space)[1]:SubStr(chars,a_index,1)
+				
+			}
+			Return [t_]
+		}
 	}
 }
 
