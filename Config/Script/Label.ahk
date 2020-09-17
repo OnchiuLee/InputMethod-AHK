@@ -317,7 +317,7 @@ Return
 
 ;logo开关
 Logo_Switch:
-	Logo_Switch :=(Logo_Switch~="i)off"?"on":"off")
+	Logo_Switch :=WubiIni.Settings["Logo_Switch"] :=Logo_Switch~="i)off"?"on":"off", WubiIni.save()
 	if Logo_Switch ~="i)off"{
 		Gui, SrfTip:Destroy
 		If srfTool
@@ -329,7 +329,8 @@ Logo_Switch:
 		}else
 			Gosub Srf_Tip
 	}
-	WubiIni.Settings["Logo_Switch"] :=Logo_Switch, WubiIni.save()
+	GuiControl,98:, SBA13 , % Logo_Switch~="i)on"?1:0
+	Menu, More, Icon, 指示器, shell32.dll, % Logo_Switch~="i)on"?145:141
 Return
 
 Del_EnKeyboard:    ;彻底删除系统美式英文键盘，因为是增删注册表的原因不能实时失效，需重启生效!调用的话直接 Gosub+空格+Del_EnKeyboard即可
@@ -446,14 +447,16 @@ TRAY_Menu:
 		Menu, DB, Disable, 导入词库
 	Menu, DB, Icon, 导入词库, shell32.dll, 60
 	Menu, DB, Add
-	Menu, DB, Add, 导出词库,OnBackup
+	Menu, DB, Add, 合并导出,OnBackup
 	if Wubi_Schema~="i)zi|zg"
-		Menu, DB, Disable, 导出词库
-	Menu, DB, Icon, 导出词库, shell32.dll, 69
+		Menu, DB, Disable, 合并导出
+	Menu, DB, Icon, 合并导出, shell32.dll, 69
+	Menu, DB, Add
+	Menu, DB, Add, 自造词导出,ciku7
+	Menu, DB, Icon, 自造词导出, shell32.dll, 69
 	Menu, Tray, Add, 词库,:DB
 	Menu, Tray, Icon, 词库, shell32.dll, 131
 	Menu, Tray, Add
-
 	Menu, Schema, Add, 含词, ChoiceItems
 	Menu, Schema, Add
 	Menu, Schema, Add, 单字, ChoiceItems
@@ -475,12 +478,21 @@ TRAY_Menu:
 	Menu, ToolTipStyle, Color, FFFFFF
 	TMENU := Menu_GetMenuByName("ToolTipStyle")
 	Menu, More, Add, 批量造词,Add_Code
+	Menu, More, Add
+	Menu, More, Add, 划译反查,SetRlk
+	Menu, More, Icon, 划译反查, shell32.dll, % rlk_switch?145:134
+	Menu, More, Add
+	Menu, More, Add, 五笔拆分,Cut_Mode
+	Menu, More, Icon, 五笔拆分, shell32.dll, % Cut_Mode~="i)on"?145:222
 	Menu, More, Add,
 	Menu, More, Add, 候选框,:ToolTipStyle
 	Menu, More, Icon, 候选框, shell32.dll, 81
 	if (Wubi_Schema~="i)zi|chaoji"&&!Addcode_switch)
 		Menu, More, Disable, 批量造词
 	Menu, More, Icon, 批量造词, shell32.dll, 281
+	Menu, More, Add,
+	Menu, More, Add, 指示器,Logo_Switch
+	Menu, More, Icon, 指示器, shell32.dll, % Logo_Switch~="i)on"?145:141
 	Menu, More, Add
 	Menu, More, Add, 初始化,Initialize
 	Menu, More, Icon, 初始化, shell32.dll, 236
@@ -521,7 +533,7 @@ ChoiceItems:
 		If (A_ThisMenuItemPos=1) {
 			Menu, More, Enable, 批量造词
 			Menu, DB, Enable, 导入词库
-			Menu, DB, Enable, 导出词库
+			Menu, DB, Enable, 合并导出
 			For k,v In ["ciku1","ciku2"]
 				GuiControl, 98:Enable, %v%
 			For k,v In ["SBA23"]
@@ -541,7 +553,7 @@ ChoiceItems:
 			Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="zi",WubiIni.save()
 			Menu, More, Disable, 批量造词
 			Menu, DB, Disable, 导入词库
-			Menu, DB, Disable, 导出词库
+			Menu, DB, Disable, 合并导出
 			For k,v In ["ciku1","ciku2"]
 				GuiControl, 98:Disable, %v%
 			if FileExist("config\GB*.txt")
@@ -554,7 +566,7 @@ ChoiceItems:
 			Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="chaoji",WubiIni.save()
 			Menu, More, Disable, 批量造词
 			Menu, DB, Enable, 导入词库
-			Menu, DB, Enable, 导出词库
+			Menu, DB, Enable, 合并导出
 			For k,v In ["ciku1","ciku2"]
 				GuiControl, 98:Enable, %v%
 			For k,v In ["SBA23"]
@@ -567,7 +579,7 @@ ChoiceItems:
 			Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="zg",WubiIni.save()
 			Menu, More, Disable, 批量造词
 			Menu, DB, Disable, 导入词库
-			Menu, DB, Disable, 导出词库
+			Menu, DB, Disable, 合并导出
 			For k,v In ["ciku1", "ciku2", "SBA23", "Frequency", "FTip", "set_Frequency", "RestDB"]
 				GuiControl, 98:Disable, %v%
 			GuiControl,logo:, MoveGui,*Icon14 config\Skins\logoStyle\%StyleN%.icl
@@ -624,12 +636,12 @@ Return
 
 Disable_Tray:
 	Menu, DB, Disable, 导入词库
-	Menu, DB, Disable, 导出词库
+	Menu, DB, Disable, 合并导出
 return
 
 Enable_Tray:
 	Menu, DB, Enable, 导入词库
-	Menu, DB, Enable, 导出词库
+	Menu, DB, Enable, 合并导出
 return
 
 ;挂起操作
@@ -677,7 +689,7 @@ OnWrite:
 	Gosub Write_DB
 Return
 
-;导出词库
+;合并导出
 OnBackup:
 	Gosub Backup_DB
 Return
@@ -2695,7 +2707,7 @@ sChoice4:
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="ci",WubiIni.save()
 		Menu, More, Enable, 批量造词
 		Menu, DB, Enable, 导入词库
-		Menu, DB, Enable, 导出词库
+		Menu, DB, Enable, 合并导出
 		For k,v In ["ciku1","ciku2"]
 			GuiControl, 98:Enable, %v%
 		For k,v In ["SBA23"]
@@ -2715,7 +2727,7 @@ sChoice4:
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="zi",WubiIni.save()
 		Menu, More, Disable, 批量造词
 		Menu, DB, Disable, 导入词库
-		Menu, DB, Disable, 导出词库
+		Menu, DB, Disable, 合并导出
 		For k,v In ["ciku1","ciku2"]
 			GuiControl, 98:Disable, %v%
 		if FileExist("config\GB*.txt")
@@ -2728,7 +2740,7 @@ sChoice4:
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="chaoji",WubiIni.save()
 		Menu, More, Disable, 批量造词
 		Menu, DB, Enable, 导入词库
-		Menu, DB, Enable, 导出词库
+		Menu, DB, Enable, 合并导出
 		For k,v In ["ciku1","ciku2"]
 			GuiControl, 98:Enable, %v%
 		For k,v In ["SBA23"]
@@ -2741,7 +2753,7 @@ sChoice4:
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="zg",WubiIni.save()
 		Menu, More, Disable, 批量造词
 		Menu, DB, Disable, 导入词库
-		Menu, DB, Disable, 导出词库
+		Menu, DB, Disable, 合并导出
 		For k,v In ["ciku1", "ciku2", "SBA23", "Frequency", "FTip", "set_Frequency", "RestDB"]
 			GuiControl, 98:Disable, %v%
 		GuiControl,logo:, MoveGui,*Icon14 config\Skins\logoStyle\%StyleN%.icl
@@ -3762,7 +3774,8 @@ Return
 ;字根拆分
 Cut_Mode:
 	Cut_Mode :=WubiIni.Settings["Cut_Mode"] :=Cut_Mode~="i)off"?"on":"off", WubiIni.save()
-	If (not FontType ~=FontExtend&&Cut_Mode ~="i)on")
+	Menu, More, Icon, 五笔拆分, shell32.dll, % Cut_Mode~="i)on"?145:222
+	If (Cut_Mode ~="i)on")
 		FontType :=WubiIni.TipStyle["FontType"]:="98WB-0", WubiIni.Save()
 	if srf_all_input
 		Gosub srf_tooltip_fanye
@@ -4370,6 +4383,7 @@ return
 
 SetRlk:
 	rlk_switch:=WubiIni.Settings["rlk_switch"]:=rlk_switch?0:1,WubiIni.save()
+	Menu, More, Icon, 划译反查, shell32.dll, % rlk_switch?145:134
 	if rlk_switch
 		Traytip,,划译反查功能已开启！
 	else
