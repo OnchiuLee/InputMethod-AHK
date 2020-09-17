@@ -41,7 +41,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020091612"
+version :="2020091618"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -408,7 +408,7 @@ WM_LBUTTONDOWN(){
 WM_RBUTTONDOWN(){
 	global Wubi_Schema, ToolTipStyle, FocusStyle, PosIndex, srf_for_select_Array, Trad_Mode, Prompt_Word, srf_all_input, ListNum, TPosObj, waitnum, Logo_X, Logo_Y, Tip1hWnd, Tip2hWnd
 	PosIndex:=0
-	If (A_Gui="logo"||A_Gui="SrfTip"||A_Gui="TSF"&&!FocusStyle||A_Gui="houxuankuang"||Hex_Dec(WinExist("A"))=Tip2hWnd||A_Gui="TSF"&&not Wubi_Schema~="i)ci"&&FocusStyle){
+	If (A_Gui="logo"||A_Gui="SrfTip"||A_Gui="TSF"&&!FocusStyle||A_Gui="houxuankuang"||Hex_Dec(WinExist("A"))=Tip2hWnd||A_Gui="TSF"&&not Wubi_Schema~="i)ci"&&FocusStyle||A_Gui="TSF"&&Trad_Mode~="i)on"||A_Gui="TSF"&&Prompt_Word~="i)on"){
 		Menu, TRAY, Show
 	}
 	if (A_Gui="TSF"&&Wubi_Schema~="i)ci"&&ToolTipStyle~="i)Gdip"&&FocusStyle&&srf_all_input~="^[a-y]+"&&Prompt_Word~="i)off"&&Trad_Mode~="i)off"){
@@ -591,10 +591,15 @@ ShellIMEMessage( wParam,lParam ) {
 			GuiControl,logo:, Pics,*Icon3 config\Skins\logoStyle\%StyleN%.icl
 			Gosub ShowSrfTip
 		}
-
 		LastWinEXE:=WinEXE_, Eid:=WinExist()
 		program:="※ " Startup_Name " ※`n◆ 当前方案：" (Wubi_Schema~="i)ci"?"【98五笔•含词】":Wubi_Schema~="i)zi"?"【98五笔•单字】":Wubi_Schema~="i)zg"?"【98五笔•字根】":"【98五笔•超集】") "`n◆ 农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "〖 " A_DDDD " 〗`n◆ 农历时辰：" Time_GetShichen(SubStr( A_Now,9,2)) ""
 		Menu,Tray,Tip,%program%
+/*
+		If (!DllCall("Wininet.dll\InternetCheckConnection", "Str", "https://www.baidu.com/", "UInt", 0x1, "UInt", 0x0, "Int"))
+			Menu, Tray, Disable, 更新
+		else
+			Menu, Tray, Enable, 更新
+*/
 	Return
 }
 ;}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
