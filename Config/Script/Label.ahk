@@ -694,7 +694,14 @@ Return
 
 ;合并导出
 OnBackup:
-	Gosub Backup_DB
+	MsgBoxRenBtn("单行单义","单行多义","取消")
+	SchemaName_:=Wubi_Schema~="i)ci"?"含词":Wubi_Schema~="i)zi"?"单字":Wubi_Schema~="i)chaoji"?"超集":"字根"
+	Gui +OwnDialogs
+	MsgBox, 262723, 导出提示, 当前为「%SchemaName_%」方案，请选择码表导出格式！！！
+	IfMsgBox, Yes
+		Gosub Backup_DB
+	else IfMsgBox, No
+		Gosub Backup_DB_2
 Return
 
 ;帮助
@@ -2798,10 +2805,7 @@ ciku1:
 Return
 
 ciku2:
-	GuiControlGet, Choice,, sChoice4, text
-	Gosub Backup_DB
-	keywait, LControl, D T1
-	keywait, LControl
+	Gosub OnBackup
 Return
 
 ciku3:
@@ -4196,6 +4200,50 @@ Backup_CustomDB:
 	Result_:=Results_:=Result:=[]
 Return
 
+Backup_DB_2:
+	Gui +OwnDialogs
+	FileSelectFolder, OutFolder,*%A_ScriptDir%\Sync\,3,请选择导出后保存的位置
+	if OutFolder<>
+	{
+		Start_out:=A_TickCount
+		if Wubi_Schema~="i)ci"{
+			if init_db
+				SQL := "SELECT aim_chars,A_Key,C_Key FROM ci WHERE C_Key>0 ORDER BY A_Key,C_Key DESC;"
+			else if custom_db
+				SQL := "SELECT aim_chars,A_Key,B_Key FROM ci WHERE C_Key IS NULL AND B_Key>0 ORDER BY A_Key,B_Key DESC;"
+			else if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off")
+				SQL := "SELECT aim_chars,A_Key,D_Key FROM ci WHERE D_Key>0 ORDER BY A_Key,D_Key DESC;"
+			else
+				SQL := "SELECT aim_chars,A_Key,B_Key FROM ci WHERE B_Key>0 ORDER BY A_Key,B_Key DESC;"
+		}else
+			SQL := "SELECT aim_chars,A_Key,B_Key FROM " Wubi_Schema " ORDER BY A_Key,B_Key DESC;"
+		if DB.gettable(SQL,Result){
+			For Section,element In Result.Rows
+			{
+				if (element[2]=bianma)
+					Resoure_ .=A_Space element[1]
+				else
+					Resoure_ .="`n" element[2] A_Space element[1]
+				bianma:=element[2]
+			}
+			Resoure_:=RegExReplace(Resoure_,"^\n")
+			ElapsedTime := (A_TickCount - Start_out)/1000
+			if (ElapsedTime>60)
+				timecount:=Ceil(ElapsedTime/60) "分" Mod(Ceil(ElapsedTime),60) "秒"
+			Else
+				timecount:=Ceil(ElapsedTime) "秒"
+			fileNewname:=init_db?"主码表":custom_db?"用户词":Wubi_Schema
+			FileDelete, %OutFolder%\wubi98-%fileNewname%_多义.txt
+			FileAppend,%Resoure_%,%OutFolder%\wubi98-%fileNewname%_多义.txt, UTF-8
+			Resoure_ :=OutFolder :="", custom_db:=init_db:=0, Result_:=Results_:=Result:=[]
+			TrayTip,, 导出完成用时 %timecount%
+		}else{
+			TrayTip,, 导出失败！
+			custom_db:=init:=0
+		}
+	}
+Return
+
 ;词库导出（超集+含词+单字）
 Backup_DB:
 	Gui +OwnDialogs
@@ -4234,8 +4282,8 @@ Backup_DB:
 				Resoure_:=HeadInfo "`n" Resoure_, HeadInfo:=""
 				FileAppend,%Resoure_%,%OutFolder%\%FileInfo%.dict.yaml, UTF-8
 			}else{
-				FileDelete, %OutFolder%\wubi98-%fileNewname%.txt
-				FileAppend,%Resoure_%,%OutFolder%\wubi98-%fileNewname%.txt, UTF-8
+				FileDelete, %OutFolder%\wubi98-%fileNewname%_单义.txt
+				FileAppend,%Resoure_%,%OutFolder%\wubi98-%fileNewname%_单义.txt, UTF-8
 			}
 			Resoure_ :=OutFolder :="", custom_db:=init_db:=0, Result_:=Results_:=Result:=[]
 			TrayTip,, 导出完成用时 %timecount%
