@@ -565,7 +565,7 @@ get_word(input, cikuname){
 srf_select(list_num){
 	global
 	local selectvalue, Result, Index, yhnum, tt, Match, lastvalue
-	If (list_num>ListNum)||(list_num=0)
+	If (list_num>ListNum||list_num=0||list_num>srf_for_select_Array.Length())
 		Return
 	selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,1]   ; ClipSaved := ClipboardAll
 	if selectvalue~="\#\〔"
