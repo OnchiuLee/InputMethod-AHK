@@ -372,6 +372,7 @@ TipMore:
 			GuiControl, 98:Disable, SBA23
 			Menu, More, Disable, 批量造词
 		}
+		Gosub SelectItems
 	}
 Return
 
@@ -398,6 +399,7 @@ MoveGui:
 			GuiControl, 98:Disable, SBA23
 			Menu, More, Disable, 批量造词
 		}
+		Gosub SelectItems
 	}
 Return
 
@@ -2760,6 +2762,7 @@ sChoice4:
 		GuiControl,logo:, MoveGui,*Icon14 config\Skins\logoStyle\%StyleN%.icl
 		OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 	}
+	Gosub SelectItems
 Return
 
 mothod:
@@ -3701,7 +3704,7 @@ return
 
 ;含词/单字选择
 Wubi_Schema:
-	Wubi_Schema :=(Wubi_Schema~="i)zi|chaoji"?"ci":"zi")
+	Wubi_Schema :=WubiIni.Settings["Wubi_Schema"] :=Wubi_Schema~="i)zi|chaoji"?"ci":"zi", WubiIni.save()
 	if Wubi_Schema ~="i)zi|zg"{
 		Gosub Disable_Tray
 		Menu, More, Disable, 批量造词
@@ -3720,8 +3723,7 @@ Wubi_Schema:
 			GuiControl,logo:, MoveGui,*Icon12 config\Skins\logoStyle\%StyleN%.icl
 		}
 	}
-	WubiIni.Settings["Wubi_Schema"] :=Wubi_Schema
-	WubiIni.save()
+	Gosub SelectItems
 return
 
 ;超集方案选择
@@ -3752,6 +3754,7 @@ Extend_Schema:
 	else
 		WubiIni.Settings["Wubi_Schema"]:=Wubi_Schema
 	WubiIni.save()
+	Gosub SelectItems
 return
 
 ;字根码表选择
@@ -3770,6 +3773,7 @@ ZG_Schema:
 		else
 			GuiControl,logo:, MoveGui,*Icon12 config\Skins\logoStyle\%StyleN%.icl
 	}
+	Gosub SelectItems
 Return
 
 ;字根拆分
