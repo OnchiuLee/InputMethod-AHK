@@ -454,7 +454,30 @@ TRAY_Menu:
 	Menu, Tray, Icon, 词库, shell32.dll, 131
 	Menu, Tray, Add
 
+	Menu, Schema, Add, 含词, ChoiceItems
+	Menu, Schema, Add
+	Menu, Schema, Add, 单字, ChoiceItems
+	Menu, Schema, Add
+	Menu, Schema, Add, 超集, ChoiceItems
+	Menu, Schema, Add
+	Menu, Schema, Add, 字根, ChoiceItems
+	Menu, Schema, Color, FFFFFF
+	SCMENU := Menu_GetMenuByName("Schema")
+	Menu, More, Add, 方案切换,:Schema
+	Menu, More, Icon, 方案切换, shell32.dll, 42
+	Menu, More, Add,
+	Menu, ToolTipStyle, Add, 系统提示框, ChoiceItems
+	Menu, ToolTipStyle, Add
+	Menu, ToolTipStyle, Add, GUI候选框, ChoiceItems
+	Menu, ToolTipStyle, Add
+	Menu, ToolTipStyle, Add, GDI+绘图框, ChoiceItems
+	Menu, ToolTipStyle, Add
+	Menu, ToolTipStyle, Color, FFFFFF
+	TMENU := Menu_GetMenuByName("ToolTipStyle")
 	Menu, More, Add, 批量造词,Add_Code
+	Menu, More, Add,
+	Menu, More, Add, 候选框,:ToolTipStyle
+	Menu, More, Icon, 候选框, shell32.dll, 81
 	if (Wubi_Schema~="i)zi|chaoji"&&!Addcode_switch)
 		Menu, More, Disable, 批量造词
 	Menu, More, Icon, 批量造词, shell32.dll, 281
@@ -482,7 +505,95 @@ TRAY_Menu:
 	Menu, Tray, Color, FFFFFF
 	;Menu, Tray, Click, 1
 	Menu,Tray,Tip,%program%
+	Gosub SelectItems
 return
+
+SelectItems:
+	Menu_CheckRadioItem(SCMENU, Wubi_Schema~="i)ci"?1:Wubi_Schema~="i)zi"?3:Wubi_Schema~="i)chaoji"?5:7)
+	Menu_CheckRadioItem(TMENU, ToolTipStyle~="i)on"?1:ToolTipStyle~="i)off"?3:5), Menu_CheckRadioItem(HMENU, ToolTipStyle ~="i)on"?1:ToolTipStyle ~="i)off"?2:3)
+Return
+
+ChoiceItems:
+	If (A_ThisMenu~="i)Schema"&&A_ThisMenuItemPos)
+	{
+		;;Menu_CheckRadioItem(SCMENU, A_ThisMenuItemPos)
+		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="ci",WubiIni.save()
+		If (A_ThisMenuItemPos=1) {
+			Menu, More, Enable, 批量造词
+			Menu, DB, Enable, 导入词库
+			Menu, DB, Enable, 导出词库
+			For k,v In ["ciku1","ciku2"]
+				GuiControl, 98:Enable, %v%
+			For k,v In ["SBA23"]
+				GuiControl, 98:Disable, %v%
+			GuiControl,logo:, MoveGui,*Icon11 config\Skins\logoStyle\%StyleN%.icl
+			GuiControl, 98:Enable, Frequency
+			if !Frequency {
+				For k,v In ["FTip","set_Frequency","RestDB"]
+					GuiControl, 98:Disable, %v%
+				OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
+			}else{
+				For k,v In ["FTip","set_Frequency","RestDB"]
+					GuiControl, 98:Enable, %v%
+				OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x292421})
+			}
+		}else If (A_ThisMenuItemPos=3) {
+			Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="zi",WubiIni.save()
+			Menu, More, Disable, 批量造词
+			Menu, DB, Disable, 导入词库
+			Menu, DB, Disable, 导出词库
+			For k,v In ["ciku1","ciku2"]
+				GuiControl, 98:Disable, %v%
+			if FileExist("config\GB*.txt")
+				GuiControl, 98:Enable, SBA23
+			GuiControl,logo:, MoveGui,*Icon13 config\Skins\logoStyle\%StyleN%.icl
+			For k,v In ["FTip","set_Frequency","RestDB","Frequency"]
+				GuiControl, 98:Disable, %v%
+			OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
+		} else If (A_ThisMenuItemPos=5) {
+			Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="chaoji",WubiIni.save()
+			Menu, More, Disable, 批量造词
+			Menu, DB, Enable, 导入词库
+			Menu, DB, Enable, 导出词库
+			For k,v In ["ciku1","ciku2"]
+				GuiControl, 98:Enable, %v%
+			For k,v In ["SBA23"]
+				GuiControl, 98:Disable, %v%
+			GuiControl,logo:, MoveGui,*Icon12 config\Skins\logoStyle\%StyleN%.icl
+			For k,v In ["FTip","set_Frequency","RestDB","Frequency"]
+				GuiControl, 98:Disable, %v%
+			OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
+		}else If (A_ThisMenuItemPos=7) {
+			Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]:="zg",WubiIni.save()
+			Menu, More, Disable, 批量造词
+			Menu, DB, Disable, 导入词库
+			Menu, DB, Disable, 导出词库
+			For k,v In ["ciku1", "ciku2", "SBA23", "Frequency", "FTip", "set_Frequency", "RestDB"]
+				GuiControl, 98:Disable, %v%
+			GuiControl,logo:, MoveGui,*Icon14 config\Skins\logoStyle\%StyleN%.icl
+			OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
+		}
+	}else If (A_ThisMenu~="i)ToolTipStyle"&&A_ThisMenuItemPos) {
+		;;Menu_CheckRadioItem(TMENU, A_ThisMenuItemPos), Menu_CheckRadioItem(HMENU, ToolTipStyle ~="i)on"?1:ToolTipStyle ~="i)off"?2:3)
+		ToolTipStyle :=WubiIni.TipStyle["ToolTipStyle"] :=A_ThisMenuItemPos=5?"Gdip":A_ThisMenuItemPos=3?"off":"on"
+		FontSize :=WubiIni.TipStyle["FontSize"] :=A_ThisMenuItemPos=5?22:16
+		if ToolTipStyle ~="i)on|off"{
+			For k,v In ["LineColor","BorderColor","set_GdipRadius","GdipRadius","SBA9","SBA10","SBA12","SBA19"]
+				GuiControl, 98:Disable, %v%
+			Gui, houxuankuang:Destroy
+			Gosub houxuankuangguicreate
+		}else{
+			For k,v In ["LineColor","BorderColor","SBA9","SBA10","SBA12","SBA19"]
+				GuiControl, 98:Enable, %v%
+			if Radius~="i)on" {
+				For k,v In ["set_GdipRadius","GdipRadius"]
+					GuiControl, 98:Enable, %v%
+			}
+		}
+	}
+	Gosub SelectItems
+	WubiIni.Save()
+Return
 
 Initialize:
 	MsgBox, 262452,重置确认, 是否重置输入法配置重新生成？`n如果出现候选框不显示，请重置！
@@ -1149,9 +1260,6 @@ More_Setting:
 	Loop Files, config\Skins\*.json
 		themelist.="|" SubStr(A_LoopFileName,1,-5)
 	Gui, 98:Add, DDL,x+5 yp w150 vselect_theme gselect_theme Section hwndHDDL +0x0210, % RegExReplace(themelist,"^\|")
-	;;Gui, 98:Add, Text,x190 y+10  vTextInfo2 left, 主题管理：
-	;;Gui, 98:Add, Button,x+5 yp-2 cred gdiycolor vdiycolor,自定义配色
-	;;Gui, 98:Add, Button,x+5 cred gthemelists vthemelists,主题管理
 	Gui, 98:Add, Text,x190 y+10 vTextInfo3 left, 配置管理：
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
@@ -1193,11 +1301,6 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox2, 候选框参数
 	Gui,98:Font
-	;Gui,98:Font, s9, %font_%
-	;Gui, 98:Add, Text, x190 yp+40 left vTextInfo11, 选框风格：
-	;Gui,98:Font
-	;Gui,98:Font, s8, %font_%
-	;Gui, 98:Add, Button,x+0 w125 hwndHExportBtn gStyleMenu vStyleMenu, % ToolTipStyle~="i)on"?"Tooltip样式":ToolTipStyle~="i)off"?"Gui候选框样式":"Gdip候选框样式"
 	Gui,98:Font, s10 bold, %font_%
 	Gui, 98:Add, CheckBox,x190 yp+40 vSBA5 gSBA5, 候选框位置固定
 	Gui, 98:Add, Button,yp-3 x+5 vSBA0 gSBA0 hwndPBT, 坐标设置
@@ -1222,8 +1325,6 @@ More_Setting:
 	GuiControl, 98:ChooseString, FontType, %FontType%
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
-	;GuiControlGet, FontVar, Pos , FontType
-	;Gui, 98:Add, Button, x+5 yp-3 cred gFontIN vFontIN,安装字体
 	if !FileExist("Font\*.otf")
 		GuiControl, 98:Disable, FontIN
 	Gui, 98:Add, Text, x190 y+15 left vTextInfo8, 候选框偏移：
@@ -3341,13 +3442,14 @@ Export:
 	}else if A_ThisMenuItem~="i)Gui"{
 		GuiControl, 98:Text, StyleMenu , % A_ThisMenuItem
 		global ToolTipStyle :=WubiIni.TipStyle["ToolTipStyle"] :="off"
-		global FontSize :=WubiIni.TipStyle["FontSize"] :="14"
+		global FontSize :=WubiIni.TipStyle["FontSize"] :="16"
 	}else if A_ThisMenuItem~="i)ToolTip"{
 		GuiControl, 98:Text, StyleMenu , % A_ThisMenuItem
 		global ToolTipStyle :=WubiIni.TipStyle["ToolTipStyle"] :="on"
-		global FontSize :=WubiIni.TipStyle["FontSize"] :="14"
+		global FontSize :=WubiIni.TipStyle["FontSize"] :="16"
 	}
 	WubiIni.Save()
+	Gosub SelectItems
 	if ToolTipStyle ~="i)on|off"{
 		For k,v In ["LineColor","BorderColor","set_GdipRadius","GdipRadius","SBA9","SBA10","SBA12","SBA19"]
 			GuiControl, 98:Disable, %v%
@@ -3721,6 +3823,7 @@ ToolTipStyle:
 		global FontSize :=WubiIni.TipStyle["FontSize"]:=14
 		WubiIni.TipStyle["ToolTipStyle"]:=ToolTipStyle, WubiIni.save()
 	}
+	Gosub SelectItems
 	Gui, houxuankuang:Destroy
 	Gosub houxuankuangguicreate
 return
