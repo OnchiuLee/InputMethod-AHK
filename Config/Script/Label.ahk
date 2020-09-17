@@ -433,6 +433,7 @@ Return
 ;托盘菜单
 TRAY_Menu:
 	global Wubi_Schema
+	Menu, Tray, UseErrorLevel
 	Menu, TRAY, NoStandard
 	Menu, TRAY, DeleteAll
 	program:= "※ " Startup_Name " ※" "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
