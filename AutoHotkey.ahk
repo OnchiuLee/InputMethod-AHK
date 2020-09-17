@@ -41,7 +41,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020091618"
+version :="2020091711"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -307,12 +307,14 @@ if Exit_switch&&Exit_hotkey
 DBFileName:=A_ScriptDir "\DB\wubi98.db"
 If !FileExist(DBFileName)
 	If !Un7Zip(A_ScriptDir "\DB\wubi98.7z",A_ScriptDir "\DB")
-		Traytip,错误警告,DB目录词库错误！,,35
+		MsgBox, 262160, 错误警告, DB目录词库错误！请自行解压, 15
+
 If (DB._Handle)
 	DB.CloseDB()
 global DB := New SQLiteDB
 If !DB.OpenDB(DBFileName)
 	MsgBox, 16, 数据库DB错误, % "消息:`t" DB.ErrorMsg "`n代码:`t" DB.ErrorCode
+
 Gosub Backup_CustomDB
 
 ;;=======================================
@@ -322,6 +324,7 @@ labelArr:=[["en","EN_Mode","英文输入模式开关"]
 	, ["gl","CharFliter","单字方案GB2312过滤开关"]]
 CheckLabel(DB,labelArr)
 ;;=======================================
+/*
 If FileExist("Config\GB*.txt") {
 	__Chars:=_Chars:=""
 	DB.GetTable("select count(*) from sqlite_master where type='table' and name = 'GBChars';",Result)
@@ -335,11 +338,11 @@ If FileExist("Config\GB*.txt") {
 		DB.Exec("INSERT INTO GBChars VALUES" RegExReplace(__Chars,"\,$") "")
 	}
 }
+*/
+;;;SwitchToEngIME()
 ;}}}}}
 
 CheckDB(DB,"zi"), CheckDB(DB,"ci"), CheckDB(DB,"chaoji")
-;SwitchToEngIME()
-
 
 ;PrintObjects(WubiIni)
 ;{{常用变量值初始化
