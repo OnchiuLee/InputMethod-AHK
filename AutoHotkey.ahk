@@ -41,7 +41,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020091718"
+version :="2020091818"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -341,8 +341,22 @@ If FileExist("Config\GB*.txt") {
 }
 */
 ;;;SwitchToEngIME()
+;;;写入唐诗词库
+If FileExist("Config\TangSongPoetics.txt") {
+	__Chars:=_Chars:="", CharsObj:=[]
+	DB.GetTable("select count(*) from sqlite_master where type='table' and name = 'TangSongPoetics';",Result)
+	if !Result.Rows[1,1] {
+		SQL =CREATE TABLE IF NOT EXISTS TangSongPoetics ("A_Key" TEXT,"Author" TEXT, "B_Key" TEXT, "C_Key" TEXT);
+		DB.Exec(SQL)
+		FileRead,_Chars,Config\TangSongPoetics.txt
+		Loop,parse,_Chars,`n,`r
+			If A_LoopField 
+				CharsObj:=StrSplit(A_LoopField,A_tab), __Chars.="('" RegExReplace(CharsObj[1],"\s+") "','" RegExReplace(CharsObj[2],"\s+") "','" RegExReplace(CharsObj[3],"\s+") "','" RegExReplace(CharsObj[4],"\s+") "')" ","
+		DB.Exec("INSERT INTO TangSongPoetics VALUES" RegExReplace(__Chars,"\,$") "")
+		__Chars:=_Chars:="", CharsObj:=[]
+	}
+}
 ;}}}}}
-
 CheckDB(DB,"zi"), CheckDB(DB,"ci"), CheckDB(DB,"chaoji")
 
 ;PrintObjects(WubiIni)
