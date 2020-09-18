@@ -458,6 +458,12 @@ TRAY_Menu:
 	Menu, DB, Add, 自造词导出,ciku7
 	Menu, DB, Icon, 自造词导出, shell32.dll, 69
 	Menu, DB, Add
+	Menu, DB, Add, 长字符串导入,Write_LongChars
+	Menu, DB, Icon, 长字符串导入, shell32.dll, 60
+	Menu, DB, Add
+	Menu, DB, Add, 长字符串导出,Backup_LongChars
+	Menu, DB, Icon, 长字符串导出, shell32.dll, 69
+	Menu, DB, Add
 	Menu, DB, Add, 单/多义转换,TransformCiku
 	Menu, DB, Icon, 单/多义转换, shell32.dll, 239
 	Menu, Tray, Add, 词库,:DB
@@ -526,6 +532,50 @@ TRAY_Menu:
 	Gosub SelectItems
 return
 
+Write_LongChars:
+	Gui +OwnDialogs
+	MsgBox, 262452, 长字符串词库导入,导入文本遵循以下格式：编码+Tab`n+候选栏显示的词条`n+对候选栏显示的词条进行说明`n+要上屏的长文本字符串`n===【输出方法：编码+z】===
+	IfMsgBox, Yes
+	{
+		__Chars:=_Chars:=""
+		FileSelectFile, FileContents, 3, , 请选择要导入的文本文件, Text Documents (*.txt)
+		If (FileContents<>"")
+		{
+			SQL =CREATE TABLE IF NOT EXISTS TangSongPoetics ("A_Key" TEXT,"Author" TEXT, "B_Key" TEXT, "C_Key" TEXT);delete from TangSongPoetics
+			DB.Exec(SQL)
+			FileRead,_Chars,%FileContents%
+			Loop,parse,_Chars,`n,`r
+				If A_LoopField 
+					CharsObj:=StrSplit(A_LoopField,A_tab), __Chars.="('" RegExReplace(CharsObj[1],"\s+") "','" RegExReplace(CharsObj[2],"\s+") "','" RegExReplace(CharsObj[3],"\s+") "','" RegExReplace(CharsObj[4],"\s+") "')" ","
+			If DB.Exec("INSERT INTO TangSongPoetics VALUES" RegExReplace(__Chars,"\,$") "")>0
+				Traytip,,导入成功！
+		}
+		__Chars:=_Chars:=FileContents:="", CharsObj:=[]
+	}
+Return
+
+Backup_LongChars:
+	Gui +OwnDialogs
+	FileSelectFolder, OutFolder,*%A_ScriptDir%\Sync\,3,请选择导出后保存的位置
+	if (OutFolder<>"")
+	{
+		DB.gettable("select * from TangSongPoetics",Result)
+		If Result.RowCount>0
+		{
+			For Section,element In Result.Rows
+			{
+				For key,value in element
+					Result_.=value A_Tab
+				Result_All.=RegExReplace(Result_,"\t$") "`r`n", Result_:=""
+			}
+			FileDelete, %OutFolder%\LongString.txt
+			FileAppend,%Result_All%,%OutFolder%\LongString.txt,UTF-8
+			Traytip,,导出成功！
+		}
+		OutFolder:=Result_:=Result_All:=""
+	}
+Return
+
 TransformCiku:
 	Gui +OwnDialogs
 	FileSelectFile, FileContents, 3, , 请选择要转换的词库文本文件, Text Documents (*.txt)
@@ -537,6 +587,7 @@ TransformCiku:
 		else{
 			MsgBox, 262208, 码表转换,% "转换完成耗时" CheckTickCount(startTime), 15
 		}
+		FileContents:=""
 	}
 Return
 
@@ -987,6 +1038,10 @@ srf_tooltip_fanye:
 		Gosub srf_tooltip_cut
 	}else if srf_all_Input ~="^[a-y]{1,4}``"{
 		srf_for_select_Array:=format_word_2(srf_all_Input)
+		Gosub srf_tooltip_cut
+	}else if srf_all_input~="^[a-z]+z$"{
+		Textdirection:="vertical"
+		srf_for_select_Array:=get_Longword(RegExReplace(srf_all_Input,"z$"))
 		Gosub srf_tooltip_cut
 	}else{
 		If !EN_Mode {

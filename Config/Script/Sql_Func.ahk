@@ -459,6 +459,23 @@ Get_EnWord(input){
 	}
 }
 
+get_Longword(input){
+	global srf_all_Input, Wubi_Schema, Cut_Mode,DB
+	If (input="")
+		Return []
+	If Cut_Mode~="on"
+		SQL :="SELECT B_Key,Author,C_Key FROM TangSongPoetics WHERE A_Key LIKE '" input "%' ORDER BY A_Key DESC;"
+	else
+		SQL :="SELECT B_Key,C_Key,Author FROM TangSongPoetics WHERE A_Key LIKE '" input "%' ORDER BY A_Key DESC;"
+	If DB.GetTable(SQL, Result){
+		if Result.Rows[1,1] {
+			loop,% Result.RowCount
+				Result.Rows[a_index,Cut_Mode~="on"?2:3]:="〔 " Result.Rows[a_index,Cut_Mode~="on"?2:3] " 〕"
+			Return Result.Rows
+		}
+	}
+}
+
 ;词条提取
 get_word(input, cikuname){
 	global Frequency, Prompt_Word, Trad_Mode, PromptChar, srf_all_Input, lianx, CharFliter
@@ -567,16 +584,23 @@ srf_select(list_num){
 	local selectvalue, Result, Index, yhnum, tt, Match, lastvalue
 	If (list_num>ListNum||list_num=0||list_num>srf_for_select_Array.Length())
 		Return
-	selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,1]   ; ClipSaved := ClipboardAll
+	selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,srf_all_input~="^[a-z]+z$"?(Cut_Mode~="on"?3:2):1]
+	If (selectvalue~="\\n"&&srf_all_input~="^[a-z]+z$", selectvalue_:="") {
+		loop,parse,selectvalue,\n
+			If A_LoopField
+				selectvalue_.= A_LoopField "`r`n"
+		selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,1] "`r`n" srf_for_select_Array[list_num+ListNum*waitnum,Cut_Mode~="on"?2:3] "`r`n" selectvalue_
+	}
 	if selectvalue~="\#\〔"
 	{
 		Gosub % RegExReplace(selectvalue,"\#\〔.+","")
 	}else{
-		if Initial_Mode ~="on"
+		if (Initial_Mode ~="on"||srf_all_input~="^[a-z]+z$")
 		{
-			Clipboard := selectvalue        ;Clipboard := StringUpper(selectvalue, "T")
+			Clipboard := selectvalue
 			send ^v
-			updateRecent(selectvalue)    ;写入历史记录
+			If srf_all_input~="^[a-y]+$"
+				updateRecent(selectvalue)    ;写入历史记录
 			if srf_all_Input~="^\``[a-z]^[a-y]{1,4}``"{
 				Save_word(selectvalue)
 			}
@@ -584,8 +608,8 @@ srf_select(list_num){
 		else
 		{
 			SendInput % selectvalue
-			;SendInput % StringUpper(selectvalue, "T")
-			updateRecent(selectvalue)    ;写入历史记录
+			If srf_all_input~="^[a-y]+$"
+				updateRecent(selectvalue)    ;写入历史记录
 			if srf_all_Input~="^\``[a-z]|^[a-y]{1,4}``"{
 				Save_word(selectvalue)
 			}
