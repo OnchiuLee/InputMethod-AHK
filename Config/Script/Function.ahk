@@ -2101,6 +2101,60 @@ test_db(chars,DB){
 
 }
 
+TranCiku(FilePath,outpath=""){
+	If !FileExist(FilePath)
+		return 0
+	outpath:=outpath?outpath:FilePath
+	FileRead,chars,%FilePath%
+	FileName:=RegExReplace(outpath,"\.[a-zA-Z0-9]+$")
+	If chars~="[^a-zA-Z0-9]\t[a-z]+" {
+		consistent_all:={}
+		TrayTip,,正在转换为单行多义。。。
+		Loop,parse,chars,`n,`r
+		{
+			If A_LoopField
+			{
+				consistent_part:=StrSplit(A_LoopField,A_tab)
+				If (IsObject(consistent_all[consistent_part[2]]))
+					consistent_all[consistent_part[2]].push(consistent_part[1])
+				else
+					consistent_all[consistent_part[2]]:=[consistent_part[1]]
+			}
+		}
+		For section,element in consistent_all
+		{
+			For key,value in element
+				If value
+					loopvalue_.=A_space value
+			If loopvalue_
+				loopvalue.=section loopvalue_ "`r`n", loopvalue_:=""
+		}
+		FileDelete,%FileName%_多义.txt
+		FileAppend,%loopvalue%,%FileName%_多义.txt,utf-8
+		consistent_all:={}, loopvalue:=chars:="", consistent_part:=[]
+		return 1
+	}else If chars~="[a-z]\s.+\s" {
+		TrayTip,,正在转换为单行单义。。。
+		Loop,parse,chars,`n,`r
+		{
+			If A_LoopField
+			{
+				consistent_part:=StrSplit(RegExReplace(A_LoopField,"\s+",A_space),A_space)
+				loopvalue_:=consistent_part[1]
+				For key,value in consistent_part
+					If (key>1&&value)
+						loopvalue.=loopvalue_ A_tab value "`r`n"
+			}
+		}
+		FileDelete,%FileName%_单义.txt
+		FileAppend,%loopvalue%,%FileName%_单义.txt,utf-8
+		chars:=loopvalue:=loopvalue_:="", consistent_part:=[]
+		return 1
+	}else{
+		return 0
+	}
+}
+
 Transform_mb(chars){
 	if chars~="\t[a-z]+"{
 		Traytip,,正在转换。。。

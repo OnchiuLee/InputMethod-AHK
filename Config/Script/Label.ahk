@@ -457,6 +457,9 @@ TRAY_Menu:
 	Menu, DB, Add
 	Menu, DB, Add, 自造词导出,ciku7
 	Menu, DB, Icon, 自造词导出, shell32.dll, 69
+	Menu, DB, Add
+	Menu, DB, Add, 单/多义转换,TransformCiku
+	Menu, DB, Icon, 单/多义转换, shell32.dll, 239
 	Menu, Tray, Add, 词库,:DB
 	Menu, Tray, Icon, 词库, shell32.dll, 131
 	Menu, Tray, Add
@@ -522,6 +525,20 @@ TRAY_Menu:
 	Menu,Tray,Tip,%program%
 	Gosub SelectItems
 return
+
+TransformCiku:
+	Gui +OwnDialogs
+	FileSelectFile, FileContents, 3, , 请选择要转换的词库文本文件, Text Documents (*.txt)
+	If (FileContents<>"")
+	{
+		startTime:= CheckTickCount()
+		If !TranCiku(FileContents)
+			MsgBox, 262192, 码表转换, 词库格式不支持！, 8
+		else{
+			MsgBox, 262208, 码表转换,% "转换完成耗时" CheckTickCount(startTime), 15
+		}
+	}
+Return
 
 SelectItems:
 	Menu_CheckRadioItem(SCMENU, Wubi_Schema~="i)ci"?1:Wubi_Schema~="i)zi"?3:Wubi_Schema~="i)chaoji"?5:7)
@@ -1263,7 +1280,7 @@ More_Setting:
 		,GBoxList3:["GBox3","SBA7","SBA26","SBA23","SBA24","UIAccess","SBA6","SBA14","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC","Cursor_Status"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
-		,GBoxList6:["GBox6","sChoice4","ciku1","ciku9","ciku2","ciku8","ciku7","yaml_","ciku3","ciku4","ciku5","ciku6","ciku10","ciku11"]
+		,GBoxList6:["GBox6","sChoice4","TransformCiku","ciku9","ciku2","ciku8","ciku7","yaml_","ciku3","ciku4","ciku5","ciku6","ciku10","ciku11"]
 		,GBoxList7:["GBox7","linkinfo1","linkinfo2","linkinfo3","versionsinfo","infos_"]}
 
 	Gui, 98:Add, GroupBox,x+10 yp w400 h400 vGBox1, 主题配置
@@ -1528,9 +1545,11 @@ More_Setting:
 	ImageButton.Create(CKBT11, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, 98:Add, Button, x%budbvarX% yp+50 vciku7 gciku7 hWndCKBT7,自造词条导出
 	ImageButton.Create(CKBT7, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	Gui, 98:Add, Button, x+30 yp vTransformCiku gTransformCiku hWndCKBT12,单义/多义转换
+	ImageButton.Create(CKBT12, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
-	Gui, 98:Add, CheckBox,x+30 yp+5 vyaml_ gyaml_, 导出为yaml格式
+	Gui, 98:Add, CheckBox,x%budbvarX% yp+50 vyaml_ gyaml_, 导出为yaml格式
 	if !FileExist(A_ScriptDir "\Sync\header.txt")
 		GuiControl, 98:Disable, yaml_
 	For Section, element In TV_obj
