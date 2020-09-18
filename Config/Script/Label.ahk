@@ -2817,10 +2817,7 @@ mothod:
 Return
 
 ciku1:
-	GuiControlGet, Choice,, sChoice4, text
 	Gosub Write_DB
-	keywait, LControl, D T1
-	keywait, LControl
 Return
 
 ciku2:
@@ -2828,47 +2825,35 @@ ciku2:
 Return
 
 ciku3:
-	GuiControlGet, ck3,, ciku3, text
 	bd:=""
 	if ck3 {
 		global bd:="En"
 		Gosub Write_En
 	}
-	keywait, LControl, D T1
-	keywait, LControl
 Return
 
 ciku4:
-	GuiControlGet, ck4,, ciku4, text
 	bd:=""
 	if ck4 {
 		global bd:="En"
 		Gosub Backup_En
 	}
-	keywait, LControl, D T1
-	keywait, LControl
 Return
 
 ciku5:
-	GuiControlGet, ck5,, ciku5, text
 	bd:=""
 	if ck5 {
 		global bd:="Sym"
 		Gosub Write_En
 	}
-	keywait, LControl, D T1
-	keywait, LControl
 Return
 
 ciku6:
-	GuiControlGet, ck6,, ciku6, text
 	bd:=""
 	if ck6 {
 		global bd:="Sym"
 		Gosub Backup_En
 	}
-	keywait, LControl, D T1
-	keywait, LControl
 Return
 
 ciku7:
@@ -2878,7 +2863,7 @@ Return
 
 ciku8:
 	init_db:=1
-	Gosub Backup_DB
+	Gosub OnBackup
 Return
 
 ciku9:
