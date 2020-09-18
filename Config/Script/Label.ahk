@@ -2825,45 +2825,39 @@ ciku2:
 Return
 
 ciku3:
+	bd:="En"
+	Gosub Write_En
 	bd:=""
-	if ck3 {
-		global bd:="En"
-		Gosub Write_En
-	}
 Return
 
 ciku4:
+	bd:="En"
+	Gosub Backup_En
 	bd:=""
-	if ck4 {
-		global bd:="En"
-		Gosub Backup_En
-	}
 Return
 
 ciku5:
+	bd:="Sym"
+	Gosub Write_En
 	bd:=""
-	if ck5 {
-		global bd:="Sym"
-		Gosub Write_En
-	}
 Return
 
 ciku6:
+	bd:="Sym"
+	Gosub Backup_En
 	bd:=""
-	if ck6 {
-		global bd:="Sym"
-		Gosub Backup_En
-	}
 Return
 
 ciku7:
 	custom_db:=1
 	Gosub Backup_DB
+	custom_db:=0
 Return
 
 ciku8:
 	init_db:=1
 	Gosub OnBackup
+	init_db:=0
 Return
 
 ciku9:
