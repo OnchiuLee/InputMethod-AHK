@@ -559,7 +559,7 @@ Backup_LongChars:
 	FileSelectFolder, OutFolder,*%A_ScriptDir%\Sync\,3,请选择导出后保存的位置
 	if (OutFolder<>"")
 	{
-		DB.gettable("select * from TangSongPoetics ORDER BY A_Key DESC;",Result)
+		DB.gettable("select * from TangSongPoetics ORDER BY A_Key ASC;",Result)
 		If Result.RowCount>0
 		{
 			For Section,element In Result.Rows
@@ -2600,7 +2600,7 @@ LongStringlists:
 	SysGet, CXVSCROLL, 2
 	ts_width:=620+CXVSCROLL
 	Gui, ts:Add, ListView, r15 w%ts_width% Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 -Multi 0x8 LV0x40 -LV0x10 vLongString hwndLSLV, 【 编码 】|【 副标题 】|【 标题 】|【 标题释义 】
-	DB.gettable("select * from TangSongPoetics ORDER BY A_Key,Author DESC;",Result)
+	DB.gettable("select * from TangSongPoetics ORDER BY A_Key,Author ASC;",Result)
 	CountNum:=0, lineCount:=Result.RowCount, pageNum:=ceil(lineCount/40)
 	Gosub GetLongString
 	Gui, ts:font
