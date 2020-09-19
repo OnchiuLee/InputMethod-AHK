@@ -464,9 +464,9 @@ get_Longword(input){
 	If (input="")
 		Return []
 	If Cut_Mode~="on"
-		SQL :="SELECT B_Key,Author,C_Key FROM TangSongPoetics WHERE A_Key LIKE '" input "%' ORDER BY A_Key DESC;"
+		SQL :="SELECT B_Key,Author,C_Key FROM TangSongPoetics WHERE A_Key LIKE '" input "%' ORDER BY A_Key ASC;"
 	else
-		SQL :="SELECT B_Key,C_Key,Author FROM TangSongPoetics WHERE A_Key LIKE '" input "%' ORDER BY A_Key DESC;"
+		SQL :="SELECT B_Key,C_Key,Author FROM TangSongPoetics WHERE A_Key LIKE '" input "%' ORDER BY A_Key ASC;"
 	If DB.GetTable(SQL, Result){
 		if Result.Rows[1,1] {
 			loop,% Result.RowCount
