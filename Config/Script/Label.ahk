@@ -257,7 +257,7 @@ SetHotkey:
 		if Logo_Switch ~="on" {
 			Gosub Write_Pos
 		}
-		sendinput % RegExReplace(srf_all_input,"^z\'","")
+		sendinput % RegExReplace(srf_all_input,"\'","")
 	}
 	Gosub srf_value_off
 	Gosub Get_IME
@@ -559,7 +559,7 @@ Backup_LongChars:
 	FileSelectFolder, OutFolder,*%A_ScriptDir%\Sync\,3,请选择导出后保存的位置
 	if (OutFolder<>"")
 	{
-		DB.gettable("select * from TangSongPoetics",Result)
+		DB.gettable("select * from TangSongPoetics ORDER BY A_Key DESC;",Result)
 		If Result.RowCount>0
 		{
 			For Section,element In Result.Rows
@@ -1017,10 +1017,18 @@ srf_tooltip_fanye:
 		Gosub srf_tooltip_cut
 	}else if srf_all_Input ~="^z"{
 		if srf_all_Input~="^z[a-z]+|^z\'[a-z]+" {
-			;if get_word(srf_all_input, Wubi_Schema).Length()>0
-				srf_all_input:=RegExReplace(srf_all_input,"^z|^z\'",srf_all_input~="'"?"z":"z'"), srf_for_select_Array:=get_word(srf_all_input, Wubi_Schema)
-			;else
-				;Sym_Array:=[],Sym_Array[1,1]:=RegExReplace(srf_all_Input,"\'"),Sym_Array[1,1]<>RegExReplace(srf_all_Input,"^z\'")?(Sym_Array[2,1]:=RegExReplace(srf_all_Input,"^z\'")):"",srf_for_select_Array:=Sym_Array
+			ts_Array:=[]
+			if (srf_all_input~="^[a-z']+z$"&&StrLen(RegExReplace(srf_all_Input,"\'"))>1) 
+				ts_Array:=get_Longword(RegExReplace(RegExReplace(srf_all_Input,"\'"),"z$"))
+			srf_all_input:=RegExReplace(srf_all_input,"^z|^z\'",srf_all_input~="'"?"z":"z'"), srf_for_select_Array:=get_word(srf_all_input, Wubi_Schema)
+			If ts_Array.Length()>0 {
+				Textdirection:="vertical"
+				If srf_for_select_Array.Length()>0 {
+					For Section,element In ts_Array
+						srf_for_select_Array.InsertAt(A_Index+2,element)
+				}else
+					srf_for_select_Array:=ts_Array
+			}
 		}else{
 			if recent[1]{
 				loop % objLength(recent)
@@ -1128,7 +1136,7 @@ showhouxuankuang:
 			Gui, houxuankuang:Hide
 		Return
 	}
-	srf_code:=srf_all_input~="^z\'[a-z]"?RegExReplace(srf_all_input,"^z\'",""):(srf_all_input~="^``$"?RegExReplace(srf_all_input,"^``",(Wubi_Schema~="i)ci"?"〔精准造词〕":"〔常用符号〕")):srf_all_input~="^~$"?RegExReplace(srf_all_input,"^~","〔以形查音〕"):srf_all_input~="^````$"?RegExReplace(srf_all_input,"^````","〔临时英文〕"):srf_all_input)
+	srf_code:=srf_all_input~="^z\'[a-z]"&&!ts_Array.Length()?RegExReplace(srf_all_input,"^z\'"):(srf_all_input~="^``$"?RegExReplace(srf_all_input,"^``",(Wubi_Schema~="i)ci"?"〔精准造词〕":"〔常用符号〕")):srf_all_input~="^~$"?RegExReplace(srf_all_input,"^~","〔以形查音〕"):srf_all_input~="^````$"?RegExReplace(srf_all_input,"^````","〔临时英文〕"):srf_all_input)
 	srf_code:=srf_code~="^``|^~"?RegExReplace(RegExReplace(srf_code,"^``|^~"),"``","'"):srf_code
 	SysGet, _height, 14       ;获取光标高度
 	if Fix_Switch~="i)on"{
@@ -1228,6 +1236,7 @@ DestroyGui:
 	Gui, diy:Destroy
 	Gui, Sym:Destroy
 	Gui, SymList:Destroy
+	Gui, ts:Default
 Return
 
 diyColor:
@@ -1308,6 +1317,7 @@ More_Setting:
 	Menu, Main, Add, 候选框 , :Custom
 	Menu, ExtendTool, Add, 超级标签管理, Label_management
 	Menu, ExtendTool, Add, 标点符号映射, Sym_Gui
+	Menu, ExtendTool, Add, 长字符串管理, LongStringlists
 	Menu, ExtendTool, Color, FFFFFF
 	Menu, Main, Add, 扩展工具, :ExtendTool
 	Menu, Main, Color, FFFFFF
@@ -2580,6 +2590,84 @@ sChoice2:
 		Select_Enter:=WubiIni.Settings["Select_Enter"]:="clean",WubiIni.save()
 	else
 		Select_Enter:=WubiIni.Settings["Select_Enter"]:="send",WubiIni.save()
+Return
+
+LongStringlists:
+	Gosub DestroyGui
+	Gui, ts:Default
+	Gui, ts: +Owner98  ;+ToolWindow   ;;+AlwaysOnTop -DPIScale 
+	Gui, ts:font,,%Font_%
+	SysGet, CXVSCROLL, 2
+	ts_width:=620+CXVSCROLL
+	Gui, ts:Add, ListView, r15 w%ts_width% Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 -Multi 0x8 LV0x40 -LV0x10 vLongString hwndLSLV, 【 编码 】|【 副标题 】|【 标题 】|【 标题释义 】
+	DB.gettable("select * from TangSongPoetics ORDER BY A_Key,Author DESC;",Result)
+	CountNum:=0, lineCount:=Result.RowCount, pageNum:=ceil(lineCount/40)
+	Gosub GetLongString
+	Gui, ts:font
+	Gui, ts:font,bold,%Font_%
+	Gui, ts:Add, Button, Section gLongStringWrite vLongStringWrite hWndLSBT1, 导入
+	ImageButton.Create(LSBT1, [6, 0x80404040, 0xC0C0C0, "yellow"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	Gui, ts:Add, Button, x+10 yp Section gLongStringBackup vLongStringBackup hWndLSBT2, 导出
+	ImageButton.Create(LSBT2, [6, 0x80404040, 0xC0C0C0, "yellow"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	Gui, ts:Add, Button, x+10 yp Section gLastpage_chars vLastpage_chars hWndLastpage_chars, 上一页
+	ImageButton.Create(Lastpage_chars, [6, 0x80404040, 0xC0C0C0, "green"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	Gui, ts:Add, Button, x+10 yp Section gNextpage_chars vNextpage_chars hWndNextpage_chars, 下一页
+	ImageButton.Create(Nextpage_chars, [6, 0x80404040, 0xC0C0C0, "green"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	GuiControl,ts:Disable,Lastpage_chars
+	If (lineCount<40||!lineCount)
+		GuiControl,ts:Disable,Nextpage_chars
+	Gui, ts:font
+	Gui, ts:font,norm,%Font_%
+	Gui, ts:Add, StatusBar,, 1
+	SB_SetText(A_Space CountNum+1 "/" pageNum . "页")
+	Gui, ts:show, AutoSize, 长字符串管理 ● 输出方法：编码+z结尾
+	Gosub ChangeWinIcon
+Return
+
+GetLongString:
+	If Result.RowCount>0
+		loop,% (CountNum>=pageNum?lineCount-(CountNum-1)*40:40)
+			LV_Add("", Result.Rows[CountNum*40+A_Index,1],Result.Rows[CountNum*40+A_Index,2],Result.Rows[CountNum*40+A_Index,3],Result.Rows[CountNum*40+A_Index,4])
+	LV_ModifyCol(1,"60 "), LV_ModifyCol(2,"120 Center"), LV_ModifyCol(3,"200 Center"), LV_ModifyCol(4,"240 ")
+	SB_SetText(A_Space CountNum+1 "/" pageNum . "页")
+Return
+
+tsGuiClose:
+	tsGuiEscape:
+	Gui, ts:Destroy
+	WubiIni.Save()
+Return
+
+Nextpage_chars:
+	CountNum++
+	LV_Delete()
+	Gosub GetLongString
+	if (CountNum+1>=pageNum)
+		GuiControl,ts:Disable,Nextpage_chars
+	else
+		GuiControl,ts:Enable,Lastpage_chars
+Return
+
+Lastpage_chars:
+	CountNum--
+	LV_Delete()
+	Gosub GetLongString
+	if (CountNum<1) 
+		GuiControl,ts:Disable,Lastpage_chars
+	else
+		GuiControl,ts:Enable,Nextpage_chars
+Return
+
+LongStringWrite:
+	Gosub Write_LongChars
+	LV_Delete(), CountNum:=0
+	Gosub GetLongString
+Return
+
+LongStringBackup:
+	Gosub Backup_LongChars
+	LV_Delete(), CountNum:=0
+	Gosub GetLongString
 Return
 
 themelists:

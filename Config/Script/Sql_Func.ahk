@@ -584,8 +584,8 @@ srf_select(list_num){
 	local selectvalue, Result, Index, yhnum, tt, Match, lastvalue
 	If (list_num>ListNum||list_num=0||list_num>srf_for_select_Array.Length())
 		Return
-	selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,srf_all_input~="^[a-z]+z$"?(Cut_Mode~="on"?3:2):1]
-	If (selectvalue~="\\n"&&srf_all_input~="^[a-z]+z$", selectvalue_:="") {
+	selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,(srf_all_input~="^[a-y][a-z]+z$"||srf_all_input~="^[z][a-z']+z$"&&ts_Array.Length()>0?(Cut_Mode~="on"?3:2):1)]
+	If (selectvalue~="\\n"&&srf_all_input~="^[a-y]+z$"||selectvalue~="\\n"&&srf_all_input~="^[z][a-z']+z$"&&ts_Array.Length()>0, selectvalue_:="") {
 		loop,parse,selectvalue,\n
 			If A_LoopField
 				selectvalue_.= A_LoopField "`r`n"
@@ -595,7 +595,7 @@ srf_select(list_num){
 	{
 		Gosub % RegExReplace(selectvalue,"\#\〔.+","")
 	}else{
-		if (Initial_Mode ~="on"||srf_all_input~="^[a-z]+z$")
+		if (Initial_Mode ~="on"||srf_all_input~="^[a-y][a-z]+z$|^[z][a-z']+z$")
 		{
 			Clipboard := selectvalue
 			send ^v
