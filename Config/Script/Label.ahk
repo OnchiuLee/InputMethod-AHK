@@ -3234,7 +3234,7 @@ format_Date:
 	Gui, Date:Add, Edit,x+2 R1 w300 vSettKey WantTab hWndSetKey
 	Gui, Date:Add,text,xm,时间格式设定：
 	Gui, Date:Add, Edit,x+2 R1 w300 vSettime WantTab hWndSettime
-	EM_SetCueBanner(SetKey, "当前值：" EXEList_obj["FormatKey"]【多个字段以/分离】)
+	EM_SetCueBanner(SetKey, "当前值：" EXEList_obj["FormatKey"] "【多个字段以/分离】")
 	EM_SetCueBanner(Settime, "格式：公元年(ln)月日-周 周数 ")
 	Gui, Date:Add, Button,x+5 gSaveSJ vSaveSJ hWndSSBT, 添加
 	Gui, Date:Add, Button,x+5 gReloadSJ vReloadSJ hWndRSBT, 刷新
@@ -3274,7 +3274,7 @@ ReloadSJ:
 	For Section,element In EXEList_obj["FormatDate"]
 		If element[1]
 			LV_Add("",element[1],element[1]~="^[a-zA-Z]"?FormatTime("",element[1]):FormatTime(element[1],FormatTime(formatDate(element[1]),FormatDate(element[1],2,1))))
-	EM_SetCueBanner(SetKey, "当前值：" EXEList_obj["FormatKey"]【多个字段以/分离】)
+	EM_SetCueBanner(SetKey, "当前值：" EXEList_obj["FormatKey"] "【多个字段以/分离】")
 Return
 
 SaveSJ:
