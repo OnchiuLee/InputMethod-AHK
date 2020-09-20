@@ -363,8 +363,9 @@ Return
 			srf_select(3)
 		if A_ThisHotkey~="i)space"
 			srf_select(1)
-	}else
+	}else{
 		srf_select(InStr(Select_Code,A_ThisHotkey))
+	}
 	Return
 
 	Up::

@@ -605,6 +605,7 @@ srf_select(list_num){
 	local selectvalue, Result, Index, yhnum, tt, Match, lastvalue
 	If (list_num>ListNum||list_num=0||list_num>srf_for_select_Array.Length())
 		Return
+	list_num:= localpos>1&&ToolTipStyle~="i)gdip"&&FocusStyle?localpos:list_num
 	selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,(srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>2?(Cut_Mode~="on"?3:2):1)]
 	If (selectvalue~="\\n|\\t"&&srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>2, selectvalue_:="") {
 		selectvalue_:= TranSelectvalue(selectvalue), selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,1] "`r`n" srf_for_select_Array[list_num+ListNum*waitnum,Cut_Mode~="on"?2:3] "`r`n" selectvalue_
@@ -654,7 +655,6 @@ srf_select(list_num){
 	}
 	Gosub srf_value_off
 	srf_for_select_Array :=select_arr:=select_value_arr:=add_Array:=add_Result:=[], select_sym:=PosLimit:=0, srf_for_select_for_tooltip :=Result_arr:=Select_result:=selectallvalue:="",code_status:=localpos:=select_pos:=1
-	;Clipboard :=ClipSaved
 }
 
 ;快捷删词

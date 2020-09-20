@@ -1011,8 +1011,15 @@ srf_tooltip_fanye:
 				Gosub MacInfo
 			else if (srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>2)
 				Textdirection:="vertical", srf_for_select_Array:=get_Longword(RegExReplace(srf_all_Input,"z$|^\/"))
-			else
-				srf_for_select_Array:=prompt_symbols(srf_all_Input)
+			else{
+				srf_for_select_Array:=prompt_symbols(srf_all_Input), bianmaSJ:=StrSplit(EXEList_obj["FormatKey"],"/")
+				If Array_isInValue(bianmaSJ,SubStr(srf_all_input,2)) {
+					Textdirection:="vertical"
+					If srf_for_select_Array.Length()>0 
+						For key,value In EXEList_obj["formatDate"]
+							srf_for_select_Array.InsertAt(A_Index,[ value[1]~="^[a-zA-Z]"?FormatTime("",value[1]):FormatTime(formatDate(value[1]),FormatDate(value[1],2,1))])
+				}
+			}
 		}else{
 			Sym_Array_1[1,1]:=srf_all_input, srf_for_select_Array:=Sym_Array_1
 		}
@@ -1223,7 +1230,8 @@ DestroyGui:
 	Gui, diy:Destroy
 	Gui, Sym:Destroy
 	Gui, SymList:Destroy
-	Gui, ts:Default
+	Gui, ts:Destroy
+	Gui, Date:Destroy
 Return
 
 diyColor:
@@ -1329,7 +1337,7 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","SBA13","TextInfo1","showtools","SrfSlider","SizeValue","set_SizeValue","ExSty","DPISty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","TextInfo27","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 		,GBoxList2:["GBox2","TextInfo11","TextInfo25","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
-		,GBoxList3:["GBox3","SBA7","SBA26","SBA23","SBA24","UIAccess","SBA6","SBA14","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC","Cursor_Status"]
+		,GBoxList3:["GBox3","SBA7","SBA26","SBA27","SBA23","SBA24","UIAccess","SBA6","SBA14","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC","Cursor_Status"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","sChoice4","TransformCiku","ciku9","ciku2","ciku8","ciku7","yaml_","ciku3","ciku4","ciku5","ciku6","ciku10","ciku11"]
@@ -1500,6 +1508,8 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	Gui, 98:Add, Button, yp-4 x+10 gWinMode vWinMode hWndWMBT,程序设置
 	ImageButton.Create(WMBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	Gui, 98:Add, Button,x+10 yp vSBA27 gSBA27 hwndFTBT, 时间日期输出设定
+	ImageButton.Create(FTBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui, 98:Add, CheckBox,x190 y+10 Checked%CursorStatus% vCursor_Status gCursor_Status, 光标监控
@@ -3202,6 +3212,86 @@ SBA26:
 		length_code:=WubiIni.Settings["length_code"]:="on",WubiIni.save()
 	}else{
 		length_code:=WubiIni.Settings["length_code"]:="off",WubiIni.save()
+	}
+Return
+
+format_Date:
+	Gosub DestroyGui
+	Gui, Date:Destroy
+	Gui, Date:Default
+	Gui, Date: +Owner98
+	Gui, Date: Margin,10,10
+	Gui, Date: Color,ffffff
+	Gui, Date:Font, s9 , %Font_%
+	Gui, Date:Add, ListView, r5 w450 Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 -Multi 0x8 LV0x40 -LV0x10 gSetsj vSetsj hwndSJLV, 格式列|效果预览列
+	SysGet, CXVSCROLL, 2
+	LV_ModifyCol(1,"150"), LV_ModifyCol(2,300-CXVSCROLL)
+	For Section,element In EXEList_obj["FormatDate"]
+		If element[1]
+			LV_Add("",element[1],element[1]~="^[a-zA-Z]"?FormatTime("",element[1]):FormatTime(element[1],FormatTime(formatDate(element[1]),FormatDate(element[1],2,1))))
+	Gui, Date:Font, s9 norm, %Font_%
+	Gui, Date:Add,text,,输入字符设定：
+	Gui, Date:Add, Edit,x+2 R1 w300 vSettKey WantTab hWndSetKey
+	Gui, Date:Add,text,xm,时间格式设定：
+	Gui, Date:Add, Edit,x+2 R1 w300 vSettime WantTab hWndSettime
+	EM_SetCueBanner(SetKey, "当前值：" EXEList_obj["FormatKey"]【多个字段以/分离】)
+	EM_SetCueBanner(Settime, "格式：公元年(ln)月日-周 周数 ")
+	Gui, Date:Add, Button,x+5 gSaveSJ vSaveSJ hWndSSBT, 添加
+	Gui, Date:Add, Button,x+5 gReloadSJ vReloadSJ hWndRSBT, 刷新
+	ImageButton.Create(SSBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ImageButton.Create(RSBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	Gui, Date:Font, s10 bold, %Font_%
+	Gui Date:Add, GroupBox,xm w450 h265, 格式设置说明：
+	Gui, Date:Font, s8 norm, %Font_%
+	Gui Date:Add, text,xm+10 yp+30,中文格式：年、月、日、时/点、分、秒、星期/周、周数、公元`n`t`t、ln(农历年)、ly(农历月)、lr(农历日)、ls(农历时辰)`n`n英文格式：年：【yyyy 含世纪的年份】【yy 不含世纪的年份, 含前导零】`n`t`t【y 不含世纪的年份, 不含前导零】`n`t月：【MMMM 当前语言月份全称】【MMM 当前语言月份简称】`n`t`t【MM 含前导零】【M 不含前导零】`n`t日：【dddd 当前语言星期全称】【ddd 当前语言星期简称】`n`t`t【dd 含前导零】【d 不含前导零】`n`t时：【hh 含前导零12小时制】【h 不含前导零12小时制】`n`t`t【HH 含前导零24小时制】【H 不含前导零24小时制】`n`t分：【mm 含前导零】【m 不含前导零】`n`t秒：【ss 含前导零】【s 不含前导零】`n分割符自行定义、输出以/+编码、双击删除行
+	Gui, Date:Show,AutoSize,时间格式输出设定
+	Gosub ChangeWinIcon
+	ControlFocus , Edit1, A
+Return
+
+SBA27:
+	Gosub format_Date
+Return
+
+Setsj:
+	if (A_GuiEvent = "DoubleClick"&&A_EventInfo) {
+		LV_GetText(LineName, A_EventInfo), LV_Delete( A_EventInfo)
+		For Section,element In EXEList_obj["FormatDate"]
+		{
+			If (element[1]= LineName) {
+				If (EXEList_obj["FormatDate"].Length()=1)
+					EXEList_obj["FormatDate"]:=[["公元年月日-周 周数"]]
+				else
+					EXEList_obj["FormatDate"].RemoveAt(Section)
+			}
+		}
+		Json_ObjToFile(EXEList_obj, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
+	}
+Return
+
+ReloadSJ:
+	LV_Delete()
+	For Section,element In EXEList_obj["FormatDate"]
+		If element[1]
+			LV_Add("",element[1],element[1]~="^[a-zA-Z]"?FormatTime("",element[1]):FormatTime(element[1],FormatTime(formatDate(element[1]),FormatDate(element[1],2,1))))
+	EM_SetCueBanner(SetKey, "当前值：" EXEList_obj["FormatKey"]【多个字段以/分离】)
+Return
+
+SaveSJ:
+	GuiControlGet, Settime,, Settime, text
+	GuiControlGet, SettKey,, SettKey, text
+	If (Settime||SettKey) {
+		If (Settime<>"") {
+			FTime:= Settime~="^[a-zA-Z]"?FormatTime("",Settime):FormatTime(formatDate(Settime),FormatDate(Settime,2,1))
+			LV_Add("",Settime,FTime), EXEList_obj["FormatDate"].Push([Settime])
+			GuiControl,date:,Settime,
+		}
+		If (SettKey<>"") {
+			EXEList_obj["FormatKey"]:=SettKey
+			GuiControl,date:,SettKey,
+			EM_SetCueBanner(SetKey, "当前值：" EXEList_obj["FormatKey"]【多个字段以/分离】)
+		}
+		Json_ObjToFile(EXEList_obj, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
 	}
 Return
 
