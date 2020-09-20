@@ -41,7 +41,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020091917"
+version :="2020092012"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -542,7 +542,7 @@ WM_MOUSEMOVE()
 ;{{{{{{应用状态管理{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
 EXEList_obj:=Json_FileToObj(A_ScriptDir "\Sync\InputMode.json")
 if !EXEList_obj.Count() {
-	EXEList_obj:={CN:["QQ.exe"],EN:["Notepad.exe"],CLIP:["Notepad.exe"]}
+	EXEList_obj:={CN:["QQ.exe"],EN:["Notepad.exe"],CLIP:["Notepad.exe"],FormatDate:[["公元年月日-周 周数"]],FormatKey:["week","time","date"]}
 	Json_ObjToFile(EXEList_obj, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
 }
 Gui +LastFound
