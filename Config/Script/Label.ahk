@@ -1017,7 +1017,7 @@ srf_tooltip_fanye:
 					Textdirection:="vertical"
 					If srf_for_select_Array.Length()>0 
 						For key,value In EXEList_obj["formatDate"]
-							srf_for_select_Array.InsertAt(A_Index,[ value[1]~="^[a-zA-Z]"?FormatTime("",value[1]):FormatTime(formatDate(value[1]),FormatDate(value[1],2,1))])
+							srf_for_select_Array.InsertAt(A_Index,[ value[1]~="^[dghHmMsy]"?FormatTime("",value[1]):FormatTime(formatDate(value[1]),FormatDate(value[1],2,1))])
 				}
 			}
 		}else{
@@ -3228,7 +3228,7 @@ format_Date:
 	LV_ModifyCol(1,"150"), LV_ModifyCol(2,300-CXVSCROLL)
 	For Section,element In EXEList_obj["FormatDate"]
 		If element[1]
-			LV_Add("",element[1],element[1]~="^[a-zA-Z]"?FormatTime("",element[1]):FormatTime(element[1],FormatTime(formatDate(element[1]),FormatDate(element[1],2,1))))
+			LV_Add("",element[1],element[1]~="^[dghHmMsy]"?FormatTime("",element[1]):FormatTime(element[1],FormatTime(formatDate(element[1]),FormatDate(element[1],2,1))))
 	Gui, Date:Font, s9 norm, %Font_%
 	Gui, Date:Add,text,,输入字符设定：
 	Gui, Date:Add, Edit,x+2 R1 w300 vSettKey WantTab hWndSetKey
@@ -3243,7 +3243,7 @@ format_Date:
 	Gui, Date:Font, s10 bold, %Font_%
 	Gui Date:Add, GroupBox,xm w450 h265, 格式设置说明：
 	Gui, Date:Font, s8 norm, %Font_%
-	Gui Date:Add, text,xm+10 yp+30,中文格式：年、月、日、时/点、分、秒、星期/周、周数、公元`n`t`t、ln(农历年)、ly(农历月)、lr(农历日)、ls(农历时辰)`n`n英文格式：年：【yyyy 含世纪的年份】【yy 不含世纪的年份, 含前导零】`n`t`t【y 不含世纪的年份, 不含前导零】`n`t月：【MMMM 当前语言月份全称】【MMM 当前语言月份简称】`n`t`t【MM 含前导零】【M 不含前导零】`n`t日：【dddd 当前语言星期全称】【ddd 当前语言星期简称】`n`t`t【dd 含前导零】【d 不含前导零】`n`t时：【hh 含前导零12小时制】【h 不含前导零12小时制】`n`t`t【HH 含前导零24小时制】【H 不含前导零24小时制】`n`t分：【mm 含前导零】【m 不含前导零】`n`t秒：【ss 含前导零】【s 不含前导零】`n分割符自行定义、输出以/+编码、双击删除行
+	Gui Date:Add, text,xm+10 yp+30,中文格式：年、月、日、时/点、分、秒、星期/周、周数、公元`n`t`t、ln(农历年)、ly(农历月)、lr(农历日)、ls(农历时辰)`n`n英文格式：年：【yyyy 含世纪的年份】【yy 不含世纪的年份, 含前导零】【gg 公元纪年】`n`t`t【y 不含世纪的年份, 不含前导零】`n`t月：【MMMM 当前语言月份全称】【MMM 当前语言月份简称】`n`t`t【MM 含前导零】【M 不含前导零】`n`t日：【dddd 当前语言星期全称】【ddd 当前语言星期简称】`n`t`t【dd 含前导零】【d 不含前导零】`n`t时：【hh 含前导零12小时制】【h 不含前导零12小时制】`n`t`t【HH 含前导零24小时制】【H 不含前导零24小时制】`n`t分：【mm 含前导零】【m 不含前导零】`n`t秒：【ss 含前导零】【s 不含前导零】`n分割符自行定义、输出以/+编码、双击删除行
 	Gui, Date:Show,AutoSize,时间格式输出设定
 	Gosub ChangeWinIcon
 	ControlFocus , Edit1, A
@@ -3273,7 +3273,7 @@ ReloadSJ:
 	LV_Delete()
 	For Section,element In EXEList_obj["FormatDate"]
 		If element[1]
-			LV_Add("",element[1],element[1]~="^[a-zA-Z]"?FormatTime("",element[1]):FormatTime(element[1],FormatTime(formatDate(element[1]),FormatDate(element[1],2,1))))
+			LV_Add("",element[1],element[1]~="^[dghHmMsy]"?FormatTime("",element[1]):FormatTime(element[1],FormatTime(formatDate(element[1]),FormatDate(element[1],2,1))))
 	EM_SetCueBanner(SetKey, "当前值：" EXEList_obj["FormatKey"] "【多个字段以/分离】")
 Return
 
@@ -3282,7 +3282,7 @@ SaveSJ:
 	GuiControlGet, SettKey,, SettKey, text
 	If (Settime||SettKey) {
 		If (Settime<>"") {
-			FTime:= Settime~="^[a-zA-Z]"?FormatTime("",Settime):FormatTime(formatDate(Settime),FormatDate(Settime,2,1))
+			FTime:= Settime~="^[dghHmMsy]"?FormatTime("",Settime):FormatTime(formatDate(Settime),FormatDate(Settime,2,1))
 			LV_Add("",Settime,FTime), EXEList_obj["FormatDate"].Push([Settime])
 			GuiControl,date:,Settime,
 		}
