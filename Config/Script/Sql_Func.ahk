@@ -557,18 +557,22 @@ get_word(input, cikuname){
 					}
 				;PrintObjects(GetValues)
 				}else{
-					lianx :="on", GetValues:=set_trad_mode(Result.Rows)
-					For Section, element In GetValues
-					{
-						index:=a_index, GetValues[section,3]:=(PromptChar&&flag||Prompt_Word~="i)on"&&flag)?(StrLen(input)<4&&input<>GetValues[section,3]?RegExReplace(GetValues[section,3],"^" input,"~"):""):""
-						loop,% GetValues.Length()-index
+					lianx :="on"
+					If not input~="z" {
+						GetValues:=set_trad_mode(Result.Rows)
+						For Section, element In GetValues
 						{
-							If (GetValues[a_index+index,1]=GetValues[section,1])
-								GetValues.RemoveAt(a_index+index)
-							else
-								GetValues[a_index+index,3]:=(PromptChar&&flag||Prompt_Word~="i)on"&&flag)?(StrLen(input)<4&&input<>GetValues[a_index+index,3]?RegExReplace(GetValues[a_index+index,3],"^" input,"~"):""):""
+							index:=a_index, GetValues[section,3]:=(PromptChar&&flag||Prompt_Word~="i)on"&&flag)?(StrLen(input)<4&&input<>GetValues[section,3]?RegExReplace(GetValues[section,3],"^" input,"~"):""):""
+							loop,% GetValues.Length()-index
+							{
+								If (GetValues[a_index+index,1]=GetValues[section,1])
+									GetValues.RemoveAt(a_index+index)
+								else
+									GetValues[a_index+index,3]:=(PromptChar&&flag||Prompt_Word~="i)on"&&flag)?(StrLen(input)<4&&input<>GetValues[a_index+index,3]?RegExReplace(GetValues[a_index+index,3],"^" input,"~"):""):""
+							}
 						}
-					}
+					}else
+						GetValues:=Result.Rows
 				}
 			;if strlen(input)>1
 			;	PrintObjects(GetValues)
@@ -578,24 +582,38 @@ get_word(input, cikuname){
 	}
 }
 
+TranSelectvalue(chars){
+	selectvalue_:=""
+	if chars~="\\n" {
+		loop,parse,chars,\n
+			If A_LoopField
+				selectvalue_.= A_LoopField "`r`n"
+		chars:=selectvalue_
+	}
+	if chars~="\\t" {
+		loop,parse,chars,\t
+			If A_LoopField
+				selectvalue_.= A_LoopField "`t"
+		chars:=selectvalue_
+	}
+	Return chars
+}
+
 ;选词
 srf_select(list_num){
 	global
 	local selectvalue, Result, Index, yhnum, tt, Match, lastvalue
 	If (list_num>ListNum||list_num=0||list_num>srf_for_select_Array.Length())
 		Return
-	selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,(srf_all_input~="^[a-y][a-z]+z$"||srf_all_input~="^[z][a-z']+z$"&&ts_Array.Length()>0?(Cut_Mode~="on"?3:2):1)]
-	If (selectvalue~="\\n"&&srf_all_input~="^[a-y]+z$"||selectvalue~="\\n"&&srf_all_input~="^[z][a-z']+z$"&&ts_Array.Length()>0, selectvalue_:="") {
-		loop,parse,selectvalue,\n
-			If A_LoopField
-				selectvalue_.= A_LoopField "`r`n"
-		selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,1] "`r`n" srf_for_select_Array[list_num+ListNum*waitnum,Cut_Mode~="on"?2:3] "`r`n" selectvalue_
+	selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,(srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>2?(Cut_Mode~="on"?3:2):1)]
+	If (selectvalue~="\\n|\\t"&&srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>2, selectvalue_:="") {
+		selectvalue_:= TranSelectvalue(selectvalue), selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,1] "`r`n" srf_for_select_Array[list_num+ListNum*waitnum,Cut_Mode~="on"?2:3] "`r`n" selectvalue_
 	}
 	if selectvalue~="\#\〔"
 	{
 		Gosub % RegExReplace(selectvalue,"\#\〔.+","")
 	}else{
-		if (Initial_Mode ~="on"||srf_all_input~="^[a-y][a-z]+z$|^[z][a-z']+z$")
+		if (Initial_Mode ~="on"||srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>2)
 		{
 			Clipboard := selectvalue
 			send ^v

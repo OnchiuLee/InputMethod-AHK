@@ -534,7 +534,7 @@ return
 
 Write_LongChars:
 	Gui +OwnDialogs
-	MsgBox, 262452, 长字符串词库导入,导入文本遵循以下格式：编码+Tab`n+候选栏显示的词条`n+对候选栏显示的词条进行说明`n+要上屏的长文本字符串`n===【输出方法：编码+z】===
+	MsgBox, 262452, 长字符串词库导入,导入文本遵循以下格式：`n编码+Tab`n+对候选栏显示的词条的说明项`n+Tab+候选栏显示的词条`n+Tab+要上屏的长文本字符串`n===【输出方法：/+编码+z】===
 	IfMsgBox, Yes
 	{
 		__Chars:=_Chars:=""
@@ -1009,6 +1009,8 @@ srf_tooltip_fanye:
 		{
 			if srf_all_input ~="/help"
 				Gosub MacInfo
+			else if (srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>2)
+				Textdirection:="vertical", srf_for_select_Array:=get_Longword(RegExReplace(srf_all_Input,"z$|^\/"))
 			else
 				srf_for_select_Array:=prompt_symbols(srf_all_Input)
 		}else{
@@ -1017,18 +1019,7 @@ srf_tooltip_fanye:
 		Gosub srf_tooltip_cut
 	}else if srf_all_Input ~="^z"{
 		if srf_all_Input~="^z[a-z]+|^z\'[a-z]+" {
-			ts_Array:=[]
-			if (srf_all_input~="^[a-z']+z$"&&StrLen(RegExReplace(srf_all_Input,"\'"))>1) 
-				ts_Array:=get_Longword(RegExReplace(RegExReplace(srf_all_Input,"\'"),"z$"))
 			srf_all_input:=RegExReplace(srf_all_input,"^z|^z\'",srf_all_input~="'"?"z":"z'"), srf_for_select_Array:=get_word(srf_all_input, Wubi_Schema)
-			If ts_Array.Length()>0 {
-				Textdirection:="vertical"
-				If srf_for_select_Array.Length()>0 {
-					For Section,element In ts_Array
-						srf_for_select_Array.InsertAt(A_Index+2,element)
-				}else
-					srf_for_select_Array:=ts_Array
-			}
 		}else{
 			if recent[1]{
 				loop % objLength(recent)
@@ -1046,10 +1037,6 @@ srf_tooltip_fanye:
 		Gosub srf_tooltip_cut
 	}else if srf_all_Input ~="^[a-y]{1,4}``"{
 		srf_for_select_Array:=format_word_2(srf_all_Input)
-		Gosub srf_tooltip_cut
-	}else if srf_all_input~="^[a-z]+z$"{
-		Textdirection:="vertical"
-		srf_for_select_Array:=get_Longword(RegExReplace(srf_all_Input,"z$"))
 		Gosub srf_tooltip_cut
 	}else{
 		If !EN_Mode {
@@ -1136,7 +1123,7 @@ showhouxuankuang:
 			Gui, houxuankuang:Hide
 		Return
 	}
-	srf_code:=srf_all_input~="^z\'[a-z]"&&!ts_Array.Length()?RegExReplace(srf_all_input,"^z\'"):(srf_all_input~="^``$"?RegExReplace(srf_all_input,"^``",(Wubi_Schema~="i)ci"?"〔精准造词〕":"〔常用符号〕")):srf_all_input~="^~$"?RegExReplace(srf_all_input,"^~","〔以形查音〕"):srf_all_input~="^````$"?RegExReplace(srf_all_input,"^````","〔临时英文〕"):srf_all_input)
+	srf_code:=srf_all_input~="^z\'[a-z]"?RegExReplace(srf_all_input,"^z\'"):(srf_all_input~="^``$"?RegExReplace(srf_all_input,"^``",(Wubi_Schema~="i)ci"?"〔精准造词〕":"〔常用符号〕")):srf_all_input~="^~$"?RegExReplace(srf_all_input,"^~","〔以形查音〕"):srf_all_input~="^````$"?RegExReplace(srf_all_input,"^````","〔临时英文〕"):srf_all_input)
 	srf_code:=srf_code~="^``|^~"?RegExReplace(RegExReplace(srf_code,"^``|^~"),"``","'"):srf_code
 	SysGet, _height, 14       ;获取光标高度
 	if Fix_Switch~="i)on"{
@@ -2599,7 +2586,7 @@ LongStringlists:
 	Gui, ts:font,,%Font_%
 	SysGet, CXVSCROLL, 2
 	ts_width:=620+CXVSCROLL
-	Gui, ts:Add, ListView, r15 w%ts_width% Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 -Multi 0x8 LV0x40 -LV0x10 vLongString hwndLSLV, 【 编码 】|【 副标题 】|【 标题 】|【 标题释义 】
+	Gui, ts:Add, ListView, r15 w%ts_width% Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 -Multi 0x8 LV0x40 -LV0x10 vLongString hwndLSLV, 编码|【 副标题 】|【 标题 】|【 标题释义 】
 	DB.gettable("select * from TangSongPoetics ORDER BY A_Key,Author ASC;",Result)
 	CountNum:=0, lineCount:=Result.RowCount, pageNum:=ceil(lineCount/40)
 	Gosub GetLongString
@@ -2620,7 +2607,7 @@ LongStringlists:
 	Gui, ts:font,norm,%Font_%
 	Gui, ts:Add, StatusBar,, 1
 	SB_SetText(A_Space CountNum+1 "/" pageNum . "页")
-	Gui, ts:show, AutoSize, 长字符串管理 ● 输出方法：编码+z结尾
+	Gui, ts:show, AutoSize, 长字符串管理 ● 输出方法：/+编码+z结尾
 	Gosub ChangeWinIcon
 Return
 
