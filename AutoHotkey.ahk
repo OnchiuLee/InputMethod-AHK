@@ -367,7 +367,7 @@ global valueindex:=Cut_Mode?2:1
 global waitnum:=select_sym:=PosLimit:=PosIndex:=InitSetting:=0
 Select_Code=gfdsahjklm;'space           ;字母选词
 global num__:=Result_Char:=Select_result :=selectallvalue:=ID_Cursor:=""
-global select_arr:=select_value_arr:=srf_bianma:=add_Array:=add_Result:=Split_code:=[]
+global select_arr:=select_value_arr:=srf_bianma:=add_Array:=add_Result:=Split_code:=labelObj:=[]
 ;}}
 
 Frequency_obj:=Json_FileToObj(A_ScriptDir "\Config\Script\wubi98_ci.json")
