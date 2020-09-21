@@ -606,15 +606,15 @@ srf_select(list_num){
 	If (list_num>ListNum||list_num=0||list_num>srf_for_select_Array.Length())
 		Return
 	list_num:= localpos>1&&ToolTipStyle~="i)gdip"&&FocusStyle?localpos:list_num
-	selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,(srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>2?(Cut_Mode~="on"?3:2):1)]
-	If (selectvalue~="\\n|\\t"&&srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>2, selectvalue_:="") {
+	selectvalue:=labelObj.Length()&&IsLabel(labelObj[list_num])?labelObj[list_num]:srf_for_select_Array[list_num+ListNum*waitnum,(srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3?(Cut_Mode~="on"?3:2):1)]
+	If (selectvalue~="\\n|\\t"&&srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>2&&!IsLabel(selectvalue), selectvalue_:="") {
 		selectvalue_:= TranSelectvalue(selectvalue), selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,1] "`r`n" srf_for_select_Array[list_num+ListNum*waitnum,Cut_Mode~="on"?2:3] "`r`n" selectvalue_
 	}
-	if selectvalue~="\#\〔"
+	if IsLabel(selectvalue)
 	{
-		Gosub % RegExReplace(selectvalue,"\#\〔.+","")
+		Gosub % selectvalue
 	}else{
-		if (Initial_Mode ~="on"||srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>2)
+		if (Initial_Mode ~="on"||srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3)
 		{
 			Clipboard := selectvalue
 			send ^v
@@ -654,7 +654,7 @@ srf_select(list_num){
 		}
 	}
 	Gosub srf_value_off
-	srf_for_select_Array :=select_arr:=select_value_arr:=add_Array:=add_Result:=[], select_sym:=PosLimit:=0, srf_for_select_for_tooltip :=Result_arr:=Select_result:=selectallvalue:="",code_status:=localpos:=select_pos:=1
+	srf_for_select_Array :=select_arr:=select_value_arr:=add_Array:=add_Result:=labelObj:=[], select_sym:=PosLimit:=0, srf_for_select_for_tooltip :=Result_arr:=Select_result:=selectallvalue:="",code_status:=localpos:=select_pos:=1
 }
 
 ;快捷删词
@@ -834,74 +834,44 @@ prompt_label(input){
 
 ;特殊符号提取
 prompt_symbols(input){
-	global
+	global DB, Cut_Mode, srf_all_Input, labelObj
 	If (input="")
 		Return []
-	SQL :="SELECT A_key FROM symbols WHERE aim_chars ='" input "'"
-	DB.GetTable(SQL_, Result_label)
-	If DB.GetTable(SQL, Result)
-		Result_label:=prompt_label(input)
-		if Result.Rows[1,1]&&Result_label[1,1]{
-			Result_:=Result.Rows[1,1]
-			loop % Result_label.Length(){
-				if Result_label[a_index,1]~="i)^A\_"{
-					sj :=Result_label[a_index,1]
-					loop,parse,sj,%A_space%
-					{
-						if not A_LoopField~="[a-z\_]"
-							sj_:=A_LoopField
-						else
-							sj_:=%A_LoopField%
-						_sj .=sj_
-					}
-					Result.Rows[a_index,1]:=_sj Result_label[a_index,2]
-					_sj:=sj_:=
-				}
-				else
-					Result.Rows[a_index,1]:=Result_label[a_index,1] Result_label[a_index,2]
-			}
-			loop,parse,Result_,`,
-					Result.Rows[Result_label.Length()+a_index,1]:=A_LoopField
-		}
-		else if !Result.Rows[1,1]&&Result_label[1,1]{
-			loop % Result_label.Length(){
-				if Result_label[a_index,1]~="i)^A\_"{
-					sj :=Result_label[a_index,1]
-					loop,parse,sj,%A_space%
-					{
-						if not A_LoopField~="[a-z\_]"
-							sj_:=A_LoopField
-						else
-							sj_:=%A_LoopField%
-						_sj .=sj_
-					}
-					Result.Rows[a_index,1]:=_sj Result_label[a_index,2]
-					_sj:=sj_:=
-				}
-				else
-					Result.Rows[a_index,1]:=Result_label[a_index,1] Result_label[a_index,2]
-			}
-		}
-		else if Result.Rows[1,1]&&!Result_label[1,1]{
-			Result_:=Result.Rows[1,1]
-			loop,parse,Result_,`,
-				Result.Rows[a_index,1]:=A_LoopField
-		}
-		else
+	ResultAll:=[]
+	DB.GetTable("SELECT A_Key FROM symbols WHERE aim_chars ='" input "'", Result_symbols)
+	DB.GetTable("SELECT C_Key,D_Key FROM label WHERE B_Key ='" SubStr(input,2) "'", Result_label)
+	If Result_symbols.RowCount>0
+	{
+		symbolsObj:=StrSplit(Result_symbols.Rows[1,1],",")
+		for key,value in symbolsObj
+			If value
+				ResultAll.push([value])
+		If Result_label.RowCount>0
+			for section,element in Result_label.Rows
+				if IsLabel(element[1])
+					ResultAll.InsertAt(section,[RegExReplace(element[2],"\〔|\〕|\#")]), labelObj[section]:=element[1]
+	}else{
+		If Result_label.RowCount>0
 		{
-			if strlen(input)>1&&srf_all_Input~="[a-zA-Z]"{
-				if srf_all_Input~="i)zzsj|zzrq|zznl"{
-					Result.Rows:=srf_all_Input~="i)zznl"?Get_LunarDate():(srf_all_Input~="i)zzrq"?Get_Date():Get_Time())
-				}else{
-					Result.Rows[1,1]:=RegExReplace(input,"^/","")
-					Result.Rows[2,1]:=StringUpper(RegExReplace(input,"^/",""),"T")
-					Result.Rows[3,1]:=StringUpper(RegExReplace(input,"^/",""))
-				}
-			}else if strlen(input)>1&&srf_all_Input~="[0-9]+"{
-				Result.Rows:=numTohz(RegExReplace(input,"^/",""))
-			}
+			for section,element in Result_label.Rows
+				if IsLabel(element[1])
+					ResultAll.push([RegExReplace(element[2],"\〔|\〕|\#")]), labelObj[section]:=element[1]
 		}
-	Return Result.Rows
+		If (input~="^\/[0-9]{2,}"&&SubStr(input,2)>10) {
+			If ResultAll.Length()>0
+				for section,element in numTohz(RegExReplace(input,"^/",""))
+					ResultAll.push(element)
+			else
+				ResultAll:=numTohz(RegExReplace(input,"^/",""))
+		}
+		For section,element in {zznl:Get_LunarDate(),zzsj:Get_Time(),zzrq:Get_Date(),Cut_Mode:1}
+			If (section=SubStr(input,2)) {
+				for key,value in element
+					ResultAll.InsertAt(key,value)
+			}
+	}
+	
+	Return ResultAll
 }
 
 ;模糊词提取

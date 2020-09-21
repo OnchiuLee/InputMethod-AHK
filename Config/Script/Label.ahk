@@ -1007,17 +1007,30 @@ srf_tooltip_fanye:
 	}else if srf_all_Input ~="^/"{
 		if srf_all_Input~="^/[a-z]+|^/[0-9]+"
 		{
+			labelObj:=[]
 			if srf_all_input ~="/help"
 				Gosub MacInfo
-			else if (srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>2)
-				Textdirection:="vertical", srf_for_select_Array:=get_Longword(RegExReplace(srf_all_Input,"z$|^\/"))
 			else{
 				srf_for_select_Array:=prompt_symbols(srf_all_Input), bianmaSJ:=StrSplit(EXEList_obj["FormatKey"],"/")
+				if (srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3&&srf_for_select_Array.Length()>0) {
+					ts_Array:=get_Longword(RegExReplace(srf_all_Input,"z$|^\/"))
+					If ts_Array.Length()>0
+					{
+						Textdirection:="vertical"
+						For Section,element In ts_Array
+							srf_for_select_Array.InsertAt(Section+2,element)
+					}
+				}else If (srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3&&srf_for_select_Array.Length()<1)
+					Textdirection:="vertical", srf_for_select_Array:=get_Longword(RegExReplace(srf_all_Input,"z$|^\/"))
 				If Array_isInValue(bianmaSJ,SubStr(srf_all_input,2)) {
 					Textdirection:="vertical"
 					If srf_for_select_Array.Length()>0 
 						For key,value In EXEList_obj["formatDate"]
 							srf_for_select_Array.InsertAt(A_Index,[ value[1]~="^[dghHmMsy]"?FormatTime("",value[1]):FormatTime(formatDate(value[1]),FormatDate(value[1],2,1))])
+					else{
+						For key,value In EXEList_obj["formatDate"]
+							srf_for_select_Array.Push([ value[1]~="^[dghHmMsy]"?FormatTime("",value[1]):FormatTime(formatDate(value[1]),FormatDate(value[1],2,1))])
+					}
 				}
 			}
 		}else{
@@ -1219,7 +1232,7 @@ srf_value_off:
 	Else
 		GdipText(""), FocusGdipGui("", "")
 	srf_all_Input:=srf_for_select_for_tooltip:="", waitnum:=select_sym:=PosLimit:=0
-	srf_for_select_Array :=select_arr:=srf_for_select_obj:=select_value_arr:=add_Result:=add_Array:=Result_:=Results_:=Result:=[],Select_result:=selectallvalue:="",code_status:=localpos:=srfCounts:=select_pos:=1
+	srf_for_select_Array :=select_arr:=srf_for_select_obj:=select_value_arr:=add_Result:=add_Array:=Result_:=Results_:=Result:=labelObj:=[],Select_result:=selectallvalue:="",code_status:=localpos:=srfCounts:=select_pos:=1
 Return
 
 DestroyGui:
