@@ -1854,7 +1854,7 @@ WinMode:
 	Gui, IM:Add, ListView, AltSubmit Grid r15 x10 yp+30 -LV0x10 -Multi Checked NoSortHdr -wscroll -WantF2 0x8 LV0x40 hwndIPView gIPView vIPView  ,进程名|输入状态
 	For Section, element In EXEList_obj
 		For key, value In element
-			if (value<>"")
+			if (value<>""&&Section~="CN|EN|CLIP")
 				LV_Add(value=EXEList_obj["CN",1]?"Select":"" ,value,Section="CN"?"中文":Section="EN"?"英文":"剪切板"),LV_ModifyCol()
 	LV_ModifyCol(2,"100 center")
 	ColWidth:=0
@@ -1979,7 +1979,7 @@ RTxck:
 	LV_Delete()
 	For Section, element In EXEList_obj
 		For key, value In element
-			if (value<>"")
+			if (value<>""&&Section~="CN|EN|CLIP")
 				LV_Add(value=EXEList_obj["CN",1]?"Select":"" ,value,Section="CN"?"中文":Section="EN"?"英文":"剪切板")
 Return
 
