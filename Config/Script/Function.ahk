@@ -1214,7 +1214,7 @@ FormatDate(SJ,s:=0, t:=0){   ;;s=1为格式化后时间格式，s=0为源格式�
 	Lunar:=Date_GetLunarDate(SubStr(A_Now,1,8)), LunarYear:=SubStr(Lunar,1,2)
 	RegExMatch(Lunar,"农历(.*)月",date1), LunarMon:=substr(RegExReplace(date1,"\(|\)|月"),3), RegExMatch(Lunar,"月(.*)",date2), LunarDate:=substr(RegExReplace(date2,"\(|\)"),2)
 	FormatObj:={sj1:[["年"," A_YYYY "],["月"," A_MMM "], ["日"," A_DD "], ["时"," A_Hour "], ["点"," A_Hour "], ["分"," A_Min "] ,["毫秒"," A_MSec "], ["秒"," A_Sec "] , ["星期"," A_DDDD "], ["周数"," A_YWeek "] ,["周"," A_DDD"], ["公元","gg"]]
-		, sj2:[["年","yyyy年"],["ln",LunarYear],["月","MM月"],["ly",LunarMon "月"], ["lr",LunarDate],["日","d日"],["时",t?"tthh时":"HH时"], ["ls",SubStr(Time_GetShichen(A_Hour),1,1) "时"], ["点",t?"tthh点":"HH点"], ["分","mm分"] ,["毫秒"," A_MSec "], ["秒","ss秒"] , ["星期","dddd"], ["周数","第" SubStr(A_YWeek, 5) "週"], ["周","ddd"], ["公元","gg"]]}
+		, sj2:[["年","yyyy年"],["ln",LunarYear "年"],["月","MM月"],["ly",LunarMon "月"], ["lr",LunarDate],["日","d日"],["时",t?"tthh时":"HH时"], ["ls",SubStr(Time_GetShichen(A_Hour),1,1) "时"], ["点",t?"tthh点":"HH点"], ["分","mm分"] ,["毫秒"," A_MSec "], ["秒","ss秒"] , ["星期","dddd"], ["周数","第" SubStr(A_YWeek, 5) "週"], ["周","ddd"], ["公元","gg"]]}
 	For Section,element In FormatObj[s?"sj2":"sj1"]
 	{
 		If SJ ~= element[1] {
