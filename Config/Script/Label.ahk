@@ -2126,7 +2126,8 @@ Glabel:
 	If DB.gettable("SELECT * FROM label", Result){
 		loop, % Result.RowCount
 		{
-			LV_Add("", Result.Rows[A_index,2], Result.Rows[A_index,3],SubStr(Result.Rows[A_index,4],2))    ;, LV_ModifyCol()
+			If islabel(Result.Rows[A_index,3])
+				LV_Add("", Result.Rows[A_index,2], Result.Rows[A_index,3],SubStr(Result.Rows[A_index,4],2))    ;, LV_ModifyCol()
 		}
 		LV_ModifyCol(1,"80 left")
 		LV_ModifyCol(2,"180 left")
