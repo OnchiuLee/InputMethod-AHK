@@ -41,7 +41,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020092019"
+version :="2020092317"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -141,8 +141,7 @@ global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni(A_Te
 				,FocusRadius:5, FontStyle:"off", FontCodeColor:FontCode_Color,LineColor:Line_Color,BorderColor:Border_Color
 				, Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"off", BgColor:Bg_Color, ListNum:5,Gdip_Radius:5
 				, Textdirection:"horizontal", Set_Range:3, Fix_Switch:"off",Fix_X:A_ScreenWidth/2,Fix_Y:10}  ;竖排--vertical
-		, CustomColors:{Color_Row1:"0x1C7399,0xEEEEEC,0x014E8B,0x444444,0x009FE8,0xDEF9FA,0xF8B62D,0x90FC0F", Color_Row2:"0x0078D7,0x0D1B0A,0xB9D497,0x00ADEF,0x1778BF,0xFDF6E3,0x002B36,0xDEDEDE"}
-		, YSDllPath:{SQLDllPath_x86:RegExReplace(A_ScriptDir,"\\main") "\config\SQLite3_x86\SQLite3.dll", SQLDllPath_x64:RegExReplace(A_ScriptDir,"\\main") "\config\SQLite3_x64\SQLite3.dll"}}
+		, CustomColors:{Color_Row1:"0x1C7399,0xEEEEEC,0x014E8B,0x444444,0x009FE8,0xDEF9FA,0xF8B62D,0x90FC0F", Color_Row2:"0x0078D7,0x0D1B0A,0xB9D497,0x00ADEF,0x1778BF,0xFDF6E3,0x002B36,0xDEDEDE"}}
 ;初始化默认配置
 if (FileExist(A_ScriptDir "\Sync\Default.json")&&!status) {
 	srf_default_value:=Json_FileToObj(A_ScriptDir "\Sync\Default.json"), srf_default_value["Settings","CNID"]=CpuID
@@ -181,8 +180,7 @@ config_tip:={LogoColor:{LogoColor_cn:"桌面色块中文状态颜色",LogoColor_
 			, FontSize:"候选字号大小设置", FontColor:"候选项颜色", FontCodeColor:"候选编码颜色",BorderColor:"候选框边框线",LineColor:"候选分割线选色", Gdip_Line:"Gdip候选框样式边框及候选框编码与候选词分隔线"
 			, ToolTipStyle:"候选框风格<on为tooltip样式/off为Gui候选样式/Gdip为Gdip候选样式>", Radius:"Gdip候选样式圆角开关<on/off>",Gdip_Radius:"Gdip候选框圆角大小", BgColor:"候选框背景色<16进制色值>"
 			, ListNum:"候选数量", Textdirection:"horizontal为横排/vertical为竖排", Set_Range:"ToolTip样式编码与候选词距离", Fix_Switch:"候选框固定开关",Fix_X:"候选框固定x坐标",Fix_Y:"候选框固定y坐标"}
-	, CustomColors:{Color_Row1:"配色对话框自定义颜色区域，第一排", Color_Row2:"配色对话框自定义颜色区域，第二排"}
-	, YSDllPath:{SQLDllPath_x86:"SQlite数据库dll 32位路径", SQLDllPath_x64:"SQlite数据库dll 64位路径"}}
+	, CustomColors:{Color_Row1:"配色对话框自定义颜色区域，第一排", Color_Row2:"配色对话框自定义颜色区域，第二排"}}
 ;默认配置检测
 For Section, element In srf_default_value
 	For key, value In element
