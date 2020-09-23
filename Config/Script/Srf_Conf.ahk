@@ -51,7 +51,7 @@ return
 	8::Select_add(8)
 	9::Select_add(9)
 	0::Select_add(10)
-	space::srf_select(1)
+	space::srf_select(ToolTipStyle~="i)gdip"&&FocusStyle?localpos:1,A_ThisHotkey)
 #if 
 
 #If srf_mode&&InStr(srf_all_Input,"/")&&!GetKeyState("CapsLock", "T")&&not srf_all_input ~="[a-z]"
@@ -362,7 +362,7 @@ Return
 		if A_ThisHotkey~="'"
 			srf_select(3)
 		if A_ThisHotkey~="i)space"
-			srf_select(1)
+			srf_select(ToolTipStyle~="i)gdip"&&FocusStyle?localpos:1,A_ThisHotkey)
 	}else{
 		srf_select(InStr(Select_Code,A_ThisHotkey))
 	}
@@ -385,7 +385,7 @@ Return
 ;快速选词快捷键
 	Space::
 	1::
-		srf_select(ToolTipStyle~="i)gdip"&&FocusStyle?localpos:1)
+		srf_select(ToolTipStyle~="i)gdip"&&FocusStyle?localpos:1,A_ThisHotkey)
 	Return
 	`;::
 	2::

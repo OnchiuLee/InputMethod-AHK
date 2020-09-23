@@ -600,17 +600,17 @@ TranSelectvalue(chars){
 }
 
 ;选词
-srf_select(list_num){
+srf_select(list_num,thishotkey:=""){
 	global
 	local selectvalue, Result, Index, yhnum, tt, Match, lastvalue
 	If (list_num>ListNum||list_num=0||list_num>srf_for_select_Array.Length())
 		Return
-	list_num:= localpos>1&&ToolTipStyle~="i)gdip"&&FocusStyle?localpos:list_num
+	list_num:= localpos>1&&ToolTipStyle~="i)gdip"&&FocusStyle&&thishotkey~="i)space"?localpos:list_num
 	selectvalue:=labelObj.Length()&&IsLabel(labelObj[list_num])?labelObj[list_num]:srf_for_select_Array[list_num+ListNum*waitnum,(srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3?(Cut_Mode~="on"?3:2):1)]
 	If (selectvalue~="\\n|\\t"&&srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>2&&!IsLabel(selectvalue), selectvalue_:="") {
 		selectvalue_:= TranSelectvalue(selectvalue), selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,1] "`r`n" srf_for_select_Array[list_num+ListNum*waitnum,Cut_Mode~="on"?2:3] "`r`n" selectvalue_
 	}
-	if IsLabel(selectvalue)
+	if (IsLabel(selectvalue)&&srf_all_Input~="^\/[a-z]+")
 	{
 		Gosub % selectvalue
 	}else{
@@ -838,8 +838,7 @@ prompt_symbols(input){
 	If (input="")
 		Return []
 	ResultAll:=[]
-	DB.GetTable("SELECT A_Key FROM symbols WHERE aim_chars ='" input "'", Result_symbols)
-	DB.GetTable("SELECT C_Key,D_Key FROM label WHERE B_Key ='" SubStr(input,2) "'", Result_label)
+	DB.GetTable("SELECT A_Key FROM symbols WHERE aim_chars ='" input "'", Result_symbols), DB.GetTable("SELECT C_Key,D_Key FROM label WHERE B_Key ='" SubStr(input,2) "'", Result_label)
 	If Result_symbols.RowCount>0
 	{
 		symbolsObj:=StrSplit(Result_symbols.Rows[1,1],",")

@@ -189,22 +189,22 @@ Get_IME:
 			if not A_OSVersion ~="i)WIN_XP"
 			{
 				Gosub Ime_Tips
-				Sleep,400
+				Sleep,200
 				Gui, tips: Destroy
 			}else{
 				ToolTip,中,% GetCaretPos().x ,% GetCaretPos().y+30
-				Sleep,400
+				Sleep,200
 				ToolTip
 			}
 		}else{
 			if not A_OSVersion ~="i)WIN_XP"
 			{
 				Gosub Ime_Tips
-				Sleep,400
+				Sleep,200
 				Gui, tips: Destroy
 			}else{
 				ToolTip, 英,% GetCaretPos().x ,% GetCaretPos().y+30
-				Sleep,400
+				Sleep,200
 				ToolTip
 			}
 		}
@@ -1327,6 +1327,7 @@ More_Setting:
 	Menu, ExtendTool, Add, 超级标签管理, Label_management
 	Menu, ExtendTool, Add, 标点符号映射, Sym_Gui
 	Menu, ExtendTool, Add, 长字符串管理, LongStringlists
+	Menu, ExtendTool, Add, 时间输出设定, format_Date
 	Menu, ExtendTool, Color, FFFFFF
 	Menu, Main, Add, 扩展工具, :ExtendTool
 	Menu, Main, Color, FFFFFF
@@ -3257,10 +3258,10 @@ format_Date:
 			LV_Add(A_Index=1?"select":"",element[1],element[1]~="^[dghHmMsy]"?FormatTime("",element[1]):FormatTime(element[1],FormatTime(formatDate(element[1]),FormatDate(element[1],2,1))))
 	Gui, Date:Font, s9 norm, %Font_%
 	Gui, Date:Add,text,xm,输入字符设定：
-	Gui, Date:Add, Edit,x+2 R1 w300 vSettKey WantTab hWndSetKey
+	Gui, Date:Add, Edit,x+2 R1 w320 vSettKey WantTab hWndSetKey
 	Gui, Date:Add, Button,x+5 gReloadSJ vReloadSJ hWndRSBT, 刷新
 	Gui, Date:Add,text,xm,时间格式设定：
-	Gui, Date:Add, Edit,x+2 R1 w300 vSettime WantTab hWndSettime
+	Gui, Date:Add, Edit,x+2 R1 w320 vSettime WantTab hWndSettime
 	EM_SetCueBanner(SetKey, "当前值：" EXEList_obj["FormatKey"] "【多个字段以/分离】")
 	EM_SetCueBanner(Settime, "格式：公元年(ln)月日-周 周数 ")
 	Gui, Date:Add, Button,x+5 gSaveSJ vSaveSJ hWndSSBT, 添加
@@ -3358,7 +3359,7 @@ FormatInfo:
 	Gui, Info:Font, s9 bold, %Font_%
 	Gui Info:Add, text,xm+10 yp+30 cred,中文格式：（分割符自行定义、输出以/+编码、双击删除行）
 	Gui, Info:Font, s8 norm, %Font_%
-	Gui Info:Add, text,y+5,年、月、日、时/点、分、秒、星期/周、周数、公元、ln(农历年)、ly(农历月)`n、lr(农历日)、ls(农历时辰)
+	Gui Info:Add, text,y+5,年、月、日、时/点/全时/全点、分、秒、星期/周、周数、公元、ln(农历年)、ly(农历月)`n、lr(农历日)、ls(农历时辰)、节气、干支、关键字以``键转义可以不当作参数使用。
 	Gui, Info:Font, s9 bold, %Font_%
 	Gui Info:Add, text,xm+10 y+5 cred,英文格式：（分割符自行定义、输出以/+编码、双击删除行）
 	Gui, Info:Font, s8 norm, %Font_%

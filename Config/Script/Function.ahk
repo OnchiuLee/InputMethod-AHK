@@ -1183,7 +1183,7 @@ Date_GetLunarDate(Gregorian)
 	LDate=%LYear%年%LMonth%月%LDay%		;完成
 ;~ 	MsgBox,% LDate
 	;转换成习惯性叫法
-	Tiangan=甲,乙,丙,丁,戊,已,庚,辛,壬,癸
+	Tiangan=甲,乙,丙,丁,戊,己,庚,辛,壬,癸
 	Dizhi=子,丑,寅,卯,辰,巳,午,未,申,酉,戌,亥
 	Shengxiao=鼠,牛,虎,兔,龙,蛇,马,羊,猴,鸡,狗,猪
 	loop,Parse,Tiangan,`,
@@ -1210,19 +1210,130 @@ Date_GetLunarDate(Gregorian)
 	Return,LDate
 }
 
+GetLunarJq(date,s:=0){   ;s=1获取当前日期真实节气数据，s为空获取该月份第一个节气公历时间
+	If strlen(date)<8
+		return []
+	year:=SubStr(date,1,4), month:=SubStr(date,5,2), D:=0.2422, Y:=SubStr(year,3,2), L:=month>2?Floor(SubStr(year,3,2)/4):Floor((SubStr(year,3,2)-1)/4)
+	If (SubStr(date,1,6)>190002&&SubStr(date,1,6)<200001){
+		C:=[[[6.11,"小寒",12],[20.84,"大寒",12]],[[4.6295,"立春",1],[19.4599,"雨水",1]],[[6.3826,"惊蛰",2],[21.4155,"春分",2]],[[5.59,"清明",3],[20.888,"谷雨",3]],[[6.318,"立夏",4],[21.86,"小满",4]],[[6.5,"芒种",5],[22.2,"夏至",5]],[[7.928,"小暑",6],[23.65,"大暑",6]],[[28.35,"立秋",7],[23.95,"处暑",7]],[[8.44,"白露",8],[23.822,"秋分",8]],[[9.098,"寒露",9],[24.218,"霜降",9]],[[8.218,"立冬",10],[23.08,"小雪",10]],[[7.9,"大雪",11],[22.6,"冬至",11]]]
+		jq:=Floor(Y*D+C[month,1,1])-L, result:=[jq,C[month,1,2],C[month,1,3]]
+		If SubStr(date,7,2)>jq+14
+			result:=[Floor(Y*D+C[month,2,1])-L,C[month,2,2],C[month,2,3]]
+		If (s&&SubStr(date,7,2)<jq&&SubStr(date,1,6)>190002)
+			result:=[Floor(Y*D+C[(month=1?12:month-1),2,1])-L,C[(month=1?12:month-1),2,2],C[(month=1?12:month-1),2,3]]
+		for key,value in [191105,190206,192507,192709,195415,198201]
+			If (SubStr(date,1,6)==value)
+				result[1]:=result[1]+1
+		return result
+	}else if (SubStr(date,1,6)>200000&&SubStr(date,1,6)<209912){
+		C:=[[[5.4055,"小寒",12],[20.12,"大寒",12]],[[3.87,"立春",1],[18.73,"雨水",1]],[[5.63,"惊蛰",2],[20.646,"春分",2]],[[4.81,"清明",3],[20.1,"谷雨",3]],[[5.52,"立夏",4],[21.04,"小满",4]],[[5.678,"芒种",5],[21.37,"夏至",5]],[[7.108,"小暑",6],[22.83,"大暑",6]],[[7.5,"立秋",7],[23.13,"处暑",7]],[[7.646,"白露",8],[23.042,"秋分",8]],[[8.318,"寒露",9],[23.438,"霜降",9]],[[7.438,"立冬",10],[22.36,"小雪",10]],[[7.18,"大雪",11],[21.94,"冬至",11]]]
+		jq:=Floor(Y*D+C[month,1,1])-L, result:=[jq,C[month,1,2],C[month,1,3]]
+		If SubStr(date,7,2)>jq+14
+			result:=[Floor(Y*D+C[month,2,1])-L,C[month,2,2],C[month,2,3]]
+		If (s&&SubStr(date,7,2)<jq&&SubStr(date,1,6)>200000)
+			result:=[Floor(Y*D+C[(month=1?12:month-1),2,1])-L,C[(month=1?12:month-1),2,2],C[(month=1?12:month-1),2,3]]
+		for key,value in [201901]
+			If (SubStr(date,1,6)==value)
+				result[1]:=result[1]-1
+		for key,value in [200208,201607,208911]
+			If (SubStr(date,1,6)==value)
+				result[1]:=result[1]+1
+		return result
+	}else{
+		return []
+	}
+}
+
+GetLunarTianganDizi(date){
+	If strlen(date)<8
+		return "无效日期"
+	year:=SubStr(date,1,4), month:=SubStr(date,5,2)
+	Tiangan=甲,乙,丙,丁,戊,己,庚,辛,壬,癸
+	Dizhi=子,丑,寅,卯,辰,巳,午,未,申,酉,戌,亥
+	nyb:=["甲子","乙丑","丙寅","丁卯","戊辰","己巳","庚午","辛未","壬申","癸酉","甲戌","乙亥"
+		,"丙子","丁丑","戊寅","己卯","庚辰","辛巳","壬午","癸未","甲申","乙酉","丙戌","丁亥"
+		,"戊子","己丑","庚寅","辛卯","壬辰","癸巳","甲午","乙未","丙申","丁酉","戊戌","己亥"
+		,"庚子","辛丑","壬寅","癸卯","甲辰","乙巳","丙午","丁未","戊申","己酉","庚戌","辛亥"
+		,"壬子","癸丑","甲寅","乙卯","丙辰","丁巳","戊午","己未","庚申","辛酉","壬戌","癸亥"]
+	StratSj:=[1900,11]  ;以1900年1月1日的干支位置为基准
+	loop,Parse,Tiangan,`,
+		Tiangan%a_index%:=A_LoopField
+	loop,Parse,Dizhi,`,
+		Dizhi%a_index%:=A_LoopField
+	days_:=StratSj[2], lunarMonth:=GetLunarJq(date,1)[3]
+	flag:=GetLunarJq(year 02 SubStr(date,7,2)), last:=2 (strlen(flag[1])<2?0 flag[1]:flag[1])
+	If SubStr(date,5,4)>=last
+		Order1:=Mod((year-4),10)+1, Order2:=Mod((year-4),12)+1, LYear:=Tiangan%Order1% . Dizhi%Order2%
+	else
+		Order1:=Mod(((year-1)-4),10)+1, Order2:=Mod(((year-1)-4),12)+1, LYear:=Tiangan%Order1% . Dizhi%Order2%
+	If (Order1=1||Order1=6)
+		monthArr:=[nyb[3],nyb[4],nyb[5],nyb[6],nyb[7],nyb[8],nyb[9],nyb[10],nyb[11],nyb[12],nyb[13],nyb[14]]
+	else If (Order1=2||Order1=7)
+		monthArr:=[nyb[15],nyb[16],nyb[17],nyb[18],nyb[19],nyb[20],nyb[21],nyb[22],nyb[23],nyb[24],nyb[25],nyb[26]]
+	else If (Order1=3||Order1=8)
+		monthArr:=[nyb[27],nyb[28],nyb[29],nyb[30],nyb[31],nyb[32],nyb[33],nyb[34],nyb[35],nyb[36],nyb[37],nyb[38]]
+	else If (Order1=4||Order1=9)
+		monthArr:=[nyb[39],nyb[40],nyb[41],nyb[42],nyb[43],nyb[44],nyb[45],nyb[46],nyb[47],nyb[48],nyb[49],nyb[50]]
+	else If (Order1=5||Order1=10)
+		monthArr:=[nyb[51],nyb[52],nyb[53],nyb[54],nyb[55],nyb[56],nyb[57],nyb[58],nyb[59],nyb[60],nyb[1],nyb[2]]
+	loop,% (SubStr(date,1,4)-StratSj[1])
+		days_:=IsLeap(StratSj[1]+A_index)?days_+6:days_+5
+	days_:=Mod((IsLeap(SubStr(date,1,4))?Mod(days_,60)-1:Mod(days_,60))+dateTotal(date),60) , day_gz:=nyb[days_] , LMonth:=monthArr[lunarMonth] 
+
+	If strlen(date)>9
+	{
+		sj:=Mod(SubStr(date,9,2),2)?Floor((SubStr(date,9,2)+3)/2):Floor((SubStr(date,9,2)+2)/2)
+		loop,10
+			If (Tiangan%a_index%=SubStr(day_gz,1,1))
+				sj_:=a_index>5?a_index-5:a_index
+		sichen_gz:=nyb[(sj_-1)*12+sj]
+	}
+	return LYear&&LMonth&&day_gz?(LYear "年" LMonth "月" day_gz "日" (strlen(date)>9?sichen_gz "时":"")):""
+}
+
+dateTotal(num){
+	days:=[31,28,31,30,31,30,31,31,30,31,30,31]
+	y:=SubStr(num,1,4),m:=SubStr(num,5,2),d:=SubStr(num,7,2)
+	sum:= 0
+	if(IsLeap(y))
+		days[2]:= 29
+	Loop,% m-1
+		sum+=days[A_Index]
+	Return sum+d-1
+}
+
+SetLunarTime(time=""){
+	time:=time?time:A_Now
+	days:=[31,28,31,30,31,30,31,31,30,31,30,31]
+	y:=SubStr(time,1,4),m:=SubStr(time,5,2),d:=SubStr(time,7,2),t:=SubStr(time,9,2)
+	if(IsLeap(y))
+		days[2]:= 29
+	If (t=23) {
+		If (d=days[m]) {
+			d:=1,t:="00", y:=m=12?y+1:y, m:=m=12?1:m+1
+		}else
+			d:=d+1,t:="00"
+	}
+	m:=strlen(m)<2?0 m:m, t:=strlen(t)<2?0 t:t, d:=strlen(d)<2?0 d:d
+	return y . m . d . t
+}
+
 FormatDate(SJ,s:=0, t:=0){   ;;s=1为格式化后时间格式，s=0为源格式；t=0为24小时制，t=0为12小时制
 	Lunar:=Date_GetLunarDate(SubStr(A_Now,1,8)), LunarYear:=SubStr(Lunar,1,2)
 	RegExMatch(Lunar,"农历(.*)月",date1), LunarMon:=substr(RegExReplace(date1,"\(|\)|月"),3), RegExMatch(Lunar,"月(.*)",date2), LunarDate:=substr(RegExReplace(date2,"\(|\)"),2)
-	FormatObj:={sj1:[["年"," A_YYYY "],["月"," A_MMM "], ["日"," A_DD "], ["时"," A_Hour "], ["点"," A_Hour "], ["分"," A_Min "] ,["毫秒"," A_MSec "], ["秒"," A_Sec "] , ["星期"," A_DDDD "], ["周数"," A_YWeek "] ,["周"," A_DDD"], ["公元","gg"]]
-		, sj2:[["年","yyyy年"],["ln",LunarYear "年"],["月","MM月"],["ly",LunarMon "月"], ["lr",LunarDate],["日","d日"],["时",t?"tthh时":"HH时"], ["ls",SubStr(Time_GetShichen(A_Hour),1,1) "时"], ["点",t?"tthh点":"HH点"], ["分","mm分"] ,["毫秒"," A_MSec "], ["秒","ss秒"] , ["星期","dddd"], ["周数","第" SubStr(A_YWeek, 5) "週"], ["周","ddd"], ["公元","gg"]]}
+	FormatObj:={sj1:[["年"," A_YYYY "],["月"," A_MMM "], ["日"," A_DD "], ["全时"," A_Hour "], ["时"," A_Hour "], ["全点"," A_Hour "], ["点"," A_Hour "], ["分"," A_Min "] ,["毫秒"," A_MSec "], ["秒"," A_Sec "] , ["星期"," A_DDDD "], ["周数"," A_YWeek "] ,["周"," A_DDD"], ["公元","gg"]]
+		, sj2:[["年","yyyy年"],["ln",LunarYear "年"],["月","MM月"],["ly",LunarMon "月"], ["lr",LunarDate],["日","d日"],["时",t?"tthh时":"HH时"], ["ls",SubStr(Time_GetShichen(A_Hour),1,1) "时"], ["点",t?"tthh点":"HH点"], ["分","mm分"] 
+		,["毫秒"," A_MSec "], ["秒","ss秒"] , ["星期","dddd"], ["周数","第" SubStr(A_YWeek, 5) "週"], ["周","ddd"], ["公元","gg"], ["节气",GetLunarJq(A_Now,1)[2]],["干支",GetLunarTianganDizi(SetLunarTime(A_Now))],["全时","HH"],["全点","HH"]]}
 	For Section,element In FormatObj[s?"sj2":"sj1"]
 	{
-		If SJ ~= element[1] {
+		If (SJ ~= element[1]&&not SJ ~="``" element[1]) {
 			SJ:=RegExReplace(SJ,element[1],element[2])
 		}
 	}
 	If !s
 		SJ:=RegExReplace(SJ,"[^a-zA-Z\_]",A_space)
+	else
+		SJ:=RegExReplace(SJ,"``")
 	return sj
 }
 
@@ -1813,7 +1924,7 @@ ToolTipStyle(hwnd:="",Options:=""){
 numTohz(num)
 {
 	num_switch:=[]
-	num_switch[1,1] :=Dot_To(num,0),num_switch[2,1] := Dot_To(num,1),num_switch[3,1] := (num ~="[a-z\,\.]"?"无效日期":(Date_GetLunarDate(num) and strlen(num)>=10?(Date_GetLunarDate(SubStr(num,1,8)) . (Date_GetLunarDate(SubStr(num,1,8))<>"无效日期"?Time_GetShichen(SubStr(num,9,2)):"")):Date_GetLunarDate(num))), num_switch[4,1] :=Conv_LunarDate(num)
+	num_switch[1,1] :=Dot_To(num,0),num_switch[2,1] := Dot_To(num,1),num_switch[3,1] := (num ~="[a-z\,\.]"?"无效日期":(Date_GetLunarDate(num) and strlen(num)>=10?(Date_GetLunarDate(SubStr(num,1,8)) . (Date_GetLunarDate(SubStr(num,1,8))<>"无效日期"?Time_GetShichen(SubStr(num,9,2)):"")):Date_GetLunarDate(num))), num_switch[4,1] :=Conv_LunarDate(num), num_switch[5,1] :=GetLunarTianganDizi(SetLunarTime(num))
 	return num_switch
 }
 
