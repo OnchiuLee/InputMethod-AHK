@@ -1323,7 +1323,7 @@ FormatDate(SJ,s:=0, t:=0){   ;;s=1为格式化后时间格式，s=0为源格式�
 	RegExMatch(Lunar,"农历(.*)月",date1), LunarMon:=substr(RegExReplace(date1,"\(|\)|月"),3), RegExMatch(Lunar,"月(.*)",date2), LunarDate:=substr(RegExReplace(date2,"\(|\)"),2)
 	FormatObj:={sj1:[["年"," A_YYYY "],["月"," A_MMM "], ["日"," A_DD "], ["全时"," A_Hour "], ["时"," A_Hour "], ["全点"," A_Hour "], ["点"," A_Hour "], ["分"," A_Min "] ,["毫秒"," A_MSec "], ["秒"," A_Sec "] , ["星期"," A_DDDD "], ["周数"," A_YWeek "] ,["周"," A_DDD"], ["公元","gg"]]
 		, sj2:[["年","yyyy年"],["ln",LunarYear "年"],["月","MM月"],["ly",LunarMon "月"], ["lr",LunarDate],["日","d日"],["时",t?"tthh时":"HH时"], ["ls",SubStr(Time_GetShichen(A_Hour),1,1) "时"], ["点",t?"tthh点":"HH点"], ["分","mm分"] 
-		,["毫秒"," A_MSec "], ["秒","ss秒"] , ["星期","dddd"], ["周数","第" SubStr(A_YWeek, 5) "週"], ["周","ddd"], ["公元","gg"], ["节气",GetLunarJq(A_Now,1)[2]],["干支",GetLunarTianganDizi(SetLunarTime(A_Now))],["全时","HH"],["全点","HH"]]}
+		,["毫秒"," A_MSec "], ["秒","ss秒"] , ["星期","dddd"], ["周数","第" SubStr(A_YWeek, 5) "週"], ["周","ddd"], ["公元","gg"], ["节气",SubStr(A_Now,7,2)=(LunarJq:=GetLunarJq(A_Now,1))[1]?LunarJq[2]:""],["干支",GetLunarTianganDizi(SetLunarTime(A_Now))],["全时","HH"],["全点","HH"]]}
 	For Section,element In FormatObj[s?"sj2":"sj1"]
 	{
 		If (SJ ~= element[1]&&not SJ ~="``" element[1]) {
@@ -1924,13 +1924,39 @@ ToolTipStyle(hwnd:="",Options:=""){
 numTohz(num)
 {
 	num_switch:=[]
-	num_switch[1,1] :=Dot_To(num,0),num_switch[2,1] := Dot_To(num,1),num_switch[3,1] := (num ~="[a-z\,\.]"?"无效日期":(Date_GetLunarDate(num) and strlen(num)>=10?(Date_GetLunarDate(SubStr(num,1,8)) . (Date_GetLunarDate(SubStr(num,1,8))<>"无效日期"?Time_GetShichen(SubStr(num,9,2)):"")):Date_GetLunarDate(num))), num_switch[4,1] :=Conv_LunarDate(num), num_switch[5,1] :=GetLunarTianganDizi(SetLunarTime(num))
+	num_switch[1,1] :=Dot_To(num,0),num_switch[2,1] := Dot_To(num,1),num_switch[3,1] := (num ~="[a-z\,\.]"?"无效日期":(Date_GetLunarDate(num) and strlen(num)>=10?(Date_GetLunarDate(SubStr(num,1,8)) . (Date_GetLunarDate(SubStr(num,1,8))<>"无效日期"?Time_GetShichen(SubStr(num,9,2)):"")):Date_GetLunarDate(num)))
+	for key,Value in Conv_LunarDate(num)
+		num_switch.Push(Value)
+	;PrintObjects(num_switch)
 	return num_switch
 }
 
-Conv_LunarDate(num){
-	lds:=Date_GetDate(SubStr(num,1,8),1), ldt:=Date_GetDate(SubStr(num,1,8),0), ld:=TransDate(ldt), ldp:=TransDate(lds)
-	Return (ldt~="\d+"?"公元":"") ld (lds~="\d+"&&ld<>ldp?"/" . ldp:"")
+Conv_LunarDate(date){
+	if (not date~="\d+"||date=""||strlen(date)<8)
+		return ["无效日期"]
+	result:=[], ld:=Date_GetDate(SubStr(date,1,8)), ldp:=Date_GetDate(SubStr(date,1,8),1), LunarJq:=GetLunarJq(date,1), jq:=SubStr(date,7,2)=LunarJq[1]?"-" LunarJq[2]:""
+	tg1:=Date_GetDate(SubStr(date,1,8),1), tg2:=Date_GetDate(SubStr(date,1,8)), LunarTg:=GetLunarTianganDizi(SetLunarTime(date))
+	result.Push([LunarTg,"〔 干支纪年 〕","〔 干支纪年 〕"])
+	If ld~="^\d+"
+		result.Push([ TransDate( ld ) jq,"〔 农历转公历① 〕","〔 农历转公历① 〕"])
+	If tg2~="^\d+"
+		result.Push([GetLunarTianganDizi(tg2 SubStr(date,9,2)) ,"〔 干支纪年① 〕","〔 干支纪年① 〕"])
+	if (ldp~="^\d+"&&ld<>ldp)
+		result.Push([ "" TransDate( ldp) jq,"〔 农历转公历(闰) 〕","〔 农历转公历(闰) 〕"])
+	if (tg1~="^\d+"&&tg2<>tg1)
+		result.Push([ GetLunarTianganDizi(tg1 SubStr(date,9,2)) ,"〔 干支纪年(闰) 〕","〔 干支纪年(闰) 〕"])
+	Return result
+}
+
+GetLunarTg(date){
+	if (not date~="\d+"||date=""||strlen(date)<8)
+		return ["无效日期"]
+	result:=[], tg1:=Date_GetDate(SubStr(date,1,8),1), tg2:=Date_GetDate(SubStr(date,1,8))
+	If tg2~="^\d+"
+		result.Push(GetLunarTianganDizi(tg2))
+	if tg1~="^\d+"
+		result.Push( "(闰)" GetLunarTianganDizi(tg1) )
+	Return result
 }
 
 Get_LunarDate(){
