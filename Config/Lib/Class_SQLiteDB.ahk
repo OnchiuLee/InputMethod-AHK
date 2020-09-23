@@ -36,7 +36,7 @@ Class SQLiteDB {
    ; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    ; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	Static Version := ""
-	Static _SQLiteDLL := A_ScriptDir . "\SQLite3.dll"    ; config\SQLite3_x86\SQLite3.dll
+	Static _SQLiteDLL := A_ScriptDir . "\SQLite3.dll"    ; 
 	Static _RefCount := 0
 	Static _MinVersion := "3.6"
    ; ===================================================================================================================
@@ -521,23 +521,19 @@ Class SQLiteDB {
 		This._Stmts := {}                 ; Valid prepared statements                     (Object)
 		If (This.Base._RefCount = 0) {
 			SQLiteDLL := This.Base._SQLiteDLL
-			If !FileExist(SQLiteDLL)
-				If FileExist(A_Temp . "\InputMethodData\Config.ini") {
+			If !FileExist(SQLiteDLL) {
 					If (A_PtrSize=4)
-						SQLiteDLL:=WubiIni["YSDllPath","SQLDllPath_x86"]
+						SQLiteDLL:=A_ScriptDir "\config\SQLite3_x86\SQLite3.dll"
 					Else If (A_PtrSize=8)
-						SQLiteDLL:=WubiIni["YSDllPath","SQLDllPath_x64"]
-					If !InStr(SQLiteDLL, ":\"){
-						SQLiteDLL := StrReplace(RegExReplace(A_ScriptDir,"\\main") "\" SQLiteDLL, "\\", "\")
-					}
-					If !RegExMatch(SQLiteDLL, "i)\\SQLite3.dll$"){
-						MsgBox, 16, SQLiteDB Error, % "SQLite3.dll does not exist!"
+						SQLiteDLL:=A_ScriptDir "\config\SQLite3_x64\SQLite3.dll"
+					If !FileExist(SQLiteDLL){
+						MsgBox, 16, SQLiteDB Error, % "SQLite3.dll 不存在!"
 						ExitApp
 					}
 					This.Base._SQLiteDLL := SQLiteDLL
-				}
+			}
 			If !(DLL := DllCall("LoadLibrary", "Str", This.Base._SQLiteDLL, "UPtr")) {
-				MsgBox, 16, SQLiteDB Error, % "DLL " . SQLiteDLL . " does not exist!"
+				MsgBox, 16, SQLiteDB Error, % "DLL " . SQLiteDLL . " 不存在!",3
 				ExitApp
 			}
 			This.Base.Version := StrGet(DllCall("SQLite3.dll\sqlite3_libversion", "Cdecl UPtr"), "UTF-8")
