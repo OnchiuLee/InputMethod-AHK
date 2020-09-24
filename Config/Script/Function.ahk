@@ -1215,29 +1215,32 @@ GetLunarJq(date,s:=0){   ;s=1获取当前日期真实节气数据，s为空获�
 		return []
 	year:=SubStr(date,1,4), month:=SubStr(date,5,2), D:=0.2422, Y:=SubStr(year,3,2), L:=month>2?Floor(SubStr(year,3,2)/4):Floor((SubStr(year,3,2)-1)/4)
 	If (SubStr(date,1,6)>190002&&SubStr(date,1,6)<200001){
-		C:=[[[6.11,"小寒",12],[20.84,"大寒",12]],[[4.6295,"立春",1],[19.4599,"雨水",1]],[[6.3826,"惊蛰",2],[21.4155,"春分",2]],[[5.59,"清明",3],[20.888,"谷雨",3]],[[6.318,"立夏",4],[21.86,"小满",4]],[[6.5,"芒种",5],[22.2,"夏至",5]],[[7.928,"小暑",6],[23.65,"大暑",6]],[[28.35,"立秋",7],[23.95,"处暑",7]],[[8.44,"白露",8],[23.822,"秋分",8]],[[9.098,"寒露",9],[24.218,"霜降",9]],[[8.218,"立冬",10],[23.08,"小雪",10]],[[7.9,"大雪",11],[22.6,"冬至",11]]]
-		jq:=Floor(Y*D+C[month,1,1])-L, result:=[jq,C[month,1,2],C[month,1,3]]
-		If SubStr(date,7,2)>jq+14
-			result:=[Floor(Y*D+C[month,2,1])-L,C[month,2,2],C[month,2,3]]
+		C:=[[[6.11,"小寒",12,"xh"],[20.84,"大寒",12,"dh"]],[[4.6295,"立春",1,"lc"],[19.4599,"雨水",1,"ys"]],[[6.3826,"惊蛰",2,"jz"],[21.4155,"春分",2,"cf"]],[[5.59,"清明",3,"qm"],[20.888,"谷雨",3,"gy"]],[[6.318,"立夏",4,"lx"],[21.86,"小满",4,"xm"]],[[6.5,"芒种",5,"mz"],[22.2,"夏至",5,"xz"]],[[7.928,"小暑",6,"xs"],[23.65,"大暑",6,"ds"]],[[28.35,"立秋",7,"lq"],[23.95,"处暑",7,"cs"]],[[8.44,"白露",8,"bl"],[23.822,"秋分",8,"qf"]],[[9.098,"寒露",9,"hl"],[24.218,"霜降",9,"sj"]],[[8.218,"立冬",10,"ld"],[23.08,"小雪",10,"xx"]],[[7.9,"大雪",11,"dx"],[22.6,"冬至",11,"dz"]]]
+		jq:=Floor(Y*D+C[month,1,1])-L, result:=[jq,C[month,1,2],C[month,1,3],C[month,1,4]]
+		If SubStr(date,7,2)>=Floor(Y*D+C[month,2,1])-L
+			result:=[Floor(Y*D+C[month,2,1])-L,C[month,2,2],C[month,2,3],C[month,2,4]]
 		If (s&&SubStr(date,7,2)<jq&&SubStr(date,1,6)>190002)
-			result:=[Floor(Y*D+C[(month=1?12:month-1),2,1])-L,C[(month=1?12:month-1),2,2],C[(month=1?12:month-1),2,3]]
-		for key,value in [191105,190206,192507,192709,195415,198201]
-			If (SubStr(date,1,6)==value)
+			result:=[Floor(Y*D+C[(month=1?12:month-1),2,1])-L,C[(month=1?12:month-1),2,2],C[(month=1?12:month-1),2,3],C[(month=1?12:month-1),2,4]]
+		for section,element in [[2084,"cf"],[1911,"lx"],[2008,"xm"],[1902,"mz"],[1928,"xz"],[1925,"xs"],[2016,"xs"],[1922,"ds"],[2002,"lq"],[1927,"bl"],[1942,"qf"],[2089,"sj"],[2089,"ld"],[1978,"xx"],[1954,"dx"],[1982,"xh"],[2000,"dh"],[2082,"dh"]]
+			If (result[4]=element[2]&&year=element[1])
 				result[1]:=result[1]+1
+		for key,value in [[2026,"ys"],[1918,"dz"],[2021,"dz"],[2019,"xh"]]
+			If (result[4]=element[2]&&year=element[1])
+				result[1]:=result[1]-1
 		return result
 	}else if (SubStr(date,1,6)>200000&&SubStr(date,1,6)<209912){
-		C:=[[[5.4055,"小寒",12],[20.12,"大寒",12]],[[3.87,"立春",1],[18.73,"雨水",1]],[[5.63,"惊蛰",2],[20.646,"春分",2]],[[4.81,"清明",3],[20.1,"谷雨",3]],[[5.52,"立夏",4],[21.04,"小满",4]],[[5.678,"芒种",5],[21.37,"夏至",5]],[[7.108,"小暑",6],[22.83,"大暑",6]],[[7.5,"立秋",7],[23.13,"处暑",7]],[[7.646,"白露",8],[23.042,"秋分",8]],[[8.318,"寒露",9],[23.438,"霜降",9]],[[7.438,"立冬",10],[22.36,"小雪",10]],[[7.18,"大雪",11],[21.94,"冬至",11]]]
-		jq:=Floor(Y*D+C[month,1,1])-L, result:=[jq,C[month,1,2],C[month,1,3]]
-		If SubStr(date,7,2)>jq+14
-			result:=[Floor(Y*D+C[month,2,1])-L,C[month,2,2],C[month,2,3]]
+		C:=[[[5.4055,"小寒",12,"xh"],[20.12,"大寒",12,"dh"]],[[3.87,"立春",1,"lc"],[18.73,"雨水",1,"ys"]],[[5.63,"惊蛰",2,"jz"],[20.646,"春分",2,"cf"]],[[4.81,"清明",3,"qm"],[20.1,"谷雨",3,"gy"]],[[5.52,"立夏",4,"lx"],[21.04,"小满",4,"xm"]],[[5.678,"芒种",5,"mz"],[21.37,"夏至",5,"xz"]],[[7.108,"小暑",6,"xs"],[22.83,"大暑",6,"ds"]],[[7.5,"立秋",7,"lq"],[23.13,"处暑",7,"cs"]],[[7.646,"白露",8,"bl"],[23.042,"秋分",8,"qf"]],[[8.318,"寒露",9,"hl"],[23.438,"霜降",9,"sj"]],[[7.438,"立冬",10,"ld"],[22.36,"小雪",10,"xx"]],[[7.18,"大雪",11,"dx"],[21.94,"冬至",11,"dz"]]]
+		jq:=Floor(Y*D+C[month,1,1])-L, result:=[jq,C[month,1,2],C[month,1,3],C[month,1,4]]
+		If SubStr(date,7,2)>=Floor(Y*D+C[month,2,1])-L
+			result:=[Floor(Y*D+C[month,2,1])-L,C[month,2,2],C[month,2,3],C[month,2,4]]
 		If (s&&SubStr(date,7,2)<jq&&SubStr(date,1,6)>200000)
-			result:=[Floor(Y*D+C[(month=1?12:month-1),2,1])-L,C[(month=1?12:month-1),2,2],C[(month=1?12:month-1),2,3]]
-		for key,value in [201901]
-			If (SubStr(date,1,6)==value)
-				result[1]:=result[1]-1
-		for key,value in [200208,201607,208911]
-			If (SubStr(date,1,6)==value)
+			result:=[Floor(Y*D+C[(month=1?12:month-1),2,1])-L,C[(month=1?12:month-1),2,2],C[(month=1?12:month-1),2,3],C[(month=1?12:month-1),2,4]]
+		for section,element in [[2084,"cf"],[1911,"lx"],[2008,"xm"],[1902,"mz"],[1928,"xz"],[1925,"xs"],[2016,"xs"],[1922,"ds"],[2002,"lq"],[1927,"bl"],[1942,"qf"],[2089,"sj"],[2089,"ld"],[1978,"xx"],[1954,"dx"],[1982,"xh"],[2000,"dh"],[2082,"dh"]]
+			If (result[4]=element[2]&&year=element[1])
 				result[1]:=result[1]+1
+		for key,value in [[2026,"ys"],[1918,"dz"],[2021,"dz"],[2019,"xh"]]
+			If (result[4]=element[2]&&year=element[1])
+				result[1]:=result[1]-1
 		return result
 	}else{
 		return []
@@ -1304,6 +1307,8 @@ dateTotal(num){
 
 SetLunarTime(time=""){
 	time:=time?time:A_Now
+	If strlen(time)<10
+		return time
 	days:=[31,28,31,30,31,30,31,31,30,31,30,31]
 	y:=SubStr(time,1,4),m:=SubStr(time,5,2),d:=SubStr(time,7,2),t:=SubStr(time,9,2)
 	if(IsLeap(y))
@@ -1340,7 +1345,7 @@ FormatDate(SJ,s:=0, t:=0){   ;;s=1为格式化后时间格式，s=0为源格式�
 ;获取农历时辰
 Time_GetShichen(time)
 {
-	shichen :=["子时（夜半｜『三更』）","丑时（鸡鸣｜『四更』）","丑时（鸡鸣｜『四更』）","寅时（平旦｜『五更』）","寅时（平旦|『五更』）","卯时（日出）","卯时（日出）","辰时（食时）","辰时（食时）","巳时（隅中）","巳时（隅中）","午时（日中）","午时（日中）","未时（日昳）","未时（日昳）","申时（哺时）","申时（哺时）","酉时（日入）","酉时（日入）","戌时（黄昏｜『一更』）","戌时（黄昏｜『一更』）","亥时（人定｜『二更』）","亥时（人定｜『二更』）","子时（夜半｜『三更』）"]
+	shichen :=["子时(夜半｜三更)","丑时(鸡鸣｜四更)","丑时(鸡鸣｜四更)","寅时(平旦｜五更)","寅时(平旦|五更)","卯时(日出)","卯时(日出)","辰时(食时)","辰时(食时)","巳时(隅中)","巳时(隅中)","午时(日中)","午时(日中)","未时(日昳)","未时(日昳)","申时(哺时)","申时(哺时)","酉时(日入)","酉时(日入)","戌时(黄昏｜一更)","戌时(黄昏｜一更)","亥时(人定｜二更)","亥时(人定｜二更)","子时(夜半｜三更)"]
 	time_count :=time+1
 	Loop % shichen.MaxIndex()
 	%A_Index% = %time_count%
@@ -1925,8 +1930,12 @@ numTohz(num)
 {
 	num_switch:=[]
 	num_switch[1,1] :=Dot_To(num,0),num_switch[2,1] := Dot_To(num,1),num_switch[3,1] := (num ~="[a-z\,\.]"?"无效日期":(Date_GetLunarDate(num) and strlen(num)>=10?(Date_GetLunarDate(SubStr(num,1,8)) . (Date_GetLunarDate(SubStr(num,1,8))<>"无效日期"?Time_GetShichen(SubStr(num,9,2)):"")):Date_GetLunarDate(num)))
-	for key,Value in Conv_LunarDate(num)
-		num_switch.Push(Value)
+	Lunar_Jq:=GetLunarJqDate(num)
+	If Lunar_Jq
+		num_switch.Push([Lunar_Jq])
+	for section,element in Conv_LunarDate(num)
+		If ObjLength(element)
+			num_switch.Push(element)
 	;PrintObjects(num_switch)
 	return num_switch
 }
@@ -1936,15 +1945,16 @@ Conv_LunarDate(date){
 		return ["无效日期"]
 	result:=[], ld:=Date_GetDate(SubStr(date,1,8)), ldp:=Date_GetDate(SubStr(date,1,8),1), LunarJq:=GetLunarJq(date,1), jq:=SubStr(date,7,2)=LunarJq[1]?"-" LunarJq[2]:""
 	tg1:=Date_GetDate(SubStr(date,1,8),1), tg2:=Date_GetDate(SubStr(date,1,8)), LunarTg:=GetLunarTianganDizi(SetLunarTime(date))
+
 	result.Push([LunarTg,"〔 干支纪年 〕","〔 干支纪年 〕"])
 	If ld~="^\d+"
 		result.Push([ TransDate( ld ) jq,"〔 农历转公历① 〕","〔 农历转公历① 〕"])
 	If tg2~="^\d+"
-		result.Push([GetLunarTianganDizi(tg2 SubStr(date,9,2)) ,"〔 干支纪年① 〕","〔 干支纪年① 〕"])
+		result.Push([GetLunarTianganDizi( SetLunarTime(tg2 SubStr(date,9,2)) ) ,"〔 干支纪年① 〕","〔 干支纪年① 〕"])
 	if (ldp~="^\d+"&&ld<>ldp)
 		result.Push([ "" TransDate( ldp) jq,"〔 农历转公历(闰) 〕","〔 农历转公历(闰) 〕"])
 	if (tg1~="^\d+"&&tg2<>tg1)
-		result.Push([ GetLunarTianganDizi(tg1 SubStr(date,9,2)) ,"〔 干支纪年(闰) 〕","〔 干支纪年(闰) 〕"])
+		result.Push([ GetLunarTianganDizi( SetLunarTime(tg1 SubStr(date,9,2)) ) ,"〔 干支纪年(闰) 〕","〔 干支纪年(闰) 〕"])
 	Return result
 }
 
@@ -1953,10 +1963,19 @@ GetLunarTg(date){
 		return ["无效日期"]
 	result:=[], tg1:=Date_GetDate(SubStr(date,1,8),1), tg2:=Date_GetDate(SubStr(date,1,8))
 	If tg2~="^\d+"
-		result.Push(GetLunarTianganDizi(tg2))
+		result.Push(GetLunarTianganDizi( SetLunarTime(tg2)) )
 	if tg1~="^\d+"
-		result.Push( "(闰)" GetLunarTianganDizi(tg1) )
+		result.Push( "(闰)" GetLunarTianganDizi( SetLunarTime(tg1)) )
 	Return result
+}
+
+GetLunarJqDate(date){
+	If (strlen(date)<>6||not date~="^(19|20)[0-9]{2}[0-1][0-9]")
+		return ""
+	year:=SubStr(date,1,4), month:=RegExReplace(SubStr(date,5,2),"^0")
+	If (strlen(date)=6&&ObjLength(jq1:=GetLunarJq(date 03))&&jq2:=GetLunarJq(date 28))
+		jq:=jq1[2] A_space year "-" Month "-" jq1[1] "｜" jq2[2] A_space year "-" Month "-" jq2[1]
+	return jq
 }
 
 Get_LunarDate(){
@@ -1965,7 +1984,9 @@ Get_LunarDate(){
 	FormatTime, RQVar, , yyyyMMdd
 	lunar :=Date_GetLunarDate(RQVar)
 	lunar_time :=Time_GetShichen(MIVar)
-	sj[1,1]:=lunar . lunar_time
+	Lunar_jq:=GetLunarJq(A_Now,1), jq:=SubStr(A_Now,7,2)=Lunar_jq[1]?"-" Lunar_jq[2]
+	for section,element in [[lunar . lunar_time jq],[GetLunarTianganDizi(SetLunarTime(A_Now))]]
+		sj.Push(element)
 	Return sj
 }
 
@@ -1978,11 +1999,8 @@ Get_Date(){
 	FormatTime, RQVar2, , yyyy/MM/dd
 	FormatTime, DateVar, , ggyyyy年M月d日-dddd
 	date=%DateVar%｜第%wk%周
-	sj[5,1]:=Days_Count(RQVar)
-	sj[2,1]:=date
-	sj[3,1]:=RQVar1
-	sj[4,1]:=RQVar2
-	sj[1,1]:=TransDate(RQVar)
+	for section,element in [[TransDate(RQVar)],[date],[RQVar1],[RQVar2],[Days_Count(RQVar)]]
+		sj.Push(element)
 	Return sj
 }
 
@@ -2009,7 +2027,8 @@ Get_Time(){
 	FormatTime, TimeVar2, , H:mm:ss
 	FormatTime, TimeVar3, , yyyy/MM/dd H:mm:ss
 	time=%TimeVar1%%A_MSec%"
-	sj[1,1]:=TimeVar1,sj[2,1]:=TimeVar2,sj[3,1]:=TimeVar3,sj[4,1]:=time
+	for section,element in [[TimeVar1],[TimeVar2],[TimeVar3],[time]]
+		sj.Push(element)
 	Return sj
 }
 
@@ -2031,7 +2050,7 @@ Days_Count(num){
 		sum+=days[A_Index]
 	}
 	sum+= d-1
-	Return y "年已过了" sum "天|剩余" (IsLeap(y)?366-sum:365-sum) "天"
+	Return y "年已过去" sum "天|剩余" (IsLeap(y)?366-sum:365-sum) "天"
 }
 
 GetCaretPos(){

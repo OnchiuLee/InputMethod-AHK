@@ -863,7 +863,7 @@ prompt_symbols(input){
 			else
 				ResultAll:=numTohz(RegExReplace(input,"^/",""))
 		}
-		For section,element in {zznl:Get_LunarDate(),zzsj:Get_Time(),zzrq:Get_Date(),Cut_Mode:1}
+		For section,element in {zznl:Get_LunarDate(),zzsj:Get_Time(),zzrq:Get_Date()}
 			If (section=SubStr(input,2)) {
 				for key,value in element
 					ResultAll.InsertAt(key,value)
