@@ -599,6 +599,20 @@ TranSelectvalue(chars){
 	Return chars
 }
 
+SwitchingScheme(n,Char){
+	global WubiIni, srf_all_input, Wubi_Schema, srf_for_select_Array,localpos
+	flag:=0
+	If srf_all_input~="\/sc$" {
+		for key,value in {Chr(0x542b) . Chr(0x8bcd):"ci",Chr(0x5355) . Chr(0x5b57):"zi",Chr(0x8d85) . Chr(0x96c6):"chaoji",Chr(0x5b57) . Chr(0x6839):"zg"}
+			If (Char~=key&&srf_for_select_Array[n,4]=value)
+				Wubi_Schema:=WubiIni.Settings["Wubi_Schema"] :=value, flag:=1, WubiIni.save()
+	}else if (IsLabel(Char)&&srf_all_Input~="^\/[a-z]+"){
+			Gosub % Char
+			flag:=1
+	}
+	Return flag
+}
+
 ;选词
 srf_select(list_num,thishotkey:=""){
 	global
@@ -607,32 +621,30 @@ srf_select(list_num,thishotkey:=""){
 		Return
 	list_num:= localpos>1&&ToolTipStyle~="i)gdip"&&FocusStyle&&thishotkey~="i)space"?localpos:list_num
 	selectvalue:=labelObj.Length()&&IsLabel(labelObj[list_num])?labelObj[list_num]:srf_for_select_Array[list_num+ListNum*waitnum,(srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3?(Cut_Mode~="on"?3:2):1)]
+	If SwitchingScheme(list_num,selectvalue) {
+		Gosub srf_value_off
+		Return
+	}
 	If (selectvalue~="\\n|\\t"&&srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>2&&!IsLabel(selectvalue), selectvalue_:="") {
 		selectvalue_:= TranSelectvalue(selectvalue), selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,1] "`r`n" srf_for_select_Array[list_num+ListNum*waitnum,Cut_Mode~="on"?2:3] "`r`n" selectvalue_
 	}
-	if (IsLabel(selectvalue)&&srf_all_Input~="^\/[a-z]+")
+	if (Initial_Mode ~="on"||srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3)
 	{
-		Gosub % selectvalue
-	}else{
-		if (Initial_Mode ~="on"||srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3)
-		{
-			Clipboard := selectvalue
-			send ^v
-			If srf_all_input~="^[a-y]+$"
-				updateRecent(selectvalue)    ;写入历史记录
-			if srf_all_Input~="^\``[a-z]^[a-y]{1,4}``"{
-				Save_word(selectvalue)
-			}
+		Clipboard := selectvalue
+		send ^v
+		If srf_all_input~="^[a-y]+$"
+			updateRecent(selectvalue)    ;写入历史记录
+		if srf_all_Input~="^\``[a-z]^[a-y]{1,4}``"{
+			Save_word(selectvalue)
 		}
-		else
-		{
-			SendInput % selectvalue
-			If srf_all_input~="^[a-y]+$"
-				updateRecent(selectvalue)    ;写入历史记录
-			if srf_all_Input~="^\``[a-z]|^[a-y]{1,4}``"{
-				Save_word(selectvalue)
-			}
-	}}
+	}else{
+		SendInput % selectvalue
+		If srf_all_input~="^[a-y]+$"
+			updateRecent(selectvalue)    ;写入历史记录
+		if srf_all_Input~="^\``[a-z]|^[a-y]{1,4}``"{
+			Save_word(selectvalue)
+		}
+	}
 	if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci"&&list_num>1&&srf_all_Input~="^[a-y]+$"&&srf_for_select_Array.Length()>1&&!EN_Mode){
 		if (Frequency_obj[selectvalue,1]&&Frequency_obj[selectvalue,2]=srf_all_Input) {
 			Frequency_obj[selectvalue,1]:=Frequency_obj[selectvalue,1]+1
@@ -654,8 +666,8 @@ srf_select(list_num,thishotkey:=""){
 		}
 	}
 	Gosub srf_value_off
-	srf_for_select_Array :=select_arr:=select_value_arr:=add_Array:=add_Result:=labelObj:=[], select_sym:=PosLimit:=0, srf_for_select_for_tooltip :=Result_arr:=Select_result:=selectallvalue:="",code_status:=localpos:=select_pos:=1
 }
+
 
 ;快捷删词
 Delete_Word(list_num){
@@ -863,7 +875,7 @@ prompt_symbols(input){
 			else
 				ResultAll:=numTohz(RegExReplace(input,"^/",""))
 		}
-		For section,element in {zznl:Get_LunarDate(),zzsj:Get_Time(),zzrq:Get_Date()}
+		For section,element in {zznl:Get_LunarDate(),zzsj:Get_Time(),zzrq:Get_Date(),sc:[["含词",,,"ci"],["单字",,,"zi"],["超集",,,"chaoji"],["字根",,,"zg"]]}
 			If (section=SubStr(input,2)) {
 				for key,value in element
 					ResultAll.InsertAt(key,value)
