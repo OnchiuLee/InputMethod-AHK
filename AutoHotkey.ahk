@@ -41,7 +41,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020092410"
+version :="2020092417"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -68,6 +68,8 @@ Line_Color:=SubStr(ThemeObject["color_scheme","LineColor"],5,2) SubStr(ThemeObje
 #Include Config\Lib\Class_CtlColors.ahk
 #Include Config\Lib\Class_ImageButton.ahk
 #Include Config\Lib\Class_OD_Colors.ahk
+#Include Config\Lib\Class_WinClipAPI.ahk
+#Include Config\Lib\Class_WinClip.ahk
 #Include Config\Script\Function.ahk
 #Include Config\Script\Sql_Func.ahk
 SendMode Input
