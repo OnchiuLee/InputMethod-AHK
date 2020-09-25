@@ -1861,10 +1861,10 @@ getPathByName(pathPattern)
  */
 pasteText(content)
 {
-	ClipboardOld = %ClipboardAll%
-	Clipboard = %content%
+	ClipboardOld := ClipboardAll
+	Clipboard := content
 	SendInput ^v
-	Clipboard = %ClipboardOld%
+	Clipboard := ClipboardOld
 	return
 }
 
@@ -3470,4 +3470,11 @@ GetCharsSize(List, Font:="", FontSize:=10, Padding:=6)
 		TW > X ? X := TW :
 	}
 	return "w" X + Padding
+}
+
+TaskEnabled(TaskName, Enabled=True, TaskFolder="\")
+{
+	Service := ComObjCreate("Schedule.Service")
+	Service.Connect()
+	return Service.GetFolder(TaskFolder).GetTask(TaskName).Enabled
 }

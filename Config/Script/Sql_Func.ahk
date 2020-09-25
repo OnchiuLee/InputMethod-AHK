@@ -613,6 +613,21 @@ SwitchingScheme(n,Char){
 	Return flag
 }
 
+UpperScreenMode(TEXT, m:=0){
+	global srf_all_Input
+	If m
+	{
+		WinClip.Snap( ClipSaved ), WinClip.Clear()
+		WinClip.SetText( TEXT ), WinClip.Paste()
+		WinClip.Restore( ClipSaved )
+	}else
+		SendInput % TEXT
+	If srf_all_input~="^[a-y]*"
+		updateRecent(TEXT)    ;写入历史记录
+	if srf_all_Input~="^\``[a-y]*|^[a-y]{1,4}\``.+"
+		Save_word(TEXT)
+}
+
 ;选词
 srf_select(list_num,thishotkey:=""){
 	global
@@ -629,22 +644,9 @@ srf_select(list_num,thishotkey:=""){
 		selectvalue_:= TranSelectvalue(selectvalue), selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,1] "`r`n" srf_for_select_Array[list_num+ListNum*waitnum,Cut_Mode~="on"?2:3] "`r`n" selectvalue_
 	}
 	if (Initial_Mode ~="on"||srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3)
-	{
-		Clipboard := selectvalue
-		send ^v
-		If srf_all_input~="^[a-y]+$"
-			updateRecent(selectvalue)    ;写入历史记录
-		if srf_all_Input~="^\``[a-z]^[a-y]{1,4}``"{
-			Save_word(selectvalue)
-		}
-	}else{
-		SendInput % selectvalue
-		If srf_all_input~="^[a-y]+$"
-			updateRecent(selectvalue)    ;写入历史记录
-		if srf_all_Input~="^\``[a-z]|^[a-y]{1,4}``"{
-			Save_word(selectvalue)
-		}
-	}
+		UpperScreenMode(selectvalue,1)
+	else
+		UpperScreenMode(selectvalue)
 	if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci"&&list_num>1&&srf_all_Input~="^[a-y]+$"&&srf_for_select_Array.Length()>1&&!EN_Mode){
 		if (Frequency_obj[selectvalue,1]&&Frequency_obj[selectvalue,2]=srf_all_Input) {
 			Frequency_obj[selectvalue,1]:=Frequency_obj[selectvalue,1]+1

@@ -949,10 +949,11 @@ Return
 
 helpInfo:
 	if (srf_for_select_Array.Length()=0&&srf_all_Input ="help"){
-		Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10
+		Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?11:10
 		help_info:=[["简繁模式"," 热键" GetkeyName(s2thotkey) " 组合","〔 热键" GetkeyName(s2thotkey) " 组合 〕"]
 			,["程序挂起"," 热键" GetkeyName(Suspendhotkey) " 组合","〔 热键" GetkeyName(Suspendhotkey) " 组合 〕"]
 			,["以形查音"," ~键引导 ","〔 ~键引导 〕"]
+			,["方案切换","〔 /sc 切换方案 〕","〔 /sc 切换方案 〕"]
 			,["精准造词"," ``键引导+``键分词 ","〔 ``键引导+``键分词 〕"]
 			,["划译反查"," 热键" GetkeyName(tiphotkey) " 开/关 ","〔 热键" GetkeyName(tiphotkey) " 开/关 〕"]
 			,["临时英文"," 双``键引导 ","〔 双``键引导 〕"]
@@ -4015,7 +4016,7 @@ Startup:
 	Startup_path:=RegExReplace(DllCall("GetCommandLine", "Str"),"i)""( | /restart )"""," ")
 	Command = schtasks /Create /TN %Startup_Name% /TR %Startup_path% /SC ONLOGON /RL HIGHEST /F
 	Try {
-			Run *RunAs cmd.exe /c %Command%, , Hide
+			Run *RunAs %A_WinDir%\System32\schtasks.exe /Create /TN %Startup_Name% /TR %Startup_path% /SC ONLOGON /RL HIGHEST /F, ,Hide
 			Result:= cmdClipReturn(cmd_zq)
 			if Result~=Startup_Name{
 				Startup :=WubiIni.Settings["Startup"]:="on", WubiIni.save()
