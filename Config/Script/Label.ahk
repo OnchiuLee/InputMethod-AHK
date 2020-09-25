@@ -773,8 +773,20 @@ OnBackup:
 Return
 
 ;帮助
+
 OnHelp:
-	Run, rundll32.exe "%A_ProgramFiles%\Windows Photo Viewer\PhotoViewer.dll"`, ImageView_Fullscreen %A_ScriptDir%\config\ReadMe.png,, UseErrorLevel
+	Gui, Info:Destroy
+	Gui, Info:Default
+	Gui, Info: Margin,10,10
+	Gui, Info: Color,ffffff
+	Gui, Info:Font, s12 bold, %Font_%
+	Gui Info:Add, GroupBox,xm w450 h375 vreadme, 常用快捷操作介绍：
+	Gui, Info:Font, s10 norm, %Font_%
+	Gui Info:Add, Edit,xm+10 yp+30 w430 h335 ReadOnly -WantCtrlA -WantReturn -border ,方案切换：一、默认快捷操作：`n`t方案切换：/sc、/ci/dz/cj`n`t候选横竖排：/mode`n`t候选框风格：/hx`n`t拆分显示：/cf`n`t简繁切换：/jf`n`n二、临时造词方式：`n1、以``键引导后打单字再以``键进行分词会自动组合首选，也可以自己组合，操作完成后上屏即保存。仅在「含词」方案下有效！`n`n2、不用``引导，打单字后同样以``键进行分词亦会自动组合，选择候选词后上屏即保存。这种方式对于首字为四码唯一的单字时无效(须关闭四码唯一上屏后才有效)。`n`n三、临时英文：以「双``键」引导`n四、英文输入模式： /en切换，重复切换反之。`n`n五、以形查音：以「~键(shift+``)」引导，输入单字反查单字读音。`n`n六、鼠标划词反查：默认是关闭的，快捷键Alt+Q开启，鼠标划选汉字后会显示反查后的五笔编码和单字读音以及五笔拆分（需字体支持，在设置窗口切换字体到以98开头的字体才能正常显示）`n`n七、长字符串输出：自带八百多首古诗词，/+作者+z可以快速选择要上屏的内容。需自定义的遵循格式自行导入。`n`n八、临时拼音：以z键引导+拼音、z键已保留原始的万能键匹配形式，默认是临时拼音需要自己更换。`n`n九、特殊符号：/+符号类型，更多/help查看。`n`n十、扩展功能：`n`n`t/+数字或有序日期==> 金额转换、农历转公历、公历转农历、节气查询、干支纪年查询。`n`n`t实时时间输出：/nl、/zznl、 /zzsj、 /zzrq`n`n`tmac 输出电脑部分参数`n`n基本使用帮助提示输入help查看快捷键操作。
+	GuiControl,Info:Focus,readme
+	Gui, Info:Show,AutoSize,使用介绍
+	Gosub ChangeWinIcon
+	;;;Run, rundll32.exe "%A_ProgramFiles%\Windows Photo Viewer\PhotoViewer.dll"`, ImageView_Fullscreen %A_ScriptDir%\config\ReadMe.png,, UseErrorLevel
 return
 
 ;设置面板
@@ -966,7 +978,7 @@ helpInfo:
 		Mac_Array:=ComInfo.GetMacAddress_1(),IP_Array:=ComInfo.GetIPAddress_1()
 		srf_for_select_Array.Push(ComInfo.GetSNCode_1()), srf_for_select_Array.Push(ComInfo.GetMacName())
 	;获取本机外网IP接口
-		if ipInfo:= ComInfo.GetIPAPI_2(),ipInfo.Length()>0
+		if objLength(ipInfo:= ComInfo.GetIPAPI_2())
 			srf_for_select_Array.Push(ipInfo)
 	/*获取本机外网IP方法有：
 		ComInfo.GetIPAPI_3()
@@ -1040,7 +1052,7 @@ srf_tooltip_fanye:
 		Gosub srf_tooltip_cut
 	}else if srf_all_Input ~="^z"{
 		if srf_all_Input~="^z[a-z]+|^z\'[a-z]+" {
-			srf_all_input:=RegExReplace(srf_all_input,"^z|^z\'",srf_all_input~="'"?"z":"z'"), srf_for_select_Array:=get_word(srf_all_input, Wubi_Schema)
+			srf_all_input:=!zkey_mode?RegExReplace(srf_all_input,"^z|^z\'",srf_all_input~="'"?"z":"z'"):srf_all_input, srf_for_select_Array:=get_word(srf_all_input, Wubi_Schema)
 		}else{
 			if recent[1]{
 				loop % objLength(recent)
@@ -1353,7 +1365,7 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","Initialize","SBA13","TextInfo1","showtools","SrfSlider","SizeValue","set_SizeValue","ExSty","DPISty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","TextInfo27","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 		,GBoxList2:["GBox2","TextInfo11","TextInfo25","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
-		,GBoxList3:["GBox3","SBA7","SBA26","SBA27","SBA23","SBA24","UIAccess","SBA6","SBA14","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC","Cursor_Status"]
+		,GBoxList3:["GBox3","SBA7","SBA26","SBA27","SBA23","SBA24","TextInfo29","zKeySet","UIAccess","SBA6","SBA14","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC","Cursor_Status"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","sChoice4","TransformCiku","ciku9","ciku2","ciku8","ciku7","yaml_","ciku3","ciku4","ciku5","ciku6","ciku10","ciku11"]
@@ -1368,14 +1380,17 @@ More_Setting:
 	Gui 98:Add, Text,x190 y+5 w365 h2 0x10 vlineText1
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
-	Gui, 98:Add, Text,
 	OD_Colors.SetItemHeight("S10 bold" , font_)
-	Gui, 98:Add, Text,x190 yp vTextInfo1 left, 主题选择：
+	Gui, 98:Add, Text,x190 y+15 vTextInfo1 left, 主题选择：
 	themelist:=logoList:=""
 	Loop Files, config\Skins\*.json
 		themelist.="|" SubStr(A_LoopFileName,1,-5)
-	Gui, 98:Add, DDL,x+5 yp w150 vselect_theme gselect_theme Section hwndHDDL +0x0210, % RegExReplace(themelist,"^\|")
-	Gui, 98:Add, Text,x190 y+10 vTextInfo3 left, 配置管理：
+	Gui,98:Font
+	Gui,98:Font, s9 bold, %font_%
+	Gui, 98:Add, DDL,x+5 yp vselect_theme gselect_theme Section hwndHDDL +0x0210, % RegExReplace(themelist,"^\|")
+	Gui,98:Font, s10 norm, %font_%
+	Gui, 98:Add, Text,
+	Gui, 98:Add, Text,x190 yp+5 vTextInfo3 left, 配置管理：
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
 	Gui, 98:Add, Button,x+5 yp-2 cred gBackup_Conf vBackup_Conf hwndCBT,备份配置
@@ -1392,9 +1407,13 @@ More_Setting:
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui, 98:Add, Text,x190 y+10 vTextInfo4 left, 功能条：
+	Gui,98:Font
+	Gui,98:Font, s9 bold, %font_%
 	Gui, 98:Add, DDL,x%scvarX% yp vselect_logo gselect_logo hWndSLCT +0x0210, % RegExReplace(logoList,"^\|")
 	OD_Colors.Attach(HDDL,{T: 0xffe89e, B: 0x292421})
 	OD_Colors.Attach(SLCT,{T: 0xffe89e, B: 0x292421})
+	Gui,98:Font
+	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, CheckBox,x+10 yp+2 vshowtools gshowtools Checked%srfTool%, 独立显示
 	GuiControl, 98:ChooseString, select_logo, %StyleN%
 	If Logo_Switch~="i)off"
@@ -1409,9 +1428,9 @@ More_Setting:
 	Gui, 98:Add, Edit, x+10 w60 Limit3 Number vSizeValue gSizeValue
 	Gui, 98:Add, UpDown, x+0 w160 Range1-150 gset_SizeValue vset_SizeValue, % (LogoSize>0&&LogoSize<=150?LogoSize:36)
 	GuiControlGet, lcvar, Pos , LogoColor_cn
-	lctY:=lcvarY+lcvarH+10
-	Gui, 98:Add, Slider,x%lcvarX% y%lctY% gSrfSlider vSrfSlider Center TickInterval10 ToolTipLeft Range0-255, % transparentX
-	Gui, 98:Add, CheckBox,x%lcvarX% y+5 vSBA13 gSBA13, 指示器显隐
+	lctY:=lcvarY+lcvarH+10, lctW:=lcvarW*4
+	Gui, 98:Add, Slider,x%lcvarX% y+10 w%lctW% h25 gSrfSlider vSrfSlider Center NoTicks Thick20 ToolTipLeft Range0-255, % transparentX
+	Gui, 98:Add, CheckBox,x%lcvarX% y+10 vSBA13 gSBA13, 指示器显隐
 	Gui, 98:Add, CheckBox,x+5 Checked%DPIScale% vDPISty gDPISty, +DPIScale
 	Gui, 98:Add, CheckBox,x+5 Checked%Logo_ExStyle% vExSty gExSty, 鼠标穿透
 	Gui,98:Font
@@ -1438,7 +1457,9 @@ More_Setting:
 	Gui,98:Font, s10, %font_%
 	DllCall("gdi32\EnumFontFamilies","uint",DllCall("GetDC","uint",0),"uint",0,"uint",RegisterCallback("EnumFontFamilies"),"uint",a_FontList:="")
 	Gui, 98:Add, Text, x190 y+15 left vTextInfo5, 字体选择：
-	Gui, 98:Add, ComboBox,x+10 gfonts_type vFontType hwndFontLists, % a_FontList
+	Gui,98:Font
+	Gui,98:Font, s9 bold, %font_%
+	Gui, 98:Add, ComboBox,x+10 w150 gfonts_type vFontType hwndFontLists, % a_FontList
 	CtlColors.Attach(FontLists, "black", "ffe89e")
 	GuiControl, 98:ChooseString, FontType, %FontType%
 	Gui,98:Font
@@ -1494,13 +1515,20 @@ More_Setting:
 	Gui, 98:Add, CheckBox,x%CheckVar2X% yp+0 vSBA26 gSBA26, 四码唯一上屏
 	if (not Wubi_Schema ~="i)zi"||!FileExist("config\GB*.txt"))
 		GuiControl, 98:Disable, SBA23
-	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo28
+	Gui 98:Add, Text,x190 y+5 w365 h2 0x10 vTextInfo28
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA14 gSBA14, 中文模式使用英文标点
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
 	Gui, 98:Add, Button,x+10 yp-2 vSBA21 gSBA21 hwndBBT, 标点映射设置
 	ImageButton.Create(BBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo13
+	Gui,98:Font
+	Gui,98:Font, s10, %font_%
+	Gui, 98:Add, Text, x190 y+10 left vTextInfo29, Z键定义：
+	Gui,98:Font
+	Gui,98:Font, s9 bold, %font_%
+	Gui, 98:Add, DDL,x+5 w120  vzKeySet gzKeySet  AltSubmit HwndZDDL +0x0210, 临时拼音|万能键匹配
+	OD_Colors.Attach(ZDDL,{T: 0xffe89e, B: 0x292421})
+	Gui 98:Add, Text,x190 y+5 w365 h2 0x10 vTextInfo13
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui, 98:Add, CheckBox,x190 y+10 Checked%Frequency% vFrequency gFrequency, 动态调频
@@ -1548,18 +1576,34 @@ More_Setting:
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui, 98:Add, Text, x190 yp+45 left vTextInfo15, 开机自启：
+	Gui,98:Font
+	Gui,98:Font, s9 bold, %font_%
 	Gui, 98:Add, DDL,x+25 w135  vSBA4 gSBA4 HwndSDDL4 +0x0210, 计划任务自启|快捷方式自启|不自启
 	OD_Colors.Attach(SDDL4,{T: 0xffe89e, B: 0x292421})
-	Gui, 98:Add, Text, x190 yp+45 left vTextInfo16, 上屏方式：
-	Gui, 98:Add, DDL,x+25 w135  vsChoice1 gsChoice1 HwndSCDL1 +0x0210, 常规上屏|剪切板上屏
+	Gui,98:Font
+	Gui,98:Font, s10 norm, %font_%
+	Gui, 98:Add, Text, x190 y+10 left vTextInfo16, 上屏方式：
+	Gui,98:Font
+	Gui,98:Font, s9 bold, %font_%
+	Gui, 98:Add, DDL,x+25 w135  vsChoice1 gsChoice1  AltSubmit HwndSCDL1 +0x0210, 常规上屏|剪切板上屏
 	OD_Colors.Attach(SCDL1,{T: 0xffe89e, B: 0x292421})
-	Gui, 98:Add, Text, x190 yp+45  left vTextInfo17, Enter设定：
+	Gui,98:Font
+	Gui,98:Font, s10 norm, %font_%
+	Gui, 98:Add, Text, x190 y+10  left vTextInfo17, Enter设定：
+	Gui,98:Font
+	Gui,98:Font, s9 bold, %font_%
 	Gui, 98:Add, DDL,x+20 w135 vsChoice2 gsChoice2 HwndSCDL2 +0x0210, 编码上屏|回车清空
 	OD_Colors.Attach(SCDL2,{T: 0xffe89e, B: 0x292421})
-	Gui, 98:Add, Text, x190 yp+45  left vTextInfo18, 候选模式：
+	Gui,98:Font
+	Gui,98:Font, s10 norm, %font_%
+	Gui, 98:Add, Text, x190 y+10 left vTextInfo18, 候选模式：
+	Gui,98:Font
+	Gui,98:Font, s9 bold, %font_%
 	Gui, 98:Add, DDL,x+25 w135 vsChoice3 gsChoice3 HwndSCDL3 +0x0210, 候选横排|候选竖排
 	OD_Colors.Attach(SCDL3,{T: 0xffe89e, B: 0x292421})
-	Gui, 98:Add, Text, x190 yp+45  left vTextInfo19, 中英切换：
+	Gui,98:Font
+	Gui,98:Font, s10 norm, %font_%
+	Gui, 98:Add, Text, x190 y+10 left vTextInfo19, 中英切换：
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
 	Gui, 98:Add, DDL, vsethotkey_1 gsethotkey_1 x+25 yp-1 w60 HwndHKDL +0x0210, Ctrl|Shift|Alt|LWin
@@ -1574,7 +1618,7 @@ More_Setting:
 	Gui, 98:Add, text, yp+5 x+5 w70 cred vtip_text, %A_Space%
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
-	Gui, 98:Add, Text, x190 yp+45  left vTextInfo20, 默认状态：
+	Gui, 98:Add, Text, x190 y+10  left vTextInfo20, 默认状态：
 	Gui, 98:Add, Radio,yp+0 x+30 vSetInput_CNMode gSetInput_Mode, 中文
 	Gui, 98:Add, Radio,yp+0 x+30 vSetInput_ENMode gSetInput_Mode, 英文
 	For Section, element In TV_obj
@@ -1645,7 +1689,7 @@ More_Setting:
 	Gui,98:Add, Text, x190 yp+35 w360 vinfos_ , `t%Startup_Name%是以AutoHotkey脚本语言编写的外挂类型形码输入法，借用同类型的「影子输入法」的实现思路通过调用众多WinAPI整合SQLite数据库实现文字输出等一系列功能。以「数据库码表性能」和「前端呈现」（调用Windows的GdiPlus.dll）两方面对文字内容直接发送上屏，而不进行传统输入法的转换操作，从XP至Win10皆能流畅运行。此版本为王码五笔98版专用，非98五笔的用户移步至「影子输入法」。
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
-	Gui,98:Add, Link, y+15 vlinkinfo1, 简介：<a href="https://wubi98.gitee.io/2020/04/27/2019-12-03-031.yours/">程序简介</a>`nGit：<a href="https://github.com/OnchiuLee/AHK-Input-method">GitHub查看</a> | <a href="https://gitee.com/leeonchiu/AHK-Input-method">Gitee查看</a>`n使用帮助：<a href="config\ReadMe.png">点我查看详细说明</a>
+	Gui,98:Add, Link, y+15 vlinkinfo1, 简介：<a href="https://wubi98.gitee.io/2020/04/27/2019-12-03-031.yours/">程序简介</a>`nGit：<a href="https://github.com/OnchiuLee/AHK-Input-method">GitHub查看</a> | <a href="https://gitee.com/leeonchiu/AHK-Input-method">Gitee查看</a>
 	Gui,98:Add, Link, y+5 vlinkinfo2, 关于：<a href="https://wubi98.gitee.io/">https://wubi98.gitee.io/</a>`n资源库：<a href="http://98wb.ys168.com">http://98wb.ys168.com</a>
 	Gui,98:Add, Link, y+5 vlinkinfo3, 查看码元图：<a href="config\码元图.jpg">点我查看五笔98版码元图</a>
 	Gui,98:Add, Text, y+5 vversionsinfo, 版本日期：%Versions%
@@ -2486,7 +2530,10 @@ ControlGui:
 		GuiControl, 98:Disable, Addcode_hotkey
 	else
 		GuiControl,98:, SBA17 , 1
-
+	If zkey_mode
+		GuiControl,98:choose, zKeySet , 2
+	else
+		GuiControl,98:choose, zKeySet , 1
 	if Initial_Mode~="i)on" {
 		GuiControl,98:choose, sChoice1 , 2
 	}else{
@@ -2589,6 +2636,14 @@ EnableUIAccess(hwnd:=""){
 	Return
 	CNID:=WubiIni.Settings["CNID"]:=CpuID, WubiIni.Save()
 }
+
+zKeySet:
+	GuiControlGet, Keypos, ,zKeySet , text
+	If Keypos~="拼音"
+		zkey_mode:=WubiIni.Settings["zkey_mode"]:=0,WubiIni.save()
+	else
+		zkey_mode:=WubiIni.Settings["zkey_mode"]:=1,WubiIni.save()
+Return
 
 sChoice1:
 	GuiControlGet, sChoice1,, sChoice1, text
