@@ -41,7 +41,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020092417"
+version :="2020092418"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -612,6 +612,7 @@ ShellIMEMessage( wParam,lParam ) {
 		LastWinEXE:=WinEXE_, Eid:=WinExist()
 		program:="※ " Startup_Name " ※`n◆ 当前方案：" (Wubi_Schema~="i)ci"?"【98五笔•含词】":Wubi_Schema~="i)zi"?"【98五笔•单字】":Wubi_Schema~="i)zg"?"【98五笔•字根】":"【98五笔•超集】") "`n◆ 农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "〖 " A_DDDD " 〗`n◆ 农历时辰：" Time_GetShichen(SubStr( A_Now,9,2)) ""
 		Menu,Tray,Tip,%program%
+		Gosub SelectItems
 /*
 		If (!DllCall("Wininet.dll\InternetCheckConnection", "Str", "https://www.baidu.com/", "UInt", 0x1, "UInt", 0x0, "Int"))
 			Menu, Tray, Disable, 更新
