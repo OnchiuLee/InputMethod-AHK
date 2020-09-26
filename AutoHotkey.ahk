@@ -41,7 +41,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020092418"
+version :="2020092618"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -132,7 +132,7 @@ global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni(A_Te
 	srf_default_obj:={LogoColor:{LogoColor_cn:"008000",LogoColor_en:"00FFFF",LogoColor_caps:"0000ff"}
 		,Settings:{Startup:"off",CNID:CpuID,IStatus:1,CharFliter:0,Exit_switch:1,PromptChar:0, DPIScale:1,CursorStatus:0
 				,Exit_hotkey:"^esc", symb_mode:2,Frequency:0,Freq_Count:3,srfTool:0,length_code:"on"
-				, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f",versions:version
+				, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f",versions:version,EnKeyboardMode:0
 				, cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"10", Logo_Y:A_ScreenHeight/2
 				, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock", Suspend_switch:1,zkey_mode:0
 				, Suspend_hotkey:"!z", tip_hotkey:"!q", rlk_switch:0, Logo_Switch:"on",Srf_Hotkey:"Shift"
@@ -165,8 +165,8 @@ if (FileExist(A_ScriptDir "\Sync\Default.json")&&!status) {
 
 ;配置项说明
 config_tip:={LogoColor:{LogoColor_cn:"桌面色块中文状态颜色",LogoColor_en:"桌面色块英文状态颜色",LogoColor_caps:"桌面色块大写状态颜色"}
-	,Settings:{Startup:"开机自启设置<on为建立系统计划任务实现自启/off为关闭开机自启/sc为在系统自启目录建立快捷方式实现自启>", versions:"版本日期"
-			, CharFliter:"单字方案GB2312过滤",IStatus:"窗口程序输入状态配置开关",Exit_switch:"快捷退出快捷键启用开关",PromptChar:"逐码提示"
+	,Settings:{Startup:"开机自启设置<on为建立系统计划任务实现自启/off为关闭开机自启/sc为在系统自启目录建立快捷方式实现自启>", versions:"版本日期",zkey_mode:"z键设定万能键与拼音反查"
+			, CharFliter:"单字方案GB2312过滤",IStatus:"窗口程序输入状态配置开关",Exit_switch:"快捷退出快捷键启用开关",PromptChar:"逐码提示",EnKeyboardMode:"启动时切换到英语键盘模式开关项"
 			, Exit_hotkey:"快捷退出快捷键",BUyaml:"导出文件为yaml格式文件，需要文件头支持才能导出",Frequency:"动态调频〔只对含词方案有效〕"
 			, Freq_Count:"调频参数〔词条上屏次数〕",FocusStyle:"焦点候选样式<1为启用,反之>",EN_Mode:"英文模式",srfTool:"输入法指示条独立显示"
 			, PageShow:"候选框页数显示", s2t_swtich:"简繁模式切换开关", s2t_hotkey:"简繁模式切换功能快捷键", cf_swtich:"拆分显示功能开关", CursorStatus:"工型光标为中文状态，反之"
@@ -340,7 +340,10 @@ If FileExist("Config\GB*.txt") {
 	}
 }
 */
-;;;SwitchToEngIME()
+
+If EnKeyboardMode
+	SwitchToEngIME()
+
 ;;;写入唐诗词库
 If FileExist("Config\TangSongPoetics.txt") {
 	__Chars:=_Chars:="", CharsObj:=[]
@@ -478,7 +481,7 @@ WM_MOUSEMOVE()
 		,tip_hotkey:"通过快捷键开关划词反查",SizeValue:"桌面色块尺寸`n范围[1-150]",SBA20:"候选框分页数显示",FontIN:"字根拆分字体安装",set_regulate_Hx:"ToolTip候选框编码框`n与选词框距离范围[3-25)]"
 		, SBA13:"显示/隐藏桌面色块图标",SBA19:"有焦点色块选项的候选框",SetInput_CNMode:"程序启动时默认中文输入模式",SetInput_ENMode:"程序启动时默认英文输入模式", SBA12 : "候选词显示粗体",SBA26:"四码唯一时自动上屏〔独立开关〕"
 		,ciku1:"导入txt词库至数据库`ntxt码表格式需为「单行单义」",ciku2:"导出词库为「单行单义」的txt格式文本",SBA2:"拆分功能快捷键启用开关`n（需特殊字体支持，字体在本程序Font目录）",GdipRadius:"Gdip候选框圆角大小`n范围[0-15]"
-		,sethotkey_2:"打开小键盘选取键值",InputStatus:"窗口程序输入状态配置，切换窗口有效！",set_SizeValue:"桌面色块尺寸`n范围[1-150]", vset_regulate:"ToolTip候选框编码框`n与选词框距离范围[3-25]"
+		,sethotkey_2:"打开小键盘选取键值",InputStatus:"窗口程序输入状态配置，切换窗口有效！",set_SizeValue:"桌面色块尺寸`n范围[1-150]", vset_regulate:"ToolTip候选框编码框`n与选词框距离范围[3-25]",SBA28:"启动时切换到英语键盘模式"
 		,set_FocusRadius:"焦点候选框焦点项背景圆角`n范围[0-18]",set_FocusRadius_value:"焦点候选框焦点项背景圆角`n范围[0-18]", SBA3:"当编码无词条时模糊匹配提示",SBA7:"四位编码候选唯一时自动上屏，五码时顶首选上屏"
 		,SBA9:"Gdip候选框圆角开关",SBA10:"Gdip候选样式中间分隔线",yaml_:"导出词库为yaml格式可直接应用于rime平台，`n需Sync目录有header.txt文件头支持",search_1:"〔 词频为0的为主词库已删除的，勾选删除即恢复！ 〕"
 		,IM_DDL:"此处选择你要更改的内容",WinMode:"设置每个有窗口进程的输入状态与上屏方式",SBA22:"程序退出快捷键启用开关",Exit_hotkey:"程序退出操作快捷键",SBA23:"单字方案模式下GB2312字集过滤", showtools:"独立显示指示功能条，不显示色块"
