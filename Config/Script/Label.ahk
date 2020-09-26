@@ -782,7 +782,7 @@ OnHelp:
 	Gui, Info:Font, s12 bold, %Font_%
 	Gui Info:Add, GroupBox,xm w450 h375 vreadme, 常用快捷操作介绍：
 	Gui, Info:Font, s10 norm, %Font_%
-	Gui Info:Add, Edit,xm+10 yp+30 w430 h335 ReadOnly -WantCtrlA -WantReturn -border ,一、默认快捷操作：`n`t方案切换：/sc、/ci/dz/cj`n`t候选横竖排：/mode`n`t候选框风格：/hx`n`t拆分显示：/cf`n`t简繁切换：/jf`n`n二、临时造词方式：`n1、以``键引导后打单字再以``键进行分词会自动组合首选，也可以自己组合，操作完成后上屏即保存。仅在「含词」方案下有效！`n`n2、不用``引导，打单字后同样以``键进行分词亦会自动组合，选择候选词后上屏即保存。这种方式对于首字为四码唯一的单字时无效(须关闭四码唯一上屏后才有效)。`n`n三、临时英文：以「双``键」引导`n四、英文输入模式： /en切换，重复切换反之。`n`n五、以形查音：以「~键(shift+``)」引导，输入单字反查单字读音。`n`n六、鼠标划词反查：默认是关闭的，快捷键Alt+Q开启，鼠标划选汉字后会显示反查后的五笔编码和单字读音以及五笔拆分（需字体支持，在设置窗口切换字体到以98开头的字体才能正常显示）`n`n七、长字符串输出：自带八百多首古诗词，/+作者+z可以快速选择要上屏的内容。需自定义的遵循格式自行导入。`n`n八、临时拼音：以z键引导+拼音、z键已保留原始的万能键匹配形式，默认是临时拼音需要自己更换。`n`n九、特殊符号：/+符号类型，更多/help查看。`n`n十、扩展功能：`n`n`t/+数字或有序日期==> 金额转换、农历转公历、公历转农历、节气查询、干支纪年查询。`n`n`t实时时间输出：/nl、/zznl、 /zzsj、 /zzrq`n`n`tmac 输出电脑部分参数`n`n基本使用帮助提示输入help查看快捷键操作。
+	Gui Info:Add, Edit,xm+10 yp+30 w430 h335 ReadOnly -WantCtrlA -WantReturn -border ,一、默认快捷操作：`n`t方案切换：/sc、/ci/dz/cj`n`t候选横竖排：/mode`n`t候选框风格：/hx`n`t拆分显示：/cf`n`t简繁切换：/jf`n`t切换至英文键盘：/yw`n`t切换至中文键盘：/zw`n`n二、临时造词方式：`n1、以``键引导后打单字再以``键进行分词会自动组合首选，也可以自己组合，操作完成后上屏即保存。仅在「含词」方案下有效！`n`n2、不用``引导，打单字后同样以``键进行分词亦会自动组合，选择候选词后上屏即保存。这种方式对于首字为四码唯一的单字时无效(须关闭四码唯一上屏后才有效)。`n`n三、临时英文：以「双``键」引导`n四、英文输入模式： /en切换，重复切换反之。`n`n五、以形查音：以「~键(shift+``)」引导，输入单字反查单字读音。`n`n六、鼠标划词反查：默认是关闭的，快捷键Alt+Q开启，鼠标划选汉字后会显示反查后的五笔编码和单字读音以及五笔拆分（需字体支持，在设置窗口切换字体到以98开头的字体才能正常显示）`n`n七、长字符串输出：自带八百多首古诗词，/+作者+z可以快速选择要上屏的内容。需自定义的遵循格式自行导入。`n`n八、临时拼音：以z键引导+拼音、z键已保留原始的万能键匹配形式，默认是临时拼音需要自己更换。`n`n九、特殊符号：/+符号类型，更多/help查看。`n`n十、扩展功能：`n`n`t/+数字或有序日期==> 金额转换、农历转公历、公历转农历、节气查询、干支纪年查询。`n`n`t实时时间输出：/nl、/zznl、 /zzsj、 /zzrq`n`n`tmac 输出电脑部分参数`n`n基本使用帮助提示输入help查看快捷键操作。
 	GuiControl,Info:Focus,readme
 	Gui, Info:Show,AutoSize,使用介绍
 	Gosub ChangeWinIcon
@@ -1365,7 +1365,7 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","Initialize","SBA13","TextInfo1","showtools","SrfSlider","SizeValue","set_SizeValue","ExSty","DPISty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","TextInfo27","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 		,GBoxList2:["GBox2","TextInfo11","TextInfo25","StyleMenu","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","FontIN","font_size","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
-		,GBoxList3:["GBox3","SBA7","SBA26","SBA27","SBA23","SBA24","TextInfo29","zKeySet","UIAccess","SBA6","SBA14","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC","Cursor_Status"]
+		,GBoxList3:["GBox3","SBA7","SBA26","SBA27","SBA28","SBA23","SBA24","TextInfo29","zKeySet","UIAccess","SBA6","SBA14","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC","Cursor_Status"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","sChoice4","TransformCiku","ciku9","ciku2","ciku8","ciku7","yaml_","ciku3","ciku4","ciku5","ciku6","ciku10","ciku11"]
@@ -1528,9 +1528,10 @@ More_Setting:
 	Gui,98:Font, s9 bold, %font_%
 	Gui, 98:Add, DDL,x+5 w120  vzKeySet gzKeySet  AltSubmit HwndZDDL +0x0210, 临时拼音|万能键匹配
 	OD_Colors.Attach(ZDDL,{T: 0xffe89e, B: 0x292421})
-	Gui 98:Add, Text,x190 y+5 w365 h2 0x10 vTextInfo13
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
+	Gui, 98:Add, CheckBox, x+10 yp+3 Checked%EnKeyboardMode% vSBA28 gSBA28, 英语键盘模式
+	Gui 98:Add, Text,x190 y+5 w365 h2 0x10 vTextInfo13
 	Gui, 98:Add, CheckBox,x190 y+10 Checked%Frequency% vFrequency gFrequency, 动态调频
 	if (not Wubi_Schema~="i)ci"||Trad_Mode~="i)on"||Prompt_Word~="i)on") {
 		GuiControl, 98:Disable, Frequency
@@ -2699,13 +2700,13 @@ Return
 GetLongString:
 	If Result.RowCount>0
 		loop,% (CountNum>=pageNum?lineCount-(CountNum-1)*40:40)
-			LV_Add("", Result.Rows[CountNum*40+A_Index,1],Result.Rows[CountNum*40+A_Index,2],Result.Rows[CountNum*40+A_Index,3],Result.Rows[CountNum*40+A_Index,4])
+			LV_Add("", Result.Rows[CountNum*40+A_Index,1],Result.Rows[CountNum*40+A_Index,2],Result.Rows[CountNum*40+A_Index,3],substr(Result.Rows[CountNum*40+A_Index,4],1,25))
 	LV_ModifyCol(1,"60 "), LV_ModifyCol(2,"120 Center"), LV_ModifyCol(3,"200 Center"), LV_ModifyCol(4,"240 ")
 	SB_SetText(A_Space CountNum+1 "/" pageNum . "页")
 Return
 
 tsGuiClose:
-	tsGuiEscape:
+tsGuiEscape:
 	Gui, ts:Destroy
 	WubiIni.Save()
 Return
@@ -3778,6 +3779,11 @@ Return
 SBA25:
 	GuiControlGet, SBA ,, SBA25, Checkbox
 	EN_Mode:=WubiIni.Settings["EN_Mode"]:=SBA, WubiIni.save()
+Return
+
+SBA28:
+	GuiControlGet, SBA ,, SBA28, Checkbox
+	EnKeyboardMode:=WubiIni.Settings["EnKeyboardMode"]:=SBA,WubiIni.save()
 Return
 
 CharFliter:

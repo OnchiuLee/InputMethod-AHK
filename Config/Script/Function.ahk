@@ -1291,7 +1291,7 @@ GetLunarTianganDizi(date){
 				sj_:=a_index>5?a_index-5:a_index
 		sichen_gz:=nyb[(sj_-1)*12+sj]
 	}
-	return LYear&&LMonth&&day_gz?(LYear "年" LMonth "月" day_gz "日" (strlen(date)>9?sichen_gz "时":"")):""
+	return LYear&&LMonth&&day_gz?(LYear "年" LMonth "月" day_gz "日" (strlen(date)>9?sichen_gz "时":"")):"无效日期"
 }
 
 dateTotal(num){
