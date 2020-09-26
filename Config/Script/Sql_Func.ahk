@@ -617,6 +617,10 @@ SwitchingScheme(n,Char){
 		for key,value in {Chr(0x542b) . Chr(0x8bcd):"ci",Chr(0x5355) . Chr(0x5b57):"zi",Chr(0x8d85) . Chr(0x96c6):"chaoji",Chr(0x5b57) . Chr(0x6839):"zg"}
 			If (Char~=key&&srf_for_select_Array[n,4]=value)
 				Wubi_Schema:=WubiIni.Settings["Wubi_Schema"] :=value, flag:=1, WubiIni.save()
+		if Wubi_Schema~="i)zi|zg"
+			Gosub Disable_Tray
+		else
+			Gosub Enable_Tray
 	}else if (IsLabel(Char)&&srf_all_Input~="^\/[a-z]+"){
 			Gosub % Char
 			flag:=1
@@ -859,7 +863,7 @@ prompt_label(input){
 
 ;特殊符号提取
 prompt_symbols(input){
-	global DB, Cut_Mode, srf_all_Input, labelObj
+	global DB, Cut_Mode, srf_all_Input, labelObj, Wubi_Schema
 	If (input="")
 		Return []
 	ResultAll:=[]
@@ -888,7 +892,7 @@ prompt_symbols(input){
 			else
 				ResultAll:=numTohz(RegExReplace(input,"^/",""))
 		}
-		For section,element in {zznl:Get_LunarDate(),zzsj:Get_Time(),zzrq:Get_Date(),sc:[["含词",,,"ci"],["单字",,,"zi"],["超集",,,"chaoji"],["字根",,,"zg"]]}
+		For section,element in {zznl:Get_LunarDate(),zzsj:Get_Time(),zzrq:Get_Date(),sc:[["含词",Wubi_Schema~="i)ci"?"☯":"",Wubi_Schema~="i)ci"?"☯":"","ci"],["单字",Wubi_Schema~="i)zi"?"☯":"",Wubi_Schema~="i)zi"?"☯":"","zi"],["超集",Wubi_Schema~="i)chaoji"?"☯":"",Wubi_Schema~="i)chaoji"?"☯":"","chaoji"],["字根",Wubi_Schema~="i)zg"?"☯":"",Wubi_Schema~="i)zg"?"☯":"","zg"]]}
 			If (section=SubStr(input,2)) {
 				for key,value in element
 					ResultAll.InsertAt(key,value)
