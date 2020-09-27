@@ -637,9 +637,9 @@ UpperScreenMode(TEXT, m:=0){
 		WinClip.Restore( ClipSaved )
 	}else
 		SendInput % TEXT
-	If srf_all_input~="^[a-y]*"
+	If srf_all_input~="^[a-y]+"
 		updateRecent(TEXT)    ;写入历史记录
-	if srf_all_Input~="^\``[a-y]*|^[a-y]{1,4}\``.+"
+	if srf_all_Input~="^\``[a-y]+|^[a-y]{1,4}\``.+"
 		Save_word(TEXT)
 }
 
