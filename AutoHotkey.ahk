@@ -15,11 +15,11 @@
 #Persistent
 #WinActivateForce
 #Include %A_ScriptDir%
-
+/*
 If (A_AhkVersion < "1.1.33.02") {
 	MsgBox, 16, 兼容警告, 主程序版本过低使用过程中可能会出现未知Bug`n推荐ahk版本不小于1.1.33.02！, 3
 }
-
+*/
 ;;{{{{{启动文件位数判断
 ProcessName :=RegExReplace(A_AhkPath,".+\\") 
 Loop, Files, main\*.exe
@@ -100,7 +100,7 @@ if(!A_IsAdmin || ProcessIsElevated(aPID)<>1)
 }
 */
 ;;===============输入法名称（可修改）==================
-global Startup_Name :="五笔98版"   
+Startup_Name :="五笔98版"   
 ;拆分字体名变量，拆分开启时用来过滤字体以完美显示拆分
 RegRead, FontVar, HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows NT\CurrentVersion\FontLink\SystemLink, 98WB-0
 if FontVar
@@ -108,8 +108,9 @@ if FontVar
 else
 	FontExtend:="98WB-U|98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0"
 
-;;======================================================
-;;{{{{{config.ini去重
+/*
+;;=========================config.ini去重================
+;;{{{{{
 FileRead,content,%A_Temp%\InputMethodData\Config.ini
 New_Content:=""
 Loop,parse,content, `n ,`r
@@ -118,6 +119,8 @@ Loop,parse,content, `n ,`r
 FileDelete, %A_Temp%\InputMethodData\Config.ini
 FileAppend,%New_Content%,%A_Temp%\InputMethodData\Config.ini,utf-8
 New_Content:=""
+;;======================================================
+*/
 Loop Files, config\Skins\logoStyle\*.icl
 {
 	if A_LoopFileName {
@@ -126,8 +129,9 @@ Loop Files, config\Skins\logoStyle\*.icl
 	}
 }
 ;}}}}}
-IniRead, status, %A_Temp%\InputMethodData\Config.ini, Initialize, status ,0
+
 ;{{{{{读取配置及配置检测
+IniRead, status, %A_Temp%\InputMethodData\Config.ini, Initialize, status ,0
 global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni(A_Temp "\InputMethodData\Config.ini")
 	srf_default_obj:={LogoColor:{LogoColor_cn:"008000",LogoColor_en:"00FFFF",LogoColor_caps:"0000ff"}
 		,Settings:{Startup:"off",CNID:CpuID,IStatus:1,CharFliter:0,Exit_switch:1,PromptChar:0, DPIScale:1,CursorStatus:0
@@ -163,7 +167,37 @@ if (FileExist(A_ScriptDir "\Sync\Default.json")&&!status) {
 	srf_default_value:=srf_default_obj
 }
 
-;配置项说明
+;默认配置检测
+For Section, element In srf_default_value
+	For key, value In element
+		If ((%key%:=WubiIni[Section, key])="")
+			%key%:=WubiIni[Section, key]:=value
+
+if (Logo_X<0||Logo_X>A_ScreenWidth||Logo_Y<0||Logo_Y>A_ScreenHeight)
+	Logo_X :=WubiIni.Settings["Logo_X"]:=10,Logo_Y :=WubiIni.Settings["Logo_Y"]:=A_ScreenHeight/2
+if (Wubi_Schema<>"ci"&&Wubi_Schema<>"zi"&&Wubi_Schema<>"chaoji"&&Wubi_Schema<>"zg")
+	Wubi_Schema :=WubiIni.Settings["Wubi_Schema"]:="ci"
+
+;开机自启项检测是否开启，以便与配置文件同步
+cmd_zq= schtasks /Query /TN %Startup_Name%
+zq_:= cmdClipReturn(cmd_zq)
+if FileExist(A_Startup "\" Startup_Name ".lnk"){
+	Startup :=WubiIni.Settings["Startup"]:="sc"
+}else{
+	Startup :=WubiIni.Settings["Startup"]:=zq_~=Startup_Name?"on":"off"
+}
+versions :=WubiIni.Settings["versions"]:=version
+if not Srf_Hotkey ~="i)Ctrl|Shift|Alt|LWin"||Srf_Hotkey ~="\&$"
+	Srf_Hotkey:=WubiIni.Settings["Srf_Hotkey"]:="Shift"
+
+If status {
+	WubiIni.DeleteSection("Initialize")
+}
+if !WubiIni.GetTopComments()
+	WubiIni.AddTopComment("程序运行时，配置文件直接修改无效！退出后修改才有效！！！")
+
+/*
+;;===================================配置项说明===================
 config_tip:={LogoColor:{LogoColor_cn:"桌面色块中文状态颜色",LogoColor_en:"桌面色块英文状态颜色",LogoColor_caps:"桌面色块大写状态颜色"}
 	,Settings:{Startup:"开机自启设置<on为建立系统计划任务实现自启/off为关闭开机自启/sc为在系统自启目录建立快捷方式实现自启>", versions:"版本日期",zkey_mode:"z键设定万能键与拼音反查"
 			, CharFliter:"单字方案GB2312过滤",IStatus:"窗口程序输入状态配置开关",Exit_switch:"快捷退出快捷键启用开关",PromptChar:"逐码提示",EnKeyboardMode:"启动时切换到英语键盘模式开关项"
@@ -183,44 +217,16 @@ config_tip:={LogoColor:{LogoColor_cn:"桌面色块中文状态颜色",LogoColor_
 			, ToolTipStyle:"候选框风格<on为tooltip样式/off为Gui候选样式/Gdip为Gdip候选样式>", Radius:"Gdip候选样式圆角开关<on/off>",Gdip_Radius:"Gdip候选框圆角大小", BgColor:"候选框背景色<16进制色值>"
 			, ListNum:"候选数量", Textdirection:"horizontal为横排/vertical为竖排", Set_Range:"ToolTip样式编码与候选词距离", Fix_Switch:"候选框固定开关",Fix_X:"候选框固定x坐标",Fix_Y:"候选框固定y坐标"}
 	, CustomColors:{Color_Row1:"配色对话框自定义颜色区域，第一排", Color_Row2:"配色对话框自定义颜色区域，第二排"}}
-;默认配置检测
-For Section, element In srf_default_value
-	For key, value In element
-		If ((%key%:=WubiIni[Section, key])="")
-			%key%:=WubiIni[Section, key]:=value
-;配置项说明项写入
-_comment:="程序运行时，配置文件直接修改无效！退出后修改才有效！！！"
-if !WubiIni.GetTopComments()
-	WubiIni.AddTopComment(_comment)
 
+;配置项说明项写入
 FileRead, ini_var, %A_Temp%\InputMethodData\Config.ini
 For Section, element In config_tip
 	For Comments, value In element
 		If !WubiIni.GetKeyComments(Section, Comments)
 			If ini_var not contains Comments
 				WubiIni.AddKeyComment(Section, Comments, value)
-
-if (Logo_X<0||Logo_X>A_ScreenWidth||Logo_Y<0||Logo_Y>A_ScreenHeight)
-	Logo_X :=WubiIni.Settings["Logo_X"]:=200,Logo_Y :=WubiIni.Settings["Logo_Y"]:=y2
-if (Wubi_Schema<>"ci"&&Wubi_Schema<>"zi"&&Wubi_Schema<>"chaoji"&&Wubi_Schema<>"zg")
-	Wubi_Schema :=WubiIni.Settings["Wubi_Schema"]:="ci"
-
-;开机自启项检测是否开启，以便与配置文件同步
-cmd_zq= schtasks /Query /TN %Startup_Name%
-global zq_:= cmdClipReturn(cmd_zq)
-if FileExist(A_Startup "\" Startup_Name ".lnk"){
-	Startup :=WubiIni.Settings["Startup"]:="sc"
-}else{
-	Startup :=WubiIni.Settings["Startup"]:=zq_~=Startup_Name?"on":"off"
-}
-versions :=WubiIni.Settings["versions"]:=version
-
-if not Srf_Hotkey ~="i)Ctrl|Shift|Alt|LWin"||Srf_Hotkey ~="\&$"
-	Srf_Hotkey:=WubiIni.Settings["Srf_Hotkey"]:="Shift"
-
-If status {
-	WubiIni.DeleteSection("Initialize")
-}
+;;======================================================
+*/
 
 WubiIni.Save()
 ;}}}}}
@@ -574,7 +580,6 @@ ShellIMEMessage( wParam,lParam ) {
 			}
 		}
 	}
-
 	SetTimer, func_timer, 1000
 
 	func_timer:
@@ -653,8 +658,6 @@ GetCutModeFont(){
 			fontName:= v
 	Return fontName
 }
-;if GetFont:=GetCutModeFont()&&Cut_Mode~="i)on"&&not FontType~="i)" FontExtend
-;	FontType :=WubiIni.TipStyle["FontType"]:= GetFont, WubiIni.Save()
 
 Gosub srf_value_off
 #Include Config\Script\Label.ahk
