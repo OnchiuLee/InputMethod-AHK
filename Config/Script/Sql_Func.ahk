@@ -594,19 +594,12 @@ get_word(input, cikuname){
 }
 
 TranSelectvalue(chars){
-	selectvalue_:=""
-	if chars~="\\n" {
-		loop,parse,chars,\n
-			If A_LoopField
-				selectvalue_.= A_LoopField "`r`n"
-		chars:=selectvalue_
-	}
-	if chars~="\\t" {
-		loop,parse,chars,\t
-			If A_LoopField
-				selectvalue_.= A_LoopField "`t"
-		chars:=selectvalue_
-	}
+	if chars~="i)\\n"
+		chars:=RegExReplace(chars,"\\n","`r`n")
+	if chars~="i)\\t"
+		chars:=RegExReplace(chars,"\\t","`t")
+	if chars~="i)\\s"
+		chars:=RegExReplace(chars,"\\s",A_space)
 	Return chars
 }
 

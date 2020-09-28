@@ -534,7 +534,7 @@ return
 
 Write_LongChars:
 	Gui +OwnDialogs
-	MsgBox, 262452, 长字符串词库导入,导入文本遵循以下格式：`n编码+Tab`n+对候选栏显示的词条的说明项`n+Tab+候选栏显示的词条`n+Tab+要上屏的长文本字符串`n===【输出方法：/+编码+z】===
+	MsgBox, 262452, 长字符串词库导入,导入文本遵循以下格式：`n编码+Tab`n+对候选栏显示的词条的说明项`n+Tab+候选栏显示的词条`n+Tab+要上屏的长文本字符串`n空格-->\s  换行-->\n  缩进-->\t`n===【输出方法：/+编码+z】===
 	IfMsgBox, Yes
 	{
 		__Chars:=_Chars:=""
