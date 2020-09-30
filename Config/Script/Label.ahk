@@ -2688,13 +2688,21 @@ LongStringlists:
 	ImageButton.Create(LSBT1, [6, 0x80404040, 0xC0C0C0, "yellow"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, ts:Add, Button, x+10 yp Section gLongStringBackup vLongStringBackup hWndLSBT2, 导出
 	ImageButton.Create(LSBT2, [6, 0x80404040, 0xC0C0C0, "yellow"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	ts_width:=ts_width-310
+	Gui, ts:Add, Button, x+%ts_width% yp Section gtoppage_chars vtoppage_chars hWndtoppage_chars, 首页
+	ImageButton.Create(toppage_chars, [6, 0x80404040, 0xC0C0C0, "blue"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, ts:Add, Button, x+10 yp Section gLastpage_chars vLastpage_chars hWndLastpage_chars, 上一页
 	ImageButton.Create(Lastpage_chars, [6, 0x80404040, 0xC0C0C0, "green"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, ts:Add, Button, x+10 yp Section gNextpage_chars vNextpage_chars hWndNextpage_chars, 下一页
 	ImageButton.Create(Nextpage_chars, [6, 0x80404040, 0xC0C0C0, "green"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
+	Gui, ts:Add, Button, x+10 yp Section gEndpage_chars vEndpage_chars hWndEndpage_chars, 末页
+	ImageButton.Create(Endpage_chars, [6, 0x80404040, 0xC0C0C0, "blue"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	GuiControl,ts:Disable,Lastpage_chars
-	If (lineCount<40||!lineCount)
+	GuiControl,ts:Disable,toppage_chars
+	If (lineCount<40||!lineCount) {
 		GuiControl,ts:Disable,Nextpage_chars
+		GuiControl,ts:Disable,Endpage_chars
+	}
 	Gui, ts:font
 	Gui, ts:font,norm,%Font_%
 	Gui, ts:Add, StatusBar,, 1
@@ -2717,24 +2725,50 @@ tsGuiEscape:
 	WubiIni.Save()
 Return
 
+Endpage_chars:
+	CountNum:=Floor(lineCount/40)
+	GuiControl,ts:Disable,Nextpage_chars
+	GuiControl,ts:Disable,Endpage_chars
+	GuiControl,ts:Enable,toppage_chars
+	GuiControl,ts:Enable,Lastpage_chars
+	LV_Delete()
+	Gosub GetLongString
+Return
+
+toppage_chars:
+	CountNum:=0
+	GuiControl,ts:Disable,toppage_chars
+	GuiControl,ts:Disable,Lastpage_chars
+	GuiControl,ts:Enable,Nextpage_chars
+	GuiControl,ts:Enable,Endpage_chars
+	LV_Delete()
+	Gosub GetLongString
+Return
+
 Nextpage_chars:
 	CountNum++
 	LV_Delete()
 	Gosub GetLongString
-	if (CountNum+1>=pageNum)
+	if (CountNum+1>=pageNum) {
 		GuiControl,ts:Disable,Nextpage_chars
-	else
+		GuiControl,ts:Disable,Endpage_chars
+	}else{
 		GuiControl,ts:Enable,Lastpage_chars
+		GuiControl,ts:Enable,toppage_chars
+	}
 Return
 
 Lastpage_chars:
 	CountNum--
 	LV_Delete()
 	Gosub GetLongString
-	if (CountNum<1) 
+	if (CountNum<1) {
 		GuiControl,ts:Disable,Lastpage_chars
-	else
+		GuiControl,ts:Disable,toppage_chars
+	}else{
 		GuiControl,ts:Enable,Nextpage_chars
+		GuiControl,ts:Enable,Endpage_chars
+	}
 Return
 
 LongStringWrite:
