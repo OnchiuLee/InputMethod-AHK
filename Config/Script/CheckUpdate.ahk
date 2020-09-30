@@ -3,7 +3,7 @@
 #SingleInstance, Force
 Sourceurl:="https://github.com/OnchiuLee/AHK-Input-method/blob/master/Version.txt"
 IniRead, Versions, %A_Temp%\InputMethodData\Config.ini, Settings, versions
-
+InputMethodName:="五笔98版"
 If (!DllCall("Wininet.dll\InternetCheckConnection", "Str", Sourceurl, "UInt", 0x1, "UInt", 0x0, "Int"))
 	MsgBox, 262160, 检查更新, 网络异常！, 8
 else{
@@ -12,7 +12,7 @@ else{
 		MsgBoxRenBtn("下载","打开下载页","取消")
 		MsgBox, 262723, 更新提示, 发现新版本，是否下载至电脑桌面？`n下载过程中，请该干嘛去干嘛！！！
 		IfMsgBox, Yes
-			UrlDownloadToFile("https://github.com/OnchiuLee/AHK-Input-method/archive/master.zip", "柚子98五笔版-" _sj[2] ".zip",1800)
+			UrlDownloadToFile("https://github.com/OnchiuLee/AHK-Input-method/archive/master.zip", "%InputMethodName%-" _sj[2] ".zip",1800)
 		else IfMsgBox, No
 		{
 			Run, https://gitee.com/leeonchiu/AHK-Input-method,, UseErrorLevel

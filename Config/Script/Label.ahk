@@ -1532,7 +1532,7 @@ More_Setting:
 	Gui, 98:Add, Text, x190 y+10 left vTextInfo29, Z键定义：
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, DDL,x+5 w120  vzKeySet gzKeySet  AltSubmit HwndZDDL +0x0210, 临时拼音|万能键匹配
+	Gui, 98:Add, DDL,x+5 w120  vzKeySet gzKeySet  AltSubmit HwndZDDL +0x0210, 临时拼音|模糊匹配
 	OD_Colors.Attach(ZDDL,{T: 0xffe89e, B: 0x292421})
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
@@ -2646,7 +2646,7 @@ EnableUIAccess(hwnd:=""){
 
 zKeySet:
 	GuiControlGet, Keypos, ,zKeySet , text
-	If Keypos~="拼音"
+	If Keypos~="拼"
 		zkey_mode:=WubiIni.Settings["zkey_mode"]:=0,WubiIni.save()
 	else
 		zkey_mode:=WubiIni.Settings["zkey_mode"]:=1,WubiIni.save()
