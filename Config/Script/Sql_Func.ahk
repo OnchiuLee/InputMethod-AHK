@@ -605,7 +605,7 @@ TranSelectvalue(chars){
 
 SwitchingScheme(n,Char){
 	global WubiIni, srf_all_input, Wubi_Schema, srf_for_select_Array,localpos, Initial_Mode
-	flag:=0
+	flag:=0, n:=localpos>1&&n==1?localpos:n
 	If srf_all_input~="\/sc$" {
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"] :=srf_for_select_Array[n,4], flag:=1, WubiIni.save()
 		if Wubi_Schema~="i)zi|zg"
