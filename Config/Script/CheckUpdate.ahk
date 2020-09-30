@@ -12,7 +12,7 @@ else{
 		MsgBoxRenBtn("下载","打开下载页","取消")
 		MsgBox, 262723, 更新提示, 发现新版本，是否下载至电脑桌面？`n下载过程中，请该干嘛去干嘛！！！
 		IfMsgBox, Yes
-			UrlDownloadToFile("https://github.com/OnchiuLee/AHK-Input-method/archive/master.zip", "%InputMethodName%-" _sj[2] ".zip",1800)
+			UrlDownloadToFile("https://github.com/OnchiuLee/AHK-Input-method/archive/master.zip", InputMethodName "-" _sj[2] ".zip",1800)
 		else IfMsgBox, No
 		{
 			Run, https://gitee.com/leeonchiu/AHK-Input-method,, UseErrorLevel
