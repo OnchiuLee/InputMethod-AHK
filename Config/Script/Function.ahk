@@ -1224,7 +1224,7 @@ GetLunarJq(date,s:=0){   ;s=1获取当前日期真实节气数据，s为空获�
 		for section,element in [[2084,"cf"],[1911,"lx"],[2008,"xm"],[1902,"mz"],[1928,"xz"],[1925,"xs"],[2016,"xs"],[1922,"ds"],[2002,"lq"],[1927,"bl"],[1942,"qf"],[2089,"sj"],[2089,"ld"],[1978,"xx"],[1954,"dx"],[1982,"xh"],[2000,"dh"],[2082,"dh"]]
 			If (result[4]=element[2]&&year=element[1])
 				result[1]:=result[1]+1
-		for key,value in [[2026,"ys"],[1918,"dz"],[2021,"dz"],[2019,"xh"]]
+		for section,element in [[2026,"ys"],[1918,"dz"],[2021,"dz"],[2019,"xh"]]
 			If (result[4]=element[2]&&year=element[1])
 				result[1]:=result[1]-1
 		return result
@@ -1238,7 +1238,7 @@ GetLunarJq(date,s:=0){   ;s=1获取当前日期真实节气数据，s为空获�
 		for section,element in [[2084,"cf"],[1911,"lx"],[2008,"xm"],[1902,"mz"],[1928,"xz"],[1925,"xs"],[2016,"xs"],[1922,"ds"],[2002,"lq"],[1927,"bl"],[1942,"qf"],[2089,"sj"],[2089,"ld"],[1978,"xx"],[1954,"dx"],[1982,"xh"],[2000,"dh"],[2082,"dh"]]
 			If (result[4]=element[2]&&year=element[1])
 				result[1]:=result[1]+1
-		for key,value in [[2026,"ys"],[1918,"dz"],[2021,"dz"],[2019,"xh"]]
+		for section,element in [[2026,"ys"],[1918,"dz"],[2021,"dz"],[2019,"xh"]]
 			If (result[4]=element[2]&&year=element[1])
 				result[1]:=result[1]-1
 		return result
