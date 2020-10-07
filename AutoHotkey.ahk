@@ -41,7 +41,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020093016"
+version :="2020100111"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -558,7 +558,7 @@ Gui +LastFound
 DllCall( "RegisterShellHookWindow", UInt,WinExist() )   ;WinActive()
 OnMessage( DllCall( "RegisterWindowMessage", Str,"SHELLHOOK" ), "ShellIMEMessage")
 ShellIMEMessage( wParam,lParam ) {
-	global srf_mode, EXEList_obj, Initial_Mode, WubiIni,StyleN,IStatus, program, IMEmode ,CursorStatus
+	global srf_mode, EXEList_obj, Initial_Mode, WubiIni,StyleN,IStatus, program, IMEmode ,CursorStatus, versions
 		, Startup_Name, Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, srf_all_input, ID_Cursor
 	If (wParam = 1 ){    ; wParam = 6
 		WinGet, WinEXE, ProcessName , ahk_id %lParam%
@@ -618,7 +618,7 @@ ShellIMEMessage( wParam,lParam ) {
 			Gosub ShowSrfTip
 		}
 		LastWinEXE:=WinEXE_, Eid:=WinExist()
-		program:="※ " Startup_Name " ※`n◆ 当前方案：" (Wubi_Schema~="i)ci"?"【98五笔•含词】":Wubi_Schema~="i)zi"?"【98五笔•单字】":Wubi_Schema~="i)zg"?"【98五笔•字根】":"【98五笔•超集】") "`n◆ 农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "〖 " A_DDDD " 〗`n◆ 农历时辰：" Time_GetShichen(SubStr( A_Now,9,2)) ""
+		program:="※ " Startup_Name " ※`n◆ 当前方案：" (Wubi_Schema~="i)ci"?"【98五笔•含词】":Wubi_Schema~="i)zi"?"【98五笔•单字】":Wubi_Schema~="i)zg"?"【98五笔•字根】":"【98五笔•超集】") "`n◆ 农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "〖 " A_DDDD " 〗`n◆ 农历时辰：" Time_GetShichen(SubStr( A_Now,9,2)) "`n◆ 版本日期：" versions
 		Menu,Tray,Tip,%program%
 		Gosub SelectItems
 /*
