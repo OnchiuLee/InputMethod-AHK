@@ -1943,7 +1943,7 @@ numTohz(num)
 Conv_LunarDate(date){
 	if (not date~="\d+"||date=""||strlen(date)<8)
 		return ["无效日期"]
-	result:=[], ld:=Date_GetDate(SubStr(date,1,8)), ldp:=Date_GetDate(SubStr(date,1,8),1), LunarJq:=GetLunarJq(date,1), jq:=SubStr(date,7,2)=LunarJq[1]?"-" LunarJq[2]:""
+	result:=[], ld:=Date_GetDate(SubStr(date,1,8)), ldp:=Date_GetDate(SubStr(date,1,8),1), LunarJq:=GetLunarJq(ld,1), jq:=SubStr(ld,7,2)=LunarJq[1]?"-" LunarJq[2]:"", LunarJq2:=GetLunarJq(ldp,1), jq2:=SubStr(ldp,7,2)=LunarJq2[1]?"-" LunarJq2[2]:""
 	tg1:=Date_GetDate(SubStr(date,1,8),1), tg2:=Date_GetDate(SubStr(date,1,8)), LunarTg:=GetLunarTianganDizi(SetLunarTime(date))
 
 	result.Push([LunarTg,"〔 干支纪年 〕","〔 干支纪年 〕"])
@@ -1952,7 +1952,7 @@ Conv_LunarDate(date){
 	If tg2~="^\d+"
 		result.Push([GetLunarTianganDizi( SetLunarTime(tg2 SubStr(date,9,2)) ) ,"〔 干支纪年① 〕","〔 干支纪年① 〕"])
 	if (ldp~="^\d+"&&ld<>ldp)
-		result.Push([ "" TransDate( ldp) jq,"〔 农历转公历(闰) 〕","〔 农历转公历(闰) 〕"])
+		result.Push([ "" TransDate( ldp) jq2,"〔 农历转公历(闰) 〕","〔 农历转公历(闰) 〕"])
 	if (tg1~="^\d+"&&tg2<>tg1)
 		result.Push([ GetLunarTianganDizi( SetLunarTime(tg1 SubStr(date,9,2)) ) ,"〔 干支纪年(闰) 〕","〔 干支纪年(闰) 〕"])
 	Return result
