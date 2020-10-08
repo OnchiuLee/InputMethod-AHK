@@ -5061,12 +5061,12 @@ Return
 NextRows:
 	counts:=0
 	;;DLV.SelectionColors(0xfecd1b)
-	if (DB_Page=1||DB_Page=Ceil(Result_.RowCount/DB_Count))
+	if (DB_Page=1||DB_Page>=Ceil(Result_.RowCount/DB_Count)-1)
 		LV_Delete()
 	loop % DB_Count
 	{
 		if (Result_.Rows[A_Index+(DB_Page-1)*DB_Count,1]<>""){
-			if (DB_Page=1||DB_Page=Ceil(Result_.RowCount/DB_Count))
+			if (DB_Page=1||DB_Page>=Ceil(Result_.RowCount/DB_Count)-1)
 				LV_Add(A_Index=1?"Select":"",Result_.Rows[A_Index+(DB_Page-1)*DB_Count,1],Result_.Rows[A_Index+(DB_Page-1)*DB_Count,2],Result_.Rows[A_Index+(DB_Page-1)*DB_Count,3])
 			else
 				LV_Modify(A_Index, A_Index=1?"Select":"",Result_.Rows[A_Index+(DB_Page-1)*DB_Count,1],Result_.Rows[A_Index+(DB_Page-1)*DB_Count,2],Result_.Rows[A_Index+(DB_Page-1)*DB_Count,3])

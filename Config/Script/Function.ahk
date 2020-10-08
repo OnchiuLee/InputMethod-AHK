@@ -1211,7 +1211,7 @@ Date_GetLunarDate(Gregorian)
 }
 
 GetLunarJq(date,s:=0){   ;s=1获取当前日期真实节气数据，s为空获取该月份第一个节气公历时间
-	If strlen(date)<8
+	If (strlen(date)<8||date~="\.")
 		return []
 	year:=SubStr(date,1,4), month:=SubStr(date,5,2), D:=0.2422, Y:=SubStr(year,3,2), L:=month>2?Floor(SubStr(year,3,2)/4):Floor((SubStr(year,3,2)-1)/4)
 	If (SubStr(date,1,6)>190002&&SubStr(date,1,6)<200001){
@@ -1248,7 +1248,7 @@ GetLunarJq(date,s:=0){   ;s=1获取当前日期真实节气数据，s为空获�
 }
 
 GetLunarTianganDizi(date){
-	If strlen(date)<8
+	If (strlen(date)<8||date~="\.")
 		return "无效日期"
 	year:=SubStr(date,1,4), month:=SubStr(date,5,2)
 	Tiangan=甲,乙,丙,丁,戊,己,庚,辛,壬,癸
@@ -1941,12 +1941,12 @@ numTohz(num)
 }
 
 Conv_LunarDate(date){
-	if (not date~="\d+"||date=""||strlen(date)<8)
+	if (not date~="\d+"||date=""||strlen(date)<8||date~="\.")
 		return ["无效日期"]
 	result:=[], ld:=Date_GetDate(SubStr(date,1,8)), ldp:=Date_GetDate(SubStr(date,1,8),1), LunarJq:=GetLunarJq(ld,1), jq:=SubStr(ld,7,2)=LunarJq[1]?"-" LunarJq[2]:"", LunarJq2:=GetLunarJq(ldp,1), jq2:=SubStr(ldp,7,2)=LunarJq2[1]?"-" LunarJq2[2]:""
 	tg1:=Date_GetDate(SubStr(date,1,8),1), tg2:=Date_GetDate(SubStr(date,1,8)), LunarTg:=GetLunarTianganDizi(SetLunarTime(date))
 
-	result.Push([LunarTg,"〔 干支纪年 〕","〔 干支纪年 〕"])
+	result.Push([LunarTg,strlen(LunarTg)>4?"〔 干支纪年 〕":"",strlen(LunarTg)>4?"〔 干支纪年 〕":""])
 	If ld~="^\d+"
 		result.Push([ TransDate( ld ) jq,"〔 农历转公历① 〕","〔 农历转公历① 〕"])
 	If tg2~="^\d+"
