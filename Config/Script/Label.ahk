@@ -5215,13 +5215,8 @@ search_result:
 	if DB.gettable(SQL,Results_){
 		ss:=1, counts:=0
 		if Results_.RowCount>0
-		{
-			ResultCount:=RCount>Results_.RowCount?RCount:Results_.RowCount>DB_Count?Results_.RowCount:DB_Count
-			loop % ResultCount
+			loop % Results_.RowCount
 				LV_Add(A_Index=1?"Select":"", Results_.Rows[A_Index,1],Results_.Rows[A_Index,2],Results_.Rows[A_Index,3])
-			RCount:=ResultCount
-		}else
-			LV_Delete()
 	}
 	SB_SetText(A_Space "[ 共" LV_GetCount() . "条记录 ]")
 Return
