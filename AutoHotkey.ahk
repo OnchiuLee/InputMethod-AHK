@@ -41,7 +41,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020100818"
+version :="2020100820"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -131,7 +131,10 @@ Loop Files, config\Skins\logoStyle\*.icl
 ;}}}}}
 
 ;{{{{{读取配置及配置检测
-IniRead, status, %A_Temp%\InputMethodData\Config.ini, Initialize, status ,0
+If !FileExist(A_Temp "\InputMethodData\Config.ini")
+	status:=1
+else
+	IniRead, status, %A_Temp%\InputMethodData\Config.ini, Initialize, status ,0
 global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni(A_Temp "\InputMethodData\Config.ini")
 	srf_default_obj:={LogoColor:{LogoColor_cn:"008000",LogoColor_en:"00FFFF",LogoColor_caps:"0000ff"}
 		,Settings:{Startup:"off",CNID:CpuID,IStatus:1,CharFliter:0,Exit_switch:1,PromptChar:0, DPIScale:1,CursorStatus:0
