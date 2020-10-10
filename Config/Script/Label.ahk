@@ -4938,7 +4938,7 @@ DB_management:
 	Gosub DestroyGui
 	Gui, DB:Default
 	Gui, DB: +hwndDB_ +OwnDialogs +LastFound   ;+ToolWindow +OwnDialogs +MinSize435x470 +MaxSize550x520 -MaximizeBox +Resize -DPIScale +AlwaysOnTop
-	Gui,DB:Font, s10 , %Font_%
+	Gui,DB:Font, s9 bold , %Font_%
 	Gui, DB:Add, Button,y+10 Section gDB_Delete vDB_Delete hWndDDBT, 删除
 	ImageButton.Create(DDBT, [6, 0x80404040, 0xC0C0C0, "red"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, DB:Add, Button,x+8 Section gDB_reload vDB_reload hWndDRBT, 刷新
@@ -4946,21 +4946,28 @@ DB_management:
 	GuiControl, DB:Disable, DB_Delete
 	Gui, DB:Add, Button,x+8 Section gDB_search vDB_search hWndDSBT, 搜索
 	ImageButton.Create(DSBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	Gui, DB:Add, Edit, x+8 yp w180 vsearch_text gsearch_text hwndDBEdit
 	Gui,DB:Font,
-	Gui,DB:Font, s9, %font_%
-	Gui, DB:Add, CheckBox, x+8 yp-2 vsearch_1 gsearch_1, 词频`n为零
+	Gui,DB:Font, s8 norm, %font_%
+	Gui, DB:Add, Edit, x+8 yp w180 vsearch_text hwndDBEdit
+	Gui,DB:Font,
+	Gui,DB:Font, s8 bold, %font_%
+	Gui, DB:Add, CheckBox, x+2 yp-3 vsearch_1 gsearch_1, 词频`n为零
 	GuiControl, DB:Disable, search_1
+	Gui,DB:Font,
+	Gui,DB:Font, s9 norm, %font_%
+	Gui, DB:Add, Button,x+2 Section gDB_Submit vDB_Submit hWndDB_Submit, 确定
+	ImageButton.Create(DB_Submit, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,DB:Font,
 	Gui,DB:Font, s10, %font_%
 	GuiControl, DB:Hide, search_text
 	GuiControl, DB:Hide, search_1
-	Gui, DB:Add, ListView,R15 w400 xm+0 y+10 Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 Checked -Multi 0x8 LV0x40 -LV0x10 gMyDB vMyDB hwndDBLV, 词条|编码|词频
+	GuiControl, DB:Hide, DB_Submit
+	Gui, DB:Add, ListView,R15 w400 xm+0 y+8 Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 Checked -Multi 0x8 LV0x40 -LV0x10 gMyDB vMyDB hwndDBLV, 词条|编码|词频
 	GuiControl, +Hdr, MyDB
 	;;DLV := New LV_Colors(DBLV)
 	;;DLV.SelectionColors(0xfecd1b)
 	Gui,DB:Font,
-	Gui,DB:Font, s10, %font_%
+	Gui,DB:Font, s9 bold, %font_%
 	Gui, DB:Add, Button,y+10 Section gDB_BU vDB_BU hWndDBBT, 导出全部
 	ImageButton.Create(DBBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,DB:Font,
@@ -5134,13 +5141,13 @@ Return
 DB_search:
 	GuiControlGet, tVar, DB:Visible , search_text
 	if !tVar{
-		For k,v In ["search_text","search_1"]
+		For k,v In ["search_text","search_1", "DB_Submit"]
 			GuiControl, DB:Show, %v%
 		For k,v In ["uppage","nextpage"]
 			GuiControl, DB:Disable, %v%
 		ControlFocus , Edit1, A
 	}else{
-		For k,v In ["search_text","search_1"]
+		For k,v In ["search_text","search_1", "DB_Submit"]
 			GuiControl, DB:Hide, %v%
 		GuiControl,DB:, search_text ,
 		GuiControl,DB:, search_1 , 0
@@ -5163,7 +5170,7 @@ search_1:
 		Gosub search_result
 Return
 
-search_text:
+DB_Submit:
 	GuiControlGet, tVar, DB:Visible , search_text
 	GuiControlGet, search_text,, search_text, text
 	If (search_text<>""&&tVar){
@@ -5171,6 +5178,7 @@ search_text:
 			GuiControl, DB:Disable, %v%
 		For k,v In ["search_1"]
 			GuiControl, DB:Enable, %v%
+		LV_Delete()
 		Gosub search_result
 	}else if (search_text=""&&tVar){
 		For k,v In ["search_1"]
@@ -5202,15 +5210,7 @@ search_result:
 		{
 			ResultCount:=RCount>Results_.RowCount?RCount:Results_.RowCount>DB_Count?Results_.RowCount:DB_Count
 			loop % ResultCount
-			{
-				if (Results_.Rows[A_Index,1]<>""){
-					counts:=A_Index
-					if !LV_Modify(A_Index, A_Index=1?"Select":"", Results_.Rows[A_Index,1],Results_.Rows[A_Index,2],Results_.Rows[A_Index,3])
-						LV_Add(A_Index=1?"Select":"", Results_.Rows[A_Index,1],Results_.Rows[A_Index,2],Results_.Rows[A_Index,3])
-				}else{
-					LV_Delete(counts+1)
-				}
-			}
+				LV_Add(A_Index=1?"Select":"", Results_.Rows[A_Index,1],Results_.Rows[A_Index,2],Results_.Rows[A_Index,3])
 			RCount:=ResultCount
 		}else
 			LV_Delete()
