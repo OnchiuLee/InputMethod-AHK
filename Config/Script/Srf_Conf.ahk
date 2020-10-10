@@ -723,11 +723,13 @@ Return
 ~LButton::
 	if select_for_code
 		ToolTip(1, ""), ToolTip(2, ""),select_for_code:=select_for_code_result:=rlk_for_select_tooltip:=""
-	MouseGetPos, x1, y1
+	MouseGetPos, x1, y1, id_1
+	WinGetPos, FX1, FY1, Width1, Height1, ahk_id %id_1%
 	KeyWait, LButton
-	MouseGetPos, x2, y2
+	MouseGetPos, x2, y2, id_2
+	WinGetPos, FX2, FY2, Width2, Height2, ahk_id %id_2%
 	SysGet, _height, 14       ;获取光标高度
-	if (abs(x1-x2) > 10 &&rlk_switch&&abs(y1-y2) <=_height && abs(x1-x2) < A_ScreenHeight/3) {
+	if (abs(x1-x2) > 10 &&rlk_switch&&abs(y1-y2) <=_height && abs(x1-x2) < A_ScreenHeight/3&&FX1=FX2&&FY1=FY2) {
 		gosub RlkResult
 	}
 Return

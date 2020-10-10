@@ -2053,27 +2053,30 @@ Days_Count(num){
 	Return y "年已过去" sum "天|剩余" (IsLeap(y)?366-sum:365-sum) "天"
 }
 
-GetCaretPos(){
+; 获取光标坐标
+GetCaretPos(Byacc:=1){
 	Static init
 	If (A_CaretX=""){
 		Caretx:=Carety:=CaretH:=CaretW:=0
-		If (!init)
-			init:=DllCall("LoadLibrary","Str","oleacc","Ptr")
-		VarSetCapacity(IID,16), idObject:=OBJID_CARET:=0xFFFFFFF8
-		, NumPut(idObject==0xFFFFFFF0?0x0000000000020400:0x11CF3C3D618736E0, IID, "Int64")
-		, NumPut(idObject==0xFFFFFFF0?0x46000000000000C0:0x719B3800AA000C81, IID, 8, "Int64")
-		if (DllCall("oleacc\AccessibleObjectFromWindow", "Ptr",WinExist("A"), "UInt",idObject, "Ptr",&IID, "Ptr*",pacc)=0){
-			Acc:=ComObject(9,pacc,1), ObjAddRef(pacc)
-			Try Acc.accLocation(ComObj(0x4003,&x:=0), ComObj(0x4003,&y:=0), ComObj(0x4003,&w:=0), ComObj(0x4003,&h:=0), ChildId:=0)
-			, CaretX:=NumGet(x,0,"int"), CaretY:=NumGet(y,0,"int"), CaretH:=NumGet(h,0,"int")
+		If (Byacc){
+			If (!init)
+				init:=DllCall("LoadLibrary","Str","oleacc","Ptr")
+			VarSetCapacity(IID,16), idObject:=OBJID_CARET:=0xFFFFFFF8
+			, NumPut(idObject==0xFFFFFFF0?0x0000000000020400:0x11CF3C3D618736E0, IID, "Int64")
+			, NumPut(idObject==0xFFFFFFF0?0x46000000000000C0:0x719B3800AA000C81, IID, 8, "Int64")
+			If (DllCall("oleacc\AccessibleObjectFromWindow", "Ptr",Hwnd:=WinExist("A"), "UInt",idObject, "Ptr",&IID, "Ptr*",pacc)=0){
+				Acc:=ComObject(9,pacc,1), ObjAddRef(pacc)
+				Try Acc.accLocation(ComObj(0x4003,&x:=0), ComObj(0x4003,&y:=0), ComObj(0x4003,&w:=0), ComObj(0x4003,&h:=0), ChildId:=0)
+				, CaretX:=NumGet(x,0,"int"), CaretY:=NumGet(y,0,"int"), CaretH:=NumGet(h,0,"int")
+			}
 		}
 		If (Caretx=0&&Carety=0){
 			MouseGetPos, x, y
-			Return {x:x,y:y,h:35}
-		} ELse
-			Return {x:Caretx,y:Carety,h:Max(Careth,35)}
+			Return {x:x,y:y,h:35,t:"Mouse",Hwnd:Hwnd}
+		} Else
+			Return {x:Caretx,y:Carety,h:Max(Careth,35),t:"Acc",Hwnd:Hwnd}
 	} Else
-		Return {x:A_CaretX,y:A_CaretY,h:35}
+		Return {x:A_CaretX,y:A_CaretY,h:35,t:"Caret",Hwnd:Hwnd}
 }
 
 TransGui(s1="", x=500, y=0, font_size="s36",textbold="bold",fontcolor="blue")
