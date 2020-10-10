@@ -5143,7 +5143,7 @@ DB_search:
 	if !tVar{
 		For k,v In ["search_text","search_1", "DB_Submit"]
 			GuiControl, DB:Show, %v%
-		For k,v In ["uppage","nextpage"]
+		For k,v In ["uppage","nextpage","Lastpage","Toppage"]
 			GuiControl, DB:Disable, %v%
 		ControlFocus , Edit1, A
 	}else{
@@ -5153,14 +5153,20 @@ DB_search:
 		GuiControl,DB:, search_1 , 0
 		LV_Delete(),ss:=ResultCount:=RCount:=search_1:=0
 		Gosub ReadDB
-		if (Ceil(Result_.RowCount/DB_Count)<>1&&DB_Page<Ceil(Result_.RowCount/DB_Count))
+		if (Ceil(Result_.RowCount/DB_Count)<>1&&DB_Page<Ceil(Result_.RowCount/DB_Count)) {
 			GuiControl, DB:Enable, nextpage
-		else
+			GuiControl, DB:Enable, Lastpage
+		}else{
 			GuiControl, DB:Disable, nextpage
-		if (DB_Page<2)
+			GuiControl, DB:Disable, Lastpage
+		}
+		if (DB_Page<2) {
 			GuiControl, DB:Disable, uppage
-		else
+			GuiControl, DB:Disable, Toppage
+		}else{
 			GuiControl, DB:Enable, uppage
+			GuiControl, DB:Enable, Toppage
+		}
 	}
 Return
 
@@ -5183,6 +5189,8 @@ DB_Submit:
 	}else if (search_text=""&&tVar){
 		For k,v In ["search_1"]
 			GuiControl, DB:Disable, %v%
+		For k,v In ["uppage","nextpage","Lastpage","Toppage"]
+			GuiControl, DB:Enable, %v%
 		ss:=0
 		LV_Delete()
 		Gosub ReadDB
