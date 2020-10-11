@@ -1086,6 +1086,12 @@ Gregorian:
 */
 Date_GetLunarDate(Gregorian)
 {
+	If strlen(Gregorian)>4&&Mod(strlen(Gregorian),2) {
+		If Gregorian~="0$"
+			Gregorian:=strlen(Gregorian)=5?Gregorian 101:Gregorian 1
+		else If Gregorian~="1$"
+			Gregorian:=strlen(Gregorian)=5?Gregorian 001:Gregorian 0
+	}
 	;1899年~2100年农历数据
 	;前三位，Hex，转Bin，表示当年月份，1为大月，0为小月
 	;第四位，Dec，表示闰月天数，1为大月30天，0为小月29天
@@ -1192,7 +1198,7 @@ Date_GetLunarDate(Gregorian)
 		Dizhi%a_index%:=A_LoopField
 	loop,Parse,Shengxiao,`,
 		Shengxiao%a_index%:=A_LoopField
-	If (Month=2&&Day<GetLunarJq(Gregorian)[1]&&LMonth=1)
+	If (Month=2&&Day<GetLunarJq(Gregorian)[1]&&LMonth=1||Month=1&&LMonth=1)
 		LYear:=LYear-1
 	else If (Month=2&&Day>=GetLunarJq(Gregorian)[1]&&LMonth=12)
 		LYear:=LYear+1
@@ -1949,7 +1955,6 @@ Conv_LunarDate(date){
 		return ["无效日期"]
 	result:=[], ld:=Date_GetDate(SubStr(date,1,8)), ldp:=Date_GetDate(SubStr(date,1,8),1), LunarJq:=GetLunarJq(ld,1), jq:=SubStr(ld,7,2)=LunarJq[1]?"-" LunarJq[2]:"", LunarJq2:=GetLunarJq(ldp,1), jq2:=SubStr(ldp,7,2)=LunarJq2[1]?"-" LunarJq2[2]:""
 	tg1:=Date_GetDate(SubStr(date,1,8),1), tg2:=Date_GetDate(SubStr(date,1,8)), LunarTg:=GetLunarTianganDizi(SetLunarTime(date))
-
 	result.Push([LunarTg,strlen(LunarTg)>4?"〔 干支纪年 〕":"",strlen(LunarTg)>4?"〔 干支纪年 〕":""])
 	If ld~="^\d+"
 		result.Push([ TransDate( ld ) jq,"〔 农历转公历① 〕","〔 农历转公历① 〕"])
