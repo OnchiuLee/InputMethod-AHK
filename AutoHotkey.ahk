@@ -41,7 +41,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020100820"
+version :="2020100920"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -194,7 +194,7 @@ if not Srf_Hotkey ~="i)Ctrl|Shift|Alt|LWin"||Srf_Hotkey ~="\&$"
 	Srf_Hotkey:=WubiIni.Settings["Srf_Hotkey"]:="Shift"
 
 If status {
-	WubiIni.DeleteSection("Initialize")
+	WubiIni.DeleteSection("Initialize"), status:=0
 }
 if !WubiIni.GetTopComments()
 	WubiIni.AddTopComment("程序运行时，配置文件直接修改无效！退出后修改才有效！！！")
@@ -486,7 +486,7 @@ WM_MOUSEMOVE()
 		, SBA0 :"候选框固定坐标设置",About:"软件使用说明",ciku3:"英文词库导入`n（单行单义格式，以tab符隔开）`n「英文词条+Tab+词频」",ciku4:"英文词库导出`n（导出为单行单义格式txt码表）", Cursor_Status:"在不同窗口情况下鼠标为‘工’字形时自动切换至中文状态，反之"
 		,ciku5:"特殊符号词库导入`n（格式「/引导字母+Tab+多符号以英文逗号隔开」）", SBA5 : "固定候选框的位置，不跟随光标",BgColor:"候选框背景色",FocusBackColor:"候选框焦点选项背景色"
 		,FocusColor:"候选框焦点选项字体色", FontColor:"候选词字体颜色", FontCodeColor:"候选框编码字体颜色", SBA1:"繁体开关（输简出繁）快捷键启用开关",select_value:"候选框词条显示数目`n范围[3-10]"
-		, SBA4:"加入开机自启动任务：「`non＝>为建立系统计划任务实现自启`noff＝>为关闭开机自启`nsc＝>为在系统自启目录建立快捷方式实现自启」",ciku6:"特殊符号词库导出`n（导出为txt）",set_GdipRadius:"Gdip候选框圆角大小`n范围[0-15]"
+		, SBA4:"加入开机自启动任务：「`non＝>为建立系统计划任务实现自启`noff＝>为关闭开机自启`nsc＝>为在系统自启目录建立快捷方式实现自启」`n计划任务自启成功率不高，建议开启建立「快捷方式自启」的自启方式",ciku6:"特殊符号词库导出`n（导出为txt）",set_GdipRadius:"Gdip候选框圆角大小`n范围[0-15]"
 		,tip_hotkey:"通过快捷键开关划词反查",SizeValue:"桌面色块尺寸`n范围[1-150]",SBA20:"候选框分页数显示",FontIN:"字根拆分字体安装",set_regulate_Hx:"ToolTip候选框编码框`n与选词框距离范围[3-25)]"
 		, SBA13:"显示/隐藏桌面色块图标",SBA19:"有焦点色块选项的候选框",SetInput_CNMode:"程序启动时默认中文输入模式",SetInput_ENMode:"程序启动时默认英文输入模式", SBA12 : "候选词显示粗体",SBA26:"四码唯一时自动上屏〔独立开关〕"
 		,ciku1:"导入txt词库至数据库`ntxt码表格式需为「单行单义」",ciku2:"导出词库为「单行单义」的txt格式文本",SBA2:"拆分功能快捷键启用开关`n（需特殊字体支持，字体在本程序Font目录）",GdipRadius:"Gdip候选框圆角大小`n范围[0-15]"
