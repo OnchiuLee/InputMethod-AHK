@@ -1192,6 +1192,8 @@ Date_GetLunarDate(Gregorian)
 		Dizhi%a_index%:=A_LoopField
 	loop,Parse,Shengxiao,`,
 		Shengxiao%a_index%:=A_LoopField
+	If (Month=2&&Day<GetLunarJq(Gregorian)[1])
+		LYear:=LYear-1
 	Order1:=Mod((LYear-4),10)+1
 	Order2:=Mod((LYear-4),12)+1
 	LYear:=Tiangan%Order1% . Dizhi%Order2% . "(" . Shengxiao%Order2% . ")"
