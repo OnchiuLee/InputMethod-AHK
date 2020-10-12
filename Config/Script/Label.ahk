@@ -444,7 +444,7 @@ TRAY_Menu:
 	Menu, Tray, UseErrorLevel
 	Menu, TRAY, NoStandard
 	Menu, TRAY, DeleteAll
-	program:= "※ " Startup_Name " ※" "`n农历日期：" Date2LunarDate(SubStr( A_Now,1,8),GzType)[1] "`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
+	program:= "※ " Startup_Name " ※" "`n农历日期：" Date2LunarDate(SubStr( A_Now,1,10),GzType)[1] "`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
 	Menu, Tray, Add, 帮助,OnHelp
 	Menu, TRAY, Icon, 帮助, shell32.dll, 155
 	Menu, Tray, Add
