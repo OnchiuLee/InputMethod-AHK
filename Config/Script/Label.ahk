@@ -444,7 +444,7 @@ TRAY_Menu:
 	Menu, Tray, UseErrorLevel
 	Menu, TRAY, NoStandard
 	Menu, TRAY, DeleteAll
-	program:= "※ " Startup_Name " ※" "`n农历日期：" Date_GetLunarDate(SubStr( A_Now,1,8)) "`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
+	program:= "※ " Startup_Name " ※" "`n农历日期：" Date2LunarDate(SubStr( A_Now,1,8),GzType)[1] "`n农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))
 	Menu, Tray, Add, 帮助,OnHelp
 	Menu, TRAY, Icon, 帮助, shell32.dll, 155
 	Menu, Tray, Add
@@ -3357,6 +3357,7 @@ format_Date:
 	Gui, Date:Add,text,xm,输入字符设定：
 	Gui, Date:Add, Edit,x+2 R1 w320 vSettKey WantTab hWndSetKey
 	Gui, Date:Add, Button,x+5 gReloadSJ vReloadSJ hWndRSBT, 刷新
+	Gui, Date:Add, CheckBox,x+8 yp+4 vGzType gGzType Checked%GzType%,
 	Gui, Date:Add,text,xm,时间格式设定：
 	Gui, Date:Add, Edit,x+2 R1 w320 vSettime WantTab hWndSettime
 	EM_SetCueBanner(SetKey, "当前值：" EXEList_obj["FormatKey"] "【多个字段以/分离】")
@@ -3379,6 +3380,11 @@ Return
 
 SBA27:
 	Gosub format_Date
+Return
+
+GzType:
+	GuiControlGet, GzType_ ,, GzType, Checkbox
+	GzType:=WubiIni.Settings["GzType"]:=GzType_, WubiIni.save()
 Return
 
 UpLine:
@@ -4797,7 +4803,7 @@ return
 get_lunarDate_now:
 	FormatTime, MIVar, , H
 	FormatTime, RQVar, , yyyyMMdd
-	lunar :=Date_GetLunarDate(RQVar)
+	lunar :=Date2LunarDate(RQVar,GzType)[1]
 	lunar_time :=Time_GetShichen(MIVar)
 	send %lunar%%lunar_time%
 return
