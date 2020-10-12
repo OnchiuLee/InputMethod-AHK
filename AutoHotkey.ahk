@@ -621,7 +621,7 @@ ShellIMEMessage( wParam,lParam ) {
 			Gosub ShowSrfTip
 		}
 		LastWinEXE:=WinEXE_, Eid:=WinExist()
-		program:="※ " Startup_Name " ※`n◆ 当前方案：" (Wubi_Schema~="i)ci"?"【98五笔•含词】":Wubi_Schema~="i)zi"?"【98五笔•单字】":Wubi_Schema~="i)zg"?"【98五笔•字根】":"【98五笔•超集】") "`n◆ 农历日期：" /////(SubStr( A_Now,1,8),GzType)[1] "〖 " A_DDDD " 〗`n◆ 农历时辰：" Time_GetShichen(SubStr( A_Now,9,2)) "`n◆ 版本日期：" versions
+		program:="※ " Startup_Name " ※`n◆ 当前方案：" (Wubi_Schema~="i)ci"?"【98五笔•含词】":Wubi_Schema~="i)zi"?"【98五笔•单字】":Wubi_Schema~="i)zg"?"【98五笔•字根】":"【98五笔•超集】") "`n◆ 农历日期：" Date2LunarDate(SubStr( A_Now,1,10),GzType)[1] "〖 " A_DDDD " 〗`n◆ 农历时辰：" Time_GetShichen(SubStr( A_Now,9,2)) "`n◆ 版本日期：" versions
 		Menu,Tray,Tip,%program%
 		Gosub SelectItems
 /*
