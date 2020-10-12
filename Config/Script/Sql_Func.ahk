@@ -491,13 +491,13 @@ get_word(input, cikuname){
 				SQL :="SELECT aim_chars,C_Key,D_Key FROM pinyin WHERE REPLACE(A_key,' ','') ='" RegExReplace(input,"^z|'","") "' " (cikuname~="zi|chaoji"?"AND length(aim_chars)=1":"") " ORDER BY B_Key DESC;"
 				If DB.GetTable(SQL, Result)
 					Return Result.Rows
-			}else if (srf_all_Input ~="^[a-y]+z$|^[a-y]+z[a-y]+|^z[a-y]+"&&zkey_mode){
+			}else if (srf_all_Input ~="^[a-y]+z$|^[a-y]+z[a-z]+$|^z[a-y]+$|^z[a-y]+z[a-y]+|^[a-y]+z[a-z]+z$|^z[a-y]+z$"&&zkey_mode){
 				If cikuname~="i)ci"
-					SQL :="SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key LIKE '" RegExReplace(srf_all_Input,"z","%") "' ORDER BY A_Key,D_Key DESC;"   ;Length(aim_chars),
+					SQL :="SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key LIKE '" RegExReplace(srf_all_Input,"z","_") "' ORDER BY A_Key,D_Key DESC;"   ;Length(aim_chars),
 				else If cikuname~="i)chaoji|zi"
-					SQL :="SELECT aim_chars,C_Key,D_Key FROM " cikuname " WHERE A_Key LIKE '" RegExReplace(srf_all_Input,"z","%") "' ORDER BY A_Key,B_Key DESC;"
+					SQL :="SELECT aim_chars,C_Key,D_Key FROM " cikuname " WHERE A_Key LIKE '" RegExReplace(srf_all_Input,"z","_") "' ORDER BY A_Key,B_Key DESC;"
 				else
-					SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key LIKE '" RegExReplace(srf_all_Input,"z","%") "';"
+					SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key LIKE '" RegExReplace(srf_all_Input,"z","_") "';"
 				If DB.GetTable(SQL, Result)
 					Return Result.Rows
 			}
