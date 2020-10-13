@@ -1119,7 +1119,7 @@ Date2LunarDate(Gregorian,T:=0)
 
 	;分解公历年月日
 	Year:=SubStr(Gregorian,1,4), Month:=SubStr(Gregorian,5,2), Day:=SubStr(Gregorian,7,2)
-	if (Year>2100 Or Year<1900)
+	if (Year>2100 Or Year<1899)
 		return,"无效日期"
 	;获取两百年内的农历数据
 	Pos:=Year-1900+2 
@@ -1243,7 +1243,7 @@ Date2LunarDate(Gregorian,T:=0)
 	}
 	GzDate:=GzYear GzMonth GzDays (strlen(Gregorian)>9?GzSichen "时":"")
 	;;msgbox % LunarDate "`n" GzDate Isleap
-	return [LunarDate,GzDate,LDate,T?"Old":"New",JqDate_,leap]
+	return [LunarDate,strlen(GzDate)>8?GzDate:"",LDate,T?"Old":"New",JqDate_,leap]
 
 }
 
@@ -1937,11 +1937,11 @@ Conv_LunarDate(date){
 	result:=[], ld:=Date_GetDate(SubStr(date,1,8)), ldp:=Date_GetDate(SubStr(date,1,8),1), LunarTg:=Date2LunarDate(date,GzType)
 	LunarTg_1:=ld~="^\d+"?Date2LunarDate(ld SubStr(date,9,2),GzType):[], LunarTg_2:=ldp~="^\d+"&&ld<>ldp?Date2LunarDate(ldp SubStr(date,9,2),GzType):[] 
 	result.Push([LunarTg[1] (LunarTg[5]?" - " LunarTg[5]:""),ObjLength(LunarTg)?"〔 公历转农历 〕":"",ObjLength(LunarTg)?"〔 公历转农历 〕":""])
-	result.Push([LunarTg[2],ObjLength(LunarTg)?"〔 干支纪年 〕":"",ObjLength(LunarTg)?"〔 干支纪年 〕":""])
+	result.Push([LunarTg[2]?LunarTg[2]:"日期超限",ObjLength(LunarTg)&&strlen(LunarTg[2])>8?"〔 干支纪年 〕":"",ObjLength(LunarTg)&&strlen(LunarTg[2])>8?"〔 干支纪年 〕":""])
 	If ObjLength(LunarTg_1)
-		result.Push([ TransDate( ld ) jq,"〔 农历转公历① 〕","〔 农历转公历① 〕"]), result.Push([ LunarTg_1[2] ,"〔 干支纪年① 〕","〔 干支纪年① 〕"])
+		result.Push([ TransDate( ld ) jq,"〔 农历转公历① 〕","〔 农历转公历① 〕"]), result.Push([ LunarTg_1[2]?LunarTg_1[2]:"日期超限" ,strlen(LunarTg_1[2])>8?"〔 干支纪年① 〕":"",strlen(LunarTg_1[2])>8?"〔 干支纪年① 〕":""])
 	if ObjLength(LunarTg_2)
-		result.Push([ "" TransDate( ldp) jq2,"〔 农历转公历(闰) 〕","〔 农历转公历(闰) 〕"]), result.Push([ LunarTg_2[2] ,"〔 干支纪年(闰) 〕","〔 干支纪年(闰) 〕"])
+		result.Push([ "" TransDate( ldp) jq2,"〔 农历转公历(闰) 〕","〔 农历转公历(闰) 〕"]), result.Push([ LunarTg_2[2]?LunarTg_2[2]:"日期超限" ,strlen(LunarTg_2[2])>8?"〔 干支纪年(闰) 〕":"",strlen(LunarTg_2[2])>8?"〔 干支纪年(闰) 〕":""])
 	Return result
 }
 
