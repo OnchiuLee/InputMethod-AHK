@@ -1088,8 +1088,7 @@ CreateImageButton(HWND, Options, Margins = 0) {
 			Old--以立春为界
 			New--以春节为界
 */
-Date2LunarDate(Gregorian,T:=0)	
-{
+Date2LunarDate(Gregorian,T:=0) {
 	If strlen(Gregorian)>4&&Mod(strlen(Gregorian),2) {
 		If Gregorian~="0$"
 			Gregorian:=strlen(Gregorian)=5?Gregorian 101:Gregorian 1
@@ -1235,7 +1234,9 @@ Date2LunarDate(Gregorian,T:=0)
 	}
 	If strlen(Gregorian)>9
 	{
-		sj:=Mod(SubStr(Gregorian,9,2),2)?Floor((SubStr(Gregorian,9,2)+3)/2):Floor((SubStr(Gregorian,9,2)+2)/2)
+		If (SubStr(Gregorian,9,2)=24)
+			return Date2LunarDate(SubStr(Gregorian,1,8) 00,T)
+		sijian:=SubStr(Gregorian,9,2), sj:=Mod(sijian,2)?Floor((sijian+3)/2):Floor((sijian+2)/2)
 		loop,10
 			If (Tiangan[a_index]=SubStr(GzDays,1,1))
 				sj_:=a_index>5?a_index-5:a_index
