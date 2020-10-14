@@ -1547,7 +1547,7 @@ More_Setting:
 	OD_Colors.Attach(ZDDL,{T: 0xffe89e, B: 0x292421})
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
-	Gui, 98:Add, CheckBox, x+10 yp+3 Checked%EnKeyboardMode% vSBA28 gSBA28, 英语键盘模式
+	Gui, 98:Add, CheckBox, x+10 yp+3 Checked%EnKeyboardMode% vSBA28 gSBA28, 美式键盘
 	Gui 98:Add, Text,x190 y+5 w365 h2 0x10 vTextInfo13
 	Gui, 98:Add, CheckBox,x190 y+10 Checked%Frequency% vFrequency gFrequency, 动态调频
 	if (not Wubi_Schema~="i)ci"||Trad_Mode~="i)on"||Prompt_Word~="i)on") {
@@ -4405,34 +4405,38 @@ addChars:
 Return
 
 addFiles:
-	Gui +OwnDialogs
-	FileSelectFile, SelectedFile, M3, %A_Desktop%, 选择你的纯词条文本文件, Documents (*.txt; *.yaml)
-	if SelectedFile {
-		FileArr:= StrSplit(SelectedFile,"`n"), OPCode_all:=OPCode_part:=OPCode:=ResultsAll:=""
-		Loop, % FileArr.Length() 
-		{
-			if A_Index>1
+	If FileExist("Config\Script\CompoundPhrase.ahk") {
+		Run *RunAs "%A_AhkPath%" /restart "Config\Script\CompoundPhrase.ahk"
+	}else{
+		Gui +OwnDialogs
+		FileSelectFile, SelectedFile, M3, %A_Desktop%, 选择你的纯词条文本文件, Documents (*.txt; *.yaml)
+		if SelectedFile {
+			FileArr:= StrSplit(SelectedFile,"`n"), OPCode_all:=OPCode_part:=OPCode:=ResultsAll:=""
+			Loop, % FileArr.Length() 
 			{
-				FileEncoding,UTF-8
-				FileRead, OPCode, %  FileArr[1] "\" FileArr[A_Index]
-				Loop, Parse, OPCode, `n, `r
+				if A_Index>1
 				{
-					if A_LoopField~="\t[a-z]+"{
-						RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"(?<=\t)[a-z]+",L_)
-						RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"^.+(?=\t[a-z])",R_)
-						if (StrLen(L_)>1&&StrLen(L_)<5)
-							OPCode_part :=L_ "=" R_ 
-					}else if A_LoopField~="^[a-z]+\="{
-						OPCode_part:=RegExReplace(A_LoopField,"^\s+|\s+$")
-					}else if not A_LoopField~="^[a-z0-9]+|\s+" {
-						OPCode_part:=get_en_code(A_LoopField) "=" A_LoopField
+					FileEncoding,UTF-8
+					FileRead, OPCode, %  FileArr[1] "\" FileArr[A_Index]
+					Loop, Parse, OPCode, `n, `r
+					{
+						if A_LoopField~="\t[a-z]+"{
+							RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"(?<=\t)[a-z]+",L_)
+							RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"^.+(?=\t[a-z])",R_)
+							if (StrLen(L_)>1&&StrLen(L_)<5)
+								OPCode_part :=L_ "=" R_ 
+						}else if A_LoopField~="^[a-z]+\="{
+							OPCode_part:=RegExReplace(A_LoopField,"^\s+|\s+$")
+						}else if not A_LoopField~="^[a-z0-9]+|\s+" {
+							OPCode_part:=get_en_code(A_LoopField) "=" A_LoopField
+						}
+						OPCode_all.=OPCode_part "|", OPCode_part:=""
 					}
-					OPCode_all.=OPCode_part "|", OPCode_part:=""
+					ResultsAll.=OPCode_all "|", OPCode_all:=""
 				}
-				ResultsAll.=OPCode_all "|", OPCode_all:=""
 			}
+			GuiControl,29:, Set_Value ,% ResultsAll
 		}
-		GuiControl,29:, Set_Value ,% ResultsAll
 	}
 Return
 
