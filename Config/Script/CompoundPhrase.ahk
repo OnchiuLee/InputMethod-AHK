@@ -44,7 +44,7 @@ If (MaBiaoFile<> ""&&filename){
 			citiao:=RegExReplace(A_LoopField,"\t([a-z]+)\t\d+$"), bianma:=RegExReplace(A_LoopField,citiao "\t|\t\d+$"), caifen:=split_wubizg(citiao), cipin:=Get_Phrase(bianma,citiao), counts++
 		}
 		If cipin 
-			Insert_ci .="('" citiao "','" bianma "','','" cipin "','" cipin "','" caifen "','" get_en_code(citiao) "')" ",", count++
+			Insert_ci .="('" citiao "','" bianma "','" cipin "','" cipin "','" caifen "','" get_en_code(citiao) "')" ",", count++
 		If (Mod(counts, num)=0) {
 			tx :=Ceil(count/num)
 			Progress, %tx% , %count%/%totalCount%`n, %tip%词库处理中..., 已完成%tx%`%
@@ -53,7 +53,7 @@ If (MaBiaoFile<> ""&&filename){
 	Progress,off
 	If Insert_ci
 	{
-		if DB.Exec("INSERT INTO ci VALUES " RegExReplace(Insert_ci,"\,$","") ";")>0
+		if DB.Exec("INSERT INTO ci(aim_chars,A_Key,B_Key,D_Key,E_Key,F_Key) VALUES " RegExReplace(Insert_ci,"\,$","") ";")>0
 		{
 			;;MsgBox, 262208, 完成提示, % "写入" count "条" (count<>counts?"重复" counts-count "条":"") "，完成用时" CheckTickCount(startTime)" ！",15
 			Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, % "写入" count "条" (count<>counts?"重复" counts-count "条":"") "，完成用时" CheckTickCount(startTime)" ！", 完成提示
