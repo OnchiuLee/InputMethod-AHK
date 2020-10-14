@@ -583,17 +583,21 @@ Backup_LongChars:
 Return
 
 TransformCiku:
-	Gui +OwnDialogs
-	FileSelectFile, FileContents, 3, , 请选择要转换的词库文本文件, Text Documents (*.txt)
-	If (FileContents<>"")
-	{
-		startTime:= CheckTickCount()
-		If !TranCiku(FileContents)
-			MsgBox, 262192, 码表转换, 词库格式不支持！, 8
-		else{
-			MsgBox, 262208, 码表转换,% "转换完成耗时" CheckTickCount(startTime), 15
+	If FileExist("Config\Script\TransformCiku.ahk") {
+		Run *RunAs "%A_AhkPath%" /restart "Config\Script\TransformCiku.ahk"
+	}else{
+		Gui +OwnDialogs
+		FileSelectFile, FileContents, 3, , 请选择要转换的词库文本文件, Text Documents (*.txt)
+		If (FileContents<>"")
+		{
+			startTime:= CheckTickCount()
+			If !TranCiku(FileContents)
+				MsgBox, 262192, 码表转换, 词库格式不支持！, 8
+			else{
+				MsgBox, 262208, 码表转换,% "转换完成耗时" CheckTickCount(startTime), 15
+			}
+			FileContents:=""
 		}
-		FileContents:=""
 	}
 Return
 
@@ -763,19 +767,26 @@ return
 
 ;写入词库
 OnWrite:
-	Gosub Write_DB
+	If FileExist("Config\Script\ImportCiku.ahk") {
+		Run *RunAs "%A_AhkPath%" /restart "Config\Script\ImportCiku.ahk"
+	}else
+		Gosub Write_DB
 Return
 
 ;合并导出
 OnBackup:
-	MsgBoxRenBtn("单行单义","单行多义","取消")
-	SchemaName_:=Wubi_Schema~="i)ci"?"含词":Wubi_Schema~="i)zi"?"单字":Wubi_Schema~="i)chaoji"?"超集":"字根"
-	Gui +OwnDialogs
-	MsgBox, 262723, 导出提示, 当前为「%SchemaName_%」方案，请选择码表导出格式！！！
-	IfMsgBox, Yes
-		Gosub Backup_DB
-	else IfMsgBox, No
-		Gosub Backup_DB_2
+	If FileExist("Config\Script\ExportCiku.ahk") {
+		Run *RunAs "%A_AhkPath%" /restart "Config\Script\ExportCiku.ahk"
+	}else{
+		MsgBoxRenBtn("单行单义","单行多义","取消")
+		SchemaName_:=Wubi_Schema~="i)ci"?"含词":Wubi_Schema~="i)zi"?"单字":Wubi_Schema~="i)chaoji"?"超集":"字根"
+		Gui +OwnDialogs
+		MsgBox, 262723, 导出提示, 当前为「%SchemaName_%」方案，请选择码表导出格式！！！
+		IfMsgBox, Yes
+			Gosub Backup_DB
+		else IfMsgBox, No
+			Gosub Backup_DB_2
+	}
 Return
 
 ;帮助
@@ -3073,7 +3084,10 @@ mothod:
 Return
 
 ciku1:
-	Gosub Write_DB
+	If FileExist("Config\Script\ImportCiku.ahk") {
+		Run *RunAs "%A_AhkPath%" /restart "Config\Script\ImportCiku.ahk"
+	}else
+		Gosub Write_DB
 Return
 
 ciku2:
@@ -4533,7 +4547,7 @@ Write_DB:
 		else if not MaBiao~="\t\d+"
 			MaBiao:=Transform_cp(MaBiao)
 		totalCount:=CountLines(MaBiaoFile), num:=Ceil(totalCount/100)
-		tip:=Wubi_Schema~="i)ci"?"【含词】":Wubi_Schema~="i)zi"?"【单字】":"【超集】"
+		tip:=Wubi_Schema~="i)ci"?"【含词】":Wubi_Schema~="i)zi"?"【单字】":Wubi_Schema~="i)chaoji"?"【超集】":"【字根】"
 		Progress, M1 FM14 W350, 1/%totalCount%, %tip%词库写入中..., 1
 		Loop, Parse, MaBiao, `n, `r
 		{

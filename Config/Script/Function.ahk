@@ -1319,8 +1319,8 @@ FormatDate(SJ,s:=0, t:=0){   ;;s=1为格式化后时间格式，s=0为源格式�
 	Lunar:=Date2LunarDate(SubStr(A_Now,1,10),GzType), LunarYear:=SubStr(Lunar[1],1,2)
 	RegExMatch(Lunar[1],"年.+月",date1), LunarMon:=substr(Date1,2,-1), RegExMatch(Lunar[1],"月.+",date2), LunarDay:=substr(Date2,2)
 	FormatObj:={sj1:[["年"," A_YYYY "],["月"," A_MMM "], ["日"," A_DD "], ["全时"," A_Hour "], ["时"," A_Hour "], ["全点"," A_Hour "], ["点"," A_Hour "], ["分"," A_Min "] ,["毫秒"," A_MSec "], ["秒"," A_Sec "] , ["星期"," A_DDDD "], ["周数"," A_YWeek "] ,["周"," A_DDD"], ["公元","gg"]]
-		, sj2:[["年","yyyy年"],["ln",LunarYear "年"],["月","MM月"],["ly",LunarMon "月"], ["lr",LunarDay],["日","d日"],["时",t?"tthh时":"HH时"], ["ls",SubStr(Time_GetShichen(A_Hour),1,1) "时"], ["点",t?"tthh点":"HH点"], ["分","mm分"] 
-		,["毫秒"," A_MSec "], ["秒","ss秒"] , ["星期","dddd"], ["周数","第" SubStr(A_YWeek, 5) "週"], ["周","ddd"], ["公元","gg"], ["节气",Lunar[5]],["干支",Lunar[2]],["全时","HH"],["全点","HH"]]}
+		, sj2:[["年","yyyy年"],["ln",LunarYear "``年"],["月","MM月"],["ly",LunarMon "``月"], ["lr",LunarDay],["日","d日"],["时",t?"tthh时":"HH时"], ["ls",SubStr(Time_GetShichen(A_Hour),1,1) "``时"], ["点",t?"tthh点":"HH点"], ["分","mm``分"] 
+		,["毫秒"," A_MSec "], ["秒","ss``秒"] , ["星期","dddd"], ["周数","第" SubStr(A_YWeek, 5) "``周"], ["周","ddd"], ["公元","gg"], ["节气",Lunar[5]],["干支",Lunar[2]],["全时","HH"],["全点","HH"]]}
 	For Section,element In FormatObj[s?"sj2":"sj1"]
 	{
 		If (SJ ~= element[1]&&not SJ ~="``" element[1]) {
@@ -2307,7 +2307,7 @@ TranCiku(FilePath,outpath=""){
 				loopvalue_:=consistent_part[1]
 				For key,value in consistent_part
 					If (key>1&&value)
-						loopvalue.=loopvalue_ A_tab value "`r`n"
+						loopvalue.=value A_tab loopvalue_ "`r`n"
 			}
 		}
 		FileDelete,%FileName%_单义.txt
@@ -3321,13 +3321,14 @@ Encode(Str, Encoding, Separator = "")
 	Return, ObjCodes
 }
 
-CountLines(File){ 
-
-	FileRead, Text, %file%
+CountLines(file){ 
+	If not file~="`n"
+		FileRead, Text, %file%
+	else
+		Text:=file
 	StringReplace, Text, Text, `n, `n, UseErrorLevel
 	Text:=""
 	Return ErrorLevel + 1
-
 }
 
 GetVersion(URL,Charset="",Timeout=-1)
