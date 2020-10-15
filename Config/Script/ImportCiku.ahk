@@ -27,8 +27,11 @@ If (MaBiaoFile<> ""&&filename){
 		startTime:= CheckTickCount()
 		TrayTip,, 码表处理中，请稍后...
 		tarr:=[],count :=0
-		FileEncoding, UTF-8
-		FileRead, MaBiao, %MaBiaoFile%
+		GetFileFormat(MaBiaoFile,MaBiao,Encoding)
+		If (Encoding="UTF-16BE BOM") {
+			MsgBox, 262160, 错误提示, 文件编码格式非〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 10
+			ExitApp
+		}
 		if MaBiao~="`n[a-z]\s.+\s.+"
 			MaBiao:=TransformCiku(MaBiao)
 		else if not MaBiao~="\t[a-z]+\t\d+"
@@ -123,6 +126,18 @@ CountLines(file){
 	StringReplace, Text, Text, `n, `n, UseErrorLevel
 	Text:=""
 	Return ErrorLevel + 1
+}
+
+GetFileFormat(FilePath,ByRef FileContent,ByRef Encoding){
+	FileRead,text,*c %FilePath%
+	If (0xBFBBEF=NumGet(&text,"UInt") & 0xFFFFFF){
+		Encoding:= "UTF-8 BOM" 
+	}else if (0xFFFE=NumGet(&text,"UShort") ){
+		Encoding:= "UTF-16BE BOM"
+	}else If (0xFEFF=NumGet(&text,"UShort") ){
+		Encoding:= "UTF-16LE BOM"
+	}
+	FileRead,FileContent, %FilePath%
 }
 
 ;;单行单义码表生成词频

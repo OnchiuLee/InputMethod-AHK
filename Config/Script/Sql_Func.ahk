@@ -266,68 +266,82 @@ get_en_code(chars){
 	}
 }
 
+Get_Phrase(bianma,citiao){
+	global DB, Frequency, Prompt_Word, Trad_Mode
+	If not bianma~="[a-z]+"
+		Return 0
+	if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci")
+		DB.gettable("SELECT D_Key,C_Key,aim_chars FROM ci WHERE A_Key = '" bianma "' ORDER BY A_Key,D_Key DESC", Result)
+	else
+		DB.gettable("SELECT B_Key,C_Key,aim_chars FROM ci WHERE A_Key = '" bianma "' ORDER BY A_Key,B_Key DESC", Result)
+	for section,element in Result.Rows
+		If (element[3]=citiao)
+			flag:=1
+	cp:=Result.RowCount>2&&!flag?(Result.Rows[3,1]+2):Result.RowCount=2&&!flag?(Result.Rows[2,1]-2):Result.RowCount=1&&!flag?(Result.Rows[1,1]-2):!Result.RowCount&&!flag?64526534:0
+	Return cp?cp:0
+}
+
 ;造词结果保存
 Save_word(chars){
-	global
+	global Wubi_Schema, Frequency, Prompt_Word, Trad_Mode
 	If (chars="")
-		Return []
+		Return ["格式不对！"]
 	else
 	{
-		chars :=RegExReplace(RegExReplace(chars,"(`n){2,}","`n"),"^\s+|\s+$")
-		count_1 :=0
-		loop,parse,chars,`n
-		{
-			if A_LoopField ~="="
+		If Chars~="\n" {
+			startTime:= CheckTickCount()
+			tarr:=[],count :=counts:=0
+			totalCount:=CountLines(MaBiao), num:=totalCount>100?Ceil(totalCount/100):totalCount>50?Ceil(totalCount/10):Ceil(totalCount/5)
+			Progress, M1 Y10 FM14 W350, 1/%totalCount%, 词条处理中..., 1`%
+			Loop, Parse, Chars, `n, `r
 			{
-				RegExMatch(A_LoopField, ".+(?=\=)", Chars_L)
-				RegExMatch(A_LoopField, "(?<=\=).+", Chars_R)
-				if (strlen(Chars_L)<5&&strlen(Chars_L)>1)
-				{
-					if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci")
-						DB.gettable("SELECT D_Key,C_Key FROM ci WHERE A_Key = '" Chars_L "' ORDER BY A_Key,D_Key DESC", Result)
-					else
-						DB.gettable("SELECT B_Key,C_Key FROM ci WHERE A_Key = '" Chars_L "' ORDER BY A_Key,B_Key DESC", Result)
-					frist_ci:= Result.RowCount>1?(Result.Rows[2,1]+2):Result.RowCount=1?(Result.Rows[1,1]-2):"64526534", CharsCF:=split_wubizg(Chars_R)
-					SQL =INSERT INTO ci(aim_chars,A_Key,B_Key,D_Key,E_Key,F_Key) SELECT '%Chars_R%', '%Chars_L%', '%frist_ci%', '%frist_ci%', '%CharsCF%', '%Chars_L%' WHERE NOT EXISTS(SELECT 1 FROM ci WHERE aim_chars = '%Chars_R%' AND A_Key = '%Chars_L%');
-					if DB.Exec(SQL)>0 
-						count_1++
-					else
-						Traytip,,保存失败!
+				If (A_LoopField = "")
+					Continue
+				If A_LoopField~="^[^\w]+$" {    ;纯词条
+					citiao:=A_LoopField, bianma:=get_en_code(citiao), caifen:=split_wubizg(citiao), cipin:=Get_Phrase(bianma,citiao), counts++
+				}else If A_LoopField~="^.+\t[a-z]+$" {   ;单行单义无词频
+					citiao:=RegExReplace(A_LoopField,"\t.+"), bianma:=RegExReplace(A_LoopField,".+\t"), caifen:=split_wubizg(citiao), cipin:=Get_Phrase(bianma,citiao), counts++
+				}else If A_LoopField~="^[a-z]+\=.+" {    ;编码=词条
+					citiao:=RegExReplace(A_LoopField,"^[a-z]+\="), bianma:=RegExReplace(A_LoopField,"(?<=[a-z])\=.+"), caifen:=split_wubizg(citiao), cipin:=Get_Phrase(bianma,citiao), counts++
+				}else If A_LoopField~="^.+\t[a-z]+\t\d+" {   ;单行单义带词频
+					citiao:=RegExReplace(A_LoopField,"\t([a-z]+)\t\d+$"), bianma:=RegExReplace(A_LoopField,citiao "\t|\t\d+$"), caifen:=split_wubizg(citiao), cipin:=Get_Phrase(bianma,citiao), counts++
 				}
-			}else if A_LoopField ~="^.+\t[a-y]+"{
-				RegExMatch(A_LoopField, ".+(?=\t)", Chars_L)
-				RegExMatch(A_LoopField, "(?<=\t).+", Chars_R)
-				if (strlen(Chars_R)<5&&strlen(Chars_R)>1)
-				{
-					if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci")
-						DB.gettable("SELECT D_Key,C_Key FROM ci WHERE A_Key = '" Chars_R "' ORDER BY A_Key,D_Key DESC", Result)
-					else
-						DB.gettable("SELECT B_Key,C_Key FROM ci WHERE A_Key = '" Chars_R "' ORDER BY A_Key,B_Key DESC", Result)
-					frist_ci:= Result.RowCount>1?(Result.Rows[2,1]+2):Result.RowCount=1?(Result.Rows[1,1]-2):"64526534", CharsCF:=split_wubizg(Chars_L)
-					SQL =INSERT INTO ci(aim_chars,A_Key,B_Key,D_Key,E_Key,F_Key) SELECT '%Chars_L%', '%Chars_R%', '%frist_ci%', '%frist_ci%', '%CharsCF%', '%Chars_R%' WHERE NOT EXISTS(SELECT 1 FROM ci WHERE aim_chars = '%Chars_L%' AND A_Key = '%Chars_R%');
-					if DB.Exec(SQL)>0 
-						count_1++
-					else
-						Traytip,,保存失败!
-				}
-			}else if not A_LoopField ~="^[a-y0-9]|\t|\s+"{
-				mb_code :=get_en_code(A_LoopField)
-				If mb_code
-				{
-					if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci")
-						DB.gettable("SELECT D_Key,C_Key FROM ci WHERE A_Key = '" mb_code "' ORDER BY A_Key,D_Key DESC", Result)
-					else
-						DB.gettable("SELECT B_Key,C_Key FROM ci WHERE A_Key = '" mb_code "' ORDER BY A_Key,B_Key DESC", Result)
-					frist_ci:= Result.RowCount>1?(Result.Rows[2,1]+2):Result.RowCount=1?(Result.Rows[1,1]-1):"64526534", CharsCF:=split_wubizg(A_LoopField)
-					SQL =INSERT INTO ci(aim_chars,A_Key,B_Key,D_Key,E_Key,F_Key) SELECT '%A_LoopField%', '%mb_code%', '%frist_ci%', '%frist_ci%', '%CharsCF%', '%mb_code%' WHERE NOT EXISTS(SELECT 1 FROM ci WHERE aim_chars = '%A_LoopField%' AND A_Key = '%mb_code%');
-					if DB.Exec(SQL)>0 
-						count_1++
-					else
-						Traytip,,保存失败!
+				If cipin 
+					Insert_ci .="('" citiao "','" bianma "','" cipin "','" cipin "','" caifen "','" get_en_code(citiao) "')" ",", count++
+				If (Mod(counts, num)=0) {
+					tx :=Ceil(count/num)
+					Progress, %tx% , %count%/%totalCount%`n, %tip%词库处理中..., 已完成%tx%`%
 				}
 			}
+			Progress,off
+		}else{
+			count :=counts:=0
+			If Chars~="^[^\w]+$" {    ;纯词条
+				citiao:=Chars, bianma:=get_en_code(citiao), caifen:=split_wubizg(citiao), cipin:=Get_Phrase(bianma,citiao), counts++
+			}else If Chars~="^.+\t[a-z]+$" {   ;单行单义无词频
+				citiao:=RegExReplace(Chars,"\t.+"), bianma:=RegExReplace(Chars,".+\t"), caifen:=split_wubizg(citiao), cipin:=Get_Phrase(bianma,citiao), counts++
+			}else If Chars~="^[a-z]+\=.+" {    ;编码=词条
+				citiao:=RegExReplace(Chars,"^[a-z]+\="), bianma:=RegExReplace(Chars,"(?<=[a-z])\=.+"), caifen:=split_wubizg(citiao), cipin:=Get_Phrase(bianma,citiao), counts++
+			}else If Chars~="^.+\t[a-z]+\t\d+" {   ;单行单义带词频
+				citiao:=RegExReplace(Chars,"\t([a-z]+)\t\d+$"), bianma:=RegExReplace(Chars,citiao "\t|\t\d+$"), caifen:=split_wubizg(citiao), cipin:=Get_Phrase(bianma,citiao), counts++
+			}
+			If cipin 
+				Insert_ci .="('" citiao "','" bianma "','" cipin "','" cipin "','" caifen "','" get_en_code(citiao) "')" ",", count++
 		}
-		Return count_1
+		If Insert_ci
+		{
+			if DB.Exec("INSERT INTO ci(aim_chars,A_Key,B_Key,D_Key,E_Key,F_Key) VALUES " RegExReplace(Insert_ci,"\,$","") ";")>0
+			{
+				MaBiao:=Insert_ci:="", tarr:=[]
+				Return [count,count<>counts?counts-count:0,CheckTickCount(startTime)]
+			}else{
+				MaBiao:=Insert_ci:="", tarr:=[]
+				return ["格式不对！"]
+			}
+		}else{
+			Chars:=Insert_ci:="", tarr:=[]
+			 Return ["词条已存在，无需重复导入！"]
+		}
 	}
 }
 

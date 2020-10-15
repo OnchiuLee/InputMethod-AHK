@@ -81,106 +81,6 @@ SwitchSC:
 	GuiControl,logo:, MoveGui,*Icon%sicon_% config\Skins\logoStyle\%StyleN%.icl
 Return
 
-logoGuiDropFiles:
-SrfTipGuiDropFiles:
-	Gui +OwnDialogs
-	MsgBoxRenBtn("保存","不保存","单/多义互转")
-	MsgBox, 266243,TXT码表处理,正在执行批量生词,是否保存至词库?
-	IfMsgBox, No
-		saveTodb:=0
-	else IfMsgBox, Yes
-		saveTodb:=1
-	else IfMsgBox, Cancel
-		saveTodb:=2
-	if saveTodb>1
-	{
-		Loop, Parse, A_GuiEvent, `n, `r
-		{
-			if not A_LoopField~="\.txt" {
-				Traytip,,文件格式不支持！
-				break
-			}
-			filenames:=RegExReplace(A_LoopField, ".+\\|\..+")
-			RegExMatch(A_LoopField,".+\\",File_Path)
-			FileRead, CikuVar, %A_LoopField%
-			Start:=A_TickCount
-			ciku_all := Transform_mb(CikuVar)
-			ciku_all:=RegExReplace(ciku_all,"^\s+`r`n{1,}")
-			if (ciku_all=""){
-				Traytip,,当前文件格式不支持转换!,, 2
-				Return
-			}
-			ElapsedTime := (A_TickCount - Start)/1000
-			if (ElapsedTime>60)
-				timecount:=Ceil(ElapsedTime/60) "分" Mod(Ceil(ElapsedTime),60) "秒"
-			Else
-				timecount:=Ceil(ElapsedTime) "秒"
-			if InStr(ciku_all,A_Tab){
-				Traytip,,多义====>单义转换中。。。
-				FileDelete, %File_Path%%filenames%_单义.txt
-				FileAppend, %ciku_all%, %File_Path%%filenames%_单义.txt, UTF-8
-				Traytip,,转换完成-`n耗时%timecount%
-			}else if InStr(ciku_all,A_Space){
-				Traytip,,单义====>多义转换中。。。
-				FileDelete, %File_Path%%filenames%_多义.txt
-				FileAppend, %ciku_all%, %File_Path%%filenames%_多义.txt, UTF-8
-				Traytip,,转换完成-`n耗时%timecount%
-			}
-			ciku_all:=""
-		}
-	}else{
-		Gosub DROP_Status
-		Loop, Parse, A_GuiEvent, `n, `r
-		{
-			filenames:=RegExReplace(A_LoopField, ".+\\|\..+")
-			RegExMatch(A_LoopField,".+\\",File_Path)
-			FileRead, CikuVar, %A_LoopField%
-			;CikuVar:=RegExReplace(CikuVar,"\t\d+|\t[a-z]+")
-			count:=0
-			Traytip,,词组生成中。。。
-			Start:=A_TickCount
-			Loop, Parse, CikuVar, `n, `r
-			{
-				If (A_LoopField = "")
-					Continue
-				if A_LoopField~="\t[a-z]+" {
-					RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"^.+(?=\t[a-z])",Part1)
-					RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"(?<=\t)[a-z]+",Part2)
-					if (saveTodb=1){
-						All_Word_part:=Part1 A_Tab Part2
-						if Save_word(Part2 "=" Part1)>0
-							count++
-					}
-				}else{
-					bianmas:= get_en_code(RegExReplace(A_LoopField,"\t\d+|\t[a-z]+|\s+"))
-					if (bianmas<>"") {
-						All_Word_part:=RegExReplace(A_LoopField,"\t\d+|\t[a-z]+|\s+") A_Tab bianmas
-						if (saveTodb=1){
-							if Save_word(RegExReplace(A_LoopField,"\t\d+|\t[a-z]+|\s+"))>0
-								count++
-						}
-					}
-				}
-				All_Word .=All_Word_part "`r`n" 
-			}
-			All_Word:=RegExReplace(All_Word,"^`r`n|.+\t`r`n|\t$")
-			FileDelete, %File_Path%%filenames%-单义.txt
-			FileAppend, %All_Word%, %File_Path%%filenames%-单义.txt, UTF-8
-			All_Word:=All_Word_part:=""
-			ElapsedTime := (A_TickCount - Start)/1000
-			if (ElapsedTime>60)
-				timecount:=Ceil(ElapsedTime/60) "分" Mod(Ceil(ElapsedTime),60) "秒"
-			Else
-				timecount:=Ceil(ElapsedTime) "秒"
-			if count>0
-				TrayTip,, 写入%count%行-耗时%timecount%
-			else
-				TrayTip,, 生成文件路径为:%A_Desktop%\%filenames%-单义.txt`n耗时%timecount%
-		}
-		ToolTip(1,""), Result_:=Results_:=Result:=[]
-	}
-Return
-
 DROP_Status:
 	WinGetPos,,,,Shell_Wnd ,ahk_class Shell_TrayWnd
 	ToolTip(1, "", "Q1 B" BgColor " T" FontCodeColor " S" 12 " F" Font_)
@@ -549,7 +449,11 @@ Write_LongChars:
 		{
 			SQL =CREATE TABLE IF NOT EXISTS TangSongPoetics ("A_Key" TEXT,"Author" TEXT, "B_Key" TEXT, "C_Key" TEXT);delete from TangSongPoetics
 			DB.Exec(SQL)
-			FileRead,_Chars,%FileContents%
+			GetFileFormat(FileContents,_Chars,Encoding)
+			If (Encoding="UTF-16BE BOM") {
+				MsgBox, 262160, 错误提示, 文件编码格式非〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 10
+				Return
+			}
 			Loop,parse,_Chars,`n,`r
 				If A_LoopField 
 					CharsObj:=StrSplit(A_LoopField,A_tab), __Chars.="('" RegExReplace(CharsObj[1],"\s+") "','" RegExReplace(CharsObj[2],"\s+") "','" RegExReplace(CharsObj[3],"\s+") "','" RegExReplace(CharsObj[4],"\s+") "')" ","
@@ -2285,8 +2189,11 @@ Wlabel:
 		TrayTip,, 标签写入中，请稍后...
 		Create_label(DB,LabelFile)
 		tarr:=[],count :=0
-		FileEncoding, UTF-8
-		FileRead, label_all, %LabelFile%
+		GetFileFormat(LabelFile,label_all,Encoding)
+		If (Encoding="UTF-16BE BOM") {
+			MsgBox, 262160, 错误提示, 文件编码格式非〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 10
+			Return
+		}
 		Loop, Parse, label_all, `n, `r
 		{
 			count++
@@ -2869,35 +2776,6 @@ MyTheme:
 	}
 Return
 
-themesGuiDropFiles:
-	Loop, Parse, A_GuiEvent, `n, `r
-	{
-		if A_LoopField~="i)\.json$" {
-			FileMove, %A_LoopField%, %A_ScriptDir%\config\Skins\, 1
-			if FileExist(A_ScriptDir "\config\Skins\preview\" SubStr(RegExReplace(A_LoopField,".+\\"),1,-5) ".png")
-				IsExists:="存在"
-			else
-				IsExists:="不存在"
-			LV_Add("", SubStr(RegExReplace(A_LoopField,".+\\"),1,-5),IsExists,A_ScriptDir "\config\Skins\" RegExReplace(A_LoopField,".+\\")), LV_ModifyCol()
-			GuiControl,98:, select_theme , % SubStr(RegExReplace(A_LoopField,".+\\"),1,-5)
-			SB_SetText(A_Space LV_GetCount() . "个主题")
-		}else if A_LoopField~="i)\.png$"{
-			FileMove, %A_LoopField%, %A_ScriptDir%\config\Skins\preview\, 1
-			if FileExist(A_ScriptDir "\config\Skins\preview\" RegExReplace(A_LoopField,".+\\"))
-				IsExists:="存在"
-			else
-				IsExists:="不存在"
-			loop, % LV_GetCount()
-			{
-				LV_GetText(OutTVar, A_Index , 1)
-				if (OutTVar=SubStr(RegExReplace(A_LoopField,".+\\"),1,-4))
-					LV_Modify(A_Index , ,, IsExists)
-			}
-			
-		}
-	}
-Return
-
 ; 创建弹出菜单:
 themesGuiContextMenu:
 	Menu, SelectContextMenu, Add, 应用, SelectV1
@@ -3145,7 +3023,11 @@ ciku10:
 			Return
 		} Else {
 			Create_pinyin(DB)
-			FileRead,pyAll,%FileNamePath%
+			GetFileFormat(FileNamePath,pyAll,Encoding)
+			If (Encoding="UTF-16BE BOM") {
+				MsgBox, 262160, 错误提示, 文件编码格式非〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 10
+				Return
+			}
 			If pyAll {
 				If DB_WritePy(pyAll)>0
 					Traytip,,导入完成！
@@ -4347,6 +4229,9 @@ Add_Code:
 		Gui, 29:Add, Button,xm gSave vSave hWndSVBT, 保存
 		ImageButton.Create(SVBT, [6, 0x80404040, 0xC0C0C0, "Green"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 		Gui, 29:font,
+		Gui, 29:font,s10 underline
+		Gui, 29:Add, text,x+20 yp+6 w320 cred vsaveTip hWndsaveTip,
+		Gui, 29:font,
 		Gui, 29:Submit
 		Gui,29:show,AutoSize,%ACTitle%
 		Gosub SetGuiTitle
@@ -4404,66 +4289,63 @@ addChars:
 	ControlFocus , Edit1, A
 Return
 
-addFiles:
+addFiles(){
+	global Wubi_Schema, Frequency, Prompt_Word, Trad_Mode
 	If FileExist("Config\Script\CompoundPhrase.ahk") {
 		Run *RunAs "%A_AhkPath%" /restart "Config\Script\CompoundPhrase.ahk"
 	}else{
-		Gui +OwnDialogs
-		FileSelectFile, SelectedFile, M3, %A_Desktop%, 选择你的纯词条文本文件, Documents (*.txt; *.yaml)
-		if SelectedFile {
-			FileArr:= StrSplit(SelectedFile,"`n"), OPCode_all:=OPCode_part:=OPCode:=ResultsAll:=""
-			Loop, % FileArr.Length() 
+		FileSelectFile, MaBiaoFile, 3,%A_Desktop% , 批量导入词组, Text Documents (*.txt)
+		SplitPath, MaBiaoFile, , , , filename
+		If (MaBiaoFile<> ""&&filename){
+			startTime:= CheckTickCount()
+			tarr:=[],count :=counts:=0
+			GetFileFormat(MaBiaoFile,MaBiao,Encoding)
+			If (Encoding="UTF-16BE BOM") {
+				GuiControl,29:,saveTip, 文件编码格式非〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！
+			}
+			totalCount:=CountLines(MaBiao), num:=totalCount>100?Ceil(totalCount/100):totalCount>50?Ceil(totalCount/10):Ceil(totalCount/5)
+			Progress, M1 Y10 FM14 W350, 1/%totalCount%, 词条处理中..., 1`%
+			Loop, Parse, MaBiao, `n, `r
 			{
-				if A_Index>1
-				{
-					FileEncoding,UTF-8
-					FileRead, OPCode, %  FileArr[1] "\" FileArr[A_Index]
-					Loop, Parse, OPCode, `n, `r
-					{
-						if A_LoopField~="\t[a-z]+"{
-							RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"(?<=\t)[a-z]+",L_)
-							RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"^.+(?=\t[a-z])",R_)
-							if (StrLen(L_)>1&&StrLen(L_)<5)
-								OPCode_part :=L_ "=" R_ 
-						}else if A_LoopField~="^[a-z]+\="{
-							OPCode_part:=RegExReplace(A_LoopField,"^\s+|\s+$")
-						}else if not A_LoopField~="^[a-z0-9]+|\s+" {
-							OPCode_part:=get_en_code(A_LoopField) "=" A_LoopField
-						}
-						OPCode_all.=OPCode_part "|", OPCode_part:=""
-					}
-					ResultsAll.=OPCode_all "|", OPCode_all:=""
+				If (A_LoopField = "")
+					Continue
+				If A_LoopField~="^[^\w]+$" {    ;纯词条
+					citiao:=A_LoopField, bianma:=get_en_code(citiao), caifen:=split_wubizg(citiao), cipin:=Get_Phrase(bianma,citiao), counts++
+				}else If A_LoopField~="^.+\t[a-z]+$" {   ;单行单义无词频
+					citiao:=RegExReplace(A_LoopField,"\t.+"), bianma:=RegExReplace(A_LoopField,".+\t"), caifen:=split_wubizg(citiao), cipin:=Get_Phrase(bianma,citiao), counts++
+				}else If A_LoopField~="^[a-z]+\=.+" {    ;编码=词条
+					citiao:=RegExReplace(A_LoopField,"^[a-z]+\="), bianma:=RegExReplace(A_LoopField,"(?<=[a-z])\=.+"), caifen:=split_wubizg(citiao), cipin:=Get_Phrase(bianma,citiao), counts++
+				}else If A_LoopField~="^.+\t[a-z]+\t\d+" {   ;单行单义带词频
+					citiao:=RegExReplace(A_LoopField,"\t([a-z]+)\t\d+$"), bianma:=RegExReplace(A_LoopField,citiao "\t|\t\d+$"), caifen:=split_wubizg(citiao), cipin:=Get_Phrase(bianma,citiao), counts++
+				}
+				If cipin 
+					Insert_ci .="('" citiao "','" bianma "','" cipin "','" cipin "','" caifen "','" get_en_code(citiao) "')" ",", count++
+				If (Mod(counts, num)=0) {
+					tx :=Ceil(count/num)
+					Progress, %tx% , %count%/%totalCount%`n, %tip%词库处理中..., 已完成%tx%`%
 				}
 			}
-			GuiControl,29:, Set_Value ,% ResultsAll
-		}
-	}
-Return
-
-29GuiDropFiles:
-	OPCode_all:=OPCode_part:=OPCode:=ResultsAll:=""
-	Loop, % (_FilesPath:= StrSplit(A_GuiEvent,"`n")).Length()
-	{
-		FileEncoding,UTF-8
-		FileRead, OPCode, % _FilesPath[A_Index]
-		Loop, Parse, OPCode, `n, `r
-		{
-			if A_LoopField~="\t[a-z]+"{
-				RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"(?<=\t)[a-z]+",L_)
-				RegExMatch(RegExReplace(A_LoopField,"\t\d+$"),"^.+(?=\t[a-z])",R_)
-				if (StrLen(L_)>1&&StrLen(L_)<5)
-					OPCode_part :=L_ "=" R_ 
-			}else if A_LoopField~="^[a-z]+\="{
-				OPCode_part:=RegExReplace(A_LoopField,"^\s+|\s+$")
-			}else if not A_LoopField~="^[a-z0-9]+|\s+" {
-				OPCode_part:=get_en_code(A_LoopField) "=" A_LoopField
+			Progress,off
+			If Insert_ci
+			{
+				if DB.Exec("INSERT INTO ci(aim_chars,A_Key,B_Key,D_Key,E_Key,F_Key) VALUES " RegExReplace(Insert_ci,"\,$","") ";")>0
+				{
+					GuiControl,29:,saveTip,% "写入" count "条" (count<>counts?"重复" counts-count "条":"") "，完成用时" CheckTickCount(startTime)" ！"
+					Sleep 3000
+					GuiControl,29:,saveTip,
+				}
+				else
+				{
+					GuiControl,29:,saveTip, 格式不对！
+					return
+				}
+			}else{
+				GuiControl,29:,saveTip, 词条已存在，无需重复导入。。。
 			}
-			OPCode_all.=OPCode_part "|", OPCode_part:=""
+			MaBiao:=Insert_ci:="", tarr:=[]
 		}
-		ResultsAll.=OPCode_all "|", OPCode_all:=""
 	}
-	GuiControl,29:, Set_Value ,% ResultsAll
-Return
+}
 
 ;造词窗口关闭销毁
 29GuiClose:
@@ -4474,22 +4356,16 @@ Return
 		MsgBox, 262452,退出提示, 检测到你还没有保存，是否写入至词库？
 		IfMsgBox, Yes
 		{
-			Gosub DROP_Status
-			return_num :=Save_word(mb_add)
-			if (return_num>0)
-			{
-				if (NotCount:=_ListCount-return_num)>0
-					TrayTip,, 写入成功%return_num%条`n重复NotCount条
-				else
-					TrayTip,, 写入成功%return_num%条。
-			}
+			GuiControl,29:, Set_Value ,|
+			if (objLength(return_num :=Save_word(mb_add))>1)
+				GuiControl,29:,saveTip,% "成功写入" return_num[1] (return_num[2]?"条，重复" return_num[2]:"") "条！耗时" return_num[3]
 			else
-				TrayTip,, 词条已存在或格式不正确！
-			ToolTip(1, "")
+				GuiControl,29:,saveTip, % return_num[1]
+			Sleep 3000
+			GuiControl,29:,saveTip,
 		}
 	}
-	Gui, 29:Destroy
-	Result_:=Results_:=Result:=[]
+	Gui,29:Destroy
 Return
 
 ;造词保存处理
@@ -4500,20 +4376,14 @@ Save:
 		MsgBox, 262452,批量造词,% "是否写入" _ListCount:= StrSplit(mb_add,"`n").Length() "行数据？"
 		IfMsgBox, Yes
 		{
-			Gosub DROP_Status
-			return_num :=Save_word(mb_add)
-			if (return_num>0)
-			{
-				if (NotCount:=_ListCount-return_num)>0
-					TrayTip,, 写入成功%return_num%条`n重复NotCount条
-				else
-					TrayTip,, 写入成功%return_num%条。
-			}
+			GuiControl,29:, Set_Value ,|
+			if (objLength(return_num :=Save_word(mb_add))>1)
+				GuiControl,29:,saveTip,% "成功写入" return_num[1] (return_num[2]?"条，重复" return_num[2]:"") "条！耗时" return_num[3]
 			else
-				TrayTip,, 词条已存在或格式不正确！
-			ToolTip(1, "")
+				GuiControl,29:,saveTip, % return_num[1]
+			Sleep 3000
+			GuiControl,29:,saveTip,
 		}
-		Gui, 29:Destroy
 	}
 return
 
@@ -4544,8 +4414,11 @@ Write_DB:
 		Gosub DROP_Status
 		Create_Ci(DB,MaBiaoFile)
 		tarr:=[],count :=0
-		FileEncoding, UTF-8
-		FileRead, MaBiao, %MaBiaoFile%
+		GetFileFormat(MaBiaoFile,MaBiao,Encoding)
+		If (Encoding="UTF-16BE BOM") {
+			MsgBox, 262160, 错误提示, 文件编码格式非〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 10
+			Return
+		}
 		if MaBiao~="`n[a-z]+\s"
 			MaBiao:=Transform_mb(MaBiao)
 		else if not MaBiao~="\t\d+"
@@ -4623,8 +4496,11 @@ Write_En:
 		TrayTip,, 词库写入中，请稍后...
 		Create_En(DB,MaBiaoFile)
 		tarr:=[],count :=0
-		FileEncoding, UTF-8
-		FileRead, MaBiao, %MaBiaoFile%
+		GetFileFormat(MaBiaoFile,MaBiao,Encoding)
+		If (Encoding="UTF-16BE BOM") {
+			MsgBox, 262160, 错误提示, 文件编码格式非〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 10
+			Return
+		}
 		Loop, Parse, MaBiao, `n, `r
 		{
 			count++
@@ -4748,7 +4624,10 @@ Backup_DB:
 				timecount:=Ceil(ElapsedTime) "秒"
 			fileNewname:=init_db?"主码表":custom_db?"用户词":Wubi_Schema
 			If (FileExist(A_ScriptDir "\Sync\header.txt")&&BUyaml&&!custom_db){
-				FileRead,HeadInfo,%A_ScriptDir%\Sync\header.txt
+				GetFileFormat(A_ScriptDir "\Sync\header.txt",HeadInfo,Encoding)
+				If (Encoding="UTF-16BE BOM") {
+					MsgBox, 262160, 错误提示, 文件编码格式非〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 5
+				}
 				HeadInfo:=Wubi_Schema~="i)ci"?HeadInfo:(Wubi_Schema~="i)chaoji"?RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "wubi98_U"):Wubi_Schema~="i)zi"?RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "wubi98_dz"):RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "wubi98_zg"))
 				RegExMatch(HeadInfo,"(?<=name\:).+",FileInfo)
 				FileInfo:=RegExReplace(FileInfo,"\s+")

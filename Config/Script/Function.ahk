@@ -3451,6 +3451,18 @@ Un7Zip(source,outdir="",Path=""){
 		return 1
 }
 
+GetFileFormat(FilePath,ByRef FileContent,ByRef Encoding){
+	FileRead,text,*c %FilePath%
+	If (0xBFBBEF=NumGet(&text,"UInt") & 0xFFFFFF){
+		Encoding:= "UTF-8 BOM" 
+	}else if (0xFFFE=NumGet(&text,"UShort") ){
+		Encoding:= "UTF-16BE BOM"
+	}else If (0xFEFF=NumGet(&text,"UShort") ){
+		Encoding:= "UTF-16LE BOM"
+	}
+	FileRead,FileContent, %FilePath%
+}
+
 GetCharsSize(List, Font:="", FontSize:=10, Padding:=6)
 {
 	Loop, Parse, List, |

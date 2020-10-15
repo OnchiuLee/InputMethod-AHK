@@ -18,11 +18,27 @@ If (FileContents<>"")
 }
 ExitApp
 
+GetFileFormat(FilePath,ByRef FileContent,ByRef Encoding){
+	FileRead,text,*c %FilePath%
+	If (0xBFBBEF=NumGet(&text,"UInt") & 0xFFFFFF){
+		Encoding:= "UTF-8 BOM" 
+	}else if (0xFFFE=NumGet(&text,"UShort") ){
+		Encoding:= "UTF-16BE BOM"
+	}else If (0xFEFF=NumGet(&text,"UShort") ){
+		Encoding:= "UTF-16LE BOM"
+	}
+	FileRead,FileContent, %FilePath%
+}
+
 TranCiku(FilePath,outpath=""){
 	If !FileExist(FilePath)
 		return 0
 	outpath:=outpath?outpath:FilePath
-	FileRead,chars,%FilePath%
+	GetFileFormat(FilePath,chars,Encoding)
+	If (Encoding="UTF-16BE BOM") {
+		MsgBox, 262160, 错误提示, 文件编码格式非〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 10
+		Return
+	}
 	FileName:=RegExReplace(outpath,"\.[a-zA-Z0-9]+$")
 	If chars~="[^a-zA-Z0-9]\t[a-z]+" {
 		consistent_all:={}

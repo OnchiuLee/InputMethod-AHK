@@ -26,8 +26,12 @@ If (MaBiaoFile<> ""&&filename){
 	startTime:= CheckTickCount()
 	TrayTip,, 码表处理中，请稍后...
 	tarr:=[],count :=counts:=0
-	FileEncoding, UTF-8
-	FileRead, MaBiao, %MaBiaoFile%
+	;;FileEncoding, UTF-8
+	GetFileFormat(MaBiaoFile,MaBiao,Encoding)
+	If (Encoding="UTF-16BE BOM") {
+		MsgBox, 262160, 错误提示, 文件编码格式非〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 10
+		ExitApp
+	}
 	totalCount:=CountLines(MaBiao), num:=totalCount>100?Ceil(totalCount/100):totalCount>50?Ceil(totalCount/10):Ceil(totalCount/5)
 	Progress, M1 Y10 FM14 W350, 1/%totalCount%, 词条处理中..., 1`%
 	Loop, Parse, MaBiao, `n, `r
@@ -65,7 +69,8 @@ If (MaBiaoFile<> ""&&filename){
 			MsgBox, 262160, 错误提示, 格式不对！, 8
 			return
 		}
-	}
+	}else
+		MsgBox, 262208, 导入提示, 词条已存在，无需重复导入。。。,10
 	DB.CloseDB()
 }
 ExitApp
@@ -111,6 +116,18 @@ Transform_cp(chars){
 		}
 	}
 	Return RegExReplace(cip,"^`r`n")
+}
+
+GetFileFormat(FilePath,ByRef FileContent,ByRef Encoding){
+	FileRead,text,*c %FilePath%
+	If (0xBFBBEF=NumGet(&text,"UInt") & 0xFFFFFF){
+		Encoding:= "UTF-8 BOM" 
+	}else if (0xFFFE=NumGet(&text,"UShort") ){
+		Encoding:= "UTF-16BE BOM"
+	}else If (0xFEFF=NumGet(&text,"UShort") ){
+		Encoding:= "UTF-16LE BOM"
+	}
+	FileRead,FileContent, %FilePath%
 }
 
 Create_Ci(DB,Name)

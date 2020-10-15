@@ -48,7 +48,10 @@ if (OutFolder<>"")
 			Resoure_:=TransformCiku(Resoure_)
 		timecount:= CheckTickCount(startTime)
 		If (FileExist("..\..\Sync\header.txt")&&BUyaml&&!mabiao){
-			FileRead,HeadInfo,..\..\Sync\header.txt
+			GetFileFormat("..\..\Sync\header.txt",HeadInfo,Encoding)
+			If (Encoding="UTF-16BE BOM") {
+				MsgBox, 262160, 错误提示, 文件编码格式为〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 5
+			}
 			HeadInfo:=Wubi_Schema~="i)ci"?HeadInfo:(Wubi_Schema~="i)chaoji"?RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "wubi98_U"):Wubi_Schema~="i)zi"?RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "wubi98_dz"):RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "wubi98_zg"))
 			RegExMatch(HeadInfo,"(?<=name\:).+",FileInfo)
 			FileInfo:=RegExReplace(FileInfo,"\s+")
@@ -113,6 +116,18 @@ CheckTickCount(TC:=0){
 		TickCount:=t<1?t*1000 "毫秒":(t>60?Floor(t/60) "分" mod(t,60) "秒":t "秒")
 		Return TickCount
 	}
+}
+
+GetFileFormat(FilePath,ByRef FileContent,ByRef Encoding){
+	FileRead,text,*c %FilePath%
+	If (0xBFBBEF=NumGet(&text,"UInt") & 0xFFFFFF){
+		Encoding:= "UTF-8 BOM" 
+	}else if (0xFFFE=NumGet(&text,"UShort") ){
+		Encoding:= "UTF-16BE BOM"
+	}else If (0xFEFF=NumGet(&text,"UShort") ){
+		Encoding:= "UTF-16LE BOM"
+	}
+	FileRead,FileContent, %FilePath%
 }
 
 MsgBoxRenBtn(btn1="",btn2="",btn3=""){
