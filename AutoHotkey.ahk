@@ -35,7 +35,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020101812"
+version :="2020101813"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -103,22 +103,18 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini")
 	status:=1
 else
 	IniRead, status, %A_Temp%\InputMethodData\Config.ini, Initialize, status ,0
-global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni(A_Temp "\InputMethodData\Config.ini")
-	srf_default_obj:={LogoColor:{LogoColor_cn:"008000",LogoColor_en:"00FFFF",LogoColor_caps:"0000ff"}
-		,Settings:{Startup:"off",CNID:CpuID,IStatus:1,CharFliter:0,Exit_switch:1,PromptChar:0, DPIScale:1,CursorStatus:0
-				,Exit_hotkey:"^esc", symb_mode:2,Frequency:0,Freq_Count:3,srfTool:0,length_code:"on",GzType:0
-				, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f",versions:version,EnKeyboardMode:0
-				, cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"10", Logo_Y:A_ScreenHeight/2
-				, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock", Suspend_switch:1,zkey_mode:0
-				, Suspend_hotkey:"!z", tip_hotkey:"!q", rlk_switch:0, Logo_Switch:"on",Srf_Hotkey:"Shift"
-				, Select_Enter:"clean", Initial_Mode:"off", symb_send:"on", set_color:"on", Wubi_Schema:"ci"
-				,Cut_Mode:"off", limit_code:"on", Trad_Mode:"off", IMEmode:"on",InitStatus:0,EN_Mode:0}
-		, TipStyle:{ThemeName:DefaultThemeName, StyleN:StyleName,Logo_ExStyle:0,transparentX:180,LogoSize:36, FontType:font_
-				, FontSize:22, FontColor:Font_Color,FocusBackColor:FocusBack_Color,FocusColor:Focus_Color,FocusCodeColor:FocusCode_Color
-				,FocusRadius:5, FontStyle:"off", FontCodeColor:FontCode_Color,LineColor:Line_Color,BorderColor:Border_Color
-				, Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"off", BgColor:Bg_Color, ListNum:5,Gdip_Radius:5, EnFontName:"Andrich"
-				, Textdirection:"horizontal", Set_Range:3, Fix_Switch:"off",Fix_X:A_ScreenWidth/2,Fix_Y:10}  ;竖排--vertical
-		, CustomColors:{Color_Row1:"0x1C7399,0xEEEEEC,0x014E8B,0x444444,0x009FE8,0xDEF9FA,0xF8B62D,0x90FC0F", Color_Row2:"0x0078D7,0x0D1B0A,0xB9D497,0x00ADEF,0x1778BF,0xFDF6E3,0x002B36,0xDEDEDE"}}
+global srf_default_value,config_tip, WubiIni:=class_EasyIni(A_Temp "\InputMethodData\Config.ini")
+, srf_default_obj:={LogoColor:{LogoColor_cn:"008000",LogoColor_en:"00FFFF",LogoColor_caps:"0000ff"}
+	,Settings:{Startup:"off",CNID:CpuID,IStatus:1,CharFliter:0,Exit_switch:1,PromptChar:0, DPIScale:1,CursorStatus:0,Exit_hotkey:"^esc", symb_mode:2,Frequency:0
+		,Freq_Count:3,srfTool:0,length_code:"on",GzType:0, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f",versions:version,EnKeyboardMode:0
+		, cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"10", Logo_Y:A_ScreenHeight/2, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock"
+		, Suspend_switch:1,zkey_mode:0, Suspend_hotkey:"!z", tip_hotkey:"!q", rlk_switch:0, Logo_Switch:"on",Srf_Hotkey:"Shift", Select_Enter:"clean"
+		, symb_send:"on", set_color:"on", Wubi_Schema:"ci", Initial_Mode:"off",Cut_Mode:"off", limit_code:"on", Trad_Mode:"off", IMEmode:"on",InitStatus:0,EN_Mode:0}
+	, TipStyle:{ThemeName:DefaultThemeName, StyleN:StyleName,Logo_ExStyle:0,transparentX:180,LogoSize:36, FontType:font_, FontSize:22, FontColor:Font_Color,FocusBackColor:FocusBack_Color
+		,FocusColor:Focus_Color,FocusCodeColor:FocusCode_Color,FocusRadius:5, FontStyle:"off", FontCodeColor:FontCode_Color,LineColor:Line_Color,BorderColor:Border_Color
+		, Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"off", BgColor:Bg_Color, ListNum:5,Gdip_Radius:5, EnFontName:"Andrich", Textdirection:"horizontal", Set_Range:3
+		, Fix_Switch:"off",Fix_X:A_ScreenWidth/2,Fix_Y:10}  ;竖排--vertical
+	, CustomColors:{Color_Row1:"0x1C7399,0xEEEEEC,0x014E8B,0x444444,0x009FE8,0xDEF9FA,0xF8B62D,0x90FC0F", Color_Row2:"0x0078D7,0x0D1B0A,0xB9D497,0x00ADEF,0x1778BF,0xFDF6E3,0x002B36,0xDEDEDE"}}
 ;初始化默认配置
 if (FileExist(A_ScriptDir "\Sync\Default.json")&&!status) {
 	srf_default_value:=Json_FileToObj(A_ScriptDir "\Sync\Default.json"), srf_default_value["Settings","CNID"]=CpuID
@@ -209,9 +205,6 @@ If (UIAccess&&CNID=CpuID){             ;FileExist(RegExReplace(A_AhkPath,RegExRe
 	UIAccess:=WubiIni.Settings["UIAccess"]:=0,CNID:=WubiIni.Settings["CNID"]:=CpuID, WubiIni.Save()
 }
 
-RegRead, _keyName, HKEY_CLASSES_ROOT\.ahk
-RegistryFile(_keyName)   ;生成注册表关联启动
-
 Gosub TRAY_Menu
 if FileExist(A_ScriptDir "\*.ico") {
 	Loop,Files,*.ico
@@ -226,8 +219,8 @@ if FileExist(A_ScriptDir "\*.ico") {
 srf_mode :=IMEmode~="off"?0:1
 ;;=======================字体注册=========================
 
-if FileExist("Font\*.otf") {
-	Loop,Files,Font\*.otf
+if FileExist("Font\*.*tf") {
+	Loop,Files,Font\*.*tf
 	{
 		DllCall("gdi32\EnumFontFamilies","uint",DllCall("GetDC","uint",0),"uint",0,"uint",RegisterCallback("EnumFontFamilies"),"uint",a_FontList:="")
 		If GetFontNamesFromFile(A_LoopFileLongPath).Family~=a_FontList
@@ -243,7 +236,9 @@ if !InitStatus {
 	if (ErrorLevel = "ERROR") {
 		Run, iexplore.exe "98wb.ys168.com/",, UseErrorLevel
 	}
-	InitStatus:=WubiIni.Settings["InitStatus"]:=1,FontType:=WubiIni.TipStyle["FontType"]:="98WB-0",EnFontName:=WubiIni.TipStyle["EnFontName"]:="Andrich", WubiIni.Save()
+	InitStatus:=WubiIni.Settings["InitStatus"]:=1, WubiIni.Save()
+	If A_FontList~="i)98WB-0|Andrich"
+		FontType:=WubiIni.TipStyle["FontType"]:="98WB-0",EnFontName:=WubiIni.TipStyle["EnFontName"]:="Andrich", WubiIni.Save()
 }
 if (ToolTipStyle ~="i)gdip"&&A_OSVersion ~="i)WIN_XP") {
 	;Traytip,,你的系统不支持当前Gdip候选框样式,请切换!,,2
