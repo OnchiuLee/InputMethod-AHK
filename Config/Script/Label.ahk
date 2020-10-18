@@ -943,7 +943,7 @@ showhouxuankuang:
 			Gui, houxuankuang:Hide
 		Return
 	}
-	srf_code:=srf_all_input~="^z\'[a-z]"?RegExReplace(srf_all_input,"^z\'"):(srf_all_input~="^``$"?RegExReplace(srf_all_input,"^``",(Wubi_Schema~="i)ci"&&!EN_Mode?"〔精准造词〕":"〔常用符号〕")):srf_all_input~="^~$"?RegExReplace(srf_all_input,"^~","〔以形查音〕"):srf_all_input~="^[``]{2}$"&&!EN_Mode?RegExReplace(srf_all_input,"^````","〔临时英文〕"):"〔常用符号〕")
+	srf_code:=srf_all_input~="^z\'[a-z]"?RegExReplace(srf_all_input,"^z\'"):(srf_all_input~="^``$"?RegExReplace(srf_all_input,"^``",(Wubi_Schema~="i)ci"&&!EN_Mode?"〔精准造词〕":"〔常用符号〕")):srf_all_input~="^~$"?RegExReplace(srf_all_input,"^~","〔以形查音〕"):srf_all_input~="^[``]{2}$"&&!EN_Mode?RegExReplace(srf_all_input,"^````","〔临时英文〕"):srf_all_input)
 	srf_code:=srf_code~="^``|^~"?RegExReplace(RegExReplace(srf_code,"^``|^~"),"``","'"):srf_code
 	SysGet, _height, 14
 	if Fix_Switch~="i)on"{
