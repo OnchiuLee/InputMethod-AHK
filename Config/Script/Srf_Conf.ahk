@@ -191,7 +191,7 @@ Return
 		if !GetKeyState("CapsLock", "T"){
 			srf_all_Input .= A_ThisHotkey, select_sym:=PosLimit:=0
 			;[ ` ]引导常用符号自定义，Sym_Array多维数组首位置空，其它按顺序排列，增加的话 直接在数组里添加格式 >>  ,["符号"]
-			global Sym_Array :=[[""],["·"],["～"],["☯"],["•"],["℃"],["〔〕{Left}"],["‰"],["℉"],["※"],["●"],["○"],["★"],["☆"],["©"],["√"],["×"],["№"],["％"],["≈"],["¿"],["¡"],[""],["ㄓ"]]
+			global Sym_Array :=[[""],["·"],["～"],["☯"],["〔〕{Left}"],["の"],["❖"],["🍎"],["☁"],["•"],["℃"],["‰"],["℉"],["※"],["●"],["○"],["★"],["☆"],["©"],["√"],["×"],["№"],["％"],["≈"],["¿"],["¡"],[""],["ㄓ"]]
 			gosub srf_tooltip_fanye
 		}else{
 			UpperScreenMode(srf_symblos["``",symb_mode])
@@ -281,7 +281,7 @@ FocusSelect1:
 		}
 	}
 	If (ToolTipStyle~="i)gdip"&&FocusStyle)
-		FocusGdipGui(srf_code, srf_for_select_obj, Caret.X, Caret.Y+30, FontType)
+		FocusGdipGui(srf_code, srf_for_select_obj, Caret.X, Caret.Y+30, EN_Mode||srf_all_input~="^[``]{2}\w+"?EnFontName:FontType)
 return
 
 FocusSelect2:
@@ -312,7 +312,7 @@ FocusSelect2:
 		}
 	}
 	If (ToolTipStyle~="i)gdip"&&FocusStyle)
-		FocusGdipGui(srf_code, srf_for_select_obj, Caret.X, Caret.Y+30, FontType)
+		FocusGdipGui(srf_code, srf_for_select_obj, Caret.X, Caret.Y+30, EN_Mode||srf_all_input~="^[``]{2}\w+"?EnFontName:FontType)
 Return
 
 #If srf_all_input&&srf_all_input~="\d+"

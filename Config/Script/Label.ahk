@@ -572,8 +572,8 @@ OnUpdate:
 Return
 
 RemoveFonts:
-	if FileExist("Font\*.otf") {
-		Loop,Files,Font\*.otf
+	if FileExist("Font\*.*tf") {
+		Loop,Files,Font\*.*tf
 		{
 			RemoveFontResource(A_LoopFileLongPath)
 		}
@@ -1216,17 +1216,21 @@ More_Setting:
 	If Logo_Switch~="i)off"
 		GuiControl, 98:Disable, select_logo
 	Gui, 98:Add, Text,x190 y+10 vTextInfo27 left, 色块调整：
+	Gui,98:Font
+	Gui,98:Font, s9 norm, %font_%
 	Gui, 98:Add, Button, x%scvarX% yp w60 hwndhwndLogoColor_cn gsetlogocolor vLogoColor_cn
 	Gui, 98:Add, Button, x+5 w60 hwndhwndLogoColor_en gsetlogocolor vLogoColor_en
 	Gui, 98:Add, Button, x+5 w60 hwndhwndLogoColor_caps gsetlogocolor vLogoColor_caps
 	CreateImageButton(hwndLogoColor_cn,[{BC: SubStr(LogoColor_cn,5,2) SubStr(LogoColor_cn,3,2) SubStr(LogoColor_cn,1,2), 3D: 0}],5)
 	CreateImageButton(hwndLogoColor_en,[{BC: SubStr(LogoColor_en,5,2) SubStr(LogoColor_en,3,2) SubStr(LogoColor_en,1,2), 3D: 0}],5)
 	CreateImageButton(hwndLogoColor_caps,[{BC: SubStr(LogoColor_caps,5,2) SubStr(LogoColor_caps,3,2) SubStr(LogoColor_caps,1,2), 3D: 0}],5)
-	Gui, 98:Add, Edit, x+10 w60 Limit3 Number vSizeValue gSizeValue
-	Gui, 98:Add, UpDown, x+0 w160 Range1-150 gset_SizeValue vset_SizeValue, % (LogoSize>0&&LogoSize<=150?LogoSize:36)
+	Gui, 98:Add, Edit, x+10 w45 Limit3 Number vSizeValue gSizeValue
+	Gui, 98:Add, UpDown, x+0 w45 Range1-150 gset_SizeValue vset_SizeValue, % (LogoSize>0&&LogoSize<=150?LogoSize:36)
 	GuiControlGet, lcvar, Pos , LogoColor_cn
 	lctY:=lcvarY+lcvarH+10, lctW:=lcvarW*4
 	Gui, 98:Add, Slider,x%lcvarX% y+10 w%lctW% h25 gSrfSlider vSrfSlider Center NoTicks Thick20 ToolTipLeft Range0-255, % transparentX
+	Gui,98:Font
+	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, CheckBox,x%lcvarX% y+10 vSBA13 gSBA13, 指示器显隐
 	Gui, 98:Add, CheckBox,x+5 Checked%DPIScale% vDPISty gDPISty, +DPIScale
 	Gui, 98:Add, CheckBox,x+5 Checked%Logo_ExStyle% vExSty gExSty, 鼠标穿透
@@ -1272,37 +1276,37 @@ More_Setting:
 	Gui, 98:Add, Text, x190 y+10 left vTextInfo8, 候选框偏移：
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
-	Gui, 98:Add, Edit, x+0 yp-3 w60 Limit2 Number vset_regulate_Hx gset_regulate_Hx
-	Gui, 98:Add, UpDown, x+0 w160 Range3-25 gset_regulate vset_regulate, %Set_Range%
+	Gui, 98:Add, Edit, x+0 yp-3 w45 Limit2 Number vset_regulate_Hx gset_regulate_Hx
+	Gui, 98:Add, UpDown, x+0 w45 Range3-25 gset_regulate vset_regulate, %Set_Range%
 	GuiControlGet, EditVar1, Pos , set_regulate_Hx
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui, 98:Add, Text, x+20 yp+3 left vTextInfo7, 候选项数目：
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
-	Gui, 98:Add, Edit, x+0 yp-3 w60 Limit2 Number vselect_value gselect_value
-	Gui, 98:Add, UpDown, x+0 w160 Range3-10 gset_select_value vset_select_value, %ListNum%
+	Gui, 98:Add, Edit, x+0 yp-3 w45 Limit2 Number vselect_value gselect_value
+	Gui, 98:Add, UpDown, x+0 w45 Range3-10 gset_select_value vset_select_value, %ListNum%
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui, 98:Add, Text, x190 y+10 left vTextInfo9, 候选框圆角：
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
-	Gui, 98:Add, Edit, x%EditVar1X% yp-3 w60 Limit2 Number vGdipRadius gGdipRadius
-	Gui, 98:Add, UpDown, x+0 w160 Range0-15 gset_GdipRadius vset_GdipRadius, %Gdip_Radius%
+	Gui, 98:Add, Edit, x%EditVar1X% yp-3 w45 Limit2 Number vGdipRadius gGdipRadius
+	Gui, 98:Add, UpDown, x+0 w45 Range0-15 gset_GdipRadius vset_GdipRadius, %Gdip_Radius%
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui, 98:Add, Text, x+20 yp-3 left vTextInfo10, 焦点项圆角：
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
-	Gui, 98:Add, Edit, x+0 yp+3 w60 Limit2 Number vset_FocusRadius gset_FocusRadius
-	Gui, 98:Add, UpDown, x+0 w160 Range0-18 gset_FocusRadius_value vset_FocusRadius_value, %FocusRadius%
+	Gui, 98:Add, Edit, x+0 yp+3 w45 Limit2 Number vset_FocusRadius gset_FocusRadius
+	Gui, 98:Add, UpDown, x+0 w45 Range0-18 gset_FocusRadius_value vset_FocusRadius_value, %FocusRadius%
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui, 98:Add, Text, x190 y+10 left vTextInfo6, 字体字号：
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
-	Gui, 98:Add, Edit, x%EditVar1X% yp-3 w60 Limit2 Number vfont_value gfont_value
-	Gui, 98:Add, UpDown, x+0 w160 Range9-40 gfont_size vfont_size, %FontSize%
+	Gui, 98:Add, Edit, x%EditVar1X% yp-3 w45 Limit2 Number vfont_value gfont_value
+	Gui, 98:Add, UpDown, x+0 w45 Range9-40 gfont_size vfont_size, %FontSize%
 
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
@@ -1476,7 +1480,7 @@ More_Setting:
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
 	Gui, 98:Add, StatusBar,, 设置面板
-	SB_SetText(A_Is64bitOS?"运行环境：" ComInfo.GetOSVersionInfo() "〔 AHK " A_AhkVersion "#64位 〕":"运行环境：" ComInfo.GetOSVersionInfo() "〔 AHK " A_AhkVersion "#32位 〕" )
+	SB_SetText(A_Is64bitOS?" ❖ " ComInfo.GetOSVersionInfo() "〔 AutoHotkey " A_AhkVersion "#64位 〕":" ❖ " ComInfo.GetOSVersionInfo() "〔 AutoHotkey " A_AhkVersion "#32位 〕" )
 	Gui, 98:Show,AutoSize,输入法设置
 	Gosub ChangeWinIcon
 	Gosub ControlGui
