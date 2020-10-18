@@ -787,13 +787,13 @@ srf_tooltip_fanye:
 		if (WubiIni.TipStyle[v]<>%v%)
 			%v%:=Textdirection:=WubiIni[Array_GetParentKey(WubiIni, v),v]
 	if srf_all_Input ~="^``"{
-		if (srf_all_Input~="^``[a-z]+"&&Wubi_Schema~="i)ci"){
+		if (srf_all_Input~="^``[a-z]+"&&Wubi_Schema~="i)ci"&&!EN_Mode){
 			srf_for_select_Array:=format_word(RegExReplace(srf_all_Input,"^``"))
 			if (srf_for_select_Array[1]<>select_arr&&select_arr[1]<>""){
 				srf_for_select_Array.InsertAt(1, select_arr)
 			}
 			Gosub srf_tooltip_cut
-		}else if RegExReplace(srf_all_Input,"^``")~="\``[a-z]+"{
+		}else if (RegExReplace(srf_all_Input,"^``")~="\``[a-z]+"&&!EN_Mode){
 			srf_for_select_Array:=prompt_enword(RegExReplace(srf_all_Input,"^````",""))
 			Gosub srf_tooltip_cut
 		}else if (srf_all_Input~="^[``]{1,2}$"){
@@ -835,7 +835,7 @@ srf_tooltip_fanye:
 			Sym_Array_1[1,1]:=srf_all_input, srf_for_select_Array:=Sym_Array_1
 		}
 		Gosub srf_tooltip_cut
-	}else if srf_all_Input ~="^z"{
+	}else if (srf_all_Input ~="^z"&&!EN_Mode){
 		if srf_all_Input~="^z[a-z]+|^z\'[a-z]+" {
 			srf_all_input:=!zkey_mode?RegExReplace(srf_all_input,"^z|^z\'",srf_all_input~="'"?"z":"z'"):srf_all_input, srf_for_select_Array:=get_word(srf_all_input, Wubi_Schema)
 		}else{
@@ -853,7 +853,7 @@ srf_tooltip_fanye:
 		else if srf_all_Input ~="^~$"
 			Sym_Array:=[],Sym_Array[1,1]:=srf_all_Input, Sym_Array[2,1]:="～",srf_for_select_Array:=Sym_Array
 		Gosub srf_tooltip_cut
-	}else if srf_all_Input ~="^[a-y]{1,4}``"{
+	}else if (srf_all_Input ~="^[a-y]{1,4}``"&&!EN_Mode){
 		srf_for_select_Array:=format_word_2(srf_all_Input)
 		Gosub srf_tooltip_cut
 	}else{
@@ -943,7 +943,7 @@ showhouxuankuang:
 			Gui, houxuankuang:Hide
 		Return
 	}
-	srf_code:=srf_all_input~="^z\'[a-z]"?RegExReplace(srf_all_input,"^z\'"):(srf_all_input~="^``$"?RegExReplace(srf_all_input,"^``",(Wubi_Schema~="i)ci"?"〔精准造词〕":"〔常用符号〕")):srf_all_input~="^~$"?RegExReplace(srf_all_input,"^~","〔以形查音〕"):srf_all_input~="^````$"?RegExReplace(srf_all_input,"^````","〔临时英文〕"):srf_all_input)
+	srf_code:=srf_all_input~="^z\'[a-z]"?RegExReplace(srf_all_input,"^z\'"):(srf_all_input~="^``$"?RegExReplace(srf_all_input,"^``",(Wubi_Schema~="i)ci"&&!EN_Mode?"〔精准造词〕":"〔常用符号〕")):srf_all_input~="^~$"?RegExReplace(srf_all_input,"^~","〔以形查音〕"):srf_all_input~="^[``]{2}$"&&!EN_Mode?RegExReplace(srf_all_input,"^````","〔临时英文〕"):"〔常用符号〕")
 	srf_code:=srf_code~="^``|^~"?RegExReplace(RegExReplace(srf_code,"^``|^~"),"``","'"):srf_code
 	SysGet, _height, 14
 	if Fix_Switch~="i)on"{

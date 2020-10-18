@@ -467,8 +467,8 @@ Get_EnWord(input){
 		Return []
 	SQL :="SELECT aim_chars FROM encode WHERE aim_chars LIKE '" input "%' ORDER BY A_Key DESC;"
 	If DB.GetTable(SQL, Result){
-		if !Result.Rows[1,1]
-			Result.Rows[1,1]:=input,Result.Rows[2,1]:=StringUpper(input),Result.Rows[3,1]:=StringUpper(input,"T")
+		if (Result.Rows[1,1]<>input)
+			Result.Rows.push([input]), Result.Rows.push([StringUpper(input)]), Result.Rows.push([StringUpper(input,"T")])
 		Return Result.Rows
 	}
 }
@@ -638,8 +638,19 @@ SwitchingScheme(n,Char){
 	Return flag
 }
 
+Save_EnWord(input){
+	global DB, srf_all_Input
+	If (input="")
+		Return
+	DB.gettable("SELECT aim_chars,A_Key FROM encode WHERE aim_chars = '" input "' ORDER BY A_Key DESC;",Result)
+	If !objlength(Result.Rows) {
+		If DB.Exec("INSERT INTO encode(aim_chars,A_Key)VALUES('" StringLower(input) "','5000');")>0
+			Return 1
+	}
+}
+
 UpperScreenMode(TEXT){
-	global srf_all_Input, Initial_Mode
+	global srf_all_Input, Initial_Mode, EN_Mode, srf_for_select_Array
 	If (Initial_Mode ~="on"||srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3)
 	{
 		WinClip.Snap( ClipSaved ), WinClip.Clear()
@@ -649,8 +660,12 @@ UpperScreenMode(TEXT){
 		SendInput % TEXT
 	If srf_all_input~="^[a-y]+"
 		updateRecent(TEXT)    ;写入历史记录
-	if srf_all_Input~="^\``[a-y]+|^[a-y]{1,4}\``.+"
+	if (!EN_Mode&&srf_all_Input~="^\``[a-y]+|^[a-y]{1,4}\``.+") {
 		Save_word(TEXT)
+	}else If (!EN_Mode&&srf_all_Input~="^[``]{2}\w+"&&srf_for_select_Array[1,1]=srf_for_select_Array[2,1]&&srf_for_select_Array[1,1]=srf_for_select_Array[3,1]
+		||EN_Mode&&srf_for_select_Array[1,1]=srf_for_select_Array[2,1]&&srf_for_select_Array[2,1]=srf_for_select_Array[3,1]){
+		Save_EnWord(TEXT)
+	}
 }
 
 ;选词
@@ -688,6 +703,8 @@ srf_select(list_num,thishotkey:=""){
 				DB.Exec("UPDATE ci SET D_Key =(SELECT D_Key FROM ci WHERE aim_chars ='" srf_for_select_Array[list_num-1+ListNum*waitnum,1] "')+2 WHERE aim_chars ='" selectvalue "' AND A_Key ='" srf_all_Input "';")
 			Json_ObjToFile(Frequency_Obj, A_ScriptDir "\Config\Script\wubi98_ci.json", "UTF-8")
 		}
+	}else If EN_Mode{
+			
 	}
 	Gosub srf_value_off
 }
@@ -823,8 +840,8 @@ prompt_enword(input){
 		Return []
 	SQL :="SELECT aim_chars FROM encode WHERE aim_chars LIKE '" input "%' ORDER BY A_Key DESC;"
 	If DB.GetTable(SQL, Result){
-		if !Result.Rows[1,1]
-			Result.Rows[1,1]:=input,Result.Rows[2,1]:=StringUpper(input),Result.Rows[3,1]:=StringUpper(input,"T")
+		If (Result.Rows[1,1]<>input)
+			Result.Rows.push([input]), Result.Rows.push([StringUpper(input)]), Result.Rows.push([StringUpper(input,"T")])
 		Return Result.Rows
 	}
 }
