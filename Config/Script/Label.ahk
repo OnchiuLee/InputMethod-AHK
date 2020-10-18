@@ -671,7 +671,7 @@ srf_tooltip:
 		}
 		else if (StrLen(srf_all_input)>4&&srf_all_input ~="^[a-yA-Y]+$") ;五码顶字上屏，排除编码含z的拼音反查
 		{
-			srf_for_select_for_tooltip:=RegExReplace(srf_for_select_for_tooltip,"^\w\.")
+			srf_for_select_for_tooltip:=RegExReplace(srf_for_select_for_tooltip,"\s.+|\n.+|^\w+\.")
 			UpperScreenMode(StrSplit(srf_for_select_for_tooltip,Textdirection ~="i)vertical"?"`n":A_Space)[1])
 			srf_all_input :=RegExReplace(srf_all_input, "^[a-zA-Z]{4}", "")
 			Gosub srf_tooltip_fanye
