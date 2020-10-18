@@ -15,12 +15,7 @@
 #Persistent
 #WinActivateForce
 #Include %A_ScriptDir%
-/*
-If (A_AhkVersion < "1.1.33.02") {
-	MsgBox, 16, 兼容警告, 主程序版本过低使用过程中可能会出现未知Bug`n推荐ahk版本不小于1.1.33.02！, 3
-}
-*/
-;;{{{{{启动文件位数判断
+
 ProcessName :=RegExReplace(A_AhkPath,".+\\") 
 Loop, Files, main\*.exe
 {
@@ -31,7 +26,6 @@ Loop, Files, main\*.exe
 	}
 }
 
-;}}}}}
 If !FileExist(A_Temp "\InputMethodData")
 	FileCreateDir,%A_Temp%\InputMethodData
 If !FileExist(A_Temp "\InputMethodData\Config.ini") {
@@ -41,7 +35,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020101320"
+version :="2020101811"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -91,36 +85,11 @@ WinGetPos,,,,Shell_Wnd ,ahk_class Shell_TrayWnd
 global y2 :=A_ScreenHeight-Shell_Wnd-40, CpuID:=ComInfo.GetCpuID_2()
 DllCall("gdi32\EnumFontFamilies","uint",DllCall("GetDC","uint",0),"uint",0,"uint",RegisterCallback("EnumFontFamilies"),"uint",a_FontList:="")
 font_:=ComInfo.GetDefaultFontName(), font_:=font_?font_:"Microsoft YaHei UI"
-/*
-WinGet, aPID, PID, A
-if(!A_IsAdmin || ProcessIsElevated(aPID)<>1)
-{
-	MsgBox,262160, 无法操作, 目标窗口或本脚本不具有管理员权限！
-	ExitApp
-}
-*/
+
 ;;===============输入法名称（可修改）==================
 Startup_Name :="五笔98版"   
-;拆分字体名变量，拆分开启时用来过滤字体以完美显示拆分
-RegRead, FontVar, HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows NT\CurrentVersion\FontLink\SystemLink, 98WB-0
-if FontVar
-	FontExtend:="98WB-U|98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_
-else
-	FontExtend:="98WB-U|98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0"
+FontExtend:="98WB-U|98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_
 
-/*
-;;=========================config.ini去重================
-;;{{{{{
-FileRead,content,%A_Temp%\InputMethodData\Config.ini
-New_Content:=""
-Loop,parse,content, `n ,`r
-	IfNotInString,New_Content,%A_LoopField%
-		New_Content.=A_LoopField "`r`n"
-FileDelete, %A_Temp%\InputMethodData\Config.ini
-FileAppend,%New_Content%,%A_Temp%\InputMethodData\Config.ini,utf-8
-New_Content:=""
-;;======================================================
-*/
 Loop Files, config\Skins\logoStyle\*.icl
 {
 	if A_LoopFileName {
@@ -128,7 +97,6 @@ Loop Files, config\Skins\logoStyle\*.icl
 		break
 	}
 }
-;}}}}}
 
 ;{{{{{读取配置及配置检测
 If !FileExist(A_Temp "\InputMethodData\Config.ini")
@@ -148,7 +116,7 @@ global srf_default_value,config_tip,srf_default_obj, WubiIni:=class_EasyIni(A_Te
 		, TipStyle:{ThemeName:DefaultThemeName, StyleN:StyleName,Logo_ExStyle:0,transparentX:180,LogoSize:36, FontType:font_
 				, FontSize:22, FontColor:Font_Color,FocusBackColor:FocusBack_Color,FocusColor:Focus_Color,FocusCodeColor:FocusCode_Color
 				,FocusRadius:5, FontStyle:"off", FontCodeColor:FontCode_Color,LineColor:Line_Color,BorderColor:Border_Color
-				, Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"off", BgColor:Bg_Color, ListNum:5,Gdip_Radius:5
+				, Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"off", BgColor:Bg_Color, ListNum:5,Gdip_Radius:5, EnFontName:"Andrich"
 				, Textdirection:"horizontal", Set_Range:3, Fix_Switch:"off",Fix_X:A_ScreenWidth/2,Fix_Y:10}  ;竖排--vertical
 		, CustomColors:{Color_Row1:"0x1C7399,0xEEEEEC,0x014E8B,0x444444,0x009FE8,0xDEF9FA,0xF8B62D,0x90FC0F", Color_Row2:"0x0078D7,0x0D1B0A,0xB9D497,0x00ADEF,0x1778BF,0xFDF6E3,0x002B36,0xDEDEDE"}}
 ;初始化默认配置
@@ -176,23 +144,20 @@ For Section, element In srf_default_value
 		If ((%key%:=WubiIni[Section, key])="")
 			%key%:=WubiIni[Section, key]:=value
 
-if (Logo_X<0||Logo_X>A_ScreenWidth||Logo_Y<0||Logo_Y>A_ScreenHeight)
-	Logo_X :=WubiIni.Settings["Logo_X"]:=10,Logo_Y :=WubiIni.Settings["Logo_Y"]:=A_ScreenHeight/2
-if (Wubi_Schema<>"ci"&&Wubi_Schema<>"zi"&&Wubi_Schema<>"chaoji"&&Wubi_Schema<>"zg")
+LWidth:=A_ScreenWidth-LogoSize, LHeight:=A_ScreenHeight-LogoSize
+If Logo_X not between 0 and %LWidth%
+	Logo_X :=WubiIni.Settings["Logo_X"]:=20
+If Logo_X not between 0 and %LHeight%
+	Logo_Y :=WubiIni.Settings["Logo_Y"]:=A_ScreenHeight/2
+if not Wubi_Schema ~="i)ci|zi|chaoji|zg"
 	Wubi_Schema :=WubiIni.Settings["Wubi_Schema"]:="ci"
 
 ;开机自启项检测是否开启，以便与配置文件同步
 cmd_zq= schtasks /Query /TN %Startup_Name%
-zq_:= cmdClipReturn(cmd_zq)
-if FileExist(A_Startup "\" Startup_Name ".lnk"){
-	Startup :=WubiIni.Settings["Startup"]:="sc"
-}else{
-	Startup :=WubiIni.Settings["Startup"]:=zq_~=Startup_Name?"on":"off"
-}
+zq_:= cmdClipReturn(cmd_zq), Startup :=WubiIni.Settings["Startup"]:=FileExist(A_Startup "\" Startup_Name ".lnk")?"sc":zq_~=Startup_Name?"on":"off"
 versions :=WubiIni.Settings["versions"]:=version
 if not Srf_Hotkey ~="i)Ctrl|Shift|Alt|LWin"||Srf_Hotkey ~="\&$"
-	Srf_Hotkey:=WubiIni.Settings["Srf_Hotkey"]:="Shift"
-
+	Srf_Hotkey:=WubiIni.Settings["Srf_Hotkey"]:=srf_default_value["Settings","Srf_Hotkey"]
 If status {
 	WubiIni.DeleteSection("Initialize"), status:=0
 }
@@ -260,21 +225,25 @@ if FileExist(A_ScriptDir "\*.ico") {
 
 srf_mode :=IMEmode~="off"?0:1
 ;;=======================字体注册=========================
-if not a_FontList~="98WB-0" and FileExist("Font\*.otf") {
+
+if FileExist("Font\*.otf") {
 	Loop,Files,Font\*.otf
-		AddFontResource(A_LoopFileLongPath)
-	FontType:=WubiIni.TipStyle["FontType"]:="98WB-0", WubiIni.Save()
-}
-if !InitStatus {
-	Run, rundll32.exe "%A_ProgramFiles%\Windows Photo Viewer\PhotoViewer.dll"`, ImageView_Fullscreen %A_ScriptDir%\config\ReadMe.png,, UseErrorLevel
-	if (ErrorLevel = "ERROR") {
-		Traytip,, 未找到默认的图片查看器！,,3
+	{
+		DllCall("gdi32\EnumFontFamilies","uint",DllCall("GetDC","uint",0),"uint",0,"uint",RegisterCallback("EnumFontFamilies"),"uint",a_FontList:="")
+		If GetFontNamesFromFile(A_LoopFileLongPath).Family~=a_FontList
+		{
+			AddFontResource(A_LoopFileLongPath)
+		}
 	}
+}
+
+if !InitStatus {
+	;;Run, rundll32.exe "%A_ProgramFiles%\Windows Photo Viewer\PhotoViewer.dll"`, ImageView_Fullscreen %A_ScriptDir%\config\ReadMe.png,, UseErrorLevel
 	Run, http://98wb.ys168.com/,, UseErrorLevel
 	if (ErrorLevel = "ERROR") {
 		Run, iexplore.exe "98wb.ys168.com/",, UseErrorLevel
 	}
-	InitStatus:=WubiIni.Settings["InitStatus"]:=1,WubiIni.Save()
+	InitStatus:=WubiIni.Settings["InitStatus"]:=1,FontType:=WubiIni.TipStyle["FontType"]:="98WB-0",EnFontName:=WubiIni.TipStyle["EnFontName"]:="Andrich", WubiIni.Save()
 }
 if (ToolTipStyle ~="i)gdip"&&A_OSVersion ~="i)WIN_XP") {
 	;Traytip,,你的系统不支持当前Gdip候选框样式,请切换!,,2
@@ -429,7 +398,7 @@ WM_LBUTTONDOWN(){
 			srf_select(PosIndex)
 		}
 	}
-	if (A_Gui ="SrfTip"||srfTool&&A_Gui="logo"){
+	if (!srfTool&&A_Gui ="SrfTip"||srfTool&&A_Gui="logo"){
 		PostMessage, 0xA1, 2
 		Gosub Write_Pos
 	}
@@ -511,7 +480,6 @@ WM_MOUSEMOVE()
 
 	SetTimer, Tip_timer, 1000
 	Tip_timer:
-/*
 		;aero_link:="C:\Windows\Cursors\aero_link.cur" ;小手
 		;aero_arrow_l:="C:\Windows\Cursors\aero_arrow_l.cur" ;箭头
 		if (A_GuiControl~="i)nextpage|uppage|MyDB|Lastpage|Toppage|Pics2|Pics3|Pics4|MoveGui"){  ;&&FileExist(aero_link)
@@ -521,20 +489,6 @@ WM_MOUSEMOVE()
 		}else{
 			;DllCall( "SystemParametersInfo", UInt,0x57, UInt,0, UInt,0, UInt,0 )
 			RestoreCursors()
-		}
-*/
-		If !srfTool {
-			x_:=LogoSize<=36?Logo_X+SrfTip_Width+10:Logo_X+SrfTip_Width+LogoSize-26, Y_:=LogoSize>=36?Logo_Y+(LogoSize-36)/2:Logo_Y-(36-LogoSize)/2
-			if (A_Gui~="i)SrfTip|logo"&&!Logo_ExStyle) {
-				Gosub Write_Pos
-				DetectHiddenWindows On
-				;If !DllCall("user32\IsWindowVisible", "Ptr", WinExist("sign_wb"))
-					Gui, logo:Show, NA h36 x%x_% y%Y_%,sign_wb
-				;ToolTip, 双击「色块」或者单击「指示条」方案名称`n来切换方案，其它部位单击可进行切换操作！
-			}else{
-				Gui, logo:Hide
-				;ToolTip
-			}
 		}
 	Return
 
@@ -552,34 +506,35 @@ WM_MOUSEMOVE()
 }
 
 ;{{{{{{应用状态管理{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
-EXEList_obj:=Json_FileToObj(A_ScriptDir "\Sync\InputMode.json")
-if !EXEList_obj.Count() {
-	EXEList_obj:={CN:["QQ.exe"],EN:["Notepad.exe"],CLIP:["Notepad.exe"],FormatDate:[["公元年月日-周 周数"], ["yyyy-MM-dd HH:mm:ss"]],FormatKey:["week","time","date"]}
-	Json_ObjToFile(EXEList_obj, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
+DefaultModeData:={CN:["QQ.exe"],EN:["Notepad.exe"],CLIP:["Notepad.exe"],FormatDate:[["公元年月日-周 周数"], ["yyyy-MM-dd HH:mm:ss"]],FormatKey:["week","time","date"]}
+InputModeData:=Json_FileToObj(A_ScriptDir "\Sync\InputMode.json")
+if !ObjCount(InputModeData) {
+	InputModeData:=DefaultModeData, Json_ObjToFile(InputModeData, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
+}else{
+	For Section,element In InputModeData
+		If !ObjCount(element)
+			InputModeData[Section]:=DefaultModeData[Section], Json_ObjToFile(InputModeData, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
 }
 Gui +LastFound
 DllCall( "RegisterShellHookWindow", UInt,WinExist() )   ;WinActive()
 OnMessage( DllCall( "RegisterWindowMessage", Str,"SHELLHOOK" ), "ShellIMEMessage")
 ShellIMEMessage( wParam,lParam ) {
-	global srf_mode, EXEList_obj, Initial_Mode, WubiIni,StyleN,IStatus, program, IMEmode ,CursorStatus, versions, GzType
+	global srf_mode, InputModeData, Initial_Mode, WubiIni,StyleN,IStatus, program, IMEmode ,CursorStatus, versions, GzType
 		, Startup_Name, Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, srf_all_input, ID_Cursor
 	If (wParam = 1 ){    ; wParam = 6
 		WinGet, WinEXE, ProcessName , ahk_id %lParam%
 		WinGetclass, WinClass, ahk_id %lParam%
 		;WinActivate,ahk_class %WinClass%
-		If (Array_isInValue(EXEList_obj["CN"], WinEXE)&&!srf_mode&&IStatus)
+		If (Array_isInValue(InputModeData["CN"], WinEXE)&&!srf_mode&&IStatus)
 		{
 			srf_mode:=1
-			GuiControl,logo:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
-			Gosub ShowSrfTip
-		}else If (Array_isInValue(EXEList_obj["EN"], WinEXE)&&srf_mode&&IStatus){
+			Gosub RestLogo
+		}else If (Array_isInValue(InputModeData["EN"], WinEXE)&&srf_mode&&IStatus){
 			srf_mode:=0
-			GuiControl,logo:, Pics,*Icon3 config\Skins\logoStyle\%StyleN%.icl
-			Gosub ShowSrfTip
-		}else If (Array_isInValue(EXEList_obj["CLIP"], WinEXE)&&IStatus){
+			Gosub RestLogo
+		}else If (Array_isInValue(InputModeData["CLIP"], WinEXE)&&IStatus){
 			if Initial_Mode~="i)off" {
 				Initial_Mode:=WubiIni.Settings["Initial_Mode"] :="on", WubiIni.save()
-				GuiControl,logo:, Pics4,*Icon10 config\Skins\logoStyle\%StyleN%.icl
 			}
 		}
 	}
@@ -591,51 +546,39 @@ ShellIMEMessage( wParam,lParam ) {
 			WinGet, WinEXE_, ProcessName , ahk_id %WinID_%
 		}
 		if (WinEXE_<>LastWinEXE&&Eid<>WinExist()&&Eid){
-			If (Array_isInValue(EXEList_obj["CN"], WinEXE_)&&!srf_mode&&IStatus){
+			If (Array_isInValue(InputModeData["CN"], WinEXE_)&&!srf_mode&&IStatus){
 				srf_mode:=1
-				GuiControl,logo:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
-				Gosub ShowSrfTip
-			}else If (Array_isInValue(EXEList_obj["EN"], WinEXE_)&&srf_mode&&IStatus){
+				Gosub RestLogo
+			}else If (Array_isInValue(InputModeData["EN"], WinEXE_)&&srf_mode&&IStatus){
 				srf_mode:=0
-				GuiControl,logo:, Pics,*Icon3 config\Skins\logoStyle\%StyleN%.icl
-				Gosub ShowSrfTip
-			}else If (Array_isInValue(EXEList_obj["CLIP"], WinEXE_)&&IStatus){
+				Gosub RestLogo
+			}else If (Array_isInValue(InputModeData["CLIP"], WinEXE_)&&IStatus){
 				if Initial_Mode~="i)off" {
 					Initial_Mode:=WubiIni.Settings["Initial_Mode"] :="on", WubiIni.save()
-					GuiControl,logo:, Pics4,*Icon10 config\Skins\logoStyle\%StyleN%.icl
 				}
-			}else if (!Array_isInValue(EXEList_obj["EN"], WinEXE_)&&!Array_isInValue(EXEList_obj["CN"], WinEXE_)&&srf_mode<>(IMEmode~="off"?0:1)){
+			}else if (!Array_isInValue(InputModeData["EN"], WinEXE_)&&!Array_isInValue(InputModeData["CN"], WinEXE_)&&srf_mode<>(IMEmode~="off"?0:1)){
 				srf_mode :=IMEmode~="off"?0:1, _Icon:=srf_mode?1:3
-				GuiControl,logo:, Pics,*Icon%_Icon% config\Skins\logoStyle\%StyleN%.icl
-				Gosub ShowSrfTip
+				Gosub RestLogo
 			}
 		}
 
 		If (A_Cursor ~= "i)IBeam"&&CursorStatus&&!srf_mode&&ID_Cursor<>WinID_) {
 			srf_mode:=1, ID_Cursor:=WinID_
-			GuiControl,logo:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
-			Gosub ShowSrfTip
+			Gosub RestLogo
 		}else If (not A_Cursor ~= "i)IBeam"&&CursorStatus&&srf_mode) {
 			srf_mode:=0
-			GuiControl,logo:, Pics,*Icon3 config\Skins\logoStyle\%StyleN%.icl
-			Gosub ShowSrfTip
+			Gosub RestLogo
 		}
 		LastWinEXE:=WinEXE_, Eid:=WinExist(), lunarDate:=Date2LunarDate(SubStr( A_Now,1,10),GzType)
 		program:="※ " Startup_Name " ※`n◆ 当前方案：" (Wubi_Schema~="i)ci"?"【98五笔•含词】":Wubi_Schema~="i)zi"?"【98五笔•单字】":Wubi_Schema~="i)zg"?"【98五笔•字根】":"【98五笔•超集】") "`n◆ 农历日期：" lunarDate[1] "〖 " A_DDDD " 〗`n◆ 甲子历：" lunarDate[2] "`n◆ 农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))   ;;"`n◆ 版本日期：" versions
 		Menu,Tray,Tip,%program%
 		Gosub SelectItems
-/*
-		If (!DllCall("Wininet.dll\InternetCheckConnection", "Str", "https://www.baidu.com/", "UInt", 0x1, "UInt", 0x0, "Int"))
-			Menu, Tray, Disable, 更新
-		else
-			Menu, Tray, Enable, 更新
-*/
 	Return
 }
 ;}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 
 Gosub houxuankuangguicreate
-Gosub Schema_logo
+Gosub Srf_Tip
 ;{{{{{Z键记录历史记录，最大数目为ListNum
 updateRecent(date){
 	global recent, ListNum
@@ -650,16 +593,6 @@ updateRecent(date){
 	{
 		objdelete(recent,ListNum+1,length)
 	}
-}
-
-;获取返回系统存在的拆分字体名
-GetCutModeFont(){
-	global FontExtend,a_FontList
-	fontName:=""
-	for k,v in StrSplit(a_FontList , "|")
-		if v~="i)" FontExtend
-			fontName:= v
-	Return fontName
 }
 
 Gosub srf_value_off
