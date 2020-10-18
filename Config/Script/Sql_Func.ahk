@@ -618,10 +618,11 @@ TranSelectvalue(chars){
 }
 
 SwitchingScheme(n,Char){
-	global WubiIni, srf_all_input, Wubi_Schema, srf_for_select_Array,localpos, Initial_Mode
+	global WubiIni, srf_all_input, Wubi_Schema, srf_for_select_Array,localpos, Initial_Mode, EN_Mode
 	flag:=0, n:=localpos>1&&n==1?localpos:n
 	If srf_all_input~="\/sc$" {
-		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"] :=srf_for_select_Array[n,4], flag:=1, WubiIni.save()
+		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"] :=srf_for_select_Array[n,4]~="i)zi|ci|zg|chaoji"?srf_for_select_Array[n,4]:Wubi_Schema, flag:=1, WubiIni.save()
+		EN_Mode:=WubiIni.Settings["EN_Mode"] :=srf_for_select_Array[n,4]~="i)en"?!EN_Mode:srf_for_select_Array[n,4]~="i)zi|ci|zg|chaoji"?0:EN_Mode
 		if Wubi_Schema~="i)zi|zg"
 			Gosub Disable_Tray
 		else
@@ -637,9 +638,9 @@ SwitchingScheme(n,Char){
 	Return flag
 }
 
-UpperScreenMode(TEXT, m:=0){
-	global srf_all_Input
-	If m
+UpperScreenMode(TEXT){
+	global srf_all_Input, Initial_Mode
+	If (Initial_Mode ~="on"||srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3)
 	{
 		WinClip.Snap( ClipSaved ), WinClip.Clear()
 		WinClip.SetText( TEXT ), WinClip.Paste()
@@ -667,10 +668,7 @@ srf_select(list_num,thishotkey:=""){
 	If (selectvalue~="\\n|\\t"&&srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>2&&!IsLabel(selectvalue), selectvalue_:="") {
 		selectvalue_:= TranSelectvalue(selectvalue), selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,1] "`r`n" srf_for_select_Array[list_num+ListNum*waitnum,Cut_Mode~="on"?2:3] "`r`n" selectvalue_
 	}
-	if (Initial_Mode ~="on"||srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3)
-		UpperScreenMode(selectvalue,1)
-	else
-		UpperScreenMode(selectvalue)
+	UpperScreenMode(selectvalue)
 	if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci"&&list_num>1&&srf_all_Input~="^[a-y]+$"&&srf_for_select_Array.Length()>1&&!EN_Mode){
 		if (Frequency_obj[selectvalue,1]&&Frequency_obj[selectvalue,2]=srf_all_Input) {
 			Frequency_obj[selectvalue,1]:=Frequency_obj[selectvalue,1]+1
@@ -872,7 +870,7 @@ prompt_label(input){
 
 ;特殊符号提取
 prompt_symbols(input){
-	global DB, Cut_Mode, srf_all_Input, labelObj, Wubi_Schema, Initial_Mode
+	global DB, Cut_Mode, srf_all_Input, labelObj, Wubi_Schema, Initial_Mode, EN_Mode
 	If (input="")
 		Return []
 	ResultAll:=[]
@@ -903,7 +901,7 @@ prompt_symbols(input){
 		}
 		scObject:={zznl:Get_LunarDate()
 			,zzsj:Get_Time(),zzrq:Get_Date()
-			,sc:[["含词",Wubi_Schema~="i)ci"?"☯":"",Wubi_Schema~="i)ci"?"☯":"","ci"],["单字",Wubi_Schema~="i)zi"?"☯":"",Wubi_Schema~="i)zi"?"☯":"","zi"],["超集",Wubi_Schema~="i)chaoji"?"☯":"",Wubi_Schema~="i)chaoji"?"☯":"","chaoji"],["字根",Wubi_Schema~="i)zg"?"☯":"",Wubi_Schema~="i)zg"?"☯":"","zg"]]
+			,sc:[["含词",Wubi_Schema~="i)ci"&&!EN_Mode?"☯":"",Wubi_Schema~="i)ci"&&!EN_Mode?"☯":"","ci"],["单字",Wubi_Schema~="i)zi"&&!EN_Mode?"☯":"",Wubi_Schema~="i)zi"&&!EN_Mode?"☯":"","zi"],["超集",Wubi_Schema~="i)chaoji"&&!EN_Mode?"☯":"",Wubi_Schema~="i)chaoji"&&!EN_Mode?"☯":"","chaoji"],["英文",EN_Mode?"☯":"",EN_Mode?"☯":"","en"],["字根",Wubi_Schema~="i)zg"&&!EN_Mode?"☯":"",Wubi_Schema~="i)zg"&&!EN_Mode?"☯":"","zg"]]
 			,sp:[["剪切板上屏",Initial_Mode~="i)on"?"☯":"",Initial_Mode~="i)on"?"☯":"","on"],["发送上屏",Initial_Mode~="i)off"?"☯":"",Initial_Mode~="i)off"?"☯":"","off"]]}
 		For section,element in scObject
 			If (section=SubStr(input,2)) {

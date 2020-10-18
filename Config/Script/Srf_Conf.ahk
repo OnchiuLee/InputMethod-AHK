@@ -135,68 +135,54 @@ Return
 		send {0}
 		num__:=A_ThisHotkey
 	Return
-/*
-	;快速多行注释
-	^/::
-		ClipSaved :=ClipboardAll
-		sleep 300
-		Clipboard :=""
-		send ^x
-		ClipWait
-		send % "`n/*`n" Clipboard "`n */`n"
-		Clipboard:=ClipSaved
-		ClipSaved:=""
-	Return
-*/
-	`;::send % srf_symblos[";",symb_mode]
-	,::send % srf_symblos[",",symb_mode]
-	\::send % srf_symblos["\",symb_mode]
-	[::send % srf_symblos["[",symb_mode]
-	]::send % srf_symblos["]",symb_mode]
-	-::send % srf_symblos["-",symb_mode]
-	=::send % srf_symblos["=",symb_mode]
-	+,::send % srf_symblos["<",symb_mode]
-	+.::send % srf_symblos[">",symb_mode]
-	+/::send % srf_symblos["?",symb_mode]
-	+1::send % srf_symblos["!",symb_mode]
-	+2::send % srf_symblos["@",symb_mode]
-	+4::send % srf_symblos["$",symb_mode]
-	+5::send % srf_symblos["%",symb_mode]
-	+6::send % srf_symblos["^",symb_mode]
-	+7::send % srf_symblos["&",symb_mode]
-	+8::send % srf_symblos["*",symb_mode]
-	+9::send % srf_symblos["(",symb_mode]
-	+0::send % srf_symblos[")",symb_mode]
-	+;::send % srf_symblos[":",symb_mode]
-	+[::send % srf_symblos["{",symb_mode]
-	+]::send % srf_symblos["}",symb_mode]
+
+	`;::UpperScreenMode( srf_symblos[";",symb_mode] )
+	,::UpperScreenMode( srf_symblos[",",symb_mode] )
+	\::UpperScreenMode( srf_symblos["\",symb_mode] )
+	[::UpperScreenMode( srf_symblos["[",symb_mode] )
+	]::UpperScreenMode( srf_symblos["]",symb_mode] )
+	-::UpperScreenMode( srf_symblos["-",symb_mode] )
+	=::UpperScreenMode( srf_symblos["=",symb_mode] )
+	+,::UpperScreenMode( srf_symblos["<",symb_mode] )
+	+.::UpperScreenMode( srf_symblos[">",symb_mode] )
+	+/::UpperScreenMode( srf_symblos["?",symb_mode] )
+	+1::UpperScreenMode( srf_symblos["!",symb_mode] )
+	+2::UpperScreenMode( srf_symblos["@",symb_mode] )
+	+4::UpperScreenMode( srf_symblos["$",symb_mode] )
+	+5::UpperScreenMode( srf_symblos["%",symb_mode] )
+	+6::UpperScreenMode( srf_symblos["^",symb_mode] )
+	+7::UpperScreenMode( srf_symblos["&",symb_mode] )
+	+8::UpperScreenMode( srf_symblos["*",symb_mode] )
+	+9::UpperScreenMode( srf_symblos["(",symb_mode] )
+	+0::UpperScreenMode( srf_symblos[")",symb_mode] )
+	+;::UpperScreenMode( srf_symblos[":",symb_mode] )
+	+[::UpperScreenMode(srf_symblos["{",symb_mode] )
+	+]::UpperScreenMode( srf_symblos["}",symb_mode] )
 	'::
-		send % srf_symblos["'",symb_mode]
+		UpperScreenMode(srf_symblos["'",symb_mode])
 	return
 
 	+'::
-		send % srf_symblos["""",symb_mode]
+		UpperScreenMode(srf_symblos["""",symb_mode])
 	return
 
 	.::
 		if num__~="\d"
-			send {.}
+			UpperScreenMode( ".")
 		else
-			send % srf_symblos[".",symb_mode]
+			UpperScreenMode(srf_symblos[".",symb_mode])
 		num__:=""
 	Return
 	CapsLock::
 		if !GetKeyState("CapsLock", "T"){
 			SetCapsLockState , on
-			GuiControl,logo:, Pics,*Icon2 config\Skins\logoStyle\%StyleN%.icl
-			Gosub ShowSrfTip
+			Gosub RestLogo
 			gosub Get_IME
 		}
 		else
 		{
 			SetCapsLockState , off
-			GuiControl,logo:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
-			Gosub ShowSrfTip
+			Gosub RestLogo
 			gosub Get_IME
 		}
 		gosub srf_value_off
@@ -208,14 +194,14 @@ Return
 			global Sym_Array :=[[""],["·"],["～"],["☯"],["•"],["℃"],["〔〕{Left}"],["‰"],["℉"],["※"],["●"],["○"],["★"],["☆"],["©"],["√"],["×"],["№"],["％"],["≈"],["¿"],["¡"],[""],["ㄓ"]]
 			gosub srf_tooltip_fanye
 		}else{
-			send % srf_symblos["``",symb_mode]
+			UpperScreenMode(srf_symblos["``",symb_mode])
 		}
 	Return
 	NumpadDiv::
 	/::
 		if !GetKeyState("CapsLock", "T"){
 			if num__~="\d"{
-				send {/}
+				UpperScreenMode("/")
 				num__:=A_ThisHotkey
 			}else{
 				srf_all_Input .= A_ThisHotkey~="i)NumpadDiv"?"/":A_ThisHotkey, select_sym:=PosLimit:=0
@@ -224,7 +210,7 @@ Return
 				gosub srf_tooltip_fanye
 			}
 		}else{
-			send % srf_symblos["/",symb_mode]
+			UpperScreenMode(srf_symblos["/",symb_mode])
 		}
 	Return
 	~::
@@ -232,7 +218,7 @@ Return
 			srf_all_Input .= A_ThisHotkey, select_sym:=PosLimit:=0
 			gosub srf_tooltip_fanye 
 		}else{
-			send % srf_symblos["~",symb_mode]
+			UpperScreenMode(srf_symblos["~",symb_mode])
 		}
 	Return
 return
@@ -242,29 +228,17 @@ return
 	+'::
 		send {"}
 	return
-/*
-	;快速多行注释
-	^/::
-		ClipSaved:=ClipboardAll
-		Clipboard:=""
-		send ^x
-		send {/}{*}{`n 2}{*}{/}{up}
-		send ^v
-		Clipboard:=ClipSaved, ClipSaved:=""
-	Return
-*/
+
 	CapsLock::
 		if GetKeyState("CapsLock", "T"){
 			SetCapsLockState , off
-			GuiControl,logo:, Pics,*Icon3 config\Skins\logoStyle\%StyleN%.icl
-			Gosub ShowSrfTip
+			Gosub RestLogo
 			gosub Get_IME
 		}
 		else
 		{
 			SetCapsLockState , on
-			GuiControl,logo:, Pics,*Icon2 config\Skins\logoStyle\%StyleN%.icl
-			Gosub ShowSrfTip
+			Gosub RestLogo
 			gosub Get_IME
 		}
 		gosub srf_value_off
@@ -520,15 +494,12 @@ Return
 	CapsLock::
 		GetKeyState, CL_State, CapsLock, T
 		if CL_State ~="U"{
-			;sendinput % StringUpper(srf_all_input)    ;去掉行首分号启用按下CapsLock上屏大写英文
 			Gosub srf_value_off
-			srf_for_select_Array :=[]
 			SetCapsLockState , on
-			GuiControl,logo:, Pics,*Icon2 config\Skins\logoStyle\%StyleN%.icl
-			Gosub ShowSrfTip
+			Gosub RestLogo
 			gosub Get_IME
 		}else{
-			GuiControl,logo:, Pics,*Icon1 config\Skins\logoStyle\%StyleN%.icl
+			gosub RestLogo
 			gosub srf_value_off
 		}
 	Return
@@ -569,7 +540,7 @@ Return
 	NumpadEnter::
 		if Select_Enter~="send"
 		{
-			sendinput % RegExReplace(srf_all_input,"\'","")
+			UpperScreenMode( RegExReplace(srf_all_input,"\'","") )
 			Gosub srf_value_off
 		}
 		else

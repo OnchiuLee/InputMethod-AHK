@@ -3227,7 +3227,7 @@ CheckTickCount(TC:=0){
 		Return {CB:CounterBefore,Perf:freq}
 	}Else{
 		DllCall("QueryPerformanceCounter", "Int64*", CounterAfter), t:=(CounterAfter-TC.CB)/TC.Perf
-		TickCount:=t<1?t*1000 "毫秒":(t>60?Floor(t/60) "分" mod(t,60):t "秒")
+		TickCount:=t<1?t*1000 "毫秒":(t>60?Floor(t/60) "分" mod(t,60) "秒":t "秒")
 		Return TickCount
 	}
 }
@@ -3293,6 +3293,107 @@ RegistryFile(flag:=""){
 		Regtext:=RegExreplace(Regtext, "\t")
 		FileAppend ,%Regtext%,Sync\ahk关联启动.Reg,CP936
 	;}
+}
+
+GetFontNamesFromFile(FontFilePath) {
+	; www.microsoft.com/en-us/Typography/SpecificationsOverview.aspx
+	; .otf -> www.microsoft.com/typography/otspec/otff.htm
+	; Platform ID: 0: Apple Unicode, 1: Macintosh, 2: ISO, 3: Microsoft}
+	; Name ID: 1: family name, 2: subfamily name (style), 4: full name}
+	If !(Font := FileOpen(FontFilePath, "r")) {
+		MSgBox, 16, %A_ThisFunc%, Error: %A_LastError%`n`nCould not open the file`n%FontFilePath%!
+		Return ""
+	}
+	Font.Pos += 4
+	NumTables := ReadUShortBE(Font)
+	NameTableOffset := 0
+	Font.Pos := 12 ; start of table entries
+	NextTableEntry := Font.Pos
+	Loop, %NumTables% {
+		Font.Pos := NextTableEntry
+		NextTableEntry += 16 ; size of a table entry
+		Font.RawRead(TableName, 4)
+		Name := StrGet(&TableName, 4, "CP0")
+		If (Name <> "name")
+			Continue
+		Font.Pos += 4 ; skip the checkSum field
+		NameTableOffset := ReadULongBE(Font)
+	} Until (NameTableOffset <> 0)
+	If (NameTableOffset = 0) { ; should not happen because the 'name' table is required
+		MsgBox, 16, %A_ThisFunc%, Error:`n`nDidn't find the 'name' table entry!
+		Return ""
+	}
+	Font.Pos := NameTableOffset
+	If (ReadUShortBE(Font) <> 0) { ; format selector must be 0
+		MsgBox, 16, %A_ThisFunc%, Error:`n`nInvalid 'name' table!
+		Return ""
+	}
+	NumOfEntries := ReadUShortBE(Font)
+	StorageOffset := ReadUShortBE(Font)
+	Names := []
+	LCSub := []
+	LCFull := []
+	LCID := 0
+	SysLanguage := "0x" . A_Language
+	NextTableEntry := Font.pos
+	Loop, %NumOfEntries% {
+		Font.Pos := NextTableEntry
+		NextTableEntry += 12 ; length of a name table entry
+		PlatformID := ReadUShortBE(Font)
+		If (PlatformID <> 3)
+			Continue
+		EncodingID := ReadUShortBE(Font)
+		LanguageID := ReadUShortBE(Font)
+		NameID := ReadUShortBE(Font)
+		If NameID In 1,2,4
+		{
+			StrLength := ReadUShortBE(Font)
+			If (StrLength = 0)
+				Continue
+			StrOffset := ReadUShortBE(Font)
+			Font.Pos := NameTableOffset + StorageOffset + StrOffset
+			Name := ReadUTF16BE(Font, StrLength // 2)
+			If (NameID = 1) && ((LanguageID = SysLanguage) || (LanguageID = 1033)) {
+				LCID := LanguageID
+				Names["Family"] := Name
+			}
+			Else If (NameID = 4)
+				LCFull[LanguageID] := Name
+			Else
+				LCSub[LanguageID] := Name
+		}
+	}
+	Font.Close()
+	If (LCID) {
+		If (Name := LCSub[SysLanguage])
+			Names["Style"] := Name
+		Else
+			Names["Style"] := LCSub[LCID]
+		If (Name := LCFull[SysLanguage])
+			Names["FullName"] := Name
+		Else
+			Names["FullName"] := LCFull[LCID]
+	}
+	Return Names.HasKey("Family") ? Names : ""
+}
+
+; Auxiliary functions used because .ttf files are encoded in Motorola (big endian) format
+ReadUShortBE(Handle) {
+	Return (Handle.ReadUChar() << 8) | Handle.ReadUchar()
+}
+
+ReadULongBE(Handle) {
+	Return (Handle.ReadUChar() << 24) | (Handle.ReadUChar() << 16) | (Handle.ReadUChar() << 8) | Handle.ReadUChar()
+}
+
+ReadUTF16BE(Handle, Characters) { ; Characters - the maximum number of characters to read
+	Bytes := Characters * 2
+	VarSetCapacity(UTF16, Bytes, 0)
+	Addr := &UTF16
+	MaxAddr := Addr + Bytes
+	While (Addr < MaxAddr)
+		Addr := NumPut(ReadUShortBE(Handle), Addr + 0, "UShort")
+	Return StrGet(&UTF16, Characters, "UTF-16")
 }
 
 ;载入字体
@@ -3477,9 +3578,99 @@ GetCharsSize(List, Font:="", FontSize:=10, Padding:=6)
 	return "w" X + Padding
 }
 
-TaskEnabled(TaskName, Enabled=True, TaskFolder="\")
+HexToRGB(Color, Mode="") ; Input: 6 characters HEX-color. Mode can be RGB, Message (R: x, G: y, B: z) or parse (R,G,B)
 {
-	Service := ComObjCreate("Schedule.Service")
-	Service.Connect()
-	return Service.GetFolder(TaskFolder).GetTask(TaskName).Enabled
+	; If df, d is *16 and f is *1. Thus, Rx = R*16 while Rn = R*1
+	Rx := SubStr(Color, 1,1), Rn := SubStr(Color, 2,1)
+	Gx := SubStr(Color, 3,1), Gn := SubStr(Color, 4,1)
+	Bx := SubStr(Color, 5,1), Bn := SubStr(Color, 6,1)
+	AllVars := "Rx|Rn|Gx|Gn|Bx|Bn"
+	Loop, Parse, Allvars, | ; Add the Hex values (A - F)
+	{
+		StringReplace, %A_LoopField%, %A_LoopField%, a, 10
+		StringReplace, %A_LoopField%, %A_LoopField%, b, 11
+		StringReplace, %A_LoopField%, %A_LoopField%, c, 12
+		StringReplace, %A_LoopField%, %A_LoopField%, d, 13
+		StringReplace, %A_LoopField%, %A_LoopField%, e, 14
+		StringReplace, %A_LoopField%, %A_LoopField%, f, 15
+	}
+	R := Rx*16+Rn, G := Gx*16+Gn, B := Bx*16+Bn
+	If (Mode = "Message") ; Returns "R: 255 G: 255 B: 255"
+		Out := "R:" . R . " G:" . G . " B:" . B
+	else if (Mode = "Parse") ; Returns "255,255,255"
+		Out := R . "," . G . "," . B
+	else
+		Out := R . G . B ; Returns 255255255
+	return Out
+}
+
+ChangeWindowIcon(IconFile, hWnd:="A", IconNumber:=1, IconSize:=128) {    ;ico图标文件IconNumber和IconSize不用填，如果是icl图标库需要填
+	if (hWnd="A")
+		hWnd := WinExist(hWnd)
+	if (!hWnd)
+		return "窗口不存在！"
+	if not IconFile~="\.ico$"
+		hIcon := LoadIcon(IconFile, IconNumber, IconSize)
+	else
+		hIcon := DllCall("LoadImage", uint, 0, str, IconFile, uint, 1, int, 0, int, 0, uint, LR_LOADFROMFILE:=0x10)
+	if (!hIcon)
+		return "图标文件不存在！"
+	SendMessage, WM_SETICON:=0x80, ICON_SMALL2:=0, hIcon,, ahk_id %hWnd%  ; Set the window's small icon
+	;;;SendMessage, STM_SETICON:=0x0170, hIcon, 0,, Ahk_ID %hWnd%
+	SendMessage, WM_SETICON:=0x80, ICON_BIG:=1   , hIcon,, ahk_id %hWnd%  ; Set the window's big icon to the same one.
+}
+
+
+;获取exe/dll/icl文件中指定图标找返回
+LoadIcon(Filename, IconNumber, IconSize)
+{
+	if DllCall("PrivateExtractIcons"
+		, "str", Filename, "int", IconNumber-1, "int", IconSize, "int", IconSize
+		, "ptr*", hIcon, "uint*", 0, "uint", 1, "uint", 0, "ptr")
+		return hIcon
+}
+
+;;OnMessage(0x138, "WM_CTLCOLORSTATIC")
+WM_CTLCOLORSTATIC(wParam) { ; WHITE text on blue background
+	static Brush
+	If !Brush {
+		DllCall("SetTextColor", "UInt", wParam, "UInt", 0x00FFFF)
+		DllCall("SetBkColor", "UInt", wParam, "UInt", 0x0078d7)
+		Brush := DllCall("CreateSolidBrush", "UInt", 0x0000FF, "UPtr")
+	}
+	Return, Brush
+}
+
+CreateColoredBitmap(width, height, color) {
+	hBitmap := CreateDIBSections(width, -height,, pBits)
+	Loop % height {
+		i := A_Index - 1
+		Loop % width
+			NumPut(color, pBits + width*4*i + (A_Index - 1)*4, "UInt")
+	}
+	Return hBitmap
+}
+
+CreateDIBSections(w, h, bpp := 32, ByRef ppvBits := 0)
+{
+	hdc := DllCall("GetDC", "Ptr", 0, "Ptr")
+	VarSetCapacity(bi, 40, 0)
+	NumPut( 40, bi,  0, "UInt")
+	NumPut(  w, bi,  4, "UInt")
+	NumPut(  h, bi,  8, "UInt")
+	NumPut(  1, bi, 12, "UShort")
+	NumPut(  0, bi, 16, "UInt")
+	NumPut(bpp, bi, 14, "UShort")
+	hbm := DllCall("CreateDIBSection", "Ptr", hdc, "Ptr", &bi, "UInt", 0, "PtrP", ppvBits, "Ptr", 0, "UInt", 0, "Ptr")
+	DllCall("ReleaseDC", "Ptr", 0, "Ptr", hdc)
+	return hbm
+}
+
+DrawBackground(hBitmap, width, height) {
+	static SRCCOPY := 0xCC0020
+	hTmpDC := DllCall("CreateCompatibleDC", "Ptr", this.MDC, "Ptr")
+	hTmpObj := DllCall("SelectObject", "Ptr", hTmpDC, "Ptr", hBitmap, "Ptr")
+	DllCall("BitBlt", "Ptr", this.MDC, "Int", 0, "Int", 0, "Int", width, "Int", height, "Ptr", hTmpDC, "Int", 0, "Int", 0, "UInt", SRCCOPY)
+	DllCall("SelectObject", "Ptr", hTmpDC, "Ptr", hTmpObj, "Ptr")
+	DllCall("DeleteDC", "Ptr", hTmpDC)
 }
