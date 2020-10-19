@@ -295,7 +295,7 @@ Gosub Backup_CustomDB
 labelArr:=[["en","EN_Mode","英文输入模式开关"]
 	, ["yw","SwitchToEngIME","切换至英文键盘模式"]
 	, ["zw","SwitchToChsIME","切换至中文键盘模式"]
-	, ["gl","CharFliter","单字方案GB2312过滤开关"]]
+	, ["gl","CharFliter","GB2312过滤开关"]]
 CheckLabel(DB,labelArr)
 ;;=======================================
 /*
@@ -457,7 +457,7 @@ WM_MOUSEMOVE()
 		,sethotkey_2:"打开小键盘选取键值",InputStatus:"窗口程序输入状态配置，切换窗口有效！",set_SizeValue:"桌面色块尺寸`n范围[1-150]", vset_regulate:"ToolTip候选框编码框`n与选词框距离范围[3-25]",SBA28:"启动时切换到英语键盘模式"
 		,set_FocusRadius:"焦点候选框焦点项背景圆角`n范围[0-18]",set_FocusRadius_value:"焦点候选框焦点项背景圆角`n范围[0-18]", SBA3:"当编码无词条时模糊匹配提示",SBA7:"四位编码候选唯一时自动上屏，五码时顶首选上屏"
 		,SBA9:"Gdip候选框圆角开关",SBA10:"Gdip候选样式中间分隔线",yaml_:"导出词库为yaml格式可直接应用于rime平台，`n需Sync目录有header.txt文件头支持",search_1:"〔 词频为0的为主词库已删除的，勾选删除即恢复！ 〕"
-		,IM_DDL:"此处选择你要更改的内容",WinMode:"设置每个有窗口进程的输入状态与上屏方式",SBA22:"程序退出快捷键启用开关",Exit_hotkey:"程序退出操作快捷键",SBA23:"单字方案模式下GB2312字集过滤", showtools:"独立显示指示功能条，不显示色块"
+		,IM_DDL:"此处选择你要更改的内容",WinMode:"设置每个有窗口进程的输入状态与上屏方式",SBA22:"程序退出快捷键启用开关",Exit_hotkey:"程序退出操作快捷键",SBA23:"GB2312字集过滤", showtools:"独立显示指示功能条，不显示色块"
 		,set_select_value:"候选框词条显示数目`n范围[3-10]", Save:"格式：“纯中文词条”或者“编码=词条”",SrfSlider:"当前透明值为：" transparentX,LogoColor_cn:"中文状态色块颜色",LogoColor_en:"英文状态色块颜色",LogoColor_caps:"大写状态色块颜色"
 		,Frequency:"自动根据每个词条的输入频率进行顺序调整",set_Frequency:"设置词条的输入频率值来进行置顶调整",CreateSC:"建立桌面快捷启动图标",ExSty:"使鼠标穿透过色块，不影响正常操作`n开启后无法对色块进行操作", SBA27:"设置类似/week快速输出日期时间的格式"
 		,AddProcess:"窗口切换有效,在同窗口时没有任何效果!`n添加进程名时,鼠标放在指定的窗口上,按下左Ctrl执行添加`n,20秒内无操作,自动添加当前鼠标所在窗口的进程.",SBA17:"批量造词快捷键启用开关",helpico:"查看时间格式说明"
