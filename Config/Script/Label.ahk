@@ -666,14 +666,13 @@ srf_tooltip:
 			{
 				srf_select(1)
 				gosub srf_value_off
-				srf_for_select_Array :=[]
 			}
 		}
 		else if (StrLen(srf_all_input)>4&&srf_all_input ~="^[a-yA-Y]+$") ;五码顶字上屏，排除编码含z的拼音反查
 		{
 			srf_for_select_for_tooltip:=RegExReplace(srf_for_select_for_tooltip,"\s.+|\n.+|^\w+\.")
 			UpperScreenMode(StrSplit(srf_for_select_for_tooltip,Textdirection ~="i)vertical"?"`n":A_Space)[1])
-			srf_all_input :=RegExReplace(srf_all_input, "^[a-zA-Z]{4}", "")
+			srf_all_input :=RegExReplace(srf_all_input, "^[a-zA-Z]{4}", ""), updateRecent(srf_for_select_for_tooltip)
 			Gosub srf_tooltip_fanye
 		}
 		else if StrLen(srf_all_input)<4&&srf_for_select_Array.Length()=0&&srf_all_input ~="^[a-yA-Y]+$"
@@ -686,21 +685,20 @@ srf_tooltip:
 		if strlen(srf_all_input)>0&&srf_for_select_Array.Length()<1
 			srf_for_select_for_tooltip :=
 	}
-
 	if srf_all_input ~="^z.+|^z|^``|^/|^~"
 	{
 		if (srf_for_select_Array.Length()<1)
 			srf_for_select_for_tooltip :=
 	}	
 	Gosub showhouxuankuang
-	strlen(srf_all_input)>4&&srf_for_select_Array.Length()<1?"":(srf_for_select_for_tooltip :=)
+	srf_for_select_for_tooltip :=strlen(srf_all_input)>4&&srf_for_select_Array.Length()<1?"":srf_for_select_for_tooltip
 Return
 
 ;候选下一页
 MoreWait:
 	If (waitnum*ListNum+ListNum<srf_for_select_Array.Length()){
 		waitnum+=1
-		Gosub srf_tooltip_fanye
+		Gosub srf_tooltip_cut
 	}
 Return
 
@@ -708,7 +706,7 @@ Return
 lessWait:
 	If (waitnum>0){
 		waitnum-=1
-		Gosub srf_tooltip_fanye
+		Gosub srf_tooltip_cut
 	}
 Return
 
