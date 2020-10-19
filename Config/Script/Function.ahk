@@ -154,7 +154,7 @@ Class ComInfo
 		;https://docs.microsoft.com/zh-cn/windows/win32/cimwin32prov/win32-operatingsystem?redirectedfrom=MSDN
 		osobj := ComObjGet("winmgmts:").ExecQuery("Select * from Win32_OperatingSystem" )._NewEnum()
 		if osobj[win]
-			return win.Caption
+			return [win.Caption,win.Version,win.Version]
 	}
 	;返回当前电脑BIOS里的SN机器码
 	GetSNCode(){

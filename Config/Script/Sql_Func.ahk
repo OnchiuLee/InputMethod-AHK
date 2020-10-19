@@ -490,6 +490,39 @@ get_Longword(input){
 	}
 }
 
+get_word_2(obj){
+	global srf_all_Input, Trad_Mode, CharFliter, flag
+	Result:=[], value:=""
+	If (IsObject(obj)&&!flag) {
+		for section,element in obj
+		{
+			cp:=element[2],t:=""
+			If (element[1]<>value)
+				Result.push([element[1],element[3],""])
+			loop,% (Objlength(obj)-1)
+			{
+				If (strlen(t:=obj[a_index+section,1])=1&&obj[a_index+section,2]>=cp&&obj[a_index+section,2]&&t<>value) {
+					Result.push([t,element[3],""]) , value:=t
+				}
+			}
+			
+		}
+	}else
+		Result:=obj
+	Return Result
+}
+
+get_word_1(obj){
+	global srf_all_Input, Trad_Mode, CharFliter, flag,zkey_mode
+	If (IsObject(obj)srf_all_Input~="[^z]") {
+		for section,element in obj
+		{
+			element.RemoveAt(3)
+		}
+	}
+	Return obj
+}
+
 ;词条提取
 get_word(input, cikuname){
 	global Frequency, Prompt_Word, Trad_Mode, PromptChar, srf_all_Input, lianx, CharFliter, zkey_mode
@@ -521,13 +554,21 @@ get_word(input, cikuname){
 					flag:=1
 					if (PromptChar&&StrLen(input)<4)
 						SQL :="SELECT aim_chars,E_Key,F_Key FROM(SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key ='" input "' AND D_Key >0 ORDER BY A_Key,D_Key DESC) UNION ALL SELECT aim_chars,E_Key,F_Key FROM(SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key LIKE'" input "_' AND D_Key >0 ORDER BY A_Key,D_Key DESC);"
-					else
-						SQL :="select aim_chars,E_Key,F_Key from ci WHERE A_Key ='" input "' AND D_Key >0 ORDER BY A_Key,D_Key DESC;"
+					else{
+						If (!PromptChar&&CharFliter)
+							SQL:="SELECT aim_chars,D_Key,E_Key,F_Key FROM(SELECT aim_chars,D_Key,E_Key,F_Key FROM ci where A_Key ='" input "' AND Length(aim_chars)>1 AND D_Key >0 ORDER BY A_Key,D_Key DESC) UNION ALL SELECT aim_chars,D_Key,E_Key,F_Key FROM(SELECT aim_chars,D_Key,E_Key,F_Key FROM ci where A_Key ='" input "' AND Length(aim_chars)=1 AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars) AND D_Key >0 ORDER BY A_Key,D_Key DESC)"
+						else
+							SQL :="select aim_chars,E_Key,F_Key from ci WHERE A_Key ='" input "' AND D_Key >0 ORDER BY A_Key,D_Key DESC;"
+					}
 				}else{
 					if (PromptChar&&StrLen(input)<4)
 						flag:=1, SQL :="SELECT aim_chars,E_Key,F_Key FROM(SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars,E_Key,F_Key FROM(SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key LIKE'" input "_' AND B_Key >0 ORDER BY A_Key,B_Key DESC);"
-					else
-						SQL :="select aim_chars,E_Key,F_Key from ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC;"
+					else{
+						If (!PromptChar&&CharFliter)
+							SQL:="SELECT aim_chars,B_Key,D_Key,E_Key,F_Key FROM(SELECT aim_chars,B_Key,E_Key,F_Key FROM ci where A_Key ='" input "' AND Length(aim_chars)>1 AND B_Key >0 ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars,B_Key,E_Key,F_Key FROM(SELECT aim_chars,B_Key,E_Key,F_Key FROM ci where A_Key ='" input "' AND Length(aim_chars)=1 AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars) AND B_Key >0 ORDER BY A_Key,B_Key DESC)"
+						else
+							SQL :="select aim_chars,E_Key,F_Key from ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC;"
+					}
 				}
 			}else{
 				if cikuname~="i)zi"{
@@ -568,34 +609,40 @@ get_word(input, cikuname){
 					DB.GetTable(SQL, Result)
 				}
 				if Trad_Mode~="off" {
-					GetValues:=Result.Rows
-					For Section, element In GetValues
-					{
-						index:=a_index, GetValues[section,3]:=(PromptChar&&flag||Prompt_Word~="i)on"&&flag)?(StrLen(input)<4&&input<>GetValues[section,3]?RegExReplace(GetValues[section,3],"^" input,"~"):""):""
-						loop,% GetValues.Length()-index
-						{
-							If (GetValues[a_index+index,1]=GetValues[section,1])
-								GetValues.RemoveAt(a_index+index)
-							else
-								GetValues[a_index+index,3]:=(PromptChar&&flag||Prompt_Word~="i)on"&&flag)?(StrLen(input)<4&&input<>GetValues[a_index+index,3]?RegExReplace(GetValues[a_index+index,3],"^" input,"~"):""):""
-						}
-					}
-				;PrintObjects(GetValues)
-				}else{
-					lianx :="on"
-					If not input~="z" {
-						GetValues:=set_trad_mode(Result.Rows)
+					If (PromptChar&&flag||Prompt_Word~="i)on"&&flag) {
+						GetValues:=Result.Rows
 						For Section, element In GetValues
 						{
-							index:=a_index, GetValues[section,3]:=(PromptChar&&flag||Prompt_Word~="i)on"&&flag)?(StrLen(input)<4&&input<>GetValues[section,3]?RegExReplace(GetValues[section,3],"^" input,"~"):""):""
+							index:=a_index, GetValues[section,3]:=StrLen(input)<4&&input<>GetValues[section,3]?RegExReplace(GetValues[section,3],"^" input,"~"):""
 							loop,% GetValues.Length()-index
 							{
 								If (GetValues[a_index+index,1]=GetValues[section,1])
 									GetValues.RemoveAt(a_index+index)
 								else
-									GetValues[a_index+index,3]:=(PromptChar&&flag||Prompt_Word~="i)on"&&flag)?(StrLen(input)<4&&input<>GetValues[a_index+index,3]?RegExReplace(GetValues[a_index+index,3],"^" input,"~"):""):""
+									GetValues[a_index+index,3]:=StrLen(input)<4&&input<>GetValues[a_index+index,3]?RegExReplace(GetValues[a_index+index,3],"^" input,"~"):""
 							}
 						}
+					}else
+						GetValues:=CharFliter&&cikuname~="i)ci|zi"?get_word_2(Result.Rows):get_word_1(Result.Rows)
+				;PrintObjects(GetValues)
+				}else{
+					lianx :="on"
+					If not input~="z" {
+						If (PromptChar&&flag||Prompt_Word~="i)on"&&flag) {
+							GetValues:=set_trad_mode(Result.Rows)
+							For Section, element In GetValues
+							{
+								index:=a_index, GetValues[section,3]:=StrLen(input)<4&&input<>GetValues[section,3]?RegExReplace(GetValues[section,3],"^" input,"~"):""
+								loop,% GetValues.Length()-index
+								{
+									If (GetValues[a_index+index,1]=GetValues[section,1])
+										GetValues.RemoveAt(a_index+index)
+									else
+										GetValues[a_index+index,3]:=StrLen(input)<4&&input<>GetValues[a_index+index,3]?RegExReplace(GetValues[a_index+index,3],"^" input,"~"):""
+								}
+							}
+						}else
+							GetValues:=set_trad_mode(CharFliter&&cikuname~="i)ci|zi"?get_word_2(Result.Rows):get_word_1(Result.Rows))
 					}else
 						GetValues:=Result.Rows
 				}
@@ -618,7 +665,7 @@ TranSelectvalue(chars){
 }
 
 SwitchingScheme(n,Char){
-	global WubiIni, srf_all_input, Wubi_Schema, srf_for_select_Array,localpos, Initial_Mode, EN_Mode
+	global WubiIni, srf_all_input, Wubi_Schema, srf_for_select_Array,localpos, Initial_Mode, EN_Mode, CharFliter, CheckFilterControl
 	flag:=0, n:=localpos>1&&n==1?localpos:n
 	If srf_all_input~="\/sc$" {
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"] :=srf_for_select_Array[n,4]~="i)zi|ci|zg|chaoji"?srf_for_select_Array[n,4]:Wubi_Schema, flag:=1, WubiIni.save()
@@ -629,8 +676,13 @@ SwitchingScheme(n,Char){
 			Gosub Enable_Tray
 		Gosub SwitchSC
 	}else If srf_all_input~="\/sp$" {
-		Initial_Mode:=WubiIni.Settings["Initial_Mode"] :=srf_for_select_Array[n,4], flag:=1, WubiIni.save()
-		Gosub SwitchSC
+		If (srf_for_select_Array[n,4]="gl") {
+			CharFliter:=WubiIni.Settings["CharFliter"] :=!CharFliter, flag:=1, CheckFilterControl:=srf_for_select_Array[n,4], WubiIni.save()
+			Gosub CheckFilter
+		}else{
+			Initial_Mode:=WubiIni.Settings["Initial_Mode"] :=srf_for_select_Array[n,4], flag:=1, WubiIni.save()
+			Gosub SwitchSC
+		}
 	}else if (IsLabel(Char)&&srf_all_Input~="^\/[a-z]+"){
 			Gosub % Char
 			flag:=1
@@ -887,7 +939,7 @@ prompt_label(input){
 
 ;特殊符号提取
 prompt_symbols(input){
-	global DB, Cut_Mode, srf_all_Input, labelObj, Wubi_Schema, Initial_Mode, EN_Mode
+	global DB, Cut_Mode, srf_all_Input, labelObj, Wubi_Schema, Initial_Mode, EN_Mode, CharFliter, PromptChar, Prompt_Word, Textdirection, ListNum
 	If (input="")
 		Return []
 	ResultAll:=[]
@@ -909,24 +961,46 @@ prompt_symbols(input){
 				if IsLabel(element[1])
 					ResultAll.push([RegExReplace(element[2],"\〔|\〕|\#")]), labelObj[section]:=element[1]
 		}
-		If (input~="^\/[0-9]{2,}"&&SubStr(input,2)>10) {
-			If ResultAll.Length()>0
-				for section,element in numTohz(RegExReplace(input,"^/",""))
-					ResultAll.push(element)
-			else
-				ResultAll:=numTohz(RegExReplace(input,"^/",""))
+		If (SubStr(input,2) ~="^[0-9]{2,}|^(zzsj|zznl|zzrq|sc|sp|ip|mac)$") {
+			Objectlist:=Getotherinfo(SubStr(input,2))
+			Textdirection:= not SubStr(input,2) ~="^(sc|sp)$"?"vertical":Textdirection, ListNum:= not SubStr(input,2) ~="^(sc|sp)$"?10:ListNum
 		}
+		;;If objCount(Objectlist)
+		;;	PrintObjects(Objectlist)
+		For section,element in Objectlist
+		{
+			If IsObject(element) {
+				ResultAll.InsertAt(section,element)
+			}
+		}
+	}
+	Return ResultAll
+}
+
+Getotherinfo(input){
+	global Wubi_Schema, Initial_Mode, EN_Mode, CharFliter, PromptChar, Prompt_Word
+	If (input="")
+		Return []
+	ResultAll:=[]
+	If (input~="^[0-9]{2,}"&&input>10) {
+		ResultAll:= numTohz(input)
+	}else If (input="mac") {
+		ResultAll:=[ComInfo.GetMacName(), ComInfo.GetSNCode_1()]
+		For Section,element In ComInfo.GetMacAddress_1()
+			ResultAll.Push(element)
+	}else If (input="ip") {
+		For Section,element In ComInfo.GetIPAddress_1()
+			If element[1]~="^[1-9]"
+				ResultAll.push(element)
+		if objLength(ipInfo:= ComInfo.GetIPAPI_2())
+			ResultAll.push(ipInfo)
+	}else{
 		scObject:={zznl:Get_LunarDate()
 			,zzsj:Get_Time(),zzrq:Get_Date()
 			,sc:[["含词",Wubi_Schema~="i)ci"&&!EN_Mode?"☯":"",Wubi_Schema~="i)ci"&&!EN_Mode?"☯":"","ci"],["单字",Wubi_Schema~="i)zi"&&!EN_Mode?"☯":"",Wubi_Schema~="i)zi"&&!EN_Mode?"☯":"","zi"],["超集",Wubi_Schema~="i)chaoji"&&!EN_Mode?"☯":"",Wubi_Schema~="i)chaoji"&&!EN_Mode?"☯":"","chaoji"],["英文",EN_Mode?"☯":"",EN_Mode?"☯":"","en"],["字根",Wubi_Schema~="i)zg"&&!EN_Mode?"☯":"",Wubi_Schema~="i)zg"&&!EN_Mode?"☯":"","zg"]]
-			,sp:[["剪切板上屏",Initial_Mode~="i)on"?"☯":"",Initial_Mode~="i)on"?"☯":"","on"],["发送上屏",Initial_Mode~="i)off"?"☯":"",Initial_Mode~="i)off"?"☯":"","off"]]}
-		For section,element in scObject
-			If (section=SubStr(input,2)) {
-				for key,value in element
-					ResultAll.InsertAt(key,value)
-			}
+			,sp:[["剪切板上屏",Initial_Mode~="i)on"?"☯":"",Initial_Mode~="i)on"?"☯":"","on"],["发送上屏",Initial_Mode~="i)off"?"☯":"",Initial_Mode~="i)off"?"☯":"","off"],["字集过滤",Wubi_Schema~="i)ci|zi"&&!PromptChar&&Prompt_Word~="i)off"&&CharFliter?"☯":"",Wubi_Schema~="i)ci|zi"&&!PromptChar&&Prompt_Word~="i)off"&&CharFliter?"☯":"","gl"]]}
+		ResultAll:=scObject[input]
 	}
-	
 	Return ResultAll
 }
 

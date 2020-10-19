@@ -221,12 +221,9 @@ ChangeTray:
 	if Wubi_Schema~="ci" {
 		Gosub Enable_Tray
 		Menu, More, Enable, 批量造词
-		If (WinExist("输入法设置")<>0x0) {
-			For k,v In ["ciku1","ciku2"]
+		If WinExist("输入法设置") {
+			For k,v In ["SBA23","Frequency"]
 				GuiControl, 98:Enable, %v%
-			For k,v In ["SBA23"]
-				GuiControl, 98:Disable, %v%
-			GuiControl, 98:Enable, Frequency
 			if !Frequency {
 				For k,v In ["FTip","set_Frequency","RestDB"]
 					GuiControl, 98:Disable, %v%
@@ -234,7 +231,7 @@ ChangeTray:
 			}else{
 				For k,v In ["FTip","set_Frequency","RestDB"]
 					GuiControl, 98:Enable, %v%
-				OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x292421})
+				OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x0178d6})
 			}
 		}
 		If (Logo_Switch~="i)on")
@@ -242,11 +239,9 @@ ChangeTray:
 	}else if Wubi_Schema~="zi"{
 		Gosub Disable_Tray
 		Menu, More, Disable, 批量造词
-		If (WinExist("输入法设置")<>0x0) {
-			For k,v In ["ciku1","ciku2"]
-				GuiControl, 98:Disable, %v%
-			if FileExist("config\GB*.txt")
-				GuiControl, 98:Enable, SBA23
+		If WinExist("输入法设置") {
+			For k,v In ["SBA23"]
+				GuiControl, 98:Enable, %v%
 			For k,v In ["FTip","set_Frequency","RestDB","Frequency"]
 				GuiControl, 98:Disable, %v%
 			OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
@@ -256,12 +251,10 @@ ChangeTray:
 	}else if Wubi_Schema~="chaoji" {
 		Gosub Enable_Tray
 		Menu, More, Disable, 批量造词
-		If (WinExist("输入法设置")<>0x0) {
-			For k,v In ["ciku1","ciku2"]
-				GuiControl, 98:Enable, %v%
-			For k,v In ["SBA23"]
-				GuiControl, 98:Disable, %v%
-			For k,v In ["FTip","set_Frequency","RestDB","Frequency"]
+		CharFliter:=WubiIni.Settings["CharFliter"]:= 0, WubiIni.save()
+		If WinExist("输入法设置") {
+			GuiControl,98:, SBA23, 0
+			For k,v In ["SBA23","FTip","set_Frequency","RestDB","Frequency"]
 				GuiControl, 98:Disable, %v%
 			OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 		}
@@ -270,8 +263,10 @@ ChangeTray:
 	}else if Wubi_Schema~="zg"{
 		Gosub Disable_Tray
 		Menu, More, Disable, 批量造词
-		If (WinExist("输入法设置")<>0x0) {
-			For k,v In ["ciku1", "ciku2", "SBA23", "Frequency", "FTip", "set_Frequency", "RestDB"]
+		CharFliter:=WubiIni.Settings["CharFliter"]:= 0, WubiIni.save()
+		If WinExist("输入法设置") {
+			GuiControl,98:, SBA23, 0
+			For k,v In ["SBA23", "Frequency", "FTip", "set_Frequency", "RestDB"]
 				GuiControl, 98:Disable, %v%
 			OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 		}
@@ -621,7 +616,7 @@ OnHelp:
 	Gui, Info:Font, s12 bold, %Font_%
 	Gui Info:Add, GroupBox,xm w450 h375 vreadme, 常用快捷操作介绍：
 	Gui, Info:Font, s10 norm, %Font_%
-	Gui Info:Add, Edit,xm+10 yp+30 w430 h335 ReadOnly -WantCtrlA -WantReturn -border ,一、默认快捷操作：`n`t方案切换：/sc、/ci/dz/cj`n`t候选横竖排：/mode`n`t候选框风格：/hx`n`t拆分显示：/cf`n`t简繁切换：/jf`n`t上屏方式切换：/sp`n`t切换至英文键盘：/yw`n`t切换至中文键盘：/zw`n`t候选项位置调整：Ctrl+序号`n`t候选项删除：Ctrl+Alt+序号`n`n二、临时造词方式：`n1、以``键引导后打单字再以``键进行分词会自动组合首选，也可以自己组合，操作完成后上屏即保存。仅在「含词」方案下有效！`n`n2、不用``引导，打单字后同样以``键进行分词亦会自动组合，选择候选词后上屏即保存。这种方式对于首字为四码唯一的单字时无效(须关闭四码唯一上屏后才有效)。`n`n三、临时英文：以「双``键」引导`n四、英文输入模式： /en切换，重复切换反之。`n`n五、以形查音：以「~键(shift+``)」引导，输入单字反查单字读音。`n`n六、鼠标划词反查：默认是关闭的，快捷键Alt+Q开启，鼠标划选汉字后会显示反查后的五笔编码和单字读音以及五笔拆分（需字体支持，在设置窗口切换字体到以98开头的字体才能正常显示）`n`n七、长字符串输出：自带八百多首古诗词，/+作者+z可以快速选择要上屏的内容。需自定义的遵循格式自行导入。`n`n八、临时拼音：以z键引导+拼音、z键已保留原始的万能键匹配形式，默认是临时拼音需要自己更换。`n`n九、特殊符号：/+符号类型，更多/help查看。`n`n十、扩展功能：`n`n`t/+数字或有序日期==> 金额转换、农历转公历、公历转农历、节气查询、干支纪年查询。`n`n`t实时时间输出：/nl、/zznl、 /zzsj、 /zzrq`n`n`tmac 输出电脑部分参数`n`n基本使用帮助提示输入help查看快捷键操作。`n`n如果初次运行候选框显示异常，请从托盘菜单--更多--初始化 来解决。
+	Gui Info:Add, Edit,xm+10 yp+30 w430 h335 ReadOnly -WantCtrlA -WantReturn -border ,一、默认快捷操作：`n`t方案切换：/sc`n`t候选横竖排：/mode`n`t候选框风格：/hx`n`t拆分显示：/cf`n`t简繁切换：/jf`n`t上屏方式切换：/sp`n`t切换至英文键盘：/yw`n`t切换至中文键盘：/zw`n`t候选项位置调整：Ctrl+序号`n`t候选项删除：Ctrl+Alt+序号`n`n二、临时造词方式：`n1、以``键引导后打单字再以``键进行分词会自动组合首选，也可以自己组合，操作完成后上屏即保存。仅在「含词」方案下有效！`n`n2、不用``引导，打单字后同样以``键进行分词亦会自动组合，选择候选词后上屏即保存。这种方式对于首字为四码唯一的单字时无效(须关闭四码唯一上屏后才有效)。`n`n三、临时英文：以「双``键」引导`n四、英文输入模式： /en切换，重复切换反之。`n`n五、以形查音：以「~键(shift+``)」引导，输入单字反查单字读音。`n`n六、鼠标划词反查：默认是关闭的，快捷键Alt+Q开启，鼠标划选汉字后会显示反查后的五笔编码和单字读音以及五笔拆分（需字体支持，在设置窗口切换字体到以98开头的字体才能正常显示）`n`n七、长字符串输出：自带八百多首古诗词，/+作者+z可以快速选择要上屏的内容。需自定义的遵循格式自行导入。`n`n八、临时拼音：以z键引导+拼音、z键已保留原始的万能键匹配形式，默认是临时拼音需要自己更换。`n`n九、特殊符号：/+符号类型，更多/help查看。`n`n十、扩展功能：`n`n`t/+数字或有序日期==> 金额转换、农历转公历、公历转农历、节气查询、干支纪年查询。`n`n`t实时时间输出：/nl、/zznl、 /zzsj、 /zzrq`n`n`t/mac 输出电脑部分参数 /ip查询本机IP`n`n基本使用帮助提示输入help查看快捷键操作。`n`n如果初次运行候选框显示异常，请从托盘菜单--更多--初始化 来解决。
 	GuiControl,Info:Focus,readme
 	Gui, Info:Show,AutoSize,使用介绍
 	Gosub ChangeWinIcon
@@ -737,7 +732,7 @@ RestDB:
 	
 Return
 
-MacInfo:
+symbolsInfo:
 	Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?10:10,FontSize:=ToolTipStyle~="i)Gdip"?18:FontSize
 	SymList:=[["/+年月日⇒农历/公历互转 ● /+【date/week/time/nl/zzrq/zznl/zzsj】⇒输出日期时间 ● /+数字⇒金额大写转换"]
 		,["数字/0-9 ● 分数/fs ● 月份/yf ● 日期/rq ● 符号/fh ● 电脑/dn ● 象棋/xq ● 麻将/mj ● 曜日/yr ● 地支/dz"]
@@ -765,16 +760,6 @@ helpInfo:
 			,["编码反查"," z键引导拼音反查/模糊匹配 ","〔 z键引导拼音反查/模糊匹配 〕"]
 			,["拆分显示"," 热键" GetkeyName(cfhotkey) " 组合","〔 热键" GetkeyName(cfhotkey) " 组合 〕"]
 			,["批量造词"," 热键" GetkeyName(AddCodehotkey) " 组合 ","〔 热键" GetkeyName(AddCodehotkey) " 组合 〕"]], srf_for_select_Array:=help_info
-	}else if (srf_all_Input ="mac"){
-		Mac_Array:=ComInfo.GetMacAddress_1(),IP_Array:=ComInfo.GetIPAddress_1(), srf_for_select_Array.Push(ComInfo.GetSNCode_1()), srf_for_select_Array.Push(ComInfo.GetMacName())
-		if objLength(ipInfo:= ComInfo.GetIPAPI_2())
-			srf_for_select_Array.Push(ipInfo)
-		Loop,% Max(objLength(Mac_Array),objLength(IP_Array))
-		{
-			srf_for_select_Array.Push(Mac_Array[A_Index])
-			if not IP_Array[A_Index,1]~="^0\."
-				srf_for_select_Array.Push(IP_Array[A_Index])
-		}
 	}
 Return
 
@@ -805,7 +790,7 @@ srf_tooltip_fanye:
 		{
 			labelObj:=[]
 			if srf_all_input ~="/help"
-				Gosub MacInfo
+				Gosub symbolsInfo
 			else{
 				srf_for_select_Array:=prompt_symbols(srf_all_Input)
 				if (srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3&&srf_for_select_Array.Length()>0) {
@@ -857,10 +842,6 @@ srf_tooltip_fanye:
 	}else{
 		If !EN_Mode {
 			srf_for_select_Array:=get_word(srf_all_Input, Wubi_Schema)
-			If !objLength(srf_for_select_Array) {
-				Textdirection:=Textdirection~="i)horizontal"?"vertical":"vertical", ListNum:=ListNum<10?11:10
-				Gosub helpInfo
-			}
 			Gosub srf_tooltip_cut
 		}else{
 			srf_for_select_Array:=Get_EnWord(srf_all_Input)
@@ -1330,7 +1311,7 @@ More_Setting:
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA23 gSBA23 Checked%CharFliter%, 字集过滤
 	Gui, 98:Add, CheckBox, x+15 yp+0 Checked%EnKeyboardMode% vSBA28 gSBA28, 美式键盘
 	Gui, 98:Add, CheckBox,x+15 yp+0 vSBA26 gSBA26, 候选唯一上屏
-	if (not Wubi_Schema ~="i)zi"||!FileExist("config\GB*.txt"))
+	if (not Wubi_Schema ~="i)zi|ci")
 		GuiControl, 98:Disable, SBA23
 	If limit_code~="i)off"
 		GuiControl,98:Disable,SBA26
@@ -1478,7 +1459,7 @@ More_Setting:
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
 	Gui, 98:Add, StatusBar,, 设置面板
-	SB_SetText(A_Is64bitOS?" ❖ " ComInfo.GetOSVersionInfo() "〔 AutoHotkey " A_AhkVersion "#64位 〕":" ❖ " ComInfo.GetOSVersionInfo() "〔 AutoHotkey " A_AhkVersion "#32位 〕" )
+	SB_SetText(A_Is64bitOS?" ❖ " ComInfo.GetOSVersionInfo()[1] "〔 AutoHotkey " A_AhkVersion "#64位 〕":" ❖ " ComInfo.GetOSVersionInfo() "〔 AutoHotkey " A_AhkVersion "#32位 〕" )
 	Gui, 98:Show,AutoSize,输入法设置
 	Gosub ChangeWinIcon
 	Gosub ControlGui
@@ -2225,10 +2206,6 @@ ControlGui:
 		For k,v In ["LineColor","BorderColor","SBA19"]
 			GuiControl, 98:Disable, %v%
 	}
-	if Wubi_Schema~="zi|zg"{
-		For k,v In ["ciku1","ciku2"]
-			GuiControl, 98:Disable, %v%
-	}
 	GuiControl, 98:ChooseString, set_Frequency, %Freq_Count%
 	if themelist~=ThemeName "|"
 		GuiControl, 98:ChooseString, select_theme, % ThemeName
@@ -2852,28 +2829,45 @@ SBA2:
 	cf_swtich:=WubiIni.Settings["cf_swtich"]:=SBA,WubiIni.save()
 Return
 
-SBA3:
-	GuiControlGet, SBA ,, SBA3, Checkbox
-	if (SBA==1) {
-		if PromptChar
-			GuiControl,98:, SBA24 , 0
-		Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="on",PromptChar:=WubiIni.Settings["PromptChar"]:=0,WubiIni.save()
+CheckFilter:
+	If (A_GuiControl="SBA3"||CheckFilterControl="kmts") {
+		CharFliter:=WubiIni.Settings["CharFliter"]:= 0, PromptChar:=WubiIni.Settings["PromptChar"]:=CheckFilterControl:= 0
+		If WinExist("输入法设置") {
+			GuiControl,98:, SBA3, % Prompt_Word="on"?1:0
+			GuiControl,98:, SBA24, 0
+			GuiControl,98:, SBA23, 0
+		}
+	}else If (A_GuiControl="SBA23"||CheckFilterControl="gl") {
+		PromptChar:=WubiIni.Settings["PromptChar"]:=CheckFilterControl:= 0, Prompt_Word:=WubiIni.Settings["Prompt_Word"]:= "off"
+		If WinExist("输入法设置") {
+			GuiControl,98:, SBA23, %CharFliter%
+			GuiControl,98:, SBA3, 0
+			GuiControl,98:, SBA24, 0
+		}
+	}else If (A_GuiControl="SBA24"||CheckFilterControl="zmts") {
+		Prompt_Word:=WubiIni.Settings["Prompt_Word"]:= "off", CharFliter:=WubiIni.Settings["CharFliter"]:=CheckFilterControl:= 0
+		If WinExist("输入法设置") {
+			GuiControl,98:, SBA24, %PromptChar%
+			GuiControl,98:, SBA3, 0
+			GuiControl,98:, SBA23, 0
+		}
+	}
+	If Wubi_Schema~="i)ci|zi"&&Prompt_Word~="i)off"&&WinExist("输入法设置") {
+		For k,v In ["Frequency","FTip","set_Frequency","RestDB"]
+			GuiControl, 98:Enable, %v%
+		OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x0178d6})
+	}else If not Wubi_Schema~="i)ci|zi"&&Prompt_Word~="i)on"&&WinExist("输入法设置"){
 		For k,v In ["Frequency","FTip","set_Frequency","RestDB"]
 			GuiControl, 98:Disable, %v%
 		OD_Colors.Attach(FRDL,{T: 0x767641, B: 0xb3b3b3})
-	}else{
-		Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="off",WubiIni.save()
-		GuiControl, 98:Enable, Frequency
-		if Frequency {
-			For k,v In ["FTip","set_Frequency","RestDB"]
-				GuiControl, 98:Enable, %v%
-			OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x0178d6})
-		}else{
-			For k,v In ["FTip","set_Frequency","RestDB"]
-				GuiControl, 98:Disable, %v%
-			OD_Colors.Attach(FRDL,{T: 0x767641, B: 0xb3b3b3})
-		}
 	}
+	WubiIni.save()
+Return
+
+SBA3:
+	GuiControlGet, SBA ,, SBA3, Checkbox
+	Prompt_Word:=WubiIni.Settings["Prompt_Word"]:=SBA?"on":"off", WubiIni.save()
+	Gosub CheckFilter
 Return
 
 SBA4:
@@ -3400,28 +3394,19 @@ Return
 
 SBA23:
 	GuiControlGet, SBA ,, SBA23, Checkbox
-	CharFliter:=WubiIni.Settings["CharFliter"]:=SBA,WubiIni.save()
+	CharFliter:=WubiIni.Settings["CharFliter"]:=SBA, WubiIni.save()
+	Gosub CheckFilter
 Return
 
 CodingTips:
-	PromptChar:=WubiIni.Settings["PromptChar"]:=!PromptChar,WubiIni.save()
+	PromptChar:=WubiIni.Settings["PromptChar"]:=!PromptChar,CheckFilterControl:="zmts", WubiIni.save()
+	Gosub CheckFilter
 Return
 
 SBA24:
 	GuiControlGet, SBA ,, SBA24, Checkbox
-	if (SBA==1) {
-		if Prompt_Word~="i)on"
-			GuiControl,98:, SBA3 , 0
-		PromptChar:=WubiIni.Settings["PromptChar"]:=1, Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="off",WubiIni.save()
-		For k,v In ["Frequency","FTip","set_Frequency","RestDB"]
-			GuiControl, 98:Enable, %v%
-		OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x0178d6})
-	}else{
-		PromptChar:=WubiIni.Settings["PromptChar"]:=0, WubiIni.save()
-		For k,v In ["Frequency","FTip","set_Frequency","RestDB"]
-			GuiControl, 98:Disable, %v%
-		OD_Colors.Attach(FRDL,{T: 0x767641, B: 0xb3b3b3})
-	}
+	PromptChar:=WubiIni.Settings["PromptChar"]:=SBA, WubiIni.save()
+	Gosub CheckFilter
 Return
 
 SBA25:
@@ -3435,12 +3420,13 @@ SBA28:
 Return
 
 CharFliter:
-	if Wubi_Schema~="i)zi"
-		CharFliter:=WubiIni.Settings["CharFliter"]:=!CharFliter,WubiIni.save()
+	if Wubi_Schema~="i)zi|ci"
+		CharFliter:=WubiIni.Settings["CharFliter"]:=!CharFliter, CheckFilterControl:="gl", WubiIni.save()
 	else{
 		CharFliter:=WubiIni.Settings["CharFliter"]:=0,WubiIni.save()
-		Traytip,  警告提示:,当前方案无效，请切换至「单字」方案！,,2
+		Traytip,  警告提示:,当前方案无效，请切换至「单字/含词」方案！,,2
 	}
+	Gosub CheckFilter
 Return
 
 s2t_hotkeys:
@@ -3767,9 +3753,8 @@ return
 
 ;空码提示
 Prompt_Word:
-	Prompt_Word :=WubiIni.Settings["Prompt_Word"] :=Prompt_Word~="i)off"?"on":"off", WubiIni.save()
-	if Prompt_Word ~="i)on"
-		PromptChar:=WubiIni.Settings["PromptChar"] :=1?0:PromptChar, WubiIni.save()
+	Prompt_Word :=WubiIni.Settings["Prompt_Word"] :=Prompt_Word~="i)off"?"on":"off",CheckFilterControl:="kmts", WubiIni.save()
+	Gosub CheckFilter
 return
 
 ;含词/单字选择
