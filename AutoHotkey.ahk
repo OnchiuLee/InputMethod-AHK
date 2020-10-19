@@ -35,7 +35,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020101813"
+version :="2020101818"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -112,7 +112,7 @@ global srf_default_value,config_tip, WubiIni:=class_EasyIni(A_Temp "\InputMethod
 		, symb_send:"on", set_color:"on", Wubi_Schema:"ci", Initial_Mode:"off",Cut_Mode:"off", limit_code:"on", Trad_Mode:"off", IMEmode:"on",InitStatus:0,EN_Mode:0}
 	, TipStyle:{ThemeName:DefaultThemeName, StyleN:StyleName,Logo_ExStyle:0,transparentX:180,LogoSize:36, FontType:font_, FontSize:22, FontColor:Font_Color,FocusBackColor:FocusBack_Color
 		,FocusColor:Focus_Color,FocusCodeColor:FocusCode_Color,FocusRadius:5, FontStyle:"off", FontCodeColor:FontCode_Color,LineColor:Line_Color,BorderColor:Border_Color
-		, Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"off", BgColor:Bg_Color, ListNum:5,Gdip_Radius:5, EnFontName:"Andrich", Textdirection:"horizontal", Set_Range:3
+		, Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"off", BgColor:Bg_Color, ListNum:5,Gdip_Radius:5, EnFontName:font_, Textdirection:"horizontal", Set_Range:3
 		, Fix_Switch:"off",Fix_X:A_ScreenWidth/2,Fix_Y:10}  ;竖排--vertical
 	, CustomColors:{Color_Row1:"0x1C7399,0xEEEEEC,0x014E8B,0x444444,0x009FE8,0xDEF9FA,0xF8B62D,0x90FC0F", Color_Row2:"0x0078D7,0x0D1B0A,0xB9D497,0x00ADEF,0x1778BF,0xFDF6E3,0x002B36,0xDEDEDE"}}
 ;初始化默认配置
@@ -217,8 +217,8 @@ if FileExist(A_ScriptDir "\*.ico") {
 	Menu, Tray, Icon, config\wubi98.icl,30
 
 srf_mode :=IMEmode~="off"?0:1
-;;=======================字体注册=========================
-
+;;=======================去掉多行注释启用字体注册=========================
+/*
 if FileExist("Font\*.*tf") {
 	Loop,Files,Font\*.*tf
 	{
@@ -229,7 +229,7 @@ if FileExist("Font\*.*tf") {
 		}
 	}
 }
-
+*/
 if !InitStatus {
 	;;Run, rundll32.exe "%A_ProgramFiles%\Windows Photo Viewer\PhotoViewer.dll"`, ImageView_Fullscreen %A_ScriptDir%\config\ReadMe.png,, UseErrorLevel
 	Run, http://98wb.ys168.com/,, UseErrorLevel
@@ -237,7 +237,7 @@ if !InitStatus {
 		Run, iexplore.exe "98wb.ys168.com/",, UseErrorLevel
 	}
 	InitStatus:=WubiIni.Settings["InitStatus"]:=1, WubiIni.Save()
-	If A_FontList~="i)98WB-0|Andrich"
+	If A_FontList~="i)98WB-0"&&A_FontList~="i)Andrich"
 		FontType:=WubiIni.TipStyle["FontType"]:="98WB-0",EnFontName:=WubiIni.TipStyle["EnFontName"]:="Andrich", WubiIni.Save()
 }
 if (ToolTipStyle ~="i)gdip"&&A_OSVersion ~="i)WIN_XP") {
@@ -575,15 +575,15 @@ ShellIMEMessage( wParam,lParam ) {
 Gosub houxuankuangguicreate
 Gosub Srf_Tip
 ;{{{{{Z键记录历史记录，最大数目为ListNum
-updateRecent(date){
+updateRecent(Chars){
 	global recent, ListNum
 	loop % length:=objLength(recent){
-		if(recent[a_index]==date){    ;删除重复的
+		if(recent[a_index]==Chars){    ;删除重复的
 			objRemoveAt(recent,a_index)
 			break
 		}
 	}
-	objInsertAt(recent,1,date)    ;新的放于最前
+	objInsertAt(recent,1,Chars)    ;新的放于最前
 	if((length:=objLength(recent))>ListNum)    ;删除多的
 	{
 		objdelete(recent,ListNum+1,length)
