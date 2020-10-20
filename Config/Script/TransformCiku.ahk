@@ -76,7 +76,7 @@ TranCiku(FilePath,outpath=""){
 				loopvalue_:=consistent_part[1]
 				For key,value in consistent_part
 					If (key>1&&value)
-						loopvalue.=loopvalue_ A_tab value "`r`n"
+						loopvalue.=value A_tab loopvalue_ "`r`n"
 			}
 		}
 		FileDelete,%FileName%_单义.txt

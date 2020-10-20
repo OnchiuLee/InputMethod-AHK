@@ -246,7 +246,7 @@ get_en_code(chars){
 					if (strlen(chars)=1){
 						Result_part := Result.Rows[1,1]
 					}else{
-					if (strlen(chars)=2)
+						if (strlen(chars)=2)
 							Result_part := SubStr(Result.Rows[1,1],1,2)
 						else if (strlen(chars)=3){
 							If (A_Index=3)
@@ -565,7 +565,7 @@ get_word(input, cikuname){
 						flag:=1, SQL :="SELECT aim_chars,E_Key,F_Key FROM(SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars,E_Key,F_Key FROM(SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key LIKE'" input "_' AND B_Key >0 ORDER BY A_Key,B_Key DESC);"
 					else{
 						If (!PromptChar&&CharFliter)
-							SQL:="SELECT aim_chars,B_Key,D_Key,E_Key,F_Key FROM(SELECT aim_chars,B_Key,E_Key,F_Key FROM ci where A_Key ='" input "' AND Length(aim_chars)>1 AND B_Key >0 ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars,B_Key,E_Key,F_Key FROM(SELECT aim_chars,B_Key,E_Key,F_Key FROM ci where A_Key ='" input "' AND Length(aim_chars)=1 AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars) AND B_Key >0 ORDER BY A_Key,B_Key DESC)"
+							SQL:="SELECT aim_chars,B_Key,E_Key,F_Key FROM(SELECT aim_chars,B_Key,E_Key,F_Key FROM ci where A_Key ='" input "' AND Length(aim_chars)>1 AND B_Key >0 ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars,B_Key,E_Key,F_Key FROM(SELECT aim_chars,B_Key,E_Key,F_Key FROM ci where A_Key ='" input "' AND Length(aim_chars)=1 AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars) AND B_Key >0 ORDER BY A_Key,B_Key DESC)"
 						else
 							SQL :="select aim_chars,E_Key,F_Key from ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC;"
 					}
@@ -609,7 +609,7 @@ get_word(input, cikuname){
 					DB.GetTable(SQL, Result)
 				}
 				if Trad_Mode~="off" {
-					If (PromptChar&&flag||Prompt_Word~="i)on"&&flag) {
+					If (!CharFliter&&PromptChar&&flag||!CharFliter&&Prompt_Word~="i)on"&&flag) {
 						GetValues:=Result.Rows
 						For Section, element In GetValues
 						{
@@ -623,7 +623,7 @@ get_word(input, cikuname){
 							}
 						}
 					}else
-						GetValues:=CharFliter&&cikuname~="i)ci|zi"?get_word_2(Result.Rows):get_word_1(Result.Rows)
+						GetValues:=CharFliter&&cikuname~="i)ci"?get_word_2(Result.Rows):get_word_1(Result.Rows)
 				;PrintObjects(GetValues)
 				}else{
 					lianx :="on"

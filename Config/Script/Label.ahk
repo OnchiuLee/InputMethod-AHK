@@ -227,11 +227,11 @@ ChangeTray:
 			if !Frequency {
 				For k,v In ["FTip","set_Frequency","RestDB"]
 					GuiControl, 98:Disable, %v%
-				OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
+				;;OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 			}else{
 				For k,v In ["FTip","set_Frequency","RestDB"]
 					GuiControl, 98:Enable, %v%
-				OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x0178d6})
+				;;OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x0178d6})
 			}
 		}
 		If (Logo_Switch~="i)on")
@@ -244,7 +244,7 @@ ChangeTray:
 				GuiControl, 98:Enable, %v%
 			For k,v In ["FTip","set_Frequency","RestDB","Frequency"]
 				GuiControl, 98:Disable, %v%
-			OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
+			;;OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 		}
 		If (Logo_Switch~="i)on")
 			Gosub SwitchSC
@@ -256,7 +256,7 @@ ChangeTray:
 			GuiControl,98:, SBA23, 0
 			For k,v In ["SBA23","FTip","set_Frequency","RestDB","Frequency"]
 				GuiControl, 98:Disable, %v%
-			OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
+			;;OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 		}
 		If (Logo_Switch~="i)on")
 			Gosub SwitchSC
@@ -268,7 +268,7 @@ ChangeTray:
 			GuiControl,98:, SBA23, 0
 			For k,v In ["SBA23", "Frequency", "FTip", "set_Frequency", "RestDB"]
 				GuiControl, 98:Disable, %v%
-			OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
+			;;OD_Colors.Attach(FRDL,{T: 0x546a7c, B: 0xC0C0C0})
 		}
 		If (Logo_Switch~="i)on")
 			Gosub SwitchSC
@@ -710,11 +710,11 @@ Frequency:
 	if !Frequency {
 		For k,v In ["FTip","set_Frequency","RestDB"]
 			GuiControl, 98:Disable, %v%
-		OD_Colors.Attach(FRDL,{T: 0x767641, B: 0xb3b3b3})
+		;;OD_Colors.Attach(FRDL,{T: 0x767641, B: 0xb3b3b3})
 	}else{
 		For k,v In ["FTip","set_Frequency","RestDB"]
 			GuiControl, 98:Enable, %v%
-		OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x0178d6})
+		;;OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x0178d6})
 	}
 Return
 
@@ -1096,6 +1096,7 @@ More_Setting:
 	Menu, ImportCiku, Add, 英文词库导入, ciku3
 	Menu, ImportCiku, Add, 特殊符号导入, ciku5
 	Menu, ImportCiku, Add, 读音词库导入, ciku10
+	Menu, ImportCiku, Add, 造词源表导入, ciku12
 	Menu, MainMenu, Add, 词库导入, :ImportCiku
 	Menu, MainMenu, Add,
 	Menu, ExportCiku, Add, 原始词库导出, ciku8
@@ -1109,6 +1110,7 @@ More_Setting:
 	Menu, MainMenu, Color, FFFFFF
 	Menu, Main, Add, 方案管理, :MainMenu
 	Menu, Custom, Add, 候选框风格, :StyleMenu
+	Menu, Custom, Add,
 	Menu, Custom, Add, 自定义配色, diyColor
 	Menu, Custom, Add,
 	Menu, Custom, Add, 主题管理, themelists
@@ -1118,6 +1120,7 @@ More_Setting:
 	Menu, ExtendTool, Add, 标点符号映射, Sym_Gui
 	Menu, ExtendTool, Add, 长字符串管理, LongStringlists
 	Menu, ExtendTool, Add, 时间输出设定, format_Date
+	Menu, ExtendTool, Add, 全码单字过滤, ciku13
 	Menu, ExtendTool, Add, 码表格式转换, TransformCiku
 	Menu, ExtendTool, Color, FFFFFF
 	Menu, Main, Add, 扩展工具, :ExtendTool
@@ -1156,14 +1159,14 @@ More_Setting:
 	Gui 98:Add, Text,x190 y+5 w365 h2 0x10 vlineText1
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
-	OD_Colors.SetItemHeight("S10 bold" , font_)
+	;;OD_Colors.SetItemHeight("S10 bold" , font_)
 	Gui, 98:Add, Text,x190 y+15 vTextInfo1 left, 主题选择：
 	themelist:=logoList:=""
 	Loop Files, config\Skins\*.json
 		themelist.="|" SubStr(A_LoopFileName,1,-5)
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, DDL,x+5 yp vselect_theme gselect_theme Section hwndHDDL +0x0210, % RegExReplace(themelist,"^\|")
+	Gui, 98:Add, DDL,x+5 yp vselect_theme gselect_theme Section hwndHDDL , % RegExReplace(themelist,"^\|")    ;;+0x0210
 	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, Text,
 	Gui, 98:Add, Text,x190 yp+5 vTextInfo3 left, 配置管理：
@@ -1185,9 +1188,9 @@ More_Setting:
 	Gui, 98:Add, Text,x190 y+10 vTextInfo4 left, 功能条：
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, DDL,x%scvarX% yp vselect_logo gselect_logo hWndSLCT +0x0210, % RegExReplace(logoList,"^\|")
-	OD_Colors.Attach(HDDL,{T: 0xffe89e, B: 0x0178d6})
-	OD_Colors.Attach(SLCT,{T: Logo_Switch~="i)on"?0xffe89e:0x767641, B: Logo_Switch~="i)on"?0x0178d6:0xb3b3b3})
+	Gui, 98:Add, DDL,x%scvarX% yp vselect_logo gselect_logo hWndSLCT , % RegExReplace(logoList,"^\|")    ;;+0x0210
+	;;OD_Colors.Attach(HDDL,{T: 0xffe89e, B: 0x0178d6})
+	;;OD_Colors.Attach(SLCT,{T: Logo_Switch~="i)on"?0xffe89e:0x767641, B: Logo_Switch~="i)on"?0x0178d6:0xb3b3b3})
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, CheckBox,x+10 yp+2 vshowtools gshowtools Checked%srfTool%, 独立显示
@@ -1329,8 +1332,8 @@ More_Setting:
 	Gui, 98:Add, Text, x190 y+10 left vTextInfo29, 反查设定：
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, DDL,x+5 w120  vzKeySet gzKeySet  AltSubmit HwndZDDL +0x0210, 临时拼音|模糊匹配
-	OD_Colors.Attach(ZDDL,{T: 0xffe89e, B: 0x0178d6})
+	Gui, 98:Add, DDL,x+5 w90  vzKeySet gzKeySet  AltSubmit HwndZDDL , 临时拼音|模糊匹配    ;;+0x0210
+	;;OD_Colors.Attach(ZDDL,{T: 0xffe89e, B: 0x0178d6})
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui 98:Add, Text,x190 y+5 w365 h2 0x10 vTextInfo13
@@ -1339,14 +1342,14 @@ More_Setting:
 		GuiControl, 98:Disable, Frequency
 	}
 	Gui, 98:Add, Text, x+5 yp vFTip left vTextInfo14, 调频参数：
-	Gui, 98:Add, DDL,x+5 yp-3 w50 vset_Frequency gset_Frequency hWndFRDL +0x0210, 2|3|4|5|6|7|8
-	OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x0178d6})
+	Gui, 98:Add, DDL,x+5 yp-3 w50 vset_Frequency gset_Frequency hWndFRDL , 2|3|4|5|6|7|8    ;;+0x0210
+	;;OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x0178d6})
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
 	Gui, 98:Add, Button, x+10 yp-1 vRestDB gRestDB hWndRDBT, 重置词频
 	ImageButton.Create(RDBT, [6, 0x80404040, 0xC0C0C0, "Red"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	if (not Wubi_Schema~="i)ci"||Trad_Mode~="i)on"||Prompt_Word~="i)on"||!Frequency) {
-		OD_Colors.Attach(FRDL,{T: 0x767641, B: 0xb3b3b3})
+		;;OD_Colors.Attach(FRDL,{T: 0x767641, B: 0xb3b3b3})
 		GuiControl, 98:Disable, FTip
 		GuiControl, 98:Disable, set_Frequency
 		GuiControl, 98:Disable, RestDB
@@ -1378,36 +1381,36 @@ More_Setting:
 	Gui, 98:Add, Text, x190 yp+45 left vTextInfo15, 开机自启：
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, DDL,x+25 w135  vSBA4 gSBA4 HwndSDDL4 +0x0210, 计划任务自启|快捷方式自启|不自启
-	OD_Colors.Attach(SDDL4,{T: 0xffe89e, B: 0x0178d6})
+	Gui, 98:Add, DDL,x+25 w135  vSBA4 gSBA4 HwndSDDL4 , 计划任务自启|快捷方式自启|不自启    ;;+0x0210
+	;;OD_Colors.Attach(SDDL4,{T: 0xffe89e, B: 0x0178d6})
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, Text, x190 y+10 left vTextInfo16, 上屏方式：
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, DDL,x+25 w135  vsChoice1 gsChoice1  AltSubmit HwndSCDL1 +0x0210, 常规上屏|剪切板上屏
-	OD_Colors.Attach(SCDL1,{T: 0xffe89e, B: 0x0178d6})
+	Gui, 98:Add, DDL,x+25 w135  vsChoice1 gsChoice1  AltSubmit HwndSCDL1 , 常规上屏|剪切板上屏    ;;+0x0210
+	;;OD_Colors.Attach(SCDL1,{T: 0xffe89e, B: 0x0178d6})
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, Text, x190 y+10  left vTextInfo17, Enter设定：
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, DDL,x+20 w135 vsChoice2 gsChoice2 HwndSCDL2 +0x0210, 编码上屏|回车清空
-	OD_Colors.Attach(SCDL2,{T: 0xffe89e, B: 0x0178d6})
+	Gui, 98:Add, DDL,x+20 w135 vsChoice2 gsChoice2 HwndSCDL2 , 编码上屏|回车清空    ;;+0x0210
+	;;OD_Colors.Attach(SCDL2,{T: 0xffe89e, B: 0x0178d6})
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, Text, x190 y+10 left vTextInfo18, 候选模式：
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, DDL,x+25 w135 vsChoice3 gsChoice3 HwndSCDL3 +0x0210, 候选横排|候选竖排
-	OD_Colors.Attach(SCDL3,{T: 0xffe89e, B: 0x0178d6})
+	Gui, 98:Add, DDL,x+25 w135 vsChoice3 gsChoice3 HwndSCDL3 , 候选横排|候选竖排    ;;+0x0210
+	;;OD_Colors.Attach(SCDL3,{T: 0xffe89e, B: 0x0178d6})
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, Text, x190 y+10 left vTextInfo19, 中英切换：
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
-	Gui, 98:Add, DDL, vsethotkey_1 gsethotkey_1 x+25 yp-1 w60 HwndHKDL +0x0210, Ctrl|Shift|Alt|LWin
-	OD_Colors.Attach(HKDL,{T: 0xffe89e, B: 0x0178d6})
+	Gui, 98:Add, DDL, vsethotkey_1 gsethotkey_1 x+25 yp-1 w60 HwndHKDL , Ctrl|Shift|Alt|LWin    ;;+0x0210
+	;;OD_Colors.Attach(HKDL,{T: 0xffe89e, B: 0x0178d6})
 	Gui 98:Add, Text, yp x+10 h22 w65 Center Border cblue vsethotkey_2 gsethotkey_2, % RegExReplace(Srf_Hotkey,"i)Shift|Ctrl|Alt|LWin|&","")
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
@@ -1426,18 +1429,40 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox5, 快捷键设置
 	Gui,98:Font
-	Gui,98:Font, s10, %font_%
+	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, CheckBox,x190 yp+45 vSBA1 gSBA1, 简繁切换>>
+	Gui,98:Font
+	Gui,98:Font, s9 , %font_%
 	Gui, 98:Add, Hotkey, x+0 yp-3 vs2t_hotkeys gs2t_hotkeys,% s2thotkey
+	Gui,98:Font
+	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, CheckBox,x190 yp+45 vSBA2 gSBA2, 拆分显示>>
+	Gui,98:Font
+	Gui,98:Font, s9 , %font_%
 	Gui, 98:Add, Hotkey, x+0 yp-3 vcf_hotkeys gcf_hotkeys,% cfhotkey
+	Gui,98:Font
+	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, CheckBox,x190 yp+45 vSBA15 gSBA15 Checked%rlk_switch%, 划译反查>>
+	Gui,98:Font
+	Gui,98:Font, s9 , %font_%
 	Gui, 98:Add, Hotkey, x+0 yp-3 vtip_hotkey gtip_hotkey,% tiphotkey
+	Gui,98:Font
+	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, CheckBox,x190 yp+45 vSBA16 gSBA16 Checked%Suspend_switch%, 程序挂起>>
+	Gui,98:Font
+	Gui,98:Font, s9 , %font_%
 	Gui, 98:Add, Hotkey, x+0 yp-3 vSuspend_hotkey gSuspend_hotkey,% Suspendhotkey
+	Gui,98:Font
+	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, CheckBox,x190 yp+45 vSBA17 gSBA17 Checked%Addcode_switch%, 批量造词>>
+	Gui,98:Font
+	Gui,98:Font, s9 , %font_%
 	Gui, 98:Add, Hotkey, x+0 yp-3 vAddcode_hotkey gAddcode_hotkey,% Addcodehotkey
+	Gui,98:Font
+	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, CheckBox,x190 yp+45 vSBA22 gSBA22 Checked%Exit_switch%, 快捷退出>>
+	Gui,98:Font
+	Gui,98:Font, s9 , %font_%
 	Gui, 98:Add, Hotkey, x+0 yp-3 vExit_hotkey gExit_hotkey,% exithotkey
 
 	Gui,98:Font
@@ -1593,8 +1618,8 @@ WinMode:
 	GuiControl,IM:Disable,DTxck
 	Gui, IM:Add, Button, x+10 vAddProcess gAddProcess hWndAPBT,添加
 	ImageButton.Create(APBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	Gui, IM:Add, DropDownList ,Choose1 w80 x+10 vIM_DDL gIM_DDL hWndIDDL +0x0210, 中文|英文|剪切板
-	OD_Colors.Attach(IDDL,{T: 0x767641, B: 0xb3b3b3})
+	Gui, IM:Add, DropDownList ,Choose1 w80 x+10 vIM_DDL gIM_DDL hWndIDDL , 中文|英文|剪切板    ;;+0x0210
+	;;OD_Colors.Attach(IDDL,{T: 0x767641, B: 0xb3b3b3})
 	GuiControl,IM:Disable,IM_DDL
 	Gui, IM:font,10 norm,%Font_%
 	Gui, IM:Add, ListView, AltSubmit Grid r15 x10 yp+30 -LV0x10 -Multi Checked NoSortHdr -wscroll -WantF2 0x8 LV0x40 hwndIPView gIPView vIPView  ,进程名|输入状态
@@ -1651,13 +1676,13 @@ IPView:
 		GuiControl,IM:,IM_DDL,% LVName_~="中文"?"|英文|剪切板":LVName_~="英文"?"|中文|剪切板":LVName_~="剪切板"?"|中文|英文":""
 		;;GuiControl, IM:ChooseString, IM_DDL, % LVName_
 		GuiControl,IM:Enable,IM_DDL
-		OD_Colors.Attach(IDDL,{T: 0xffffff, B: 0x0178d6})
+		;;OD_Colors.Attach(IDDL,{T: 0xffffff, B: 0x0178d6})
 		if LVName_~="剪切板" {
 			GuiControl,IM:Disable,IM_DDL
-			OD_Colors.Attach(IDDL,{T: 0xffffff, B: 0x0178d6})
+			;;OD_Colors.Attach(IDDL,{T: 0xffffff, B: 0x0178d6})
 		}else{
 			GuiControl,IM:Enable,IM_DDL
-			OD_Colors.Attach(IDDL,{T: 0xffffff, B: 0x0178d6})
+			;;OD_Colors.Attach(IDDL,{T: 0xffffff, B: 0x0178d6})
 		}
 		LVName__:=LVName_="中文"?"CN":LVName_="英文"?"EN":"CLIP"
 		loop, % LV_GetCount()+1
@@ -1665,12 +1690,12 @@ IPView:
 			if LV_GetNext( A_Index-1, "Checked" ){
 				GuiControl, IM:Enable, DTxck
 				GuiControl,IM:Disable,IM_DDL
-				OD_Colors.Attach(IDDL,{T: 0xffffff, B: 0x0178d6})
+				;;OD_Colors.Attach(IDDL,{T: 0xffffff, B: 0x0178d6})
 				break
 			}else{
 				GuiControl, IM:Disable, DTxck
 				GuiControl,IM:Enable,IM_DDL
-				OD_Colors.Attach(IDDL,{T: 0xffffff, B: 0x0178d6})
+				;;OD_Colors.Attach(IDDL,{T: 0xffffff, B: 0x0178d6})
 				break
 			}
 		}
@@ -2653,6 +2678,20 @@ ciku1:
 		Gosub Write_DB
 Return
 
+ciku12:
+	If FileExist("Config\Script\EtymologyTable.ahk") {
+		Run *RunAs "%A_AhkPath%" /restart "Config\Script\EtymologyTable.ahk"
+	}else
+		MsgBox, 262160, 错误, %A_ScriptDir%\Config\Script\EtymologyTable.ahk执行脚本不存在！, 10
+Return
+
+ciku13:
+	If FileExist("Config\Script\KeepCikuFullcode.ahk") {
+		Run *RunAs "%A_AhkPath%" /restart "Config\Script\KeepCikuFullcode.ahk"
+	}else
+		MsgBox, 262160, 错误, %A_ScriptDir%\Config\Script\KeepCikuFullcode.ahk执行脚本不存在！, 10
+Return
+
 ciku2:
 	Gosub OnBackup
 Return
@@ -2855,11 +2894,11 @@ CheckFilter:
 	If Wubi_Schema~="i)ci|zi"&&Prompt_Word~="i)off"&&WinExist("输入法设置") {
 		For k,v In ["Frequency","FTip","set_Frequency","RestDB"]
 			GuiControl, 98:Enable, %v%
-		OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x0178d6})
+		;;OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x0178d6})
 	}else If not Wubi_Schema~="i)ci|zi"&&Prompt_Word~="i)on"&&WinExist("输入法设置"){
 		For k,v In ["Frequency","FTip","set_Frequency","RestDB"]
 			GuiControl, 98:Disable, %v%
-		OD_Colors.Attach(FRDL,{T: 0x767641, B: 0xb3b3b3})
+		;;OD_Colors.Attach(FRDL,{T: 0x767641, B: 0xb3b3b3})
 	}
 	WubiIni.save()
 Return
@@ -3164,7 +3203,7 @@ SBA13:
 	if Logo_Switch~="off" {
 		For k,v In ["ExSty","SrfSlider","select_logo","set_SizeValue","SizeValue","LogoColor_cn","LogoColor_en","LogoColor_caps", "showtools","DPISty"]
 			GuiControl, 98:Disable, %v%
-		OD_Colors.Attach(SLCT,{T: 0x767641, B: 0xb3b3b3})
+		;;OD_Colors.Attach(SLCT,{T: 0x767641, B: 0xb3b3b3})
 	}else{
 		For k,v In ["ExSty","SrfSlider","select_logo","set_SizeValue","SizeValue","LogoColor_cn","LogoColor_en","LogoColor_caps", "showtools","DPISty"]
 		{
@@ -3173,7 +3212,7 @@ SBA13:
 			}else
 				GuiControl, 98:Enable, %v%
 		}
-		OD_Colors.Attach(SLCT,{T: 0xffe89e, B: 0x0178d6})
+		;;OD_Colors.Attach(SLCT,{T: 0xffe89e, B: 0x0178d6})
 	}
 Return
 
