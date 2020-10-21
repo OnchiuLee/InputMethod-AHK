@@ -125,7 +125,7 @@ set_next(list_num){
 
 ;简体转繁体
 set_trad_mode(Arrs){
-	global DB
+	global DB, CharFliter, Wubi_Schema
 	If (Arrs.Length()<1)
 		Return []
 	else
@@ -134,7 +134,7 @@ set_trad_mode(Arrs){
 		;PrintObjects(Arrs)
 		for section,element in Arrs
 			for key,value in Simp2Trad(element[1])
-				ResultAll.push([value,split_wubizg(value),get_en_code(value)])
+				ResultAll.push([value,split_wubizg(value),(CharFliter&&Wubi_Schema~="i)ci|zi"?get_en_code(value):"")])
 		Return ResultAll
 	}
 }
@@ -514,11 +514,9 @@ get_word_2(obj){
 
 get_word_1(obj){
 	global srf_all_Input, Trad_Mode, CharFliter, flag,zkey_mode
-	If (IsObject(obj)srf_all_Input~="[^z]") {
+	If (IsObject(obj)&&srf_all_Input~="[^z]") {
 		for section,element in obj
-		{
-			element.RemoveAt(3)
-		}
+			obj[section,3]:=""
 	}
 	Return obj
 }
@@ -661,8 +659,9 @@ get_word(input, cikuname){
 										GetValues[a_index+index,3]:=StrLen(input)<4&&input<>GetValues[a_index+index,3]?RegExReplace(GetValues[a_index+index,3],"^" input,"~"):""
 								}
 							}
-						}else
-							GetValues:=set_trad_mode(CharFliter&&cikuname~="i)ci|zi"?get_word_2(Result.Rows):get_word_1(Result.Rows))
+						}else{
+							GetValues:=set_trad_mode(CharFliter&&cikuname~="i)ci|zi"?get_word_2(Result.Rows):Result.Rows)
+						}
 					}else
 						GetValues:=Result.Rows
 				}
