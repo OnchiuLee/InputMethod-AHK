@@ -141,7 +141,7 @@ set_trad_mode(Arrs){
 
 Simp2Trad(chars){
 	global DB
-	DB.gettable("SELECT A_Key FROM s2t WHERE aim_chars = '" chars "'", Result)
+	DB.gettable("SELECT A_Key FROM 'extend'.'s2t' WHERE aim_chars = '" chars "'", Result)
 	If InStr(Result.Rows[1,1],A_space)
 		Return StrSplit(Result.Rows[1,1],A_space)
 	else If (Result.Rows[1,1]<>""){
@@ -153,7 +153,7 @@ Simp2Trad(chars){
 			t_:=""
 			loop,% strlen(chars)
 			{
-				DB.gettable("SELECT A_Key FROM s2t WHERE aim_chars = '" SubStr(chars,a_index,1) "'", Result)
+				DB.gettable("SELECT A_Key FROM 'extend'.'s2t' WHERE aim_chars = '" SubStr(chars,a_index,1) "'", Result)
 					t_.=Result.Rows[1,1]?StrSplit(Result.Rows[1,1],A_space)[1]:SubStr(chars,a_index,1)
 				
 			}
@@ -523,9 +523,22 @@ get_word_1(obj){
 	Return obj
 }
 
+Char2Num(input,s=0){
+	global StrockeKey
+	If strlen(input)<2
+		Return input
+	keylist:=StrSplit(StrockeKey,"|"),StrockeList:=["一","丨","丿","乀","乙"]
+	loop,% strlen(input:=RegExReplace(input,"^z|'"))
+	{
+		If (Index:=Array_GetParentKey(keylist, SubStr(input,a_index,1)))
+			Chars.=s?StrockeList[index]:Index
+	}
+	Return Chars
+}
+
 ;词条提取
 get_word(input, cikuname){
-	global Frequency, Prompt_Word, Trad_Mode, PromptChar, srf_all_Input, lianx, CharFliter, zkey_mode
+	global Frequency, Prompt_Word, Trad_Mode, PromptChar, srf_all_Input, lianx, CharFliter, zkey_mode, StrockeKey
 	If (input="")
 		Return []
 	If (cikuname~="chaoji|zi|ci|label|zg")
@@ -535,16 +548,23 @@ get_word(input, cikuname){
 		{
 			lianx :="on"
 			if (srf_all_Input~="i)^z"&&!zkey_mode) {
+				;;SQL :="SELECT p.aim_chars,p.C_Key,GROUP_CONCAT(e.A_Key) FROM pinyin AS p LEFT JOIN ci AS e where REPLACE(p.A_key,' ','') ='" RegExReplace(input,"^z|'","") "' AND p.aim_chars =e.aim_chars " (cikuname~="zi|chaoji"?"AND length(p.aim_chars)=1":"") " GROUP BY e.aim_chars,p.B_Key ORDER BY p.B_Key DESC"
+				;;SQL :="SELECT p.aim_chars,p.C_Key,e.A_Key FROM pinyin AS p LEFT JOIN EN_Chr AS e where REPLACE(p.A_key,' ','') ='" RegExReplace(input,"^z|'","") "' AND p.aim_chars =e.aim_chars " (cikuname~="zi|chaoji"?"AND length(p.aim_chars)=1":"") " ORDER BY p.B_Key DESC"
 				SQL :="SELECT aim_chars,C_Key,D_Key FROM pinyin WHERE REPLACE(A_key,' ','') ='" RegExReplace(input,"^z|'","") "' " (cikuname~="zi|chaoji"?"AND length(aim_chars)=1":"") " ORDER BY B_Key DESC;"
 				If DB.GetTable(SQL, Result)
 					Return Result.Rows
-			}else if (srf_all_Input ~="^[a-y]+z$|^[a-y]+z[a-z]+$|^z[a-y]+$|^z[a-y]+z[a-y]+|^[a-y]+z[a-z]+z$|^z[a-y]+z$"&&zkey_mode){
-				If cikuname~="i)ci"
+			}else if (srf_all_Input ~="^[a-y]+z$|^[a-y]+z[a-z]+$|^z[a-y]+$|^z[a-y]+z[a-y]+|^[a-y]+z[a-z]+z$|^z[a-y]+z$"&&zkey_mode=1){
+				If cikuname~="i)ci" {
 					SQL :="SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key LIKE '" RegExReplace(srf_all_Input,"z","_") "' ORDER BY A_Key,D_Key DESC;"   ;Length(aim_chars),
-				else If cikuname~="i)chaoji|zi"
+				}else If cikuname~="i)chaoji|zi" {
 					SQL :="SELECT aim_chars,C_Key,D_Key FROM " cikuname " WHERE A_Key LIKE '" RegExReplace(srf_all_Input,"z","_") "' ORDER BY A_Key,B_Key DESC;"
-				else
+				}else
 					SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key LIKE '" RegExReplace(srf_all_Input,"z","_") "';"
+				If DB.GetTable(SQL, Result)
+					Return Result.Rows
+			}else If (zkey_mode=2) {
+				input:=Char2Num(input)
+				SQL:="SELECT s.aim_chars,s.C_Key,e.A_Key FROM 'extend'.'Strocke' AS s LEFT JOIN EN_Chr AS e where s.A_Key LIKE '" RegExReplace(input,"^z|'") "%' AND s.aim_chars = e.aim_chars ORDER BY Length(s.A_Key),s.B_Key DESC"
 				If DB.GetTable(SQL, Result)
 					Return Result.Rows
 			}
@@ -692,10 +712,10 @@ SwitchingScheme(n,Char){
 
 Save_EnWord(input){
 	global DB, srf_all_Input
-	If (input="")
+	If (input=""||input~="\W")
 		Return
-	DB.gettable("SELECT aim_chars,A_Key FROM encode WHERE aim_chars = '" input "' ORDER BY A_Key DESC;",Result)
-	If !objlength(Result.Rows) {
+	DB.gettable("SELECT aim_chars FROM encode WHERE aim_chars = '" input "' ORDER BY A_Key DESC;",Result)
+	If !objCount(Result.Rows) {
 		If DB.Exec("INSERT INTO encode(aim_chars,A_Key)VALUES('" StringLower(input) "','5000');")>0
 			Return 1
 	}
@@ -801,7 +821,7 @@ get_single_py(chars){
 		Return []
 	else
 	{
-		SQL_ :="SELECT * FROM PY WHERE aim_chars = '" chars "'"
+		SQL_ :="SELECT * FROM 'extend'.'PY' WHERE aim_chars = '" chars "'"
 		if DB.gettable(SQL_,Result){
 			if Result.Rows[1,3]&&Result.Rows[1,4]
 				Return Result.Rows[1,3] " • " Result.Rows[1,4]
@@ -890,7 +910,7 @@ prompt_enword(input){
 	global
 	If (input="")
 		Return []
-	SQL :="SELECT aim_chars FROM encode WHERE aim_chars LIKE '" input "%' ORDER BY A_Key DESC;"
+	SQL :="SELECT LOWER(aim_chars) FROM encode WHERE aim_chars LIKE '" input "%' ORDER BY A_Key DESC;"
 	If DB.GetTable(SQL, Result){
 		If (Result.Rows[1,1]<>input)
 			Result.Rows.push([input]), Result.Rows.push([StringUpper(input)]), Result.Rows.push([StringUpper(input,"T")])
@@ -904,12 +924,15 @@ prompt_pinyin(input){
 	If (input="")
 		Return []
 	input:=RegExReplace(input,"~","")
-	If Wubi_Schema~="i)ci"
+	If Wubi_Schema~="i)ci"{
 		SQL:="select aim_chars from ci WHERE A_Key ='" input "' AND Length(aim_chars)=1 ORDER BY A_Key,B_Key DESC;"
-	else If Wubi_Schema~="i)zi"
+	}else If Wubi_Schema~="i)zi"{
+		SQL:=""
 		SQL:="select aim_chars from zi WHERE A_Key ='" input "' ORDER BY A_Key,B_Key DESC;"
-	else If Wubi_Schema~="i)chaoji"
+	}else If Wubi_Schema~="i)chaoji"{
+		SQL:=""
 		SQL:="select aim_chars from chaoji WHERE A_Key ='" input "' ORDER BY A_Key,B_Key DESC;"
+	}
 	DB.GetTable(SQL, Result)
 	prompt_result:=Result.Rows
 	prompt_all:=[],count:=0
@@ -930,7 +953,7 @@ prompt_label(input){
 	global DB
 	If (input="")
 		Return []
-	SQL :="SELECT C_key,D_Key FROM label WHERE B_Key ='" RegExReplace(input,"/","") "'"
+	SQL :="SELECT C_key,D_Key FROM 'extend'.'label' WHERE B_Key ='" RegExReplace(input,"/","") "'"
 	If DB.GetTable(SQL, Result){
 		if Result.Rows[1,1]
 			Return Result.Rows
@@ -943,7 +966,7 @@ prompt_symbols(input){
 	If (input="")
 		Return []
 	ResultAll:=[]
-	DB.GetTable("SELECT A_Key FROM symbols WHERE aim_chars ='" input "'", Result_symbols), DB.GetTable("SELECT C_Key,D_Key FROM label WHERE B_Key ='" SubStr(input,2) "'", Result_label)
+	DB.GetTable("SELECT A_Key FROM 'extend'.'symbols' WHERE aim_chars ='" input "'", Result_symbols), DB.GetTable("SELECT C_Key,D_Key FROM 'extend'.'label' WHERE B_Key ='" SubStr(input,2) "'", Result_label)
 	If Result_symbols.RowCount>0
 	{
 		symbolsObj:=StrSplit(Result_symbols.Rows[1,1],",")
@@ -1045,6 +1068,18 @@ Create_Ci(DB,Name)
 	DB.Exec("COMMIT TRANSACTION;VACUUM;")
 }
 
+Create_Strocke(DB,Name){
+	global
+	If !Name
+		Return
+	DB.Exec("DROP TABLE IF EXISTS 'extend'.'Strocke';")
+	DB.Exec("BEGIN TRANSACTION;")
+	_SQL = CREATE TABLE 'extend'.'Strocke' ("aim_chars" TEXT PRIMARY KEY,"A_Key" INTEGER,"B_Key" INTEGER,"C_Key" TEXT);
+	DB.Exec(_SQL)
+	;DB.Exec("CREATE UNIQUE INDEX IF NOT EXISTS 'extend'.'sy_Strocke' ON 'Strocke' ('aim_chars');")
+	DB.Exec("COMMIT TRANSACTION;VACUUM;")
+}
+
 ;创建label表
 Create_label(DB,Name){
 	global
@@ -1052,7 +1087,7 @@ Create_label(DB,Name){
 		Return
 	DB.Exec("DROP TABLE IF EXISTS label;")
 	DB.Exec("BEGIN TRANSACTION;")
-	_SQL = CREATE TABLE label ("A_Key" INTEGER PRIMARY KEY AUTOINCREMENT,"B_Key" TEXT,"C_Key" TEXT,"D_Key" TEXT);
+	_SQL = CREATE TABLE 'extend'.'label' ("A_Key" INTEGER PRIMARY KEY AUTOINCREMENT,"B_Key" TEXT,"C_Key" TEXT,"D_Key" TEXT);
 	DB.Exec(_SQL)
 	DB.Exec("COMMIT TRANSACTION;VACUUM;")
 }
@@ -1073,12 +1108,12 @@ Create_En(DB,Name){
 	global
 	If !Name
 		Return
-	bd~="i)En"?(DB.Exec("DROP TABLE IF EXISTS encode;")):(DB.Exec("DROP TABLE IF EXISTS symbols;"))
+	bd~="i)En"?(DB.Exec("DROP TABLE IF EXISTS encode;")):(DB.Exec("DROP TABLE IF EXISTS 'extend'.'symbols';"))
 	DB.Exec("BEGIN TRANSACTION;")
 	If bd~="i)En"
 		_SQL = CREATE TABLE encode ("aim_chars" TEXT,"A_Key" INTEGER);CREATE INDEX IF NOT EXISTS 'main'.'sy_encode' ON 'encode' ('aim_chars');
 	else
-		_SQL = CREATE TABLE symbols ("aim_chars" TEXT,"A_Key" TEXT);CREATE INDEX IF NOT EXISTS 'main'.'sy_symbols' ON 'symbols' ('aim_chars');
+		_SQL = CREATE TABLE 'extend'.'symbols' ("aim_chars" TEXT,"A_Key" TEXT);CREATE INDEX IF NOT EXISTS 'extend'.'sy_symbols' ON 'symbols' ('aim_chars');
 	DB.Exec(_SQL)
 	
 	DB.Exec("COMMIT TRANSACTION;VACUUM;")
@@ -1128,11 +1163,17 @@ CheckDB(DB,cikuName){
 	}
 }
 
+/*
+	labelArr:=[["en","EN_Mode","英文输入模式开关"]
+		, ["yw","SwitchToEngIME","切换至英文键盘模式"]
+		, ["zw","SwitchToChsIME","切换至中文键盘模式"]
+		, ["gl","CharFliter","GB2312过滤开关"]]
+*/
 CheckLabel(DB,labelArr){
 	for key,value In labelArr
 	{
-		DB.GetTable("select B_Key from label_init where C_Key='" value[2] "';",Result)
+		DB.GetTable("select B_Key from 'extend'.'label_init' where C_Key='" value[2] "';",Result)
 		If !Result.RowCount
-			DB.Exec("INSERT INTO label_init (B_Key,C_Key,D_Key) VALUES('" value[1] "','" value[2] "','#〔" value[3] "〕');INSERT INTO label (B_Key,C_Key,D_Key) VALUES('" value[1] "','" value[2] "','#〔" value[3] "〕');")
+			DB.Exec("INSERT INTO 'extend'.'label_init' (B_Key,C_Key,D_Key) VALUES('" value[1] "','" value[2] "','#〔" value[3] "〕');INSERT INTO 'extend'.'label' (B_Key,C_Key,D_Key) VALUES('" value[1] "','" value[2] "','#〔" value[3] "〕');")
 	}
 }

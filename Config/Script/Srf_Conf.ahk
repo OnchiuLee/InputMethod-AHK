@@ -27,11 +27,15 @@
 	x::
 	y::
 	z::
-	srf_all_input .= A_ThisHotkey, waitnum:=select_sym:=0,num_for_select_arrays:=[], num__:="", localpos:=1
+	If (srf_all_input~="^z"&&zkey_mode=2&&!EN_Mode){
+		If Array_isInValue(StrSplit(StrockeKey,"|"),A_ThisHotkey)
+			srf_all_input.=A_ThisHotkey, waitnum:=select_sym:=0,num_for_select_arrays:=[], num__:="", localpos:=1
+	}else
+		srf_all_input .= A_ThisHotkey, waitnum:=select_sym:=0,num_for_select_arrays:=[], num__:="", localpos:=1
 	gosub srf_tooltip_fanye
 return
 
-#if srf_mode&&!GetKeyState("CapsLock", "T")&&not srf_all_input~="\d+"&&srf_all_input~="^``|^[a-y]"&&Wubi_Schema~="i)ci"
+#if srf_mode&&!GetKeyState("CapsLock", "T")&&not srf_all_input~="\d+"&&srf_all_input~="^``|^[a-y]"&&Wubi_Schema~="i)ci"&&!EN_Mode
 	`::
 	srf_all_input .= A_ThisHotkey, waitnum:=select_sym:=PosLimit:=0, num__:="", localpos:=1
 	gosub srf_tooltip_fanye
@@ -54,7 +58,7 @@ return
 	space::srf_select(ToolTipStyle~="i)gdip"&&FocusStyle?localpos:1,A_ThisHotkey)
 #if 
 
-#If srf_mode&&InStr(srf_all_Input,"/")&&!GetKeyState("CapsLock", "T")&&not srf_all_input ~="[a-z]"
+#If srf_mode&&InStr(srf_all_Input,"/")&&!GetKeyState("CapsLock", "T")&&not srf_all_input ~="[a-z]"||srf_mode&&!GetKeyState("CapsLock", "T")&&srf_all_input~="^z"&&zkey_mode=2&&StrockeKey~="^\d"
 	1::
 	2::
 	3::
@@ -77,8 +81,11 @@ return
 	Numpad9::
 	Numpad0::
 	NumpadDot::
-
-	srf_all_input .= RegExReplace(A_ThisHotkey~="i)dot$"?".":A_ThisHotkey,"i)numpad"), select_sym:=0, localpos:=1
+	If (srf_all_input~="^z"&&zkey_mode=2&&!EN_Mode){
+		If Array_isInValue(StrSplit(StrockeKey,"|"),A_ThisHotkey)
+			srf_all_input.=A_ThisHotkey, select_sym:=0, localpos:=1
+	}else
+		srf_all_input .= RegExReplace(A_ThisHotkey~="i)dot$"?".":A_ThisHotkey,"i)numpad"), select_sym:=0, localpos:=1
 	gosub srf_tooltip_fanye
 Return
 #If
@@ -176,19 +183,21 @@ Return
 	CapsLock::
 		if !GetKeyState("CapsLock", "T"){
 			SetCapsLockState , on
-			Gosub RestLogo
+			If Logo_Switch~="i)on"
+				Gosub RestLogo
 			gosub Get_IME
 		}
 		else
 		{
 			SetCapsLockState , off
-			Gosub RestLogo
+			If Logo_Switch~="i)on"
+				Gosub RestLogo
 			gosub Get_IME
 		}
 		gosub srf_value_off
 	Return
 	`::
-		if !GetKeyState("CapsLock", "T"){
+		if !GetKeyState("CapsLock", "T")&&!EN_Mode{
 			srf_all_Input .= A_ThisHotkey, select_sym:=PosLimit:=0
 			;[ ` ]引导常用符号自定义，Sym_Array多维数组首位置空，其它按顺序排列，增加的话 直接在数组里添加格式 >>  ,["符号"]
 			global Sym_Array :=[[""],["·"],["～"],["☯"],["〔〕{Left}"],["の"],["❖"],["🍎"],["☁"],["•"],["℃"],["‰"],["℉"],["※"],["●"],["○"],["★"],["☆"],["©"],["√"],["×"],["№"],["％"],["≈"],["¿"],["¡"],[""],["ㄓ"]]
@@ -214,7 +223,7 @@ Return
 		}
 	Return
 	~::
-		if !GetKeyState("CapsLock", "T"){
+		if !GetKeyState("CapsLock", "T")&&!EN_Mode{
 			srf_all_Input .= A_ThisHotkey, select_sym:=PosLimit:=0
 			gosub srf_tooltip_fanye 
 		}else{
@@ -232,13 +241,15 @@ return
 	CapsLock::
 		if GetKeyState("CapsLock", "T"){
 			SetCapsLockState , off
-			Gosub RestLogo
+			If Logo_Switch~="i)on"
+				Gosub RestLogo
 			gosub Get_IME
 		}
 		else
 		{
 			SetCapsLockState , on
-			Gosub RestLogo
+			If Logo_Switch~="i)on"
+				Gosub RestLogo
 			gosub Get_IME
 		}
 		gosub srf_value_off
@@ -315,7 +326,7 @@ FocusSelect2:
 		FocusGdipGui(srf_code, srf_for_select_obj, Caret.X, Caret.Y+30, EN_Mode||srf_all_input~="^[``]{2}\w+"?EnFontName:FontType)
 Return
 
-#If srf_all_input&&srf_all_input~="\d+"
+#If srf_mode&&srf_all_input~="\d+"
 	space::
 	`;::
 	'::
@@ -496,10 +507,12 @@ Return
 		if CL_State ~="U"{
 			Gosub srf_value_off
 			SetCapsLockState , on
-			Gosub RestLogo
+			If Logo_Switch~="i)on"
+				Gosub RestLogo
 			gosub Get_IME
 		}else{
-			gosub RestLogo
+			If Logo_Switch~="i)on"
+				gosub RestLogo
 			gosub srf_value_off
 		}
 	Return

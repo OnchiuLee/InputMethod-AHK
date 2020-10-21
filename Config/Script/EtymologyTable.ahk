@@ -10,7 +10,7 @@ SetWorkingDir %A_ScriptDir%
 FileSelectFile, MaBiaoFile, 3, , 导入适用于造词的单字源表, Text Documents (*.txt)
 SplitPath, MaBiaoFile, , , , filename
 If (MaBiaoFile<> ""&&filename){
-	MsgBox, 262452, 提示, 要导入以下造词单字源表进行替换？`n词库格式须为「单行单义」
+	MsgBox, 262452, 提示, 要导入以下造词单字源表进行替换？`n词库格式须为「单行单义/单行多义」
 	IfMsgBox, Yes
 	{
 		DBFileName:=SubStr(A_ScriptDir,1,-13) "DB\wubi98.db", DB := New SQLiteDB

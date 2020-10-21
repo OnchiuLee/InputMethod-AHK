@@ -130,11 +130,14 @@ Return
 ; 中英文切换模式
 SetHotkey:
 	srf_mode:=!srf_mode
-	SetCapsLockState , off
-	Gosub RestLogo
+	If GetKeyState("CapsLock", "T")
+		SetCapsLockState , off
+	If Logo_Switch~="i)on"
+		Gosub RestLogo
 	if !srf_mode
 		UpperScreenMode( RegExReplace(srf_all_input,"\'","") )
-	Gosub Write_Pos
+	If Logo_Switch~="i)on"
+		Gosub Write_Pos
 	Gosub Get_IME
 	Gosub srf_value_off
 Return
@@ -769,7 +772,7 @@ srf_tooltip_fanye:
 	for k,v in ["Textdirection","ListNum","FontSize"]
 		if (WubiIni.TipStyle[v]<>%v%)
 			%v%:=Textdirection:=WubiIni[Array_GetParentKey(WubiIni, v),v]
-	if srf_all_Input ~="^``"{
+	if srf_all_Input ~="^``"&&!EN_Mode{
 		if (srf_all_Input~="^``[a-z]+"&&Wubi_Schema~="i)ci"&&!EN_Mode){
 			srf_for_select_Array:=format_word(RegExReplace(srf_all_Input,"^``"))
 			if (srf_for_select_Array[1]<>select_arr&&select_arr[1]<>""){
@@ -819,9 +822,9 @@ srf_tooltip_fanye:
 		}
 		Gosub srf_tooltip_cut
 	}else if (srf_all_Input ~="^z"&&!EN_Mode){
-		if srf_all_Input~="^z[a-z]+|^z\'[a-z]+" {
+		if srf_all_Input~="^z\w+|^z\'\w+" {
 			srf_all_input:=!zkey_mode?RegExReplace(srf_all_input,"^z|^z\'",srf_all_input~="'"?"z":"z'"):srf_all_input, srf_for_select_Array:=get_word(srf_all_input, Wubi_Schema)
-		}else{
+		}else If srf_all_input~="^z$"&&zkey_mode<2{
 			if recent[1]{
 				loop % objLength(recent)
 					srf_for_select_Array[A_Index,1]:=recent[A_Index]
@@ -830,7 +833,7 @@ srf_tooltip_fanye:
 			}
 		}
 		Gosub srf_tooltip_cut
-	}else if srf_all_Input ~="^~"{
+	}else if srf_all_Input ~="^~"&&!EN_Mode{
 		if srf_all_Input ~="^~[a-z]+"
 			srf_for_select_Array:=prompt_pinyin(srf_all_Input)
 		else if srf_all_Input ~="^~$"
@@ -878,7 +881,7 @@ srf_tooltip_cut:
 					if (key=1) {
 						srf_for_select_part:= (StrLen(value)>25&&srf_all_input~="^[a-y]"?SubStr(value,1,25) " •••••":value) ( Cut_Mode="on"&&a_FontList ~="i)" FontExtend &&FontType ~="i)" FontExtend &&srf_for_select_Array[Section, valueindex]<>""?(srf_all_input~="^[a-z]+"?"〔":A_Space) . srf_for_select_Array[Section, valueindex] . (srf_all_input~="^[a-z]+"?"〕":A_Space):A_Space . srf_for_select_Array[Section, 3])
 						if (srf_for_select_part<>"") {
-							srf_for_select_string.=((srf_all_Input~="/\d+"?A_Space A_Space SubStr(Select_Code, Section-ListNum*waitnum , 1):(Cut_Mode~="on"?A_Space:A_Space A_Space) Section-ListNum*waitnum) "." srf_for_select_part), srf_for_select_obj.Push(((srf_all_Input~="/\d+"?SubStr(Select_Code, Section-ListNum*waitnum , 1):A_Space Section-ListNum*waitnum) "." srf_for_select_part))
+							srf_for_select_string.=((srf_all_Input~="\d+"?A_Space A_Space SubStr(Select_Code, Section-ListNum*waitnum , 1):(Cut_Mode~="on"?A_Space:A_Space A_Space) Section-ListNum*waitnum) "." srf_for_select_part), srf_for_select_obj.Push(((srf_all_Input~="\d+"?SubStr(Select_Code, Section-ListNum*waitnum , 1):A_Space Section-ListNum*waitnum) "." srf_for_select_part))
 						}
 					}
 				}
@@ -895,8 +898,8 @@ srf_tooltip_cut:
 					if (key=1) {
 						srf_for_select_part:=(value (Cut_Mode="on"&&a_FontList ~="i)" FontExtend &&FontType ~="i)" FontExtend &&srf_for_select_Array[Section, valueindex]<>""?(srf_all_input~="^[a-z]+"?"〔":A_Space) . srf_for_select_Array[Section, valueindex] . (srf_all_input~="^[a-z]+"?"〕":A_Space):A_Space . srf_for_select_Array[Section, 3]))
 						if (srf_for_select_part<>""){
-							srf_for_select_string.=("`n" (srf_all_Input~="/\d+"?SubStr(Select_Code, Section-ListNum*waitnum , 1):Section-ListNum*waitnum) "." srf_for_select_part)
-							srf_for_select_obj.Push(((srf_all_Input~="/\d+"?SubStr(Select_Code, Section-ListNum*waitnum , 1):A_Space Section-ListNum*waitnum) "." srf_for_select_part))
+							srf_for_select_string.=("`n" (srf_all_Input~="\d+"?SubStr(Select_Code, Section-ListNum*waitnum , 1):Section-ListNum*waitnum) "." srf_for_select_part)
+							srf_for_select_obj.Push(((srf_all_Input~="\d+"?SubStr(Select_Code, Section-ListNum*waitnum , 1):A_Space Section-ListNum*waitnum) "." srf_for_select_part))
 						}
 					}
 				}
@@ -922,8 +925,10 @@ showhouxuankuang:
 			Gui, houxuankuang:Hide
 		Return
 	}
-	srf_code:=srf_all_input~="^z\'[a-z]"?RegExReplace(srf_all_input,"^z\'"):(srf_all_input~="^``$"?RegExReplace(srf_all_input,"^``",(Wubi_Schema~="i)ci"&&!EN_Mode?"〔精准造词〕":"〔常用符号〕")):srf_all_input~="^~$"?RegExReplace(srf_all_input,"^~","〔以形查音〕"):srf_all_input~="^[``]{2}$"&&!EN_Mode?RegExReplace(srf_all_input,"^````","〔临时英文〕"):srf_all_input)
-	srf_code:=srf_code~="^``|^~"?RegExReplace(RegExReplace(srf_code,"^``|^~"),"``","'"):srf_code
+	If !EN_Mode {
+		srf_code:=srf_all_input~="^z\'[a-z]"?RegExReplace(srf_all_input,"^z\'"):(srf_all_input~="^``$"?RegExReplace(srf_all_input,"^``",(Wubi_Schema~="i)ci"&&!EN_Mode?"〔精准造词〕":"〔常用符号〕")):srf_all_input~="^~$"?RegExReplace(srf_all_input,"^~","〔以形查音〕"):srf_all_input~="^[``]{2}$"&&!EN_Mode?RegExReplace(srf_all_input,"^````","〔临时英文〕"):srf_all_input)
+		,srf_code:=srf_code~="^``|^~"?RegExReplace(RegExReplace(srf_code,"^``|^~"),"``","'"):srf_code~="^z"&&zkey_mode=2?Char2Num(srf_code,1):srf_code
+	}else srf_code:=srf_all_input
 	SysGet, _height, 14
 	if Fix_Switch~="i)on"{
 		Caret:={x:Fix_X,y:Fix_Y,h:_height}
@@ -1025,6 +1030,7 @@ DestroyGui:
 	Gui, ts:Destroy
 	Gui, Date:Destroy
 	Gui, Info:Destroy
+	Gui,SKey:Destroy
 Return
 
 diyColor:
@@ -1097,6 +1103,8 @@ More_Setting:
 	Menu, ImportCiku, Add, 特殊符号导入, ciku5
 	Menu, ImportCiku, Add, 读音词库导入, ciku10
 	Menu, ImportCiku, Add, 造词源表导入, ciku12
+	Menu, ImportCiku, Add, 笔画码表导入, Write_Strocke
+	Menu, ImportCiku, Disable, 笔画码表导入
 	Menu, MainMenu, Add, 词库导入, :ImportCiku
 	Menu, MainMenu, Add,
 	Menu, ExportCiku, Add, 原始词库导出, ciku8
@@ -1145,7 +1153,7 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","Initialize","SBA13","TextInfo1","showtools","SrfSlider","SizeValue","set_SizeValue","ExSty","DPISty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","TextInfo27","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 		,GBoxList2:["GBox2","TextInfo25","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","font_size","TextInfo11","FontSelect","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
-		,GBoxList3:["GBox3","SBA7","SBA26","SBA27","SBA28","SBA23","SBA24","TextInfo29","zKeySet","UIAccess","SBA6","SBA14","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC","Cursor_Status","yaml_"]
+		,GBoxList3:["GBox3","SBA7","SBA26","SBA27","SBA28","SBA23","SBA24","TextInfo29","zKeySet","UIAccess","SBA6","SBA14","SBA18","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC","Cursor_Status","yaml_"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","linkinfo1","linkinfo2","versionsinfo","infos_"]}
@@ -1332,8 +1340,12 @@ More_Setting:
 	Gui, 98:Add, Text, x190 y+10 left vTextInfo29, 反查设定：
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, DDL,x+5 w90  vzKeySet gzKeySet  AltSubmit HwndZDDL , 临时拼音|模糊匹配    ;;+0x0210
+	Gui, 98:Add, DDL,x+5 w90  vzKeySet gzKeySet  AltSubmit HwndZDDL , 临时拼音|模糊匹配|笔画反查    ;;+0x0210
 	;;OD_Colors.Attach(ZDDL,{T: 0xffe89e, B: 0x0178d6})
+	Gui,98:Font
+	Gui,98:Font, s9 bold, %font_%
+	Gui, 98:Add, Button,x+10 yp-2 vSBA18 gSBA18 hwndBHBT, 按键定义
+	ImageButton.Create(BHBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui 98:Add, Text,x190 y+5 w365 h2 0x10 vTextInfo13
@@ -1342,6 +1354,8 @@ More_Setting:
 		GuiControl, 98:Disable, Frequency
 	}
 	Gui, 98:Add, Text, x+5 yp vFTip left vTextInfo14, 调频参数：
+	Gui,98:Font
+	Gui,98:Font, s9 norm, %font_%
 	Gui, 98:Add, DDL,x+5 yp-3 w50 vset_Frequency gset_Frequency hWndFRDL , 2|3|4|5|6|7|8    ;;+0x0210
 	;;OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x0178d6})
 	Gui,98:Font
@@ -1895,7 +1909,7 @@ Label_management:
 Return
 
 Glabel:
-	If DB.gettable("SELECT * FROM label", Result){
+	If DB.gettable("SELECT * FROM 'extend'.'label';", Result){
 		loop, % Result.RowCount
 		{
 			If islabel(Result.Rows[A_index,3])
@@ -1945,9 +1959,9 @@ Rlabel:
 	IfMsgBox, Yes
 	{
 		LV_Delete()
-		if DB.Exec("DROP TABLE label")>0
+		if DB.Exec("DROP TABLE 'extend'.'label';")>0
 		{
-			DB.Exec("create table label as select * from label_init")
+			DB.Exec("create table 'extend'.'label' as select * from 'extend'.'label_init';")
 			Gosub Glabel
 		}
 	}
@@ -1958,7 +1972,7 @@ Blabel:
 	FileSelectFolder, OutFolder,,3,请选择导出后保存的位置
 	if OutFolder<>
 	{
-		if DB.gettable("SELECT B_Key,C_Key,D_Key FROM label",Result){
+		if DB.gettable("SELECT B_Key,C_Key,D_Key FROM 'extend'.'label';",Result){
 			FileDelete, %OutFolder%\label.txt
 			Loop % Result.RowCount
 			{
@@ -2007,7 +2021,7 @@ Wlabel:
 			Insert_label .="(null,'" tarr[1] "','" tarr[2] "','" tarr[3] "')" ","
 		}
 		Insert_label :=RegExReplace(Insert_label,"\,$","")
-		if DB.Exec("INSERT INTO label VALUES" Insert_label "")>0
+		if DB.Exec("INSERT INTO 'extend'.'label' VALUES" Insert_label "")>0
 		{
 			LV_Delete()
 			Gosub Glabel
@@ -2032,7 +2046,7 @@ DelLabel(deb =""){
 		{	if ( !deb ){
 				LV_GetText(LVar1, a , 1)
 				LV_Delete( a )
-				DB.Exec("DELETE FROM label WHERE B_Key ='" LVar1 "';")
+				DB.Exec("DELETE FROM 'extend'.'label' WHERE B_Key ='" LVar1 "';")
 			}
 		}else
 			++a
@@ -2064,7 +2078,7 @@ Return
 Savelabel:
 	GuiControlGet, Setlabel,, Setlabel, text
 	if (not Setlabel~="\s+"&&Setlabel<>"") {
-		if (DB.Exec("UPDATE label SET B_Key ='" Setlabel "' WHERE B_Key ='" labelName "';"))>0
+		if (DB.Exec("UPDATE 'extend'.'label' SET B_Key ='" Setlabel "' WHERE B_Key ='" labelName "';"))>0
 		{
 			LV_Modify(posInfo,"text",Setlabel)
 			TrayTip,, 修改成功
@@ -2254,10 +2268,16 @@ ControlGui:
 		GuiControl, 98:Disable, Addcode_hotkey
 	else
 		GuiControl,98:, SBA17 , 1
-	If zkey_mode
+	If (zkey_mode=2){
+		GuiControl,98:choose, zKeySet , 3
+	}else If (zkey_mode=1){
 		GuiControl,98:choose, zKeySet , 2
-	else
+		GuiControl, 98:Disable, SBA18
+	}else{
 		GuiControl,98:choose, zKeySet , 1
+		GuiControl, 98:Disable, SBA18
+	}
+
 	if Initial_Mode~="i)on" {
 		GuiControl,98:choose, sChoice1 , 2
 	}else{
@@ -2355,10 +2375,16 @@ EnableUIAccess(hwnd:=""){
 
 zKeySet:
 	GuiControlGet, Keypos, ,zKeySet , text
-	If Keypos~="拼"
+	If Keypos~="拼音"{
 		zkey_mode:=WubiIni.Settings["zkey_mode"]:=0,WubiIni.save()
-	else
+		GuiControl, 98:Disable, SBA18
+	}else If Keypos~="笔画"{
+		zkey_mode:=WubiIni.Settings["zkey_mode"]:=2,WubiIni.save()
+		GuiControl, 98:Enable, SBA18
+	}else{
 		zkey_mode:=WubiIni.Settings["zkey_mode"]:=1,WubiIni.save()
+		GuiControl, 98:Disable, SBA18
+	}
 Return
 
 sChoice1:
@@ -2789,14 +2815,14 @@ DB_WritePy(Strs){
 			Insert_ci .="('" A_Index "','" tarr[1] "','" tarr[2] "','')" ","
 	}
 	Traytip,,写入中。。。
-	If DB.Exec("INSERT INTO PY VALUES" RegExReplace(Insert_ci,"\,$","") "")>0
+	If DB.Exec("INSERT INTO 'extend'.'PY' VALUES" RegExReplace(Insert_ci,"\,$","") "")>0
 		Return 1
 }
 
 DB_BackUpPy(FolderPath){
 	global DB
 	Result_All:=""
-	DB.gettable("Select * from PY",Result)
+	DB.gettable("Select * from 'extend'.'PY';",Result)
 	Traytip,,正在执行导出。。。
 	If Result.RowCount>0
 	{
@@ -3251,6 +3277,31 @@ SBA16:
 		Suspend_switch:=WubiIni.Settings["Suspend_switch"]:=0,WubiIni.save()
 		Hotkey, %Suspendhotkey%, SetSuspend,off
 		GuiControl, 98:Disable, Suspend_hotkey
+	}
+Return
+
+SBA18:
+	Gosub DestroyGui
+	Gui,SKey:+Owner98 hwndSkeyShow
+	Gui,SKey:Add,Edit,w250 vEditBox3 hwndSkeyEdit,
+	Gui,SKey:Add,Button,x+10 gsetStrockekey,保存
+	Gui,SKey:Margin,5,5
+	Gui,SKey:Add,StatusBar,,键位0-9a-z用|分隔五位
+	Gui,SKey:Show,AutoSize,笔画反查键位设置
+	EM_SetCueBanner(SkeyEdit,"当前键位：" StrockeKey)
+	ChangeWindowIcon(A_ScriptDir "\Config\wubi98.icl",, 30)
+Return
+
+setStrockekey:
+	GuiControlGet, Skeyvar,, EditBox3, text
+	If (Skeyvar~="^(\w\|){4}\w$"&&Skeyvar~="[a-z]"&&Skeyvar~="[^0-9]"||Skeyvar~="^(\w\|){4}\w$"&&Skeyvar~="[^a-z]"&&Skeyvar~="[0-9]"){
+		Skeyvar:=RegExReplace(Skeyvar,"^\||\|$"),Skeyvar:=RegExReplace(Skeyvar,"[\|]{2,}","|")
+		StrockeKey:=WubiIni.Settings["StrockeKey"]:=Skeyvar,WubiIni.save()
+		GuiControl,SKey:,EditBox3,
+		EM_SetCueBanner(SkeyEdit,"当前键位：" Skeyvar)
+	}else{
+		MsgBox, 262160, 格式错误, 参数格式错误！`n例如：1|2|3|4|5或h|s|p|n|z, 5
+		ControlFocus , Edit1, ahk_id %SkeyShow%
 	}
 Return
 
@@ -4163,7 +4214,7 @@ Write_DB:
 			MaBiao:=Transform_cp(MaBiao)
 		totalCount:=CountLines(MaBiaoFile), num:=Ceil(totalCount/100)
 		tip:=Wubi_Schema~="i)ci"?"【含词】":Wubi_Schema~="i)zi"?"【单字】":Wubi_Schema~="i)chaoji"?"【超集】":"【字根】"
-		Progress, M1 FM14 W350, 1/%totalCount%, %tip%词库写入中..., 1
+		Progress, M1 Y100 FM14 W350, 1/%totalCount%, %tip%词库写入中..., 1
 		Loop, Parse, MaBiao, `n, `r
 		{
 			count++
@@ -4188,14 +4239,13 @@ Write_DB:
 				Progress, %tx% , %count%/%totalCount%`n, %tip%词库写入中..., 已完成%tx%`%
 			}
 		}
+		Progress,off
 		if DB.Exec(SQL :="INSERT INTO " Wubi_Schema " VALUES " RegExReplace(Insert_ci,"\,$","") ";")>0
 		{
-			ElapsedTime := (A_TickCount - Start)/1000
-			if (ElapsedTime>60)
-				timecount:=Ceil(ElapsedTime/60) "分" Mod(Ceil(ElapsedTime),60) "秒"
-			Else
-				timecount:=Ceil(ElapsedTime) "秒"
+			Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, 写入%count%行！完成用时 %timecount%！, 完成提示
 			TrayTip,, 写入%count%行！完成用时 %timecount%
+			Sleep 5000
+			Progress,off
 			if Wubi_Schema~="i)ci"
 				FileDelete, %A_ScriptDir%\Config\Script\wubi98_ci.json
 		}
@@ -4209,6 +4259,73 @@ Write_DB:
 	Progress,off
 	MaBiao:=Insert_ci:="",tarr:=[]
 return
+
+Write_Strocke:
+	Gui +OwnDialogs
+	FileSelectFile, MaBiaoFile, 3, , 导入词库, Text Documents (*.txt)
+	SplitPath, MaBiaoFile, , , , filename
+	If (MaBiaoFile = ""){
+		TrayTip,, 取消导入
+		Return
+	} Else {
+		TrayTip,, 你选择了文件「%filename%」
+	}
+	If !filename
+		Return
+	Gui +OwnDialogs
+	MsgBox, 262452, 提示, 要导入以下词库进行替换？`n文件格式：汉字+Tab+笔画编码+词频
+	IfMsgBox, No
+	{
+		TrayTip,, 导入已取消！
+		Return
+	} Else {
+		Start:=A_TickCount
+		TrayTip,, 词库写入中，请稍后...
+		Create_Strocke(DB,MaBiaoFile)
+		tarr:=[],count :=0
+		GetFileFormat(MaBiaoFile,MaBiao,Encoding)
+		If (Encoding="UTF-16BE BOM") {
+			MsgBox, 262160, 错误提示, 文件编码格式非〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 10
+			Return
+		}
+		If MaBiao~="\n\W+\t\d+\t\d+" {
+		totalCount:=CountLines(MaBiaoFile), num:=Ceil(totalCount/100)
+		Progress, M1 FM14 Y100 W350, 1/%totalCount%, 笔画词库写入中..., 1
+			Loop, Parse, MaBiao, `n, `r
+			{
+				count++
+				If (A_LoopField = "")
+					Continue
+				tarr:=StrSplit(A_LoopField,A_Tab,A_Tab)
+				If objCount(tarr)>3
+					Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "','" tarr[4] "')" ","
+				else
+					Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "',null)" ","
+				If (Mod(count, num)=0) {
+					tx :=Ceil(count/num)
+					Progress, %tx% , %count%/%totalCount%`n, 笔画词库写入中..., 已完成%tx%`%
+				}
+			}
+			Progress,off
+			if DB.Exec("INSERT INTO 'extend'.'Strocke' VALUES" RegExReplace(Insert_ci,"\,$") "")>0
+			{
+				Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, 写入%count%行！完成用时 %timecount%！, 完成提示
+				TrayTip,, 写入%count%行！完成用时 %timecount%
+				Sleep 5000
+				Progress,off
+			}
+			else
+			{
+				MsgBox, 262160, 导入错误, 导入失败！, 10
+				return
+			}
+		}else{
+			MsgBox, 262160, 格式错误, 码表格式不支持！, 10
+		}
+	}
+	MaBiao:=Insert_ci:=""
+return
+Return
 
 ;词库导入（英文+symbols）
 Write_En:
@@ -4248,7 +4365,7 @@ Write_En:
 			Insert_ci .="('" tarr[1] "','" tarr[2] "')" ","
 		}
 		Insert_ci :=RegExReplace(Insert_ci,"\,$","")
-		if bd ~="i)En"?(DB.Exec("INSERT INTO encode VALUES" Insert_ci "")):(DB.Exec("INSERT INTO symbols VALUES" Insert_ci ""))>0
+		if bd ~="i)En"?(DB.Exec("INSERT INTO encode VALUES" Insert_ci "")):(DB.Exec("INSERT INTO 'extend'.'symbols' VALUES" Insert_ci ""))>0
 		{
 			ElapsedTime := (A_TickCount - Start)/1000
 			if (ElapsedTime>60)
@@ -4392,7 +4509,7 @@ Backup_En:
 	if OutFolder<>
 	{
 		Start_out:=A_TickCount
-		if DB.gettable("SELECT aim_chars,A_Key FROM " (bd~="En"?"encode":"symbols") "",Result){
+		if DB.gettable("SELECT aim_chars,A_Key FROM " (bd~="En"?"encode":"'extend'.'symbols'") "",Result){
 			FileDelete, %OutFolder%\wubi98-%bd%.txt
 			Loop % Result.RowCount
 			{

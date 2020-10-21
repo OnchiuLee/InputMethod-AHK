@@ -57,12 +57,12 @@ Class ComInfo
 		;	iHTTP.Send()
 		;	RegExMatch(iHTTP.ResponseText,"\{.+\}",ipobj)   ;iHTTP.ResponseText为接收的结果
 		;	iJson:= Json_toObj(ipobj)
-		;	return ["外网IP：" iJson["cip"], iJson["cname"],"〔 " iJson["cname"] " 〕"]
+		;	return [ iJson["cip"], iJson["cname"],"〔 " iJson["cname"] " 〕"]
 		*/
 		if ipobj:=this.UrlDownloadToVars(url,,,,,,,,,3){   ;设定超时时长
 			RegExMatch(ipobj,"\{.+\}",obj)
 			iJson:= Json_toObj(obj)
-			return ["外网IP：" iJson["cip"], iJson["cname"],"〔 " iJson["cname"] " 〕"]
+			return [ iJson["cip"], iJson["cname"],"〔 " iJson["cname"] " 〕"]
 		}
 	}
 	;获取本机外网IP②
@@ -70,7 +70,7 @@ Class ComInfo
 		if ipobj:=this.UrlDownloadToVars(url,,,,,,,,,3){   ;设定超时时长
 			iJson:= Json_toObj(ipobj)
 			ipLocal:= iJson["data","location"][1] iJson["data","location"][2] iJson["data","location"][3] iJson["data","location"][5]
-			return ["外网IP：" iJson["data","ip"], ipLocal,"〔 " ipLocal " 〕"]
+			return [ iJson["data","ip"], ipLocal,"〔 " ipLocal " 〕"]
 		}
 	}
 	;获取本机外网IP③
@@ -78,14 +78,14 @@ Class ComInfo
 		if ipobj:=this.UrlDownloadToVars(url,,,,,,,,,3){   ;设定超时时长
 			iJson:= Json_toObj(ipobj)
 			ipLocal:= iJson["pro"] iJson["city"] "-" iJson["addr"]
-			return ["外网IP：" iJson["ip"], ipLocal,"〔 " ipLocal " 〕"]
+			return [ iJson["ip"], ipLocal,"〔 " ipLocal " 〕"]
 		}
 	}
 	;获取本机外网IP④
 	GetIPAPI_3(url:="https://api.ttt.sh/ip/qqwry/") {
 		if ipobj:=this.UrlDownloadToVars(url,,,,,,,,,3){   ;设定超时时长
 			iJson:= Json_toObj(ipobj)
-			return ["外网IP：" iJson["ip"], iJson["address"],"〔 " iJson["address"] " 〕"]
+			return [ iJson["ip"], iJson["address"],"〔 " iJson["address"] " 〕"]
 		}
 	}
 	;获取设备型号
@@ -355,9 +355,10 @@ Array_GetParentKey(aArr, aKey)
 		rKey :=k
 		if (IsObject(v) && (aArr[k].count()>0))
 		{
-			if (Array_ValueNotEmpty(aArr[k],aKey) = 1){
+			if (Array_ValueNotEmpty(aArr[k],aKey) = 1)
 				return rKey
-		}}
+		}else If (!IsObject(v) && (v=aKey))
+			return rKey
 	}
 }
 
@@ -1937,8 +1938,10 @@ Conv_LunarDate(date){
 		return ["无效日期"]
 	result:=[], ld:=Date_GetDate(SubStr(date,1,8)), ldp:=Date_GetDate(SubStr(date,1,8),1), LunarTg:=Date2LunarDate(date,GzType)
 	LunarTg_1:=ld~="^\d+"?Date2LunarDate(ld SubStr(date,9,2),GzType):[], LunarTg_2:=ldp~="^\d+"&&ld<>ldp?Date2LunarDate(ldp SubStr(date,9,2),GzType):[] 
-	result.Push([LunarTg[1] (LunarTg[5]?" - " LunarTg[5]:""),ObjLength(LunarTg)?"〔 公历转农历 〕":"",ObjLength(LunarTg)?"〔 公历转农历 〕":""])
-	result.Push([LunarTg[2]?LunarTg[2]:"日期超限",ObjLength(LunarTg)&&strlen(LunarTg[2])>8?"〔 干支纪年 〕":"",ObjLength(LunarTg)&&strlen(LunarTg[2])>8?"〔 干支纪年 〕":""])
+	If ObjLength(LunarTg) {
+		result.Push([LunarTg[1] (LunarTg[5]?" - " LunarTg[5]:""),ObjLength(LunarTg)?"〔 公历转农历 〕":"",ObjLength(LunarTg)?"〔 公历转农历 〕":""])
+		result.Push([LunarTg[2]?LunarTg[2]:"日期超限",ObjLength(LunarTg)&&strlen(LunarTg[2])>8?"〔 干支纪年 〕":"",ObjLength(LunarTg)&&strlen(LunarTg[2])>8?"〔 干支纪年 〕":""])
+	}
 	If ObjLength(LunarTg_1)
 		result.Push([ TransDate( ld ) jq,"〔 农历转公历① 〕","〔 农历转公历① 〕"]), result.Push([ LunarTg_1[2]?LunarTg_1[2]:"日期超限" ,strlen(LunarTg_1[2])>8?"〔 干支纪年① 〕":"",strlen(LunarTg_1[2])>8?"〔 干支纪年① 〕":""])
 	if ObjLength(LunarTg_2)
@@ -2763,7 +2766,7 @@ FocusGdipGui(codetext, Textobj, x:=0, y:=0, Font:="Microsoft YaHei UI"){
 		, fontoffset
 	global BgColor, FontColor, FontCodeColor, BorderColor, FocusBackColor, FocusColor, FontSize, FontStyle, Textdirection, TPosObj
 		, srf_for_select_Array, localpos,@TSF, srf_for_select_obj, Radius, Gdip_Radius, Gdip_Line, LineColor, Cut_Mode, ListNum
-		,FocusRadius,FocusCodeColor
+		,FocusRadius,FocusCodeColor, srf_all_Input
 
 	If !IsObject(Textobj){
 		If (Textobj="init"){
@@ -2813,35 +2816,35 @@ FocusGdipGui(codetext, Textobj, x:=0, y:=0, Font:="Microsoft YaHei UI"){
 	If Textdirection~="i)vertical" {
 		mh+=hoffset
 		Loop % Textobj.Length()
-			TPosObj[A_Index] := Gdip_MeasureString2(G, Textobj[A_Index], hFont, hFormat, RC), TPosObj[A_Index,2]:=mh
-			, mh += TPosObj[A_Index,4]+FontSize*0.35, mw:=Max(mw,TPosObj[A_Index,3]), TPosObj[A_Index,1]:=CodePos[1]
+			TPosObj[A_Index] := Gdip_MeasureString2(G, Textobj[A_Index], hFont, hFormat, RC), TPosObj[A_Index,2]:=mh+FontSize*0.45
+			, mh += TPosObj[A_Index,4]+FontSize*0.65, mw:=Max(mw,TPosObj[A_Index,3]), TPosObj[A_Index,1]:=CodePos[1]
 		Loop % Textobj[0].Length()
 			TPosObj[0,A_Index] := Gdip_MeasureString2(G, Textobj[0,A_Index], hFont, hFormat, RC), TPosObj[0,A_Index,2]:=mh
-			, mh += TPosObj[0,A_Index,4]+FontSize*0.35, mw:=Max(mw,TPosObj[0,A_Index,3]), TPosObj[0,A_Index,1]:=CodePos[1]
+			, mh += TPosObj[0,A_Index,4]+FontSize*0.45, mw:=Max(mw,TPosObj[0,A_Index,3]), TPosObj[0,A_Index,1]:=CodePos[1]
 		Loop % Textobj.Length()
 			TPosObj[A_Index,3]:=mw
 		Loop % Textobj[0].Length()
 			TPosObj[0,A_Index,3]:=mw
-		mw+=2*xoffset, mh+=yoffset
+		mw+=srf_all_Input~="\d+"?2.4*xoffset:2*xoffset, mh+=2*yoffset
 	} Else {
 		t:=xoffset, mh+=hoffset
 		TPosObj[1] := Gdip_MeasureString2(G, Textobj[1], hFont, hFormat, RC), TPosObj[1,2]:=mh, TPosObj[1,1]:=t, t+=TPosObj[1,3]+hoffset
 		Loop % (Textobj.Length()-1){
 			TPosObj[A_Index+1] := Gdip_MeasureString2(G, Textobj[A_Index+1], hFont, hFormat, RC)
-			If (ListNum>5&&FontSize>18&&Cut_Mode~="on"&&srf_for_select_Array.Length()>5||codetext~="\/\d+"&&Strlen(codetext)>5)
-				mw:=Max(mw,t), TPosObj[A_Index+1,1]:=xoffset, mh+=TPosObj[A_Index,4]+FontSize*0.35, TPosObj[A_Index+1,2]:=mh, t:=xoffset+TPosObj[A_Index+1,3]+hoffset
+			If (ListNum>5&&FontSize>18&&Cut_Mode~="on"&&objLength(srf_for_select_Array)>5||srf_all_Input~="/\d+"&&Strlen(srf_all_Input)>5)
+				mw:=Max(mw,t), TPosObj[A_Index+1,1]:=xoffset, mh+=TPosObj[A_Index,4]+FontSize*0.45, TPosObj[A_Index+1,2]:=mh, t:=xoffset+TPosObj[A_Index+1,3]+hoffset
 			else
-				TPosObj[A_Index+1,1]:=t, TPosObj[A_Index+1,2]:=TPosObj[A_Index,2], t+=TPosObj[A_Index+1,3]+hoffset
+				TPosObj[A_Index+1,1]:=srf_all_Input~="\d+"?t+FontSize:t+FontSize*0.5, TPosObj[A_Index+1,2]:=TPosObj[A_Index,2], t+=TPosObj[A_Index+1,3]+hoffset
 		}
-		mw:=Max(mw,t)
-		mh+=TPosObj[TPosObj.Length(),4]
+		mw:=Max(mw,t)+(srf_all_Input~="\d+"?FontSize*2:ObjLength(Textobj)>1?FontSize*0.5:0)
+		mh+=TPosObj[TPosObj.Length(),4]*DPI
 		Loop % Textobj[0].Length()
-			TPosObj[0,A_Index] := Gdip_MeasureString2(G, Textobj[0,A_Index], hFont, hFormat, RC), TPosObj[0,A_Index,1]:=xoffset, TPosObj[0,A_Index,2]:=mh, mh += TPosObj[0,A_Index,4], mw:=Max(mw,TPosObj[0,A_Index,3])	
+			TPosObj[0,A_Index] := Gdip_MeasureString2(G, Textobj[0,A_Index], hFont, hFormat, RC), TPosObj[0,A_Index,1]:=xoffset, TPosObj[0,A_Index,2]:=mh, mh += TPosObj[0,A_Index,4], mw:=Max(mw,TPosObj[0,A_Index,3])
 		Loop % Textobj[0].Length()
-			TPosObj[0,A_Index,3]:=mw-xoffset
+			TPosObj[0,A_Index,3]:=mw
 		mw+=xoffset, mh+=yoffset
 	}
-	SelectObject(hdc, obm), DeleteObject(hbm), Gdip_DeleteGraphics(G),mh:=mh+FontSize*0.2, mw:=mw>Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[3]?(Textobj.length()>0?mw-FontSize*(Textdirection~="horizontal"?0.76:0.4)+(codetext~="\d"?(Strlen(codetext)>4?Strlen(codetext)*1.5:Strlen(codetext)*5):Strlen(codetext)):mw):Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[3]+FontSize
+	SelectObject(hdc, obm), DeleteObject(hbm), Gdip_DeleteGraphics(G),mh:=mh+FontSize*0.2, mw:=mw>Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[3]?(Textobj.length()>0?mw-FontSize*(Textdirection~="horizontal"?0.76:0.4)+(srf_all_Input~="\d"?(Strlen(codetext)>1?Strlen(codetext)*2:Strlen(codetext)*5):Strlen(codetext)):mw):Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[3]+FontSize
 	hbm := CreateDIBSection(mw, mh), obm := SelectObject(hdc, hbm)
 	G := Gdip_GraphicsFromHDC(hdc), Gdip_SetSmoothingMode(G, 2), Gdip_SetTextRenderingHint(G, 4)
 	; 背景色
@@ -2849,13 +2852,13 @@ FocusGdipGui(codetext, Textobj, x:=0, y:=0, Font:="Microsoft YaHei UI"){
 	; 编码
 	if (Gdip_Line ~="i)off")
 		Gdip_FillRoundedRectangle(G, pBrush[FocusCode], Textobj.length()>0?FontSize*0.3:FontSize*0.18, FontSize/5, Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[3]+(Textobj.Length()>0?Strlen(codetext):0), Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[4], FocusRadius*0.6)
-	CreateRectF(RC, Textobj.length()>0?CodePos[1]:CodePos[1]-FontSize/4, CodePos[2]-FontSize*(codetext~="[a-z0-9]"?0.12:-0.1), w-30, h-30), Gdip_DrawString(G, codetext, hFont, hFormat, pBrush[FontCode], RC)
+	CreateRectF(RC, Textobj.length()>0?CodePos[1]:CodePos[1]-FontSize/4, CodePos[2]-FontSize*(srf_all_Input~="[a-z0-9]"?0.12:-0.1), w-30, h-30), Gdip_DrawString(G, codetext, hFont, hFormat, pBrush[FontCode], RC)
 	Loop % Textobj.Length()
 		If (A_Index=localpos){
-			Gdip_FillRoundedRectangle(G, pBrush[FocusBack], TPosObj[A_Index,1]-FontSize*0.15, TPosObj[A_Index,2]-FontSize*0.1, codetext~="\d"?TPosObj[A_Index,3]+FontSize*0.4:TPosObj[A_Index,3]-FontSize*0.2, TPosObj[A_Index,4]+FontSize*0.38, FocusRadius)  ;焦点背景圆弧
-			, CreateRectF(RC, codetext~="\d"?TPosObj[A_Index,1]:TPosObj[A_Index,1]-FontSize*0.5, TPosObj[A_Index,2]+fontoffset+FontSize*0.24, w-30, h-30), Gdip_DrawString(G, Textobj[A_Index], hFont, hFormat, pBrush[Focus], RC)
+			Gdip_FillRoundedRectangle(G, pBrush[FocusBack], TPosObj[A_Index,1]-FontSize*0.15, TPosObj[A_Index,2]-FontSize*0.1, srf_all_Input~="\d"?TPosObj[A_Index,3]+FontSize*0.35:TPosObj[A_Index,3]-FontSize*0.2, TPosObj[A_Index,4]+FontSize*0.65, FocusRadius)  ;焦点背景圆弧
+			, CreateRectF(RC, srf_all_Input~="\d"?TPosObj[A_Index,1]:TPosObj[A_Index,1]-FontSize*0.55, TPosObj[A_Index,2]+fontoffset+FontSize*0.45, w-30, h-30), Gdip_DrawString(G, Textobj[A_Index], hFont, hFormat, pBrush[Focus], RC)
 		}Else
-			CreateRectF(RC, codetext~="\d"?TPosObj[A_Index,1]:TPosObj[A_Index,1]-FontSize*0.5, TPosObj[A_Index,2]+fontoffset+FontSize*0.24, w-30, h-30), Gdip_DrawString(G, Textobj[A_Index], hFont, hFormat, pBrush[Font], RC)
+			CreateRectF(RC, srf_all_Input~="\d"?TPosObj[A_Index,1]:TPosObj[A_Index,1]-FontSize*0.55, TPosObj[A_Index,2]+fontoffset+FontSize*0.45, w-30, h-30), Gdip_DrawString(G, Textobj[A_Index], hFont, hFormat, pBrush[Font], RC)
 	Loop % Textobj[0].Length()
 		CreateRectF(RC, TPosObj[0,A_Index,1], TPosObj[0,A_Index,2], w-30, h-30), Gdip_DrawString(G, Textobj[0,A_Index], hFont, hFormat, pBrush[Font], RC)
 
