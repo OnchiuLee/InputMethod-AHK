@@ -560,7 +560,7 @@ get_word(input, cikuname){
 					SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key LIKE '" RegExReplace(srf_all_Input,"z","_") "';"
 				If DB.GetTable(SQL, Result)
 					Return Result.Rows
-			}else If (zkey_mode=2) {
+			}else If (zkey_mode=2&&srf_all_Input ~="^z\w+") {
 				input:=Char2Num(input)
 				SQL:="SELECT s.aim_chars,s.C_Key,e.A_Key FROM 'extend'.'Strocke' AS s LEFT JOIN EN_Chr AS e where s.A_Key LIKE '" RegExReplace(input,"^z|'") "%' AND s.aim_chars = e.aim_chars ORDER BY Length(s.A_Key),s.B_Key DESC"
 				If DB.GetTable(SQL, Result)
