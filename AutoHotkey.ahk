@@ -35,7 +35,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020102012"
+version :="2020102118"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -105,7 +105,7 @@ else
 	IniRead, status, %A_Temp%\InputMethodData\Config.ini, Initialize, status ,0
 global srf_default_value,config_tip, WubiIni:=class_EasyIni(A_Temp "\InputMethodData\Config.ini")
 , srf_default_obj:={LogoColor:{LogoColor_cn:"008000",LogoColor_en:"00FFFF",LogoColor_caps:"0000ff"}
-	,Settings:{Startup:"off",CNID:CpuID,IStatus:1,CharFliter:0,Exit_switch:1,PromptChar:0, DPIScale:1,CursorStatus:0,Exit_hotkey:"^esc", symb_mode:2,Frequency:0
+	,Settings:{Startup:"off",CNID:CpuID,IStatus:1,CharFliter:0,Exit_switch:1,PromptChar:0, DPIScale:1,CursorStatus:0,Exit_hotkey:"^esc", symb_mode:2,Frequency:0,StrockeKey:"h|s|p|n|z"
 		,Freq_Count:3,srfTool:0,length_code:"on",GzType:0, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f",versions:version,EnKeyboardMode:0
 		, cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"10", Logo_Y:A_ScreenHeight/2, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock"
 		, Suspend_switch:1,zkey_mode:0, Suspend_hotkey:"!z", tip_hotkey:"!q", rlk_switch:0, Logo_Switch:"on",Srf_Hotkey:"Shift", Select_Enter:"clean"
@@ -278,6 +278,7 @@ if Exit_switch&&Exit_hotkey
 
 ;{{{{{SQlite类创建,db文件读取
 DBFileName:=A_ScriptDir "\DB\wubi98.db"
+ExtendDBName:=A_ScriptDir "\Config\ExtendData.db"
 If !FileExist(DBFileName)
 	Un7Zip(A_ScriptDir "\DB\wubi98.7z",A_ScriptDir "\DB")
 If !FileExist(DBFileName)
@@ -288,52 +289,24 @@ If (DB._Handle)
 global DB := New SQLiteDB
 If !DB.OpenDB(DBFileName)
 	MsgBox, 16, 数据库DB错误, % "消息:`t" DB.ErrorMsg "`n代码:`t" DB.ErrorCode
-
+DB.AttachDB(ExtendDBName, "extend")
 Gosub Backup_CustomDB
 
 ;;=======================================
-labelArr:=[["en","EN_Mode","英文输入模式开关"]
-	, ["yw","SwitchToEngIME","切换至英文键盘模式"]
-	, ["zw","SwitchToChsIME","切换至中文键盘模式"]
-	, ["gl","CharFliter","GB2312过滤开关"]]
-CheckLabel(DB,labelArr)
-;;=======================================
-/*
-If FileExist("Config\GB*.txt") {
-	__Chars:=_Chars:=""
-	DB.GetTable("select count(*) from sqlite_master where type='table' and name = 'GBChars';",Result)
-	if !Result.Rows[1,1] {
-		SQL =CREATE TABLE IF NOT EXISTS GBChars ("Rid" int PRIMARY KEY NOT NULL, "Chars" TEXT);
-		DB.Exec(SQL)
-		FileRead,_Chars,Config\GB2312.txt
-		Loop,parse,_Chars,`n,`r
-			if not RegExReplace(A_LoopField,"\s+")~="^\;|^\/|^[a-zA-Z0-9]"
-				__Chars .="('" a_index "','" RegExReplace(A_LoopField,"\s+") "')" ","
-		DB.Exec("INSERT INTO GBChars VALUES" RegExReplace(__Chars,"\,$") "")
+
+For key,value In ["GBChars","s2t","PY","label","label_init","TangSongPoetics","symbols"]
+{
+	DB.GetTable("select count(*) from sqlite_master where type='table' and name = '" value "';",Result)
+	If Result.Rows[1,1] {
+		Progress, M ZH-1 ZW-1 Y100 FM11 W420 C0 FM14 WS700 CTffffff CW0078d7,, 正在转移<%value%>词库数据，请稍候。。。, 词库检查 [ %key%/7 ]
+		if DB.Exec("DROP TABLE 'extend'.'" value "';VACUUM")>0
+			DB.Exec("create table 'extend'.'" value "' as select * from 'main'.'" value "';DROP TABLE 'main'.'" value "';VACUUM")
 	}
 }
-*/
+Progress,off
 
 If EnKeyboardMode
 	SwitchToEngIME()
-
-;;;写入唐诗词库
-If FileExist("Config\TangSongPoetics.txt") {
-	__Chars:=_Chars:="", CharsObj:=[]
-	DB.GetTable("select count(*) from sqlite_master where type='table' and name = 'TangSongPoetics';",Result)
-	if !Result.Rows[1,1] {
-		SQL =CREATE TABLE IF NOT EXISTS TangSongPoetics ("A_Key" TEXT,"Author" TEXT, "B_Key" TEXT, "C_Key" TEXT);
-		DB.Exec(SQL)
-		FileRead,_Chars,Config\TangSongPoetics.txt
-		Loop,parse,_Chars,`n,`r
-			If A_LoopField 
-				CharsObj:=StrSplit(A_LoopField,A_tab), __Chars.="('" RegExReplace(CharsObj[1],"\s+") "','" RegExReplace(CharsObj[2],"\s+") "','" RegExReplace(CharsObj[3],"\s+") "','" RegExReplace(CharsObj[4],"\s+") "')" ","
-		DB.Exec("INSERT INTO TangSongPoetics VALUES" RegExReplace(__Chars,"\,$") "")
-		__Chars:=_Chars:="", CharsObj:=[]
-	}
-}
-;}}}}}
-CheckDB(DB,"zi"), CheckDB(DB,"ci"), CheckDB(DB,"chaoji")
 
 ;PrintObjects(WubiIni)
 ;{{常用变量值初始化
@@ -515,7 +488,7 @@ DllCall( "RegisterShellHookWindow", UInt,WinExist() )   ;WinActive()
 OnMessage( DllCall( "RegisterWindowMessage", Str,"SHELLHOOK" ), "ShellIMEMessage")
 ShellIMEMessage( wParam,lParam ) {
 	global srf_mode, InputModeData, Initial_Mode, WubiIni,StyleN,IStatus, program, IMEmode ,CursorStatus, versions, GzType
-		, Startup_Name, Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, srf_all_input, ID_Cursor
+		, Startup_Name, Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, srf_all_input, ID_Cursor, Logo_Switch
 	If (wParam = 1 ){    ; wParam = 6
 		WinGet, WinEXE, ProcessName , ahk_id %lParam%
 		WinGetclass, WinClass, ahk_id %lParam%
@@ -523,10 +496,12 @@ ShellIMEMessage( wParam,lParam ) {
 		If (Array_isInValue(InputModeData["CN"], WinEXE)&&!srf_mode&&IStatus)
 		{
 			srf_mode:=1
-			Gosub RestLogo
+			If Logo_Switch~="i)on"
+				Gosub RestLogo
 		}else If (Array_isInValue(InputModeData["EN"], WinEXE)&&srf_mode&&IStatus){
 			srf_mode:=0
-			Gosub RestLogo
+			If Logo_Switch~="i)on"
+				Gosub RestLogo
 		}else If (Array_isInValue(InputModeData["CLIP"], WinEXE)&&IStatus){
 			if Initial_Mode~="i)off" {
 				Initial_Mode:=WubiIni.Settings["Initial_Mode"] :="on", WubiIni.save()
@@ -543,17 +518,20 @@ ShellIMEMessage( wParam,lParam ) {
 		if (WinEXE_<>LastWinEXE&&Eid<>WinExist()&&Eid){
 			If (Array_isInValue(InputModeData["CN"], WinEXE_)&&!srf_mode&&IStatus){
 				srf_mode:=1
-				Gosub RestLogo
+				If Logo_Switch~="i)on"
+					Gosub RestLogo
 			}else If (Array_isInValue(InputModeData["EN"], WinEXE_)&&srf_mode&&IStatus){
 				srf_mode:=0
-				Gosub RestLogo
+				If Logo_Switch~="i)on"
+					Gosub RestLogo
 			}else If (Array_isInValue(InputModeData["CLIP"], WinEXE_)&&IStatus){
 				if Initial_Mode~="i)off" {
 					Initial_Mode:=WubiIni.Settings["Initial_Mode"] :="on", WubiIni.save()
 				}
 			}else if (!Array_isInValue(InputModeData["EN"], WinEXE_)&&!Array_isInValue(InputModeData["CN"], WinEXE_)&&srf_mode<>(IMEmode~="off"?0:1)){
 				srf_mode :=IMEmode~="off"?0:1, _Icon:=srf_mode?1:3
-				Gosub RestLogo
+				If Logo_Switch~="i)on"
+					Gosub RestLogo
 			}
 		}
 
