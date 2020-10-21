@@ -134,7 +134,7 @@ set_trad_mode(Arrs){
 		;PrintObjects(Arrs)
 		for section,element in Arrs
 			for key,value in Simp2Trad(element[1])
-				ResultAll.push([value,split_wubizg(value),(CharFliter&&Wubi_Schema~="i)ci|zi"?get_en_code(value):"")])
+				ResultAll.push([value,split_wubizg(value),(Arrs[section,1]<>value?get_en_code(value):"")])
 		Return ResultAll
 	}
 }
