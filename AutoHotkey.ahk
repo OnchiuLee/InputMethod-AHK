@@ -418,11 +418,11 @@ WM_MOUSEWHEEL(){
 
 WM_MOUSEMOVE()
 {
-	global Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, transparentX, LogoSize, srfTool, Tip_Show:={LineColor:"Gdip样式中间分隔线颜色",SBA6:"符号顶首选屏并上屏该键符号",font_value:"候选字号大小`n范围[9-40]"
+	global Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, StrockeKey, transparentX, LogoSize, srfTool, Tip_Show:={LineColor:"Gdip样式中间分隔线颜色",SBA6:"符号顶首选屏并上屏该键符号",font_value:"候选字号大小`n范围[9-40]"
 		,BorderColor : "Gdip样式四周边框线颜色", SBA16:"冻结/启用程序快捷键启用开关", SBA15:"鼠标划词反查编码功能启用开关", UIAccess:"候选框UI层级权限提升`n看不到候选框时开启",font_size:"候选字号大小`n范围[9-40]"
 		, SBA0 :"候选框固定坐标设置",About:"软件使用说明",ciku3:"英文词库导入`n（单行单义格式，以tab符隔开）`n「英文词条+Tab+词频」",ciku4:"英文词库导出`n（导出为单行单义格式txt码表）", Cursor_Status:"在不同窗口情况下鼠标为‘工’字形时自动切换至中文状态，反之"
 		,ciku5:"特殊符号词库导入`n（格式「/引导字母+Tab+多符号以英文逗号隔开」）", SBA5 : "固定候选框的位置，不跟随光标",BgColor:"候选框背景色",FocusBackColor:"候选框焦点选项背景色", GzType:"农历干支输出默认以「春节」为生肖年开始`n选中后切换到以「立春」为换算起点。"
-		,FocusColor:"候选框焦点选项字体色", FontColor:"候选词字体颜色", FontCodeColor:"候选框编码字体颜色", SBA1:"繁体开关（输简出繁）快捷键启用开关",select_value:"候选框词条显示数目`n范围[3-10]"
+		,FocusColor:"候选框焦点选项字体色", FontColor:"候选词字体颜色", FontCodeColor:"候选框编码字体颜色", SBA1:"繁体开关（输简出繁）快捷键启用开关",select_value:"候选框词条显示数目`n范围[3-10]", SBA18:"当前笔画键位为：" StrockeKey, zKeySet:"Z键引导反查方式"
 		, SBA4:"加入开机自启动任务：「`non＝>为建立系统计划任务实现自启`noff＝>为关闭开机自启`nsc＝>为在系统自启目录建立快捷方式实现自启」`n计划任务自启成功率不高，建议开启建立「快捷方式自启」的自启方式",ciku6:"特殊符号词库导出`n（导出为txt）",set_GdipRadius:"Gdip候选框圆角大小`n范围[0-15]"
 		,tip_hotkey:"通过快捷键开关划词反查",SizeValue:"桌面色块尺寸`n范围[1-150]",SBA20:"候选框分页数显示",FontIN:"字根拆分字体安装",set_regulate_Hx:"ToolTip候选框编码框`n与选词框距离范围[3-25)]",FontType:"中文方案显示的字体",FontSelect:"英文方案或临时英文显示的字体"
 		, SBA13:"显示/隐藏桌面色块图标",SBA19:"有焦点色块选项的候选框",SetInput_CNMode:"程序启动时默认中文输入模式",SetInput_ENMode:"程序启动时默认英文输入模式", SBA12 : "候选词显示粗体",SBA26:"四码唯一时自动上屏〔独立开关〕"
