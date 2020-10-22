@@ -58,7 +58,7 @@ return
 	space::srf_select(ToolTipStyle~="i)gdip"&&FocusStyle?localpos:1,A_ThisHotkey)
 #if 
 
-#If srf_mode&&InStr(srf_all_Input,"/")&&!GetKeyState("CapsLock", "T")&&srf_all_input ~="[^a-z]"||srf_mode&&!GetKeyState("CapsLock", "T")&&srf_all_input~="^z"&&zkey_mode=2&&StrockeKey~="^\d"
+#If srf_mode&&InStr(srf_all_Input,"/")&&!GetKeyState("CapsLock", "T")&&not srf_all_input ~="[a-z]"||srf_mode&&!GetKeyState("CapsLock", "T")&&srf_all_input~="^z"&&zkey_mode=2&&StrockeKey~="^\d"
 	1::
 	2::
 	3::

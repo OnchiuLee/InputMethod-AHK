@@ -134,7 +134,7 @@ set_trad_mode(Arrs){
 		;PrintObjects(Arrs)
 		for section,element in Arrs
 			for key,value in Simp2Trad(element[1])
-				ResultAll.push([value,Arrs[section,1]<>value?split_wubizg(value):Arrs[section,2],(Arrs[section,1]<>value?get_en_code(value):CharFliter&&Wubi_Schema~="i)ci|zi"?"":Arrs[section,3])])
+				ResultAll.push([value,Arrs[section,1]<>value?split_wubizg(value):Arrs[section,2],Arrs[section,1]<>value&&Arrs[section,3]<>(tradCode:=get_en_code(value))?tradCode:""])
 		Return ResultAll
 	}
 }
@@ -514,7 +514,7 @@ get_word_2(obj){
 
 get_word_1(obj){
 	global srf_all_Input, Trad_Mode, CharFliter, flag,zkey_mode
-	If (IsObject(obj)&&srf_all_Input~="[^z]") {
+	If (IsObject(obj)&&srf_all_Input~="[a-y]") {
 		for section,element in obj
 			obj[section,3]:=""
 	}
@@ -570,7 +570,7 @@ get_word(input, cikuname){
 			if cikuname~="i)ci"{
 				if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"){
 					flag:=1
-					if (PromptChar&&StrLen(input)<4)
+					if (PromptChar)
 						SQL :="SELECT aim_chars,E_Key,F_Key FROM(SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key ='" input "' AND D_Key >0 ORDER BY A_Key,D_Key DESC) UNION ALL SELECT aim_chars,E_Key,F_Key FROM(SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key LIKE'" input "_' AND D_Key >0 ORDER BY A_Key,D_Key DESC);"
 					else{
 						If (!PromptChar&&CharFliter)
@@ -579,23 +579,19 @@ get_word(input, cikuname){
 							SQL :="select aim_chars,E_Key,F_Key from ci WHERE A_Key ='" input "' AND D_Key >0 ORDER BY A_Key,D_Key DESC;"
 					}
 				}else{
-					if (PromptChar&&StrLen(input)<4)
-						flag:=1, SQL :="SELECT aim_chars,E_Key,F_Key FROM(SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars,E_Key,F_Key FROM(SELECT aim_chars,E_Key,F_Key FROM ci WHERE A_Key LIKE'" input "_' AND B_Key >0 ORDER BY A_Key,B_Key DESC);"
-					else{
-						If (!PromptChar&&CharFliter)
-							SQL:="SELECT aim_chars,B_Key,E_Key,F_Key FROM(SELECT aim_chars,B_Key,E_Key,F_Key FROM ci where A_Key ='" input "' AND Length(aim_chars)>1 AND B_Key >0 ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars,B_Key,E_Key,F_Key FROM(SELECT aim_chars,B_Key,E_Key,F_Key FROM ci where A_Key ='" input "' AND Length(aim_chars)=1 AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars) AND B_Key >0 ORDER BY A_Key,B_Key DESC)"
-						else
-							SQL :="select aim_chars,E_Key,F_Key from ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC;"
-					}
+					If (Prompt_Word~="off"&&!PromptChar&&CharFliter)
+						SQL:="SELECT aim_chars,B_Key,E_Key,F_Key FROM(SELECT aim_chars,B_Key,E_Key,F_Key FROM ci where A_Key ='" input "' AND Length(aim_chars)>1 AND B_Key >0 ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars,B_Key,E_Key,F_Key FROM(SELECT aim_chars,B_Key,E_Key,F_Key FROM ci where A_Key ='" input "' AND Length(aim_chars)=1 AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars) AND B_Key >0 ORDER BY A_Key,B_Key DESC)"
+					else
+						SQL :="select aim_chars,E_Key,F_Key from ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC;"
 				}
 			}else{
 				if cikuname~="i)zi"{
-					if (PromptChar&&StrLen(input)<4)
+					if (Prompt_Word~="off"&&Trad_Mode~="off"&&PromptChar)
 						flag:=1, SQL :="SELECT aim_chars,C_Key,D_Key FROM(SELECT aim_chars,C_Key,D_Key FROM " cikuname " WHERE A_Key = '" input "' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars,C_Key,D_Key FROM(SELECT aim_chars,C_Key,D_Key FROM " cikuname " WHERE A_Key LIKE '" input "_' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC);"
 					else
 						SQL :="SELECT aim_chars,C_Key,D_Key FROM " cikuname " WHERE A_Key = '" input "' " (CharFliter?"AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars)":"") " ORDER BY A_Key,B_Key DESC;"
 				}else{
-					if (PromptChar&&StrLen(input)<4)
+					if (Prompt_Word~="off"&&Trad_Mode~="off"&&PromptChar)
 					{
 						flag:=1
 						if cikuname~="i)zg"
@@ -646,25 +642,7 @@ get_word(input, cikuname){
 				;PrintObjects(GetValues)
 				}else{
 					lianx :="on"
-					If input~="[^z]" {
-						If (PromptChar&&flag||Prompt_Word~="i)on"&&flag) {
-							GetValues:=set_trad_mode(Result.Rows)
-							For Section,element In GetValues
-							{
-								index:=a_index, GetValues[section,3]:=StrLen(input)<4&&input<>GetValues[section,3]?RegExReplace(GetValues[section,3],"^" input,"~"):""
-								loop,% GetValues.Length()-index
-								{
-									If (GetValues[a_index+index,1]=GetValues[section,1])
-										GetValues.RemoveAt(a_index+index)
-									else
-										GetValues[a_index+index,3]:=StrLen(input)<4&&input<>GetValues[a_index+index,3]?RegExReplace(GetValues[a_index+index,3],"^" input,"~"):""
-								}
-							}
-						}else{
-							GetValues:=set_trad_mode(CharFliter&&cikuname~="i)ci|zi"?get_word_2(Result.Rows):Result.Rows)
-						}
-					}else
-						GetValues:=Result.Rows
+					GetValues:=set_trad_mode(CharFliter&&cikuname~="i)ci|zi"?get_word_2(Result.Rows):Result.Rows)
 				}
 			;if strlen(input)>1
 			;	PrintObjects(GetValues)
@@ -685,7 +663,8 @@ TranSelectvalue(chars){
 }
 
 SwitchingScheme(n,Char){
-	global WubiIni, srf_all_input, Wubi_Schema, srf_for_select_Array,localpos, Initial_Mode, EN_Mode, CharFliter, CheckFilterControl
+	global WubiIni, srf_all_input, Wubi_Schema, srf_for_select_Array, Trad_Mode
+		,localpos, Initial_Mode, EN_Mode, CharFliter, CheckFilterControl
 	flag:=0, n:=localpos>1&&n==1?localpos:n
 	If srf_all_input~="\/sc$" {
 		Wubi_Schema:=WubiIni.Settings["Wubi_Schema"] :=srf_for_select_Array[n,4]~="i)zi|ci|zg|chaoji"?srf_for_select_Array[n,4]:Wubi_Schema, flag:=1, WubiIni.save()
@@ -699,9 +678,13 @@ SwitchingScheme(n,Char){
 		If (srf_for_select_Array[n,4]="gl") {
 			CharFliter:=WubiIni.Settings["CharFliter"] :=!CharFliter, flag:=1, CheckFilterControl:=srf_for_select_Array[n,4], WubiIni.save()
 			Gosub CheckFilter
-		}else{
-			Initial_Mode:=WubiIni.Settings["Initial_Mode"] :=srf_for_select_Array[n,4], flag:=1, WubiIni.save()
+		}else If (srf_for_select_Array[n,4]="clip") {
+			Initial_Mode:=WubiIni.Settings["Initial_Mode"] :=Initial_Mode="on"?"off":"on", flag:=1,, CheckFilterControl:=srf_for_select_Array[n,4] WubiIni.save()
 			Gosub SwitchSC
+		}else If (srf_for_select_Array[n,4]="trad") {
+			Trad_Mode:=WubiIni.Settings["Trad_Mode"] :=Trad_Mode="on"?"off":"on", flag:=1,, CheckFilterControl:=srf_for_select_Array[n,4] WubiIni.save()
+			Gosub SwitchSC
+			Gosub CheckFilter
 		}
 	}else if (IsLabel(Char)&&srf_all_Input~="^\/[a-z]+"){
 			Gosub % Char
@@ -962,7 +945,8 @@ prompt_label(input){
 
 ;特殊符号提取
 prompt_symbols(input){
-	global DB, Cut_Mode, srf_all_Input, labelObj, Wubi_Schema, Initial_Mode, EN_Mode, CharFliter, PromptChar, Prompt_Word, Textdirection, ListNum
+	global DB, Cut_Mode, srf_all_Input, labelObj, Wubi_Schema, Initial_Mode, Trad_Mode
+		, EN_Mode, CharFliter, PromptChar, Prompt_Word, Textdirection, ListNum
 	If (input="")
 		Return []
 	ResultAll:=[]
@@ -1001,7 +985,7 @@ prompt_symbols(input){
 }
 
 Getotherinfo(input){
-	global Wubi_Schema, Initial_Mode, EN_Mode, CharFliter, PromptChar, Prompt_Word
+	global Wubi_Schema, Initial_Mode, EN_Mode, CharFliter, PromptChar, Prompt_Word, Trad_Mode
 	If (input="")
 		Return []
 	ResultAll:=[]
@@ -1020,8 +1004,14 @@ Getotherinfo(input){
 	}else{
 		scObject:={zznl:Get_LunarDate()
 			,zzsj:Get_Time(),zzrq:Get_Date()
-			,sc:[["含词",Wubi_Schema~="i)ci"&&!EN_Mode?"☯":"",Wubi_Schema~="i)ci"&&!EN_Mode?"☯":"","ci"],["单字",Wubi_Schema~="i)zi"&&!EN_Mode?"☯":"",Wubi_Schema~="i)zi"&&!EN_Mode?"☯":"","zi"],["超集",Wubi_Schema~="i)chaoji"&&!EN_Mode?"☯":"",Wubi_Schema~="i)chaoji"&&!EN_Mode?"☯":"","chaoji"],["英文",EN_Mode?"☯":"",EN_Mode?"☯":"","en"],["字根",Wubi_Schema~="i)zg"&&!EN_Mode?"☯":"",Wubi_Schema~="i)zg"&&!EN_Mode?"☯":"","zg"]]
-			,sp:[["剪切板上屏",Initial_Mode~="i)on"?"☯":"",Initial_Mode~="i)on"?"☯":"","on"],["发送上屏",Initial_Mode~="i)off"?"☯":"",Initial_Mode~="i)off"?"☯":"","off"],["字集过滤",Wubi_Schema~="i)ci|zi"&&!PromptChar&&Prompt_Word~="i)off"&&CharFliter?"☯":"",Wubi_Schema~="i)ci|zi"&&!PromptChar&&Prompt_Word~="i)off"&&CharFliter?"☯":"","gl"]]}
+			,sc:[["含词",Wubi_Schema~="i)ci"&&!EN_Mode?"√":"",Wubi_Schema~="i)ci"&&!EN_Mode?"√":"","ci"]
+				,["单字",Wubi_Schema~="i)zi"&&!EN_Mode?"√":"",Wubi_Schema~="i)zi"&&!EN_Mode?"√":"","zi"]
+				,["超集",Wubi_Schema~="i)chaoji"&&!EN_Mode?"√":"",Wubi_Schema~="i)chaoji"&&!EN_Mode?"√":"","chaoji"]
+				,["英文",EN_Mode?"√":"",EN_Mode?"√":"","en"]
+				,["字根",Wubi_Schema~="i)zg"&&!EN_Mode?"√":"",Wubi_Schema~="i)zg"&&!EN_Mode?"√":"","zg"]]
+			,sp:[[Initial_Mode~="i)off"?"发送上屏":"剪切板上屏",Initial_Mode~="i)on"?"√":"",Initial_Mode~="i)on"?"√":"","clip"]
+				,["字集过滤",Wubi_Schema~="i)ci|zi"&&!PromptChar&&Prompt_Word~="i)off"&&CharFliter?"√":"",Wubi_Schema~="i)ci|zi"&&!PromptChar&&Prompt_Word~="i)off"&&CharFliter?"√":"","gl"]
+				,[Trad_Mode="on"?"繁体":"简体",Trad_Mode="on"?"√":"",Trad_Mode="on"?"√":"","trad"]]}
 		ResultAll:=scObject[input]
 	}
 	Return ResultAll

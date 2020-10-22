@@ -773,7 +773,7 @@ helpInfo:
 		,["划译反查"," 热键" GetkeyName(tiphotkey) " 开/关 ","〔 热键" GetkeyName(tiphotkey) " 开/关 〕"]
 		,["临时英文"," 双``键引导 ","〔 双``键引导 〕"]
 		,["快捷退出"," 热键" GetkeyName(exithotkey) " 组合","〔 热键" GetkeyName(exithotkey) " 组合 〕"]
-		,["编码反查"," z键引导拼音反查/模糊匹配 ","〔 z键引导拼音反查/模糊匹配 〕"]
+		,["编码反查"," 反查方式：" (zkey_mode=1?"模糊匹配":zkey_mode=2?"笔画反查":"临时拼音"),"〔  反查方式：" (zkey_mode=1?"模糊匹配":zkey_mode=2?"笔画反查":"临时拼音") " 〕"]
 		,["拆分显示"," 热键" GetkeyName(cfhotkey) " 组合","〔 热键" GetkeyName(cfhotkey) " 组合 〕"]
 		,["批量造词"," 热键" GetkeyName(AddCodehotkey) " 组合 ","〔 热键" GetkeyName(AddCodehotkey) " 组合 〕"]]
 Return
@@ -781,9 +781,10 @@ Return
 ;候选词条分页处理
 srf_tooltip_fanye:
 	;PrintObjects(srf_for_select_Array)
-	for k,v in ["Textdirection","ListNum","FontSize"]
-		if (WubiIni.TipStyle[v]<>%v%)
-			%v%:=Textdirection:=WubiIni[Array_GetParentKey(WubiIni, v),v]
+	for Section,element in {TipStyle:["Textdirection","ListNum","FontSize"]}
+		for key,value in element
+			if (WubiIni[Section, value]<>%value%)
+				%value%:=WubiIni[Section,value]
 	if srf_all_Input ~="^``"&&!EN_Mode{
 		if (srf_all_Input~="^``[a-z]+"&&Wubi_Schema~="i)ci"&&!EN_Mode){
 			srf_for_select_Array:=format_word(RegExReplace(srf_all_Input,"^``"))
@@ -1030,7 +1031,7 @@ srf_value_off:
 		Gui, houxuankuang:Hide
 	Else
 		GdipText(""), FocusGdipGui("", "")
-	srf_all_Input:=srf_for_select_for_tooltip:="", waitnum:=select_sym:=PosLimit:=0
+	srf_all_Input:=srf_for_select_for_tooltip:=CheckFilterControl:="", waitnum:=select_sym:=PosLimit:=0
 	srf_for_select_Array :=select_arr:=srf_for_select_obj:=select_value_arr:=add_Result:=add_Array:=Result_:=Results_:=Result:=labelObj:=[],Select_result:=selectallvalue:="",code_status:=localpos:=srfCounts:=select_pos:=1
 Return
 
@@ -2912,25 +2913,44 @@ Return
 
 CheckFilter:
 	If (A_GuiControl="SBA3"||CheckFilterControl="kmts") {
-		CharFliter:=WubiIni.Settings["CharFliter"]:= 0, PromptChar:=WubiIni.Settings["PromptChar"]:=CheckFilterControl:= 0
+		CharFliter:=WubiIni.Settings["CharFliter"]:= Prompt_Word="on"?0:CharFliter
+		, PromptChar:=WubiIni.Settings["PromptChar"]:=Prompt_Word="on"?0:PromptChar, CheckFilterControl:= ""
 		If WinExist("输入法设置") {
 			GuiControl,98:, SBA3, % Prompt_Word="on"?1:0
-			GuiControl,98:, SBA24, 0
-			GuiControl,98:, SBA23, 0
+			If (Prompt_Word="on") {
+				GuiControl,98:, SBA24, 0
+				GuiControl,98:, SBA23, 0
+			}
 		}
 	}else If (A_GuiControl="SBA23"||CheckFilterControl="gl") {
-		PromptChar:=WubiIni.Settings["PromptChar"]:=CheckFilterControl:= 0, Prompt_Word:=WubiIni.Settings["Prompt_Word"]:= "off"
+		PromptChar:=WubiIni.Settings["PromptChar"]:= CharFliter?0:PromptChar
+		, Prompt_Word:=WubiIni.Settings["Prompt_Word"]:= CharFliter?"off":Prompt_Word, CheckFilterControl:=""
 		If WinExist("输入法设置") {
 			GuiControl,98:, SBA23, %CharFliter%
-			GuiControl,98:, SBA3, 0
-			GuiControl,98:, SBA24, 0
+			If (CharFliter) {
+				GuiControl,98:, SBA3, 0
+				GuiControl,98:, SBA24, 0
+			}
 		}
 	}else If (A_GuiControl="SBA24"||CheckFilterControl="zmts") {
-		Prompt_Word:=WubiIni.Settings["Prompt_Word"]:= "off", CharFliter:=WubiIni.Settings["CharFliter"]:=CheckFilterControl:= 0
+		Prompt_Word:=WubiIni.Settings["Prompt_Word"]:= PromptChar?"off":Prompt_Word
+		, CharFliter:=WubiIni.Settings["CharFliter"]:=PromptChar?0:CharFliter
+		Trad_Mode :=WubiIni.Settings["Trad_Mode"] :=PromptChar?"off":Trad_Mode, CheckFilterControl:= ""
 		If WinExist("输入法设置") {
 			GuiControl,98:, SBA24, %PromptChar%
-			GuiControl,98:, SBA3, 0
-			GuiControl,98:, SBA23, 0
+			If (PromptChar) {
+				GuiControl,98:, SBA3, 0
+				GuiControl,98:, SBA23, 0
+			}
+		}
+	}else If (CheckFilterControl="trad") {
+		Prompt_Word:=WubiIni.Settings["Prompt_Word"]:=Trad_Mode="on"?"off":Prompt_Word
+		, PromptChar:=WubiIni.Settings["PromptChar"]:=Trad_Mode="on"?0:PromptChar, CheckFilterControl:=""
+		If WinExist("输入法设置") {
+			If (Trad_Mode="on") {
+				GuiControl,98:, SBA3, 0
+				GuiControl,98:, SBA24, 0
+			}
 		}
 	}
 	If Wubi_Schema~="i)ci|zi"&&Prompt_Word~="i)off"&&WinExist("输入法设置") {
@@ -3912,11 +3932,11 @@ return
 
 ;简繁转换
 Trad_Mode:
-	Trad_Mode :=WubiIni.Settings["Trad_Mode"] :=Trad_Mode~="i)off"?"on":"off", WubiIni.save()
-	if Trad_Mode~="i)on"
-		GuiControl,logo:, Pics2,*Icon6 config\Skins\logoStyle\%StyleN%.icl
-	else
-		GuiControl,logo:, Pics2,*Icon5 config\Skins\logoStyle\%StyleN%.icl
+	Trad_Mode :=WubiIni.Settings["Trad_Mode"] :=Trad_Mode~="i)off"?"on":"off", CheckFilterControl:="trad", WubiIni.save()
+	If Trad_Mode~="i)on" {
+		Gosub CheckFilter
+	}
+	Gosub SwitchSC
 	if srf_all_input
 		Gosub srf_tooltip_fanye
 return
