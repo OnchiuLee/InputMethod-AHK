@@ -220,6 +220,32 @@ MoveGui:
 	}
 Return
 
+Switchhxk:
+	FontSize :=WubiIni.TipStyle["FontSize"] :=ToolTipStyle~="off|on"?16:22, WubiIni.Save()
+	if ToolTipStyle ~="i)on|off"{
+		If WinExist("输入法设置") {
+			For k,v In ["LineColor","BorderColor","set_GdipRadius","GdipRadius","SBA9","SBA10","SBA12","SBA19","set_FocusRadius","set_FocusRadius_value"]
+				GuiControl, 98:Disable, %v%
+			For k,v In ["set_regulate_Hx","set_regulate"]
+				GuiControl, 98:Enable, %v%
+		}
+	}else{
+		If WinExist("输入法设置") {
+			For k,v In ["LineColor","BorderColor","SBA9","SBA10","SBA12","SBA19"]
+				GuiControl, 98:Enable, %v%
+			For k,v In ["set_regulate_Hx","set_regulate"]
+				GuiControl, 98:Disable, %v%
+			if Radius~="i)on" {
+				For k,v In ["set_GdipRadius","GdipRadius","set_FocusRadius","set_FocusRadius_value"]
+					GuiControl, 98:Enable, %v%
+			}
+		}
+	}
+	GdipText(""), FocusGdipGui("", "")
+	Gui, houxuankuang:Destroy
+	Gosub houxuankuangguicreate
+Return
+
 ChangeTray:
 	if Wubi_Schema~="ci" {
 		Gosub Enable_Tray
@@ -489,20 +515,7 @@ ChoiceItems:
 	}else If (A_ThisMenu~="i)ToolTipStyle"&&A_ThisMenuItemPos) {
 		;;Menu_CheckRadioItem(TMENU, A_ThisMenuItemPos), Menu_CheckRadioItem(HMENU, ToolTipStyle ~="i)on"?1:ToolTipStyle ~="i)off"?2:3)
 		ToolTipStyle :=WubiIni.TipStyle["ToolTipStyle"] :=A_ThisMenuItemPos=5?"Gdip":A_ThisMenuItemPos=3?"off":"on"
-		FontSize :=WubiIni.TipStyle["FontSize"] :=A_ThisMenuItemPos=5?22:16
-		if ToolTipStyle ~="i)on|off"{
-			For k,v In ["LineColor","BorderColor","set_GdipRadius","GdipRadius","SBA9","SBA10","SBA12","SBA19"]
-				GuiControl, 98:Disable, %v%
-			Gui, houxuankuang:Destroy
-			Gosub houxuankuangguicreate
-		}else{
-			For k,v In ["LineColor","BorderColor","SBA9","SBA10","SBA12","SBA19"]
-				GuiControl, 98:Enable, %v%
-			if Radius~="i)on" {
-				For k,v In ["set_GdipRadius","GdipRadius"]
-					GuiControl, 98:Enable, %v%
-			}
-		}
+		Gosub Switchhxk
 	}
 	WubiIni.Save()
 Return
@@ -646,8 +659,8 @@ houxuankuangguicreate:
 		Gui, houxuankuang:Add, Text, x0 yp+15 w%A_ScreenWidth% h1 0x10 vfengefu
 	Gui, houxuankuang:Add, Text, x5 vmyedit2 BackgroundTrans c%FontColor%
 	Gui, houxuankuang:Show, % "Hide x" A_ScreenWidth//2-A_ScreenWidth//8 " y" A_ScreenHeight-200
-	Tip1hWnd:=ToolTip(1, "", "Q1 B" BgColor " T" FontCodeColor " S" FontSize*A_ScreenDPI/96 " F" EN_Mode||srf_all_input~="^[``]{2}\w+"?EnFontName:FontType)
-	Tip2hWnd:=ToolTip(2, "", "Q1 B" BgColor " T" FontColor " S" FontSize*A_ScreenDPI/96 " F" EN_Mode||srf_all_input~="^[``]{2}\w+"?EnFontName:FontType)
+	Tip1hWnd:=ToolTip(1, "", "Q1 B" BgColor " T" FontCodeColor " S" FontSize*A_ScreenDPI/96 " F" (EN_Mode||srf_all_input~="^[``]{2}\w+"?EnFontName:FontType))
+	Tip2hWnd:=ToolTip(2, "", "Q1 B" BgColor " T" FontColor " S" FontSize*A_ScreenDPI/96 " F" (EN_Mode||srf_all_input~="^[``]{2}\w+"?EnFontName:FontType))
 	Height:=60
 Return
 
@@ -929,7 +942,8 @@ showhouxuankuang:
 	If !EN_Mode {
 		srf_code:=srf_all_input~="^z\'[a-z]"?RegExReplace(srf_all_input,"^z\'"):(srf_all_input~="^``$"?RegExReplace(srf_all_input,"^``",(Wubi_Schema~="i)ci"&&!EN_Mode?"〔精准造词〕":"〔常用符号〕")):srf_all_input~="^~$"?RegExReplace(srf_all_input,"^~","〔以形查音〕"):srf_all_input~="^[``]{2}$"&&!EN_Mode?RegExReplace(srf_all_input,"^````","〔临时英文〕"):srf_all_input)
 		,srf_code:=srf_code~="^``|^~"?RegExReplace(RegExReplace(srf_code,"^``|^~"),"``","'"):srf_code~="^z"&&zkey_mode=2?Char2Num(srf_code,1):srf_code
-	}else srf_code:=srf_all_input
+	}else
+		srf_code:=srf_all_input
 	SysGet, _height, 14
 	if Fix_Switch~="i)on"{
 		Caret:={x:Fix_X,y:Fix_Y,h:_height}
@@ -1011,7 +1025,7 @@ Return
 srf_value_off:
 	Critical, On
 	If (ToolTipStyle ~="i)on")
-		ToolTip(1), ToolTip(2)
+		ToolTip(1,""), ToolTip(2,"")
 	Else If (ToolTipStyle ~="i)off")
 		Gui, houxuankuang:Hide
 	Else
@@ -1089,9 +1103,9 @@ More_Setting:
 	Menu, SchemaList, Add, 98五笔•超集, sChoice4
 	Menu, SchemaList, Add, 98五笔•字根, sChoice4
 	Menu, SchemaList, Color, FFFFFF
-	Menu, StyleMenu, Add, Tooltip样式, Export
-	Menu, StyleMenu, Add, Gui候选框样式, Export
-	Menu, StyleMenu, Add, Gdip候选框样式, Export
+	Menu, StyleMenu, Add, Tooltip样式, ChangeTooltipstyle
+	Menu, StyleMenu, Add, Gui候选框样式, ChangeTooltipstyle
+	Menu, StyleMenu, Add, Gdip候选框样式, ChangeTooltipstyle
 	Menu, StyleMenu, Color, FFFFFF
 	if A_OSVersion ~="i)WIN_XP"
 		Menu, StyleMenu, Disable, Gdip候选框样式
@@ -2222,7 +2236,7 @@ ControlGui:
 		}
 	}
 	if ToolTipStyle ~="i)off|on"{
-		For k,v In ["SBA12","SBA9","SBA10","SBA19"]
+		For k,v In ["SBA12","SBA9","SBA10","SBA19","set_FocusRadius","set_FocusRadius_value"]
 			GuiControl, 98:Disable, %v%
 	}
 	For k,v In {Logo_ExStyle:"ExSty",PromptChar:"SBA24",BUyaml:"yaml_",PageShow:"SBA20",Exit_switch:"SBA22",FocusStyle:"SBA19",UIAccess:"UIAccess",symb_mode:"SBA14"}
@@ -3197,11 +3211,11 @@ SBA9:
 	GuiControlGet, SBA ,, SBA9, Checkbox
 	if (SBA==1) {
 		Radius:=WubiIni.TipStyle["Radius"]:="on",WubiIni.save()
-		For k,v In ["set_GdipRadius","GdipRadius"]
+		For k,v In ["set_GdipRadius","GdipRadius","set_FocusRadius","set_FocusRadius_value"]
 			GuiControl, 98:Enable, %v%
 	}else{
 		Radius:=WubiIni.TipStyle["Radius"]:="off",WubiIni.save()
-		For k,v In ["set_GdipRadius","GdipRadius"]
+		For k,v In ["set_GdipRadius","GdipRadius","set_FocusRadius","set_FocusRadius_value"]
 			GuiControl, 98:Disable, %v%
 	}
 Return
@@ -3570,69 +3584,12 @@ Exit_hotkey:
 	Hotkey, %exithotkey%, OnExit,on
 Return
 
-StyleMenu:
-	WinGetPos, X, Y, W, H, ahk_id %HExportBtn%
-	X += W // 2
-	Menu_ShowAligned(HMENU, hwndgui98, X, Y, "Center", "Bottom")
-	if A_ThisMenuItem~="i)gdip" {
-		For k,v In ["SBA12","SBA9","SBA10","SBA19"]
-			GuiControl, 98:Enable, %v%
-	}else if A_ThisMenuItem~="i)on|off" {
-		For k,v In ["SBA12","SBA9","SBA10","SBA19"]
-			GuiControl, 98:Disable, %v%
-	}else{
-		if ToolTipStyle~="i)Gdip" {
-			For k,v In ["SBA12","SBA9","SBA10","SBA19"]
-				GuiControl, 98:Enable, %v%
-		}else{
-			For k,v In ["SBA12","SBA9","SBA10","SBA19"]
-				GuiControl, 98:Disable, %v%
-		}
-	}
-	if A_ThisMenuItem~="i)ToolTip" {
-		GuiControl, 98:Enable, set_regulate_Hx
-	}else{
-		GuiControl, 98:Disable, set_regulate_Hx
-	}
-Return
-
-Export:
+ChangeTooltipstyle:
 	Menu_CheckRadioItem(HMENU, A_ThisMenuItemPos)
-	if A_ThisMenuItem~="i)gdip"{
-		GuiControl, 98:Text, StyleMenu , % A_ThisMenuItem
-		global ToolTipStyle :=WubiIni.TipStyle["ToolTipStyle"] :="Gdip"
-		global FontSize :=WubiIni.TipStyle["FontSize"] :="22"
-	}else if A_ThisMenuItem~="i)Gui"{
-		GuiControl, 98:Text, StyleMenu , % A_ThisMenuItem
-		global ToolTipStyle :=WubiIni.TipStyle["ToolTipStyle"] :="off"
-		global FontSize :=WubiIni.TipStyle["FontSize"] :="16"
-	}else if A_ThisMenuItem~="i)ToolTip"{
-		GuiControl, 98:Text, StyleMenu , % A_ThisMenuItem
-		global ToolTipStyle :=WubiIni.TipStyle["ToolTipStyle"] :="on"
-		global FontSize :=WubiIni.TipStyle["FontSize"] :="16"
-	}
-	WubiIni.Save()
+	ToolTipStyle:=WubiIni.TipStyle["ToolTipStyle"] :=A_ThisMenuItemPos=3?"Gdip":A_ThisMenuItemPos=2?"off":A_ThisMenuItemPos=1?"on":ToolTipStyle, WubiIni.Save()
+	Gosub Switchhxk
 	Gosub SelectItems
-	if ToolTipStyle ~="i)on|off"{
-		For k,v In ["LineColor","BorderColor","set_GdipRadius","GdipRadius","SBA9","SBA10","SBA12","SBA19"]
-			GuiControl, 98:Disable, %v%
-		Gui, houxuankuang:Destroy
-		Gosub houxuankuangguicreate
-	}else{
-		For k,v In ["LineColor","BorderColor","SBA9","SBA10","SBA12","SBA19"]
-			GuiControl, 98:Enable, %v%
-		if Radius~="i)on" {
-			For k,v In ["set_GdipRadius","GdipRadius"]
-				GuiControl, 98:Enable, %v%
-		}
-	}
 Return
-
-About:
-	GuiControlGet, About,, About, text
-	FileDelete, config\ReadMe.txt
-	FileAppend,%About%, config\ReadMe.txt,UTF-8
-return
 
 ;gdip边框线开关（边框线开则中间的分割线消除，反之）
 Gdip_Line:
@@ -3974,30 +3931,9 @@ return
 
 ;候选样式标签选择处理
 ToolTipStyle:
-	if ToolTipStyle ~="i)on"
-	{
-		ToolTip(1), ToolTip(2)
-		global ToolTipStyle :="off"
-		global FontSize :=WubiIni.TipStyle["FontSize"]:=16
-		WubiIni.TipStyle["ToolTipStyle"]:=ToolTipStyle, WubiIni.save()
-	}
-	else if ToolTipStyle ~="i)off"
-	{
-		Gui, houxuankuang:Hide
-		global ToolTipStyle :="gdip"
-		global FontSize :=WubiIni.TipStyle["FontSize"]:=22
-		WubiIni.TipStyle["ToolTipStyle"]:=ToolTipStyle, WubiIni.save()
-	}
-	else if ToolTipStyle ~="i)gdip"
-	{
-		GdipText(""), FocusGdipGui("", "")
-		global ToolTipStyle :="on"
-		global FontSize :=WubiIni.TipStyle["FontSize"]:=14
-		WubiIni.TipStyle["ToolTipStyle"]:=ToolTipStyle, WubiIni.save()
-	}
+	ToolTipStyle :=WubiIni.TipStyle["ToolTipStyle"]:=ToolTipStyle="on"?"off":ToolTipStyle="off"?"Gdip":ToolTipStyle="Gdip"?"on":ToolTipStyle, WubiIni.save()
+	Gosub Switchhxk
 	Gosub SelectItems
-	Gui, houxuankuang:Destroy
-	Gosub houxuankuangguicreate
 return
 
 ;批量造词
