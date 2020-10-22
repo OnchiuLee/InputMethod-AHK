@@ -676,13 +676,13 @@ SwitchingScheme(n,Char){
 		Gosub SwitchSC
 	}else If srf_all_input~="\/sp$" {
 		If (srf_for_select_Array[n,4]="gl") {
-			CharFliter:=WubiIni.Settings["CharFliter"] :=!CharFliter, flag:=1, CheckFilterControl:=srf_for_select_Array[n,4], WubiIni.save()
+			CharFliter:=WubiIni.Settings["CharFliter"] :=!CharFliter, flag:=1, CheckFilterControl:="gl", WubiIni.save()
 			Gosub CheckFilter
 		}else If (srf_for_select_Array[n,4]="clip") {
-			Initial_Mode:=WubiIni.Settings["Initial_Mode"] :=Initial_Mode="on"?"off":"on", flag:=1,, CheckFilterControl:=srf_for_select_Array[n,4] WubiIni.save()
+			Initial_Mode:=WubiIni.Settings["Initial_Mode"] :=Initial_Mode="on"?"off":"on", flag:=1, CheckFilterControl:="clip", WubiIni.save()
 			Gosub SwitchSC
 		}else If (srf_for_select_Array[n,4]="trad") {
-			Trad_Mode:=WubiIni.Settings["Trad_Mode"] :=Trad_Mode="on"?"off":"on", flag:=1,, CheckFilterControl:=srf_for_select_Array[n,4] WubiIni.save()
+			Trad_Mode:=WubiIni.Settings["Trad_Mode"] :=Trad_Mode="on"?"off":"on", flag:=1, CheckFilterControl:="trad", WubiIni.save()
 			Gosub SwitchSC
 			Gosub CheckFilter
 		}

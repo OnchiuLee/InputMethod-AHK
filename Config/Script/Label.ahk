@@ -2953,11 +2953,11 @@ CheckFilter:
 			}
 		}
 	}
-	If Wubi_Schema~="i)ci|zi"&&Prompt_Word~="i)off"&&WinExist("输入法设置") {
+	If (Wubi_Schema="ci"&&Prompt_Word="off"&&Trad_Mode="off") {
 		For k,v In ["Frequency","FTip","set_Frequency","RestDB"]
 			GuiControl, 98:Enable, %v%
 		;;OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x0178d6})
-	}else If not Wubi_Schema~="i)ci|zi"&&Prompt_Word~="i)on"&&WinExist("输入法设置"){
+	}else If (Wubi_Schema<>"ci"&&WinExist("输入法设置")||Prompt_Word="on"&&WinExist("输入法设置")||WinExist("输入法设置")&&Trad_Mode="on"){
 		For k,v In ["Frequency","FTip","set_Frequency","RestDB"]
 			GuiControl, 98:Disable, %v%
 		;;OD_Colors.Attach(FRDL,{T: 0x767641, B: 0xb3b3b3})
@@ -3933,9 +3933,7 @@ return
 ;简繁转换
 Trad_Mode:
 	Trad_Mode :=WubiIni.Settings["Trad_Mode"] :=Trad_Mode~="i)off"?"on":"off", CheckFilterControl:="trad", WubiIni.save()
-	If Trad_Mode~="i)on" {
-		Gosub CheckFilter
-	}
+	Gosub CheckFilter
 	Gosub SwitchSC
 	if srf_all_input
 		Gosub srf_tooltip_fanye
