@@ -1344,7 +1344,7 @@ More_Setting:
 	;;OD_Colors.Attach(ZDDL,{T: 0xffe89e, B: 0x0178d6})
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, Button,x+10 yp-2 vSBA18 gSBA18 hwndBHBT, 按键定义
+	Gui, 98:Add, Button,x+10 yp-2 vSBA18 gSBA18 hwndBHBT, 键位设置
 	ImageButton.Create(BHBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%

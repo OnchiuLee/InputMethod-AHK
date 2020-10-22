@@ -626,6 +626,7 @@ get_word(input, cikuname){
 						SQL :="SELECT aim_chars FROM " cikuname " WHERE A_Key = '" input "'" (not cikuname~="i)zg"?"ORDER BY A_Key,B_Key DESC":"") ";"
 					DB.GetTable(SQL, Result)
 				}
+				;;PrintObjects(Result.Rows)
 				if Trad_Mode~="off" {
 					If (!CharFliter&&PromptChar&&flag||!CharFliter&&Prompt_Word~="i)on"&&flag) {
 						GetValues:=Result.Rows
@@ -645,10 +646,10 @@ get_word(input, cikuname){
 				;PrintObjects(GetValues)
 				}else{
 					lianx :="on"
-					If not input~="z" {
+					If input~="[^z]" {
 						If (PromptChar&&flag||Prompt_Word~="i)on"&&flag) {
 							GetValues:=set_trad_mode(Result.Rows)
-							For Section, element In GetValues
+							For Section,element In GetValues
 							{
 								index:=a_index, GetValues[section,3]:=StrLen(input)<4&&input<>GetValues[section,3]?RegExReplace(GetValues[section,3],"^" input,"~"):""
 								loop,% GetValues.Length()-index

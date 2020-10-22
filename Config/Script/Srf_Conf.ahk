@@ -58,7 +58,7 @@ return
 	space::srf_select(ToolTipStyle~="i)gdip"&&FocusStyle?localpos:1,A_ThisHotkey)
 #if 
 
-#If srf_mode&&InStr(srf_all_Input,"/")&&!GetKeyState("CapsLock", "T")&&not srf_all_input ~="[a-z]"||srf_mode&&!GetKeyState("CapsLock", "T")&&srf_all_input~="^z"&&zkey_mode=2&&StrockeKey~="^\d"
+#If srf_mode&&InStr(srf_all_Input,"/")&&!GetKeyState("CapsLock", "T")&&srf_all_input ~="[^a-z]"||srf_mode&&!GetKeyState("CapsLock", "T")&&srf_all_input~="^z"&&zkey_mode=2&&StrockeKey~="^\d"
 	1::
 	2::
 	3::
@@ -70,17 +70,19 @@ return
 	9::
 	0::
 	.::
-	Numpad1::
-	Numpad2::
-	Numpad3::
-	Numpad4::
-	Numpad5::
-	Numpad6::
-	Numpad7::
-	Numpad8::
-	Numpad9::
-	Numpad0::
-	NumpadDot::
+	If !GetKeyState("NumLock" ,"T") {
+		Numpad1::
+		Numpad2::
+		Numpad3::
+		Numpad4::
+		Numpad5::
+		Numpad6::
+		Numpad7::
+		Numpad8::
+		Numpad9::
+		Numpad0::
+		NumpadDot::
+	}
 	If (srf_all_input~="^z"&&zkey_mode=2&&!EN_Mode){
 		If Array_isInValue(StrSplit(StrockeKey,"|"),A_ThisHotkey)
 			srf_all_input.=A_ThisHotkey, select_sym:=0, localpos:=1
@@ -387,7 +389,16 @@ Return
 	8::srf_select(8)
 	9::srf_select(9)
 	0::srf_select(10)
-
+	Numpad1::srf_select(1)
+	Numpad2::srf_select(2)
+	Numpad3::srf_select(3)
+	Numpad4::srf_select(4)
+	Numpad5::srf_select(5)
+	Numpad6::srf_select(6)
+	Numpad7::srf_select(7)
+	Numpad8::srf_select(8)
+	Numpad9::srf_select(9)
+	Numpad0::srf_select(10)
 ;快速删词快捷键「Ctrl+Alt+{1-0}」
 	^!1::
 	^!Numpad1::
