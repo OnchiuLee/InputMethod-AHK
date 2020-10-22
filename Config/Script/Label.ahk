@@ -2667,6 +2667,7 @@ Return
 select_theme:
 	GuiControlGet, select_theme,, select_theme, text
 	Gosub _FileToObj
+	Gosub IsGdipline
 Return
 
 _FileToObj:
@@ -3205,6 +3206,15 @@ SBA9:
 	}
 Return
 
+IsGdipline:
+	ThemeObject:= Json_FileToObj("Config\Skins\" ThemeName ".json")
+	If (Gdip_Line="on"&&FocusStyle||!FocusStyle) {
+		FontCodeColor:=FontCodeColor=BgColor?SubStr(ThemeObject["color_scheme","FontColor"],5,2) SubStr(ThemeObject["color_scheme","FontColor"],3,2) SubStr(ThemeObject["color_scheme","FontColor"],1,2):FontCodeColor
+	}else If (Gdip_Line="off"&&FocusStyle) {
+		FontCodeColor:=SubStr(ThemeObject["color_scheme","FontCodeColor"],5,2) SubStr(ThemeObject["color_scheme","FontCodeColor"],3,2) SubStr(ThemeObject["color_scheme","FontCodeColor"],1,2)
+	}
+Return
+
 SBA10:
 	GuiControlGet, SBA ,, SBA10, Checkbox
 	if (SBA==1) {
@@ -3212,6 +3222,7 @@ SBA10:
 	}else{
 		Gdip_Line:=WubiIni.TipStyle["Gdip_Line"]:="off",WubiIni.save()
 	}
+	Gosub IsGdipline
 Return
 
 SBA12:
@@ -3324,11 +3335,8 @@ Return
 
 SBA19:
 	GuiControlGet, SBA ,, SBA19, Checkbox
-	if SBA
-		FocusStyle:=WubiIni.Settings["FocusStyle"]:=1,WubiIni.save()
-	else
-		FocusStyle:=WubiIni.Settings["FocusStyle"]:=0,WubiIni.save()
-	Gosub srf_value_off
+	FocusStyle:=WubiIni.Settings["FocusStyle"]:=SBA,WubiIni.save()
+	Gosub IsGdipline
 Return
 
 SBA20:
