@@ -751,19 +751,18 @@ symbolsInfo:
 Return
 
 helpInfo:
-	if (srf_all_Input ="help"){
-		help_info:=[["简繁模式"," 热键" GetkeyName(s2thotkey) " 组合","〔 热键" GetkeyName(s2thotkey) " 组合 〕"]
-			,["程序挂起"," 热键" GetkeyName(Suspendhotkey) " 组合","〔 热键" GetkeyName(Suspendhotkey) " 组合 〕"]
-			,["以形查音"," ~键引导 ","〔 ~键引导 〕"]
-			,["方案切换","〔 /sc 切换方案 〕","〔 /sc 切换方案 〕"]
-			,["精准造词"," ``键引导+``键分词 ","〔 ``键引导+``键分词 〕"]
-			,["划译反查"," 热键" GetkeyName(tiphotkey) " 开/关 ","〔 热键" GetkeyName(tiphotkey) " 开/关 〕"]
-			,["临时英文"," 双``键引导 ","〔 双``键引导 〕"]
-			,["快捷退出"," 热键" GetkeyName(exithotkey) " 组合","〔 热键" GetkeyName(exithotkey) " 组合 〕"]
-			,["编码反查"," z键引导拼音反查/模糊匹配 ","〔 z键引导拼音反查/模糊匹配 〕"]
-			,["拆分显示"," 热键" GetkeyName(cfhotkey) " 组合","〔 热键" GetkeyName(cfhotkey) " 组合 〕"]
-			,["批量造词"," 热键" GetkeyName(AddCodehotkey) " 组合 ","〔 热键" GetkeyName(AddCodehotkey) " 组合 〕"]], srf_for_select_Array:=help_info
-	}
+	Textdirection:="vertical", ListNum:=10
+	srf_for_select_Array:=[["简繁模式"," 热键" GetkeyName(s2thotkey) " 组合","〔 热键" GetkeyName(s2thotkey) " 组合 〕"]
+		,["程序挂起"," 热键" GetkeyName(Suspendhotkey) " 组合","〔 热键" GetkeyName(Suspendhotkey) " 组合 〕"]
+		,["以形查音"," ~键引导 ","〔 ~键引导 〕"]
+		,["方案切换","〔 /sc 切换方案 〕","〔 /sc 切换方案 〕"]
+		,["精准造词"," ``键引导+``键分词 ","〔 ``键引导+``键分词 〕"]
+		,["划译反查"," 热键" GetkeyName(tiphotkey) " 开/关 ","〔 热键" GetkeyName(tiphotkey) " 开/关 〕"]
+		,["临时英文"," 双``键引导 ","〔 双``键引导 〕"]
+		,["快捷退出"," 热键" GetkeyName(exithotkey) " 组合","〔 热键" GetkeyName(exithotkey) " 组合 〕"]
+		,["编码反查"," z键引导拼音反查/模糊匹配 ","〔 z键引导拼音反查/模糊匹配 〕"]
+		,["拆分显示"," 热键" GetkeyName(cfhotkey) " 组合","〔 热键" GetkeyName(cfhotkey) " 组合 〕"]
+		,["批量造词"," 热键" GetkeyName(AddCodehotkey) " 组合 ","〔 热键" GetkeyName(AddCodehotkey) " 组合 〕"]]
 Return
 
 ;候选词条分页处理
@@ -845,6 +844,8 @@ srf_tooltip_fanye:
 	}else{
 		If !EN_Mode {
 			srf_for_select_Array:=get_word(srf_all_Input, Wubi_Schema)
+			if (srf_all_Input ="help"&&!objLength(srf_for_select_Array))
+				Gosub helpInfo
 			Gosub srf_tooltip_cut
 		}else{
 			srf_for_select_Array:=Get_EnWord(srf_all_Input)
