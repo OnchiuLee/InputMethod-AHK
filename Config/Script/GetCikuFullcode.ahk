@@ -30,6 +30,7 @@ If (MaBiaoFile<> ""&&filename){
 		{
 			totalCount:=objCount(mbObj:=RemovalCode(MaBiao)), num:=Ceil(totalCount/100)
 			Progress, M1 Y10 FM14 W350, 1/%totalCount%, 码表处理中..., 1`%
+			OnMessage(0x201, "MoveProgress")
 			for section,element in mbObj
 			{
 				tarr.= section A_Tab element "`r`n"
@@ -86,6 +87,10 @@ TransformCiku(Chars){
 	}else{
 		return ""
 	}
+}
+
+MoveProgress() {
+	PostMessage, 0xA1, 2 
 }
 
 ;;码表单字去重保留全码

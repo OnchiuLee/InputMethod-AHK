@@ -4,6 +4,7 @@
 #NoTrayIcon
 #SingleInstance, Force
 Progress, M ZH-1 ZW-1 Y100 FM11 W420 C0 FM14 WS700 CTffffff CW0078d7,, 正在轉換碼錶格式。。。, 碼表轉換
+OnMessage(0x201, "MoveProgress")
 Gui +OwnDialogs
 FileSelectFile, FileContents, 3, , 请选择要转换的词库文本文件, Text Documents (*.txt)
 If (FileContents<>"")
@@ -88,6 +89,10 @@ TranCiku(FilePath,outpath=""){
 	}else{
 		return 0
 	}
+}
+
+MoveProgress() {
+	PostMessage, 0xA1, 2 
 }
 
 CheckTickCount(TC:=0){

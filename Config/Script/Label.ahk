@@ -494,6 +494,7 @@ TransformCiku:
 		{
 			startTime:= CheckTickCount()
 			Progress, M ZH-1 ZW-1 Y100 FM11 W420 C0 FM14 WS700 CTffffff CW0078d7,, 正在轉換碼錶格式。。。, 碼表轉換
+			OnMessage(0x201, "MoveProgress")
 			If (!TranCiku(FileContents)) {
 				Progress, off
 				MsgBox, 262192, 码表转换, 词库格式不支持！, 8
@@ -4071,6 +4072,7 @@ addFiles(){
 			}
 			totalCount:=CountLines(MaBiao), num:=totalCount>100?Ceil(totalCount/100):totalCount>50?Ceil(totalCount/10):Ceil(totalCount/5)
 			Progress, M1 Y10 FM14 W350, 1/%totalCount%, 词条处理中..., 1`%
+			OnMessage(0x201, "MoveProgress")
 			Loop, Parse, MaBiao, `n, `r
 			{
 				If (A_LoopField = "")
@@ -4192,6 +4194,7 @@ Write_DB:
 		totalCount:=CountLines(MaBiaoFile), num:=Ceil(totalCount/100)
 		tip:=Wubi_Schema~="i)ci"?"【含词】":Wubi_Schema~="i)zi"?"【单字】":Wubi_Schema~="i)chaoji"?"【超集】":"【字根】"
 		Progress, M1 Y100 FM14 W350, 1/%totalCount%, %tip%词库写入中..., 1
+		OnMessage(0x201, "MoveProgress")
 		Loop, Parse, MaBiao, `n, `r
 		{
 			count++
@@ -4266,8 +4269,9 @@ Write_Strocke:
 			Return
 		}
 		If MaBiao~="\n\W+\t\d+\t\d+" {
-		totalCount:=CountLines(MaBiaoFile), num:=Ceil(totalCount/100)
-		Progress, M1 FM14 Y100 W350, 1/%totalCount%, 笔画词库写入中..., 1
+			totalCount:=CountLines(MaBiaoFile), num:=Ceil(totalCount/100)
+			Progress, M1 FM14 Y100 W350, 1/%totalCount%, 笔画词库写入中..., 1
+			OnMessage(0x201, "MoveProgress")
 			Loop, Parse, MaBiao, `n, `r
 			{
 				count++
