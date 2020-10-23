@@ -35,7 +35,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020102220"
+version :="2020102221"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -299,6 +299,7 @@ For key,value In ["GBChars","s2t","PY","label","label_init","TangSongPoetics","s
 	DB.GetTable("select count(*) from sqlite_master where type='table' and name = '" value "';",Result)
 	If Result.Rows[1,1] {
 		Progress, M ZH-1 ZW-1 Y100 FM11 W420 C0 FM14 WS700 CTffffff CW0078d7,, 正在转移<%value%>词库数据，请稍候。。。, 词库检查 [ %key%/7 ]
+		OnMessage(0x201, "MoveProgress")
 		if DB.Exec("DROP TABLE 'extend'.'" value "';VACUUM")>0
 			DB.Exec("create table 'extend'.'" value "' as select * from 'main'.'" value "';DROP TABLE 'main'.'" value "';VACUUM")
 	}
