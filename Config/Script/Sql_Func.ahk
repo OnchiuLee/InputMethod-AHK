@@ -579,7 +579,7 @@ get_word(input, cikuname){
 							SQL :="select aim_chars,E_Key,F_Key from ci WHERE A_Key ='" input "' AND D_Key >0 ORDER BY A_Key,D_Key DESC;"
 					}
 				}else{
-					If (Prompt_Word~="off"&&!PromptChar&&CharFliter)
+					If (Prompt_Word~="off"&&!PromptChar&&CharFliter||Trad_Mode~="off"&&!PromptChar&&CharFliter)
 						SQL:="SELECT aim_chars,B_Key,E_Key,F_Key FROM(SELECT aim_chars,B_Key,E_Key,F_Key FROM ci where A_Key ='" input "' AND Length(aim_chars)>1 AND B_Key >0 ORDER BY A_Key,B_Key DESC) UNION ALL SELECT aim_chars,B_Key,E_Key,F_Key FROM(SELECT aim_chars,B_Key,E_Key,F_Key FROM ci where A_Key ='" input "' AND Length(aim_chars)=1 AND aim_chars=(SELECT Chars FROM GBChars WHERE chars=aim_chars) AND B_Key >0 ORDER BY A_Key,B_Key DESC)"
 					else
 						SQL :="select aim_chars,E_Key,F_Key from ci WHERE A_Key ='" input "' AND B_Key >0 ORDER BY A_Key,B_Key DESC;"
