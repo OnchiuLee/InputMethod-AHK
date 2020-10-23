@@ -493,12 +493,16 @@ TransformCiku:
 		If (FileContents<>"")
 		{
 			startTime:= CheckTickCount()
-			If !TranCiku(FileContents)
+			Progress, M ZH-1 ZW-1 Y100 FM11 W420 C0 FM14 WS700 CTffffff CW0078d7,, 正在轉換碼錶格式。。。, 碼表轉換
+			If (!TranCiku(FileContents)) {
+				Progress, off
 				MsgBox, 262192, 码表转换, 词库格式不支持！, 8
-			else{
+			}else{
+				Progress, off
 				MsgBox, 262208, 码表转换,% "转换完成耗时" CheckTickCount(startTime), 15
 			}
 			FileContents:=""
+			Progress, off
 		}
 	}
 Return
