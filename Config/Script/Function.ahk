@@ -2851,8 +2851,8 @@ FocusGdipGui(codetext, Textobj, x:=0, y:=0, Font:="Microsoft YaHei UI"){
 	Gdip_FillRoundedRectangle(G, pBrush[Bg], 0, 0, mw-2, mh-2, Radius~="i)on"?Gdip_Radius:0)
 	; 编码
 	if (Gdip_Line ~="i)off")
-		Gdip_FillRoundedRectangle(G, pBrush[FocusCode], Textobj.length()>0?FontSize*0.3:FontSize*0.18, FontSize/5, Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[3]+(Textobj.Length()>0?Strlen(codetext):0), Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[4], FocusRadius*0.6)
-	CreateRectF(RC, Textobj.length()>0?CodePos[1]:CodePos[1]-FontSize/4, CodePos[2]-FontSize*(srf_all_Input~="[a-z0-9]"?0.12:-0.1), w-30, h-30), Gdip_DrawString(G, codetext, hFont, hFormat, pBrush[FontCode], RC)
+		Gdip_FillRoundedRectangle(G, pBrush[FocusCode], Textobj.length()>0?FontSize*0.3:FontSize*0.18, FontSize/4, Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[3]+(Textobj.Length()>0?Strlen(codetext):0), Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[4], FocusRadius*0.6)
+	CreateRectF(RC, Textobj.length()>0?CodePos[1]:CodePos[1]-FontSize/4, CodePos[2]-FontSize*0.1, w-30, h-30), Gdip_DrawString(G, codetext, hFont, hFormat, pBrush[FontCode], RC)
 	Loop % Textobj.Length()
 		If (A_Index=localpos){
 			Gdip_FillRoundedRectangle(G, pBrush[FocusBack], TPosObj[A_Index,1]-FontSize*0.15, TPosObj[A_Index,2]-FontSize*0.1, srf_all_Input~="\d"?TPosObj[A_Index,3]+FontSize*0.35:TPosObj[A_Index,3]-FontSize*0.2, TPosObj[A_Index,4]+FontSize*0.65, FocusRadius)  ;焦点背景圆弧

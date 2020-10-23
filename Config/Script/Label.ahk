@@ -135,7 +135,7 @@ SetHotkey:
 	If Logo_Switch~="i)on"
 		Gosub RestLogo
 	if !srf_mode
-		UpperScreenMode( RegExReplace(srf_all_input,"\'","") )
+		UpperScreenMode( RegExReplace(srf_all_input,"\'|\``") )
 	If Logo_Switch~="i)on"
 		Gosub Write_Pos
 	Gosub Get_IME
@@ -177,11 +177,13 @@ Return
 
 ;logo开关
 Logo_Switch:
-	Logo_Switch :=WubiIni.Settings["Logo_Switch"] :=Logo_Switch~="i)off"?"on":"off", WubiIni.save()
+	Logo_Switch :=WubiIni.Settings["Logo_Switch"] :=Logo_Switch="off"?"on":"off", WubiIni.save()
 	if Logo_Switch ~="i)off"{
+		Menu, More, Rename, 隐藏状态条 , 显示状态条
 		Gui, SrfTip:Destroy
 		Gui, logo:Destroy
 	}else{
+		Menu, More, Rename, 显示状态条 , 隐藏状态条
 		Gosub ShowSrfTip
 	}
 Return
@@ -396,8 +398,8 @@ TRAY_Menu:
 	Menu, More, Add, 划译反查,SetRlk
 	Menu, More, Icon, 划译反查, shell32.dll, % rlk_switch?145:134
 	Menu, More, Add
-	Menu, More, Add, 五笔拆分,Cut_Mode
-	Menu, More, Icon, 五笔拆分, shell32.dll, % Cut_Mode~="i)on"?145:222
+	Menu, More, Add,% Cut_Mode="on"?"隐藏拆分":"显示拆分",Cut_Mode
+	Menu, More, Icon, % Cut_Mode="on"?"隐藏拆分":"显示拆分", shell32.dll, 222
 	Menu, More, Add,
 	Menu, More, Add, 候选框,:ToolTipStyle
 	Menu, More, Icon, 候选框, shell32.dll, 81
@@ -405,11 +407,11 @@ TRAY_Menu:
 		Menu, More, Disable, 批量造词
 	Menu, More, Icon, 批量造词, shell32.dll, 281
 	Menu, More, Add,
-	Menu, More, Add, 指示器,Logo_Switch
-	Menu, More, Icon, 指示器, shell32.dll, % Logo_Switch~="i)on"?145:141
+	Menu, More, Add, % Logo_Switch="on"?"隐藏状态条":"显示状态条",Logo_Switch
+	Menu, More, Icon, % Logo_Switch="on"?"隐藏状态条":"显示状态条", shell32.dll, 141
 	Menu, More, Add
-	Menu, More, Add, 初始化,Initialize
-	Menu, More, Icon, 初始化, shell32.dll, 236
+	Menu, More, Add, 初始化配置,Initialize
+	Menu, More, Icon, 初始化配置, shell32.dll, 236
 	Menu, Tray, Add, 更多,:More
 	Menu, Tray, Icon, 更多, shell32.dll, 266
 	Menu, Tray, Add
@@ -579,7 +581,10 @@ OnSuspend:
 return
 
 OnUpdate:
-	Run *RunAs "%A_AhkPath%" /restart "Config\Script\CheckUpdate.ahk"
+	If FileExist("Config\Script\CheckUpdate.ahk")
+		Run *RunAs "%A_AhkPath%" /restart "Config\Script\CheckUpdate.ahk"
+	else
+		MsgBox, 262160, 错误, %A_ScriptDir%\Config\Script\CheckUpdate.ahk执行脚本不存在！, 10
 Return
 
 RemoveFonts:
@@ -2729,10 +2734,10 @@ ciku12:
 Return
 
 ciku13:
-	If FileExist("Config\Script\KeepCikuFullcode.ahk") {
-		Run *RunAs "%A_AhkPath%" /restart "Config\Script\KeepCikuFullcode.ahk"
+	If FileExist("Config\Script\GetCikuFullcode.ahk") {
+		Run *RunAs "%A_AhkPath%" /restart "Config\Script\GetCikuFullcode.ahk"
 	}else
-		MsgBox, 262160, 错误, %A_ScriptDir%\Config\Script\KeepCikuFullcode.ahk执行脚本不存在！, 10
+		MsgBox, 262160, 错误, %A_ScriptDir%\Config\Script\GetCikuFullcode.ahk执行脚本不存在！, 10
 Return
 
 ciku2:
@@ -3910,7 +3915,7 @@ Return
 ;字根拆分
 Cut_Mode:
 	Cut_Mode :=WubiIni.Settings["Cut_Mode"] :=Cut_Mode~="i)off"?"on":"off", WubiIni.save()
-	Menu, More, Icon, 五笔拆分, shell32.dll, % Cut_Mode~="i)on"?145:222
+	Menu, More, Rename, % Cut_Mode="off"?"隐藏拆分":"显示拆分" , % Cut_Mode="off"?"显示拆分":"隐藏拆分"
 	If (Cut_Mode ~="i)on")
 		FontType :=WubiIni.TipStyle["FontType"]:="98WB-0", WubiIni.Save()
 	if srf_all_input

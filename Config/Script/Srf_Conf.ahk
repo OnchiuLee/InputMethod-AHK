@@ -145,41 +145,41 @@ Return
 		num__:=A_ThisHotkey
 	Return
 
-	`;::UpperScreenMode( srf_symblos[";",symb_mode] )
-	,::UpperScreenMode( srf_symblos[",",symb_mode] )
-	\::UpperScreenMode( srf_symblos["\",symb_mode] )
-	[::UpperScreenMode( srf_symblos["[",symb_mode] )
-	]::UpperScreenMode( srf_symblos["]",symb_mode] )
-	-::UpperScreenMode( srf_symblos["-",symb_mode] )
-	=::UpperScreenMode( srf_symblos["=",symb_mode] )
-	+,::UpperScreenMode( srf_symblos["<",symb_mode] )
-	+.::UpperScreenMode( srf_symblos[">",symb_mode] )
-	+/::UpperScreenMode( srf_symblos["?",symb_mode] )
-	+1::UpperScreenMode( srf_symblos["!",symb_mode] )
-	+2::UpperScreenMode( srf_symblos["@",symb_mode] )
-	+4::UpperScreenMode( srf_symblos["$",symb_mode] )
-	+5::UpperScreenMode( srf_symblos["%",symb_mode] )
-	+6::UpperScreenMode( srf_symblos["^",symb_mode] )
-	+7::UpperScreenMode( srf_symblos["&",symb_mode] )
-	+8::UpperScreenMode( srf_symblos["*",symb_mode] )
-	+9::UpperScreenMode( srf_symblos["(",symb_mode] )
-	+0::UpperScreenMode( srf_symblos[")",symb_mode] )
-	+;::UpperScreenMode( srf_symblos[":",symb_mode] )
-	+[::UpperScreenMode(srf_symblos["{",symb_mode] )
-	+]::UpperScreenMode( srf_symblos["}",symb_mode] )
+	`;::send % srf_symblos[";",symb_mode]
+	,::send % srf_symblos[",",symb_mode]
+	\::send % srf_symblos["\",symb_mode]
+	[::send % srf_symblos["[",symb_mode]
+	]::send % srf_symblos["]",symb_mode]
+	-::send % srf_symblos["-",symb_mode]
+	=::send % srf_symblos["=",symb_mode]
+	+,::send % srf_symblos["<",symb_mode]
+	+.::send % srf_symblos[">",symb_mode]
+	+/::send % srf_symblos["?",symb_mode]
+	+1::send % srf_symblos["!",symb_mode]
+	+2::send % srf_symblos["@",symb_mode]
+	+4::send % srf_symblos["$",symb_mode]
+	+5::send % srf_symblos["%",symb_mode]
+	+6::send % srf_symblos["^",symb_mode]
+	+7::send % srf_symblos["&",symb_mode]
+	+8::send % srf_symblos["*",symb_mode]
+	+9::send % srf_symblos["(",symb_mode]
+	+0::send % srf_symblos[")",symb_mode]
+	+;::send % srf_symblos[":",symb_mode]
+	+[::send % srf_symblos["{",symb_mode]
+	+]::send % srf_symblos["}",symb_mode]
 	'::
-		UpperScreenMode(srf_symblos["'",symb_mode])
+		send % srf_symblos["'",symb_mode]
 	return
 
 	+'::
-		UpperScreenMode(srf_symblos["""",symb_mode])
+		send % srf_symblos["""",symb_mode]
 	return
 
 	.::
 		if num__~="\d"
-			UpperScreenMode( ".")
+			UpperScreenMode(".")
 		else
-			UpperScreenMode(srf_symblos[".",symb_mode])
+			send % srf_symblos[".",symb_mode]
 		num__:=""
 	Return
 	CapsLock::
@@ -205,7 +205,7 @@ Return
 			global Sym_Array :=[[""],["·"],["～"],["☯"],["〔〕{Left}"],["の"],["❖"],["🍎"],["☁"],["•"],["℃"],["‰"],["℉"],["※"],["●"],["○"],["★"],["☆"],["©"],["√"],["×"],["№"],["％"],["≈"],["¿"],["¡"],[""],["ㄓ"]]
 			gosub srf_tooltip_fanye
 		}else{
-			UpperScreenMode(srf_symblos["``",symb_mode])
+			send % srf_symblos["``",symb_mode]
 		}
 	Return
 	NumpadDiv::
@@ -221,7 +221,7 @@ Return
 				gosub srf_tooltip_fanye
 			}
 		}else{
-			UpperScreenMode(srf_symblos["/",symb_mode])
+			send % srf_symblos["/",symb_mode]
 		}
 	Return
 	~::
@@ -229,7 +229,7 @@ Return
 			srf_all_Input .= A_ThisHotkey, select_sym:=PosLimit:=0
 			gosub srf_tooltip_fanye 
 		}else{
-			UpperScreenMode(srf_symblos["~",symb_mode])
+			send % srf_symblos["~",symb_mode]
 		}
 	Return
 return
@@ -564,7 +564,7 @@ Return
 	NumpadEnter::
 		if Select_Enter~="send"
 		{
-			UpperScreenMode( RegExReplace(srf_all_input,"\'","") )
+			UpperScreenMode( RegExReplace(srf_all_input,"\'|\``") )
 			Gosub srf_value_off
 		}
 		else
