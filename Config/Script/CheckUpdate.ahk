@@ -4,11 +4,14 @@
 Sourceurl:="https://github.com/OnchiuLee/AHK-Input-method/blob/master/Version.txt"
 IniRead, Versions, %A_Temp%\InputMethodData\Config.ini, Settings, versions
 InputMethodName:="五笔98版"
+Progress, M ZH-1 ZW-1 Y100 FM11 W420 C0 FM14 WS700 CTffffff CW0078d7,, 正在检查最新版本。。。, 检查更新
+OnMessage(0x201, "MoveProgress")
 If (!DllCall("Wininet.dll\InternetCheckConnection", "Str", Sourceurl, "UInt", 0x1, "UInt", 0x0, "Int"))
 	MsgBox, 262160, 检查更新, 网络异常！, 8
 else{
 	_sj:=StrSplit(GetVersion(Sourceurl), "@")
 	If (_sj[2]>SubStr(Versions,1,10)&&_sj.Length()) {
+		Progress, off
 		MsgBoxRenBtn("下载","打开下载页","取消")
 		MsgBox, 262723, 更新提示, 发现新版本，是否下载至电脑桌面？`n下载过程中，请该干嘛去干嘛！！！
 		IfMsgBox, Yes
@@ -25,6 +28,7 @@ else{
 	}else{
 		MsgBox, 262160, 检查更新, 检查失败！, 8
 	}
+	Progress, off
 }
 ExitApp
 

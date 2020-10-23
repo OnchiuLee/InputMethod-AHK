@@ -1177,7 +1177,7 @@ More_Setting:
 		,GBoxList3:["GBox3","SBA7","SBA26","SBA27","SBA28","SBA23","SBA24","TextInfo29","zKeySet","UIAccess","SBA6","SBA14","SBA18","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC","Cursor_Status","yaml_"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
-		,GBoxList6:["GBox6","linkinfo1","linkinfo2","versionsinfo","infos_"]}
+		,GBoxList6:["GBox6","linkinfo1","linkinfo2","linkinfo3","versionsinfo","infos_"]}
 
 	Gui, 98:Add, GroupBox,x+10 yp w400 h400 vGBox1, 主题配置
 	Gui, 98:Add, Picture,xp+100 yp+30 h-1 vthemelogo, Config\Skins\preview\默认.png
@@ -1509,6 +1509,7 @@ More_Setting:
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui,98:Add, Link, y+15 vlinkinfo1, 简介：<a href="https://wubi98.gitee.io/2020/04/27/2019-12-03-031.yours/">程序简介</a>`nGit：<a href="https://github.com/OnchiuLee/AHK-Input-method">GitHub查看</a> | <a href="https://gitee.com/leeonchiu/AHK-Input-method">Gitee查看</a>
+	Gui,98:Add, Link, y+5 glinkinfo3 vlinkinfo3, 更新：<a>点击更新</a>
 	Gui,98:Add, Link, y+5 vlinkinfo2, 关于：<a href="https://wubi98.gitee.io/">https://wubi98.gitee.io/</a>`n资源库：<a href="http://98wb.ys168.com">http://98wb.ys168.com</a>
 	Gui,98:Add, Text, y+5 vversionsinfo, 版本日期：%Versions%
 	For Section, element In TV_obj
@@ -1528,6 +1529,10 @@ Return
 ChangeWinIcon:
 	;ChangeWindowIcon(IconName_)
 	ChangeWindowIcon(A_ScriptDir "\Config\wubi98.icl",, 30)
+Return
+
+linkinfo3:
+	Gosub OnUpdate
 Return
 
 ExSty:
