@@ -3022,15 +3022,39 @@ SksSub_UrlEncode(string, enc="UTF-8") {   ;url编码
 }
 
 ; 正常字符转为Unicode编码
+;可以識別雙字節
 Char2Unicode(cnStr){
-	OldFormat := A_FormatInteger
+	OldFormat := A_FormatInteger, count:=0
 	SetFormat, Integer, Hex
-	Loop, Parse, cnStr
-		out .= "0x" . SubStr( Asc(A_LoopField), 3 )
+	Loop, % strlen(cnStr)
+	{
+		If (cnStr~=chr("0x" SubStr( Asc(SubStr(cnStr,A_index-count,2)), 3 )))
+			FieldChar:= SubStr(cnStr,A_index-count,2),count+1
+		else
+			FieldChar:= SubStr(cnStr,A_index-count,1)
+		out .= "0x" . SubStr( Asc(FieldChar), 3 ) "|"
+	}
+	SetFormat, Integer, %OldFormat%
+	Return RegExReplace(out,"\|$")
+}
+
+;可以識別雙字節
+Char2Unicode_2(cnStr){
+	OldFormat := A_FormatInteger, count:=0
+	SetFormat, Integer, Hex
+	Loop, % strlen(cnStr)
+	{
+		If (cnStr~=chr("0x" SubStr( Asc(SubStr(cnStr,A_index-count,2)), 3 )))
+			FieldChar:= SubStr(cnStr,A_index-count,2),count+1
+		else
+			FieldChar:= SubStr(cnStr,A_index-count,1)
+		out .= "\u" . SubStr( Asc(FieldChar), 3 )
+	}
 	SetFormat, Integer, %OldFormat%
 	Return out
 }
 
+/*
 Char2Unicode_2(cnStr){
 	OldFormat := A_FormatInteger
 	SetFormat, Integer, Hex
@@ -3039,7 +3063,7 @@ Char2Unicode_2(cnStr){
 	SetFormat, Integer, %OldFormat%
 	Return out
 }
-
+*/
 ;==================================================
 
 ;note: a 'UTF-8 ini file' will need a comment as the first line

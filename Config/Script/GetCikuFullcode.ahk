@@ -58,7 +58,6 @@ If (MaBiaoFile<> ""&&filename){
 				MaBiao:=Insert_ci:="",tarr:=tarr2:=[], mbObj:={}
 			}else
 				MsgBox, 262160, 错误提示, 格式不对！, 5
-			DB.CloseDB()
 		}else
 			MsgBox, 262160, 格式错误, 码表格式非「单行单义/单行多义」，导入失败！, 10
 	}
