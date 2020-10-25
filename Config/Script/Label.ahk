@@ -2250,7 +2250,7 @@ ControlGui:
 		For k,v In ["SBA12","SBA9","SBA10","SBA19","set_FocusRadius","set_FocusRadius_value"]
 			GuiControl, 98:Disable, %v%
 	}
-	For k,v In {Logo_ExStyle:"ExSty",PromptChar:"SBA24",BUyaml:"yaml_",PageShow:"SBA20",Exit_switch:"SBA22",FocusStyle:"SBA19",UIAccess:"UIAccess",symb_mode:"SBA14"}
+	For k,v In {Logo_ExStyle:"ExSty",PromptChar:"SBA24",BUyaml:"yaml_",PageShow:"SBA20",Exit_switch:"SBA22",FocusStyle:"SBA19",UIAccess:"UIAccess"}
 		If (%k%)
 			GuiControl,98:, %v% , 1
 	For k,v In ["Ctrl","Shift","Alt","LWin"]
@@ -2303,7 +2303,8 @@ ControlGui:
 		GuiControl,98:choose, zKeySet , 1
 		GuiControl, 98:Disable, SBA18
 	}
-
+	If (symb_mode=1)
+		GuiControl,98:, SBA14 , 1
 	if Initial_Mode~="i)on" {
 		GuiControl,98:choose, sChoice1 , 2
 	}else{
