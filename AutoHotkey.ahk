@@ -35,7 +35,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020102308"
+version :="2020102418"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -451,7 +451,7 @@ WM_MOUSEMOVE()
 	Tip_timer:
 		;aero_link:="C:\Windows\Cursors\aero_link.cur" ;小手
 		;aero_arrow_l:="C:\Windows\Cursors\aero_arrow_l.cur" ;箭头
-		if (A_GuiControl~="i)nextpage|uppage|MyDB|Lastpage|Toppage|Pics2|Pics3|Pics4|MoveGui"){  ;&&FileExist(aero_link)
+		if (A_GuiControl~="i)nextpage|uppage|MyDB|Lastpage|Toppage|Pics2|Pics3|Pics4|MoveGui|helpico"){  ;&&FileExist(aero_link)
 			;CursorHandle := DllCall( "LoadCursorFromFile", Str,aero_link )
 			;DllCall( "SetSystemCursor", Uint,CursorHandle, Int,32512 )
 			SetSystemCursor( "IDC_HAND" )
@@ -473,9 +473,12 @@ WM_MOUSEMOVE()
 		ToolTip
 	return
 }
-
+DefaultDate:={week:["公元年月日-周 周数"], time:["yyyy-MM-dd HH:mm:ss"],nl:["lnlylrls","干支"]}, JsonData_Date:=Json_FileToObj(A_ScriptDir "\Sync\JsonData_Date.json")
+if !ObjCount(JsonData_Date) {
+	JsonData_Date:=DefaultDate, Json_ObjToFile(JsonData_Date, A_ScriptDir "\Sync\JsonData_Date.json", "UTF-8")
+}
 ;{{{{{{应用状态管理{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
-DefaultModeData:={CN:["QQ.exe"],EN:["Notepad.exe"],CLIP:["Notepad.exe"],FormatDate:[["公元年月日-周 周数"], ["yyyy-MM-dd HH:mm:ss"]],FormatKey:["week","time","date"]}
+DefaultModeData:={CN:["QQ.exe"],EN:["Notepad.exe"],CLIP:["Notepad.exe"]}
 InputModeData:=Json_FileToObj(A_ScriptDir "\Sync\InputMode.json")
 if !ObjCount(InputModeData) {
 	InputModeData:=DefaultModeData, Json_ObjToFile(InputModeData, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
