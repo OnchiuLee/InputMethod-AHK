@@ -874,6 +874,10 @@ srf_tooltip_fanye:
 	}
 Return
 
+SendAttachChars:
+	UpperScreenMode("〔" srf_for_select_Array[PosIndex+ListNum*waitnum,2] "〕")
+Return
+
 GetkeyName(hotkey:=""){
 	if (hotkey="")
 		Return
