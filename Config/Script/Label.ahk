@@ -829,15 +829,10 @@ srf_tooltip_fanye:
 					}
 				}else If (srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3&&srf_for_select_Array.Length()<1)
 					Textdirection:="vertical", srf_for_select_Array:=get_Longword(RegExReplace(srf_all_Input,"z$|^\/"))
-				If (Array_isInValue(InputModeData["FormatKey"],SubStr(srf_all_input,2))) {
+				If objCount(JsonData_Date[SubStr(srf_all_input,2)]) {
 					Textdirection:="vertical"
-					If srf_for_select_Array.Length()>0 
-						For key,value In InputModeData["formatDate"]
-							srf_for_select_Array.InsertAt(A_Index,[ value[1]~="^[dghHmMsy]"?FormatTime("",value[1]):FormatTime(formatDate(value[1]),FormatDate(value[1],2,1))])
-					else{
-						For key,value In InputModeData["formatDate"]
-							srf_for_select_Array.Push([ value[1]~="^[dghHmMsy]"?FormatTime("",value[1]):FormatTime(formatDate(value[1]),FormatDate(value[1],2,1))])
-					}
+					For key,value In JsonData_Date[SubStr(srf_all_input,2)]
+						srf_for_select_Array.InsertAt(A_Index,[ value~="^[dghHmMsy]"?FormatTime("",value):FormatTime(formatDate(value),FormatDate(value,2,1))])
 				}
 			}
 		}else{
@@ -3057,31 +3052,33 @@ format_Date:
 	ImageButton.Create(DnBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	ImageButton.Create(DELBT, [6, 0x80404040, 0xC0C0C0, "Red"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, Date:Font, s9 , %Font_%
-	Gui, Date:Add, ListView,x+6 ym r10 w450 Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 -Multi 0x8 LV0x40 -LV0x10 gSetsj vSetsj hwndSJLV, 格式列|效果预览列
+	Gui, Date:Add, ListView,x+6 ym r10 w530 Grid AltSubmit NoSortHdr NoSort -Readonly -Multi 0x8 LV0x40 -LV0x10 gSetsj vSetsj hwndSJLV, 关键字|效果预览|编码 
 	SysGet, CXVSCROLL, 2
-	LV_ModifyCol(1,"150"), LV_ModifyCol(2,300-CXVSCROLL)
-	For Section,element In InputModeData["FormatDate"]
-		If element[1]
-			LV_Add(A_Index=1?"select":"",element[1],element[1]~="^[dghHmMsy]"?FormatTime("",element[1]):FormatTime(element[1],FormatTime(formatDate(element[1]),FormatDate(element[1],2,1))))
+	For Section,element In JsonData_Date
+	{
+		If objCount(element)
+			For key,value In element
+				LV_Add(A_Index=1?"select":"",value,value~="^[dghHmMsy]"?FormatTime("",value):FormatTime(value,FormatTime(formatDate(value),FormatDate(value,2,1))),Section)
+	}
+	LV_ModifyCol(1,150), LV_ModifyCol(2,300), LV_ModifyCol(3,80-CXVSCROLL " Center")
+	SJLVLIST := New LV_InCellEdit(SJLV)
+	SJLVLIST.SetColumns(1, 3)
+	ICELV2.OnMessage()
 	Gui, Date:Font, s9 norm, %Font_%
-	Gui, Date:Add,text,xm,输入字符设定：
-	Gui, Date:Add, Edit,x+2 R1 w320 vSettKey WantTab hWndSetKey
-	Gui, Date:Add, Button,x+5 gReloadSJ vReloadSJ hWndRSBT, 刷新
-	Gui, Date:Add, CheckBox,x+8 yp+4 vGzType gGzType Checked%GzType%,
-	Gui, Date:Add,text,xm,时间格式设定：
-	Gui, Date:Add, Edit,x+2 R1 w320 vSettime WantTab hWndSettime
-	Loop,% objCount(InputModeData["FormatKey"])
-		FormatKey.="/" InputModeData["FormatKey",A_Index]
-	EM_SetCueBanner(SetKey, "当前值：" FormatKey "【多个字段以/分离】")
-	EM_SetCueBanner(Settime, "格式：公元年(ln)月日-周 周数 ")
+	Gui, Date:Add, Edit, R1 w60 vSettKey -Wrap -WantReturn Lowercase -WantTab hWndSetKey
+	Gui, Date:Add, Edit,x+8 R1 w320 vSettime -Wrap -WantTab hWndSettime
 	Gui, Date:Add, Button,x+5 gSaveSJ vSaveSJ hWndSSBT, 添加
-	Gui, Date:Add, Picture,x+5 yp+4 w18 h-1 BackgroundTrans Icon155 vhelpico ghelpico, shell32.dll
+	Gui, Date:Add, Button,x+5 gReloadSJ vReloadSJ hWndRSBT, 刷新
+	Gui, Date:Add, Picture,x+5 yp+2 w18 h-1 BackgroundTrans Icon155 vhelpico ghelpico, shell32.dll
+	Gui, Date:Add, CheckBox,x+15 yp+2 vGzType gGzType Checked%GzType%,
+	EM_SetCueBanner(SetKey, "编码")
+	EM_SetCueBanner(Settime, "示例格式：公元年(ln)月日-周 周数 ")
 	ImageButton.Create(SSBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	ImageButton.Create(RSBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	Gui, Date:Add,StatusBar,,输出以/+编码、双击删除行
+	Gui, Date:Add,StatusBar,, ❖ 输出以/+编码、双击更改列值、编码或关键字任意一列置空则执行删除操作！
 	Gui, Date:Show,AutoSize,时间格式输出设定
 	Gosub ChangeWinIcon
-	ControlFocus , Edit2, A
+	ControlFocus , Edit1, A
 Return
 
 DateGuiClose:
@@ -3100,66 +3097,66 @@ GzType:
 Return
 
 UpLine:
-	RowNum := 0, SelectLine:=0, Text:=Text_1:="", FormatDate:=[]
+	RowNum := 0, SelectLine:=0, Text:=Text_1:=Text_1_3:=Text1_3:=""
 	Loop % LV_GetCount()+1
 	{
 		RowNum := LV_GetNext(RowNum)
 		if not RowNum
 			break
-		LV_GetText(Text, RowNum), LV_GetText(Text_1, RowNum-1), SelectLine:=RowNum
+		LV_GetText(Text, RowNum),LV_GetText(Text1_3, RowNum,3), LV_GetText(Text_1, RowNum-1), LV_GetText(Text_1_3, RowNum-1,3), SelectLine:=RowNum
 	}
-	If (SelectLine>1) {
-		GuiControl, date:Enable,UpLine
-		If (SelectLine=LV_GetCount())
-			GuiControl, date:Disable,DnLine
-		else
-			GuiControl, date:Enable,DnLine
-		If (SelectLine<3)
-			GuiControl, date:Disable,UpLine
-		else
+	If (Text1_3=Text_1_3) {
+		If (SelectLine>1) {
 			GuiControl, date:Enable,UpLine
-		LV_Modify(SelectLine-1 , "Select Focus", Text, Text~="^[dghHmMsy]"?FormatTime("",Text):FormatTime(Text,FormatTime(formatDate(Text),FormatDate(Text,2,1))))
-		LV_Modify(SelectLine , "", Text_1, Text_1~="^[dghHmMsy]"?FormatTime("",Text_1):FormatTime(Text_1,FormatTime(formatDate(Text_1),FormatDate(Text_1,2,1))))
-		Loop,% LV_GetCount() 
-			LV_GetText(LineValue,A_Index), FormatDate.Push([LineValue])
-		If (FormatDate.Length()=LV_GetCount())
-			InputModeData["FormatDate"]:=FormatDate, Json_ObjToFile(InputModeData, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
-	}else{
-		GuiControl, date:Disable,UpLine
-		GuiControl, date:Enable,DnLine
+			If (SelectLine=LV_GetCount())
+				GuiControl, date:Disable,DnLine
+			else
+				GuiControl, date:Enable,DnLine
+			If (SelectLine<3)
+				GuiControl, date:Disable,UpLine
+			else
+				GuiControl, date:Enable,UpLine
+			LV_Modify(SelectLine-1 , "Select Focus", Text, Text~="^[dghHmMsy]"?FormatTime("",Text):FormatTime(Text,FormatTime(formatDate(Text),FormatDate(Text,2,1))),Text1_3)
+			LV_Modify(SelectLine , "", Text_1, Text_1~="^[dghHmMsy]"?FormatTime("",Text_1):FormatTime(Text_1,FormatTime(formatDate(Text_1),FormatDate(Text_1,2,1))),Text_1_3)
+			JsonData_Date[Text1_3,GetArrIndex(JsonData_Date[Text1_3],Text)] :=Text_1, JsonData_Date[Text1_3,GetArrIndex(JsonData_Date[Text1_3],Text_1)] :=Text
+			Json_ObjToFile(JsonData_Date, A_ScriptDir "\Sync\JsonData_Date.json", "UTF-8")
+		}else{
+			GuiControl, date:Disable,UpLine
+			GuiControl, date:Enable,DnLine
+		}
 	}
 Return
 
 DnLine:
-	RowNum := 0, SelectLine:=0, Text:=Text_1:="", FormatDate:=[]
+	RowNum := 0, SelectLine:=0, Text:=Text_1:=Text_1_3:=Text1_3:=""
 	Loop % LV_GetCount()+1
 	{
 		RowNum := LV_GetNext(RowNum)
 		if not RowNum
 			break
-		LV_GetText(Text, RowNum), LV_GetText(Text_1, RowNum+1), SelectLine:=RowNum
+		LV_GetText(Text, RowNum),LV_GetText(Text1_3, RowNum,3), LV_GetText(Text_1, RowNum+1),LV_GetText(Text_1_3, RowNum+1,3), SelectLine:=RowNum
 	}
-	If (SelectLine<LV_GetCount()) {
-		If (SelectLine=LV_GetCount()-1)
-			GuiControl, date:Disable,DnLine
-		else
-			GuiControl, date:Enable,DnLine
-		if SelectLine>1
+	If (Text1_3=Text_1_3) {
+		If (SelectLine<LV_GetCount()) {
+			If (SelectLine=LV_GetCount()-1)
+				GuiControl, date:Disable,DnLine
+			else
+				GuiControl, date:Enable,DnLine
+			if SelectLine>1
+				GuiControl, date:Enable,UpLine
+			LV_Modify(SelectLine+1 , "Select Focus", Text, Text~="^[dghHmMsy]"?FormatTime("",Text):FormatTime(Text,FormatTime(formatDate(Text),FormatDate(Text,2,1))),Text1_3)
+			LV_Modify(SelectLine , "", Text_1, Text_1~="^[dghHmMsy]"?FormatTime("",Text_1):FormatTime(Text_1,FormatTime(formatDate(Text_1),FormatDate(Text_1,2,1))),Text_1_3)
+			JsonData_Date[Text1_3,GetArrIndex(JsonData_Date[Text1_3],Text)] :=Text_1, JsonData_Date[Text1_3,GetArrIndex(JsonData_Date[Text1_3],Text_1)] :=Text
+			Json_ObjToFile(JsonData_Date, A_ScriptDir "\Sync\JsonData_Date.json", "UTF-8")
+		}else{
 			GuiControl, date:Enable,UpLine
-		LV_Modify(SelectLine+1 , "Select Focus", Text, Text~="^[dghHmMsy]"?FormatTime("",Text):FormatTime(Text,FormatTime(formatDate(Text),FormatDate(Text,2,1))))
-		LV_Modify(SelectLine , "", Text_1, Text_1~="^[dghHmMsy]"?FormatTime("",Text_1):FormatTime(Text_1,FormatTime(formatDate(Text_1),FormatDate(Text_1,2,1))))
-		Loop,% LV_GetCount() 
-			LV_GetText(LineValue,A_Index), FormatDate.Push([LineValue])
-		If (FormatDate.Length()=LV_GetCount())
-			InputModeData["FormatDate"]:=FormatDate, Json_ObjToFile(InputModeData, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
-	}else{
-		GuiControl, date:Enable,UpLine
-		GuiControl, date:Disable,DnLine
+			GuiControl, date:Disable,DnLine
+		}
 	}
 Return
 
 DelLine:
-	InputModeData["FormatDate"]:=[["yyyy-MM-dd HH:mm:ss"]], Json_ObjToFile(InputModeData, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
+	JsonData_Date:={}, Json_ObjToFile(JsonData_Date, A_ScriptDir "\Sync\JsonData_Date.json", "UTF-8")
 	Gosub ReloadSJ
 Return
 
@@ -3189,19 +3186,44 @@ helpico:
 		Gosub FormatInfo
 Return
 
+GetArrIndex(Arr,Chars){
+	If (!objCount(Arr)||Chars="")
+		Return 0
+	For key,value In Arr
+	{
+		If (value=Chars)
+			Return key
+	}
+	Return 0
+}
+
 Setsj:
-	if (A_GuiEvent = "DoubleClick"&&A_EventInfo) {
-		LV_GetText(LineName, A_EventInfo), LV_Delete( A_EventInfo)
-		For Section,element In InputModeData["FormatDate"]
-		{
-			If (element[1]= LineName) {
-				If (InputModeData["FormatDate"].Length()=1)
-					InputModeData["FormatDate"]:=[["yyyy-MM-dd HH:mm:ss"]]
-				else
-					InputModeData["FormatDate"].RemoveAt(Section)
+	If (A_GuiEvent == "F") {
+		If (SJLVLIST["Changed"]) {
+			For k, v In SJLVLIST.Changed    ;;v.Row   v.Col    v.Txt
+			{
+				If (v.Col=3&&objCount(JsonData_Date[v.Txt])&&v.Txt<>""){
+					If !GetArrIndex(JsonData_Date[v.Txt],formatText1)
+						JsonData_Date[v.Txt].Push(formatText1)
+					If (Index:=GetArrIndex(JsonData_Date[formatText3],formatText1))
+						JsonData_Date[formatText3].RemoveAt(Index)
+				}else If (v.Col=1&&objCount(JsonData_Date[formatText3])&&v.Txt<>"") {
+					If (Index:=GetArrIndex(JsonData_Date[formatText3],formatText1))
+						JsonData_Date[formatText3,Index]:=v.Txt
+					LV_Modify(v.Row,"text",v.Txt,v.Txt~="^[dghHmMsy]"?FormatTime("",v.Txt):FormatTime(v.Txt,FormatTime(formatDate(v.Txt),FormatDate(v.Txt,2,1))),formatText3)
+				}else If (v.Col=3&&!objCount(JsonData_Date[v.Txt])&&v.Txt<>"") {
+					JsonData_Date[v.Txt]:=[formatText1]
+					If (Index:=GetArrIndex(JsonData_Date[formatText3],formatText1))
+						JsonData_Date[formatText3].RemoveAt(Index)
+				}else If (v.Txt="") {
+					If (Index:=GetArrIndex(JsonData_Date[formatText3],formatText1))
+						JsonData_Date[formatText3].RemoveAt(Index)
+					LV_Delete(v.Row)
+				}
 			}
+			SJLVLIST.Remove("Changed")
+			Json_ObjToFile(JsonData_Date, A_ScriptDir "\Sync\JsonData_Date.json", "UTF-8")
 		}
-		Json_ObjToFile(InputModeData, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
 	}else if (A_GuiEvent = "Normal"&&A_EventInfo) {
 		If (A_EventInfo=1)
 			GuiControl, Date:Disable,UpLine
@@ -3211,35 +3233,48 @@ Setsj:
 			GuiControl, Date:Disable,DnLine
 		else
 			GuiControl, Date:Enable,DnLine
+	}else if (A_GuiEvent = "DoubleClick"&&A_EventInfo) {
+		LV_GetText(formatText1,A_EventInfo,1), LV_GetText(formatText3,A_EventInfo,3)
 	}
 Return
 
 ReloadSJ:
 	LV_Delete()
-	For Section,element In InputModeData["FormatDate"]
-		If element[1]
-			LV_Add(A_Index=1?"select":"",element[1],element[1]~="^[dghHmMsy]"?FormatTime("",element[1]):FormatTime(element[1],FormatTime(formatDate(element[1]),FormatDate(element[1],2,1))))
-	Loop,% objCount(InputModeData["FormatKey"])
-		FormatKey.="/" InputModeData["FormatKey",A_Index]
-	EM_SetCueBanner(SetKey, "当前值：" FormatKey "【多个字段以/分离】")
+	For Section,element In JsonData_Date
+	{
+		If objCount(element)
+			For key,value In element
+				LV_Add(A_Index=1?"select":"",value,value~="^[dghHmMsy]"?FormatTime("",value):FormatTime(value,FormatTime(formatDate(value),FormatDate(value,2,1))),Section)
+	}
+	ControlFocus , Edit1, A
 Return
 
 SaveSJ:
 	GuiControlGet, Settime,, Settime, text
-	GuiControlGet, SettKey,, SettKey, text
-	If (Settime||SettKey) {
-		If (Settime<>"") {
+	GuiControlGet, Keys,, SettKey, text
+	Keys:=RegExReplace(Keys,"\t|\s|\n")
+	If (Settime&&Keys~="[a-z]") {
+		If (!GetArrIndex(JsonData_Date[Keys],Settime)) {
 			FTime:= Settime~="^[dghHmMsy]"?FormatTime("",Settime):FormatTime(formatDate(Settime),FormatDate(Settime,2,1))
-			LV_Add("",Settime,FTime), InputModeData["FormatDate"].Push([Settime])
-			GuiControl,date:,Settime,
-		}
-		If (SettKey<>"") {
-			InputModeData["FormatKey"]:=StrSplit(SettKey,"/")
+			LV_Add("",Settime,FTime,Keys)
+			If objCount(JsonData_Date[Keys])
+				JsonData_Date[Keys].Push(Settime)
+			else
+				JsonData_Date[Keys]:=[Settime]
+			;;PrintObjects(JsonData_Date)
 			GuiControl,date:,SettKey,
-			EM_SetCueBanner(SetKey, "当前值：" SettKey "【多个字段以/分离】")
-		}
-		Json_ObjToFile(InputModeData, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
-	}
+			GuiControl,date:,Settime,
+			ControlFocus , Edit1, A
+			Json_ObjToFile(JsonData_Date, A_ScriptDir "\Sync\JsonData_Date.json", "UTF-8")
+		}else
+			MsgBox, 262160, 错误提示, 参数已存在！
+	}else If (Settime&&not Keys~="[a-z]")
+		MsgBox, 262160, 错误提示, 编码格式不支持！
+	else If (!Settime&&Keys~="[a-z]")
+		MsgBox, 262160, 错误提示, 时间格式关键字不能为空！
+	else If (!Settime&&not Keys~="[a-z]")
+		MsgBox, 262160, 错误提示, 不符合添加条件！
+	ControlFocus , Edit1, A
 Return
 
 SBA9:
@@ -3407,12 +3442,13 @@ Sym_Gui:
 	Gui, Sym:Add,Button,x+10 yp gShowSymList vShowSymList hWndSSLBT,符号列表
 	ImageButton.Create(SSLBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, Sym:Font, s10 underline, %Font_%
-	Gui, Sym:Add, CheckBox,x+10 yp+5 h20 vHL gHiddenCol1ListView, 更改（首列禁止修改！）
+	Gui, Sym:Add, CheckBox,x+10 yp+5 h20 vHL gHiddenCol1ListView, 更改
 	Gui, Sym:Font, s10 norm, %Font_%
 	Gui, Sym:Add, ListView, xm y+10 w320 Grid NoSortHdr NoSort -WantF2 r15 gSubLV2 hwndHLV2 AltSubmit vLV2, 基础|英文标点|中文标点
 	Gosub Insert_sym
 	LV_ModifyCol(1, "60 Center"), LV_ModifyCol(2, "120 Center"), LV_ModifyCol(3, "120 Center")
 	ICELV2 := New LV_InCellEdit(HLV2, True, True)
+	ICELV2.SetColumns(2, 3)
 	ICELV2.OnMessage(False)
 	Gui, Sym:Margin, 10, 10
 	Gui, Sym:Color,ffffff
@@ -3455,11 +3491,11 @@ SubLV2:
 			RowN:=ICELV2["Changed"][1,"Row"], ColN:=ICELV2["Changed"][1,"Col"]
 			GetValue:=ICELV2["Changed"][1,"Txt"]
 			srf_symblos[keys,ColN-1]:=GetValue?GetValue:Default_symblos[keys,ColN-1]
-			;ToolTip, % srf_symblos[keys,ColN-1] 
 			ICELV2.Remove("Changed")
 			Json_ObjToFile(srf_symblos, "Sync\srf_symblos.json")
 		}
-	}
+	}else if (A_GuiEvent="DoubleClick"&&A_EventInfo)
+		LV_GetText(keys,A_EventInfo)
 Return
 
 ShowSymList:

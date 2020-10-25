@@ -738,6 +738,7 @@ srf_select(list_num,thishotkey:=""){
 	If (selectvalue~="\\n|\\t"&&srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>2&&!IsLabel(selectvalue), selectvalue_:="") {
 		selectvalue_:= TranSelectvalue(selectvalue), selectvalue:=srf_for_select_Array[list_num+ListNum*waitnum,1] "`r`n" srf_for_select_Array[list_num+ListNum*waitnum,Cut_Mode~="on"?2:3] "`r`n" selectvalue_
 	}
+	selectvalue:=selectvalue~="^\〔"?srf_for_select_Array[list_num+ListNum*waitnum,1]:selectvalue
 	UpperScreenMode(selectvalue)
 	if (Frequency&&Prompt_Word~="off"&&Trad_Mode~="off"&&Wubi_Schema~="i)ci"&&list_num>1&&srf_all_Input~="^[a-y]+$"&&srf_for_select_Array.Length()>1&&!EN_Mode){
 		if (Frequency_obj[selectvalue,1]&&Frequency_obj[selectvalue,2]=srf_all_Input) {

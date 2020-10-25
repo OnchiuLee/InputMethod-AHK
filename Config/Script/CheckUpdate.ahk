@@ -24,8 +24,10 @@ else{
 		}else IfMsgBox, Cancel
 			ExitApp
 	}else If (_sj[2]<=SubStr(Versions,1,10)&&_sj.Length()) {
+		Progress, off
 		MsgBox, 262208, 检查更新, 已是最新版！, 8
 	}else{
+		Progress, off
 		MsgBox, 262160, 检查更新, 检查失败！, 8
 	}
 	Progress, off
