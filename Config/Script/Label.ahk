@@ -691,7 +691,7 @@ srf_tooltip:
 		}
 		else if (StrLen(srf_all_input)>4&&srf_all_input ~="^[a-yA-Y]+$") ;五码顶字上屏，排除编码含z的拼音反查
 		{
-			srf_for_select_for_tooltip:=RegExReplace(srf_for_select_for_tooltip,"\s.+|\n.+|^\w+\.")
+			srf_for_select_for_tooltip:=RegExReplace(srf_for_select_for_tooltip,"\s.+|\n.+|^\w+\.|\〔.+")
 			UpperScreenMode(StrSplit(srf_for_select_for_tooltip,Textdirection ~="i)vertical"?"`n":A_Space)[1])
 			srf_all_input :=RegExReplace(srf_all_input, "^[a-zA-Z]{4}", ""), updateRecent(srf_for_select_for_tooltip)
 			Gosub srf_tooltip_fanye
@@ -1128,6 +1128,7 @@ More_Setting:
 	Menu, ImportCiku, Add, 特殊符号导入, ciku5
 	Menu, ImportCiku, Add, 读音词库导入, ciku10
 	Menu, ImportCiku, Add, 造词源表导入, ciku12
+	Menu, ImportCiku, Add, 拆分源表导入, ciku14
 	Menu, ImportCiku, Add, 笔画码表导入, Write_Strocke
 	Menu, ImportCiku, Disable, 笔画码表导入
 	Menu, MainMenu, Add, 词库导入, :ImportCiku
@@ -2741,6 +2742,13 @@ ciku12:
 		Run *RunAs "%A_AhkPath%" /restart "Config\Script\EtymologyTable.ahk"
 	}else
 		MsgBox, 262160, 错误, %A_ScriptDir%\Config\Script\EtymologyTable.ahk执行脚本不存在！, 10
+Return
+
+ciku14:
+	If FileExist("Config\Script\ImportEtymology.ahk") {
+		Run *RunAs "%A_AhkPath%" /restart "Config\Script\ImportEtymology.ahk"
+	}else
+		MsgBox, 262160, 错误, %A_ScriptDir%\Config\Script\ImportEtymology.ahk执行脚本不存在！, 10
 Return
 
 ciku13:

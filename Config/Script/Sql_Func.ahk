@@ -730,7 +730,7 @@ srf_select(list_num,thishotkey:=""){
 	If (list_num>ListNum||list_num=0||list_num>srf_for_select_Array.Length())
 		Return
 	list_num:= localpos>1&&ToolTipStyle~="i)gdip"&&FocusStyle&&thishotkey~="i)space"?localpos:list_num
-	selectvalue:=labelObj.Length()&&IsLabel(labelObj[list_num])?labelObj[list_num]:srf_for_select_Array[list_num+ListNum*waitnum,(srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3?(Cut_Mode~="on"?3:2):1)]
+	selectvalue:=objCount(labelObj)&&IsLabel(labelObj[list_num])?labelObj[list_num]:srf_for_select_Array[list_num+ListNum*waitnum,(srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3?(Cut_Mode~="on"?3:2):1)]
 	If SwitchingScheme(list_num,selectvalue) {
 		Gosub srf_value_off
 		Return
