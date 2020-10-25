@@ -374,7 +374,8 @@ WM_LBUTTONDOWN(){
 }
 
 WM_RBUTTONDOWN(){
-	global Wubi_Schema, ToolTipStyle, FocusStyle, PosIndex, srf_for_select_Array, Trad_Mode, Prompt_Word, srf_all_input, ListNum, TPosObj, waitnum, Logo_X, Logo_Y, Tip1hWnd, Tip2hWnd
+	global Wubi_Schema, ToolTipStyle, FocusStyle, PosIndex, srf_for_select_Array, Trad_Mode, Prompt_Word, StyleN
+		, srf_all_input, ListNum, TPosObj, waitnum, Logo_X, Logo_Y, Tip1hWnd, Tip2hWnd, Cut_Mode
 	PosIndex:=0
 	If (A_Gui="logo"||A_Gui="SrfTip"||A_Gui="TSF"&&!FocusStyle||A_Gui="houxuankuang"||Hex_Dec(WinExist("A"))=Tip2hWnd||A_Gui="TSF"&&not Wubi_Schema~="i)ci"&&FocusStyle||A_Gui="TSF"&&Trad_Mode~="i)on"||A_Gui="TSF"&&Prompt_Word~="i)on"){
 		Menu, TRAY, Show
@@ -384,29 +385,32 @@ WM_RBUTTONDOWN(){
 		PosIndex := TSFCheckClickPos(FX,FY)
 		if (PosIndex>0&&PosIndex<ListNum+1)
 		{
-			Menu, selectmenu, Add, 置顶, set_top   ; +Break
-			Menu, selectmenu, Icon, 置顶, config\wubi98.icl, 36
-			Menu, selectmenu, Add, 前移, set_add   ; +Break
-			Menu, selectmenu, Icon, 前移, config\wubi98.icl, 37
+			Menu, selectmenu, Add, 置顶词条, set_top   ; +Break
+			Menu, selectmenu, Icon, 置顶词条, config\wubi98.icl, 36
+			Menu, selectmenu, Add, 上屏拆分, SendAttachChars
+			Menu, selectmenu, Icon, 上屏拆分,config\Skins\logoStyle\%StyleN%.icl,9
+			Menu, selectmenu, Add, 前移一位, set_add   ; +Break
+			Menu, selectmenu, Icon, 前移一位, config\wubi98.icl, 37
 			if ((PosIndex+ListNum*waitnum)=1){
-				Menu, selectmenu, Disable, 置顶
-				Menu, selectmenu, Disable, 前移
+				Menu, selectmenu, Disable, 置顶词条
+				Menu, selectmenu, Disable, 前移一位
 			}else{
-				Menu, selectmenu, Enable, 置顶
-				Menu, selectmenu, Enable, 前移
+				Menu, selectmenu, Enable, 置顶词条
+				Menu, selectmenu, Enable, 前移一位
 			}
-			Menu, selectmenu, Add, 后移, set_next   ; +Break
-			Menu, selectmenu, Icon, 后移, config\wubi98.icl, 38
+			Menu, selectmenu, Add, 后移一位, set_next   ; +Break
+			Menu, selectmenu, Icon, 后移一位, config\wubi98.icl, 38
 			if (srf_for_select_Array.length()=(PosIndex+ListNum*waitnum))
-				Menu, selectmenu, Disable, 后移
+				Menu, selectmenu, Disable, 后移一位
 			else
-				Menu, selectmenu, Enable, 后移
-			Menu, selectmenu, Add, 删除, Delete_Word   ; +Break
-			Menu, selectmenu, Icon, 删除, config\wubi98.icl, 39
+				Menu, selectmenu, Enable, 后移一位
+			Menu, selectmenu, Add, 删除词条, Delete_Word   ; +Break
+			Menu, selectmenu, Icon, 删除词条, config\wubi98.icl, 39
 			Menu, selectmenu, color, ffffff
 			Menu, selectmenu, Show
-		}else
+		}else{
 			Menu, TRAY, Show
+		}
 	}
 }
 
