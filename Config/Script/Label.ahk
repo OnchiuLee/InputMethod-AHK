@@ -1912,31 +1912,43 @@ Label_management:
 	Gui,label:Font, s10 bold, %font_%
 	Gui label:Add, GroupBox, y+10 w500 h450 vGBox8, 标签管理
 	Gui,label:Font
-	Gui,label:Font, s10, %font_%
-	Gui, label:Add,Button,xm+15 yp+40 gDlabel vDlabel hWndDLBT, 删除
+	Gui,label:Font, s9, %font_%
+	Gui, label:Add,CheckBox,xm+15 yp+40 gDellabel vDellabel,批量`n删除
+	Gui, label:Add,Button,x+5 gDlabel vDlabel hWndDLBT, 删除
 	ImageButton.Create(DLBT, [6, 0x80404040, 0xC0C0C0, "red"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	GuiControl, label:Disable, Dlabel
-	Gui, label:Add, Button,x+5 gRlabel vRlabel hWndRLBT, 重置
+	Gui, label:Add, Button,x+15 gRestlabel vRestlabel hWndRLBT, 重置
 	ImageButton.Create(RLBT, [6, 0x80404040, 0xC0C0C0, "Red"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	Gui, label:Add, Button,x+5 gBlabel vBlabel hWndBLBT, 导出
+	Gui, label:Add, Button,x+8 gBlabel vBlabel hWndBLBT, 导出
 	ImageButton.Create(BLBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	Gui, label:Add, Button,x+5 gWlabel vWlabel hWndWLBT, 导入
+	Gui, label:Add, Button,x+8 gWlabel vWlabel hWndWLBT, 导入
 	ImageButton.Create(WLBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	Gui, label:Add, Button,x+5 gUlabel vUlabel hWndULBT, 编辑
-	ImageButton.Create(ULBT, [6, 0x80404040, 0xC0C0C0, "green"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	Gui, label:Add, Edit, x+5 R1 w65 vSetlabel WantTab hWndLEdit
-	Gui, label:Add, Button,x+5 gSavelabel vSavelabel hWndSLBT, 确定
+	Gui, label:Add, Button,x+8 gReloadlabel vReloadlabel hWndSLBT, 刷新
 	ImageButton.Create(SLBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	GuiControl, label:Hide, Setlabel
-	GuiControl, label:Hide, Savelabel
-	Gui,label:Font
-	Gui,label:Font, s9, %font_%
-	Gui, label:Add, ListView,xm+15 y+15 h350 w470 Grid AltSubmit NoSortHdr NoSort -WantF2 Checked -ReadOnly -Multi 0x8 LV0x40 -LV0x10 gMyLabel vMyLabel hwndHLV, 别名|标签名|标签说明
+	Gui, label:Add, text,x+20 yp+2 w150 cred vupdatetip,
+	Gui, label:Add, ListView,xm+15 y+20 h350 w450 Grid AltSubmit NoSortHdr NoSort -ReadOnly -Multi 0x8 LV0x40 -LV0x10 gMyLabel vMyLabel hwndHLV, 别名|标签名|标签说明
 	GuiControl, +Hdr, MyLabel
 	Gosub Glabel
+	labellv := New LV_InCellEdit(HLV)
+	labellv.SetColumns(1, 3)
+	labellv.OnMessage()
 	Gui, label:Color,ffffff
+	Gui, label:add,StatusBar,,❖ 双击修改，勾选批量删除，/+标签别名 执行标签！
 	Gui, label:Show,AutoSize, 标签管理
 	Gosub ChangeWinIcon
+Return
+
+Reloadlabel:
+	LV_Delete()
+	Gosub Glabel
+Return
+
+Dellabel:
+	GuiControlGet, Dellabel ,, Dellabel, Checkbox
+	If Dellabel
+		GuiControl +Checked, MyLabel
+	else
+		GuiControl -Checked, MyLabel
 Return
 
 Glabel:
@@ -1944,9 +1956,9 @@ Glabel:
 		loop, % Result.RowCount
 		{
 			If islabel(Result.Rows[A_index,3])
-				LV_Add("", Result.Rows[A_index,2], Result.Rows[A_index,3],SubStr(Result.Rows[A_index,4],2))    ;, LV_ModifyCol()
+				LV_Add("", Result.Rows[A_index,2], Result.Rows[A_index,3],Result.Rows[A_index,4])    ;, LV_ModifyCol()
 		}
-		LV_ModifyCol(1,"80 left")
+		LV_ModifyCol(1,"60 Center")
 		LV_ModifyCol(2,"180 left")
 		LV_ModifyCol(3,"190 left")
 		;;CLV := New LV_Colors(HLV)
@@ -1955,36 +1967,63 @@ Glabel:
 Return
 
 MyLabel:
-	if (A_GuiEvent = "Normal")
-	{
-		LV_GetText(labelName, A_EventInfo), posInfo:=A_EventInfo
-		GuiControlGet, LsVar, label:Visible , Setlabel
+	If (A_GuiEvent == "F") {
+		If (labellv["Changed"]) {
+			For k, v In labellv.Changed    ;;v.Row   v.Col    v.Txt
+			{
+				If (v.Col=1&&v.Txt){
+					if DB.Exec("UPDATE 'extend'.'label' SET B_Key ='" v.Txt "' WHERE C_Key ='" labelText2 "' AND B_Key ='" labelText1 "';")>0
+					{
+						DB.gettable("select B_Key from 'extend'.'label' WHERE C_Key ='" labelText2 "' AND D_Key ='" labelText3 "';",Result)
+						If (Result.Rows[1,1]=v.txt) {
+							GuiControl,label:,updatetip,修改成功！
+							Sleep 2500
+							GuiControl,label:,updatetip,
+						}else{
+							LV_Modify(v.Row,"text",labelText1,labelText2,labelText3)
+							GuiControl,label:,updatetip,修改失败！
+							Sleep 2500
+							GuiControl,label:,updatetip,
+						}
+					}
+				}else If (v.Col=3&&v.Txt) {
+					if DB.Exec("UPDATE 'extend'.'label' SET D_Key ='" v.Txt "' WHERE C_Key ='" labelText2 "' AND D_Key ='" labelText3 "';")>0
+					{
+						DB.gettable("SELECT D_Key FROM 'extend'.'label' WHERE C_Key ='" labelText2 "' AND B_Key ='" labelText1 "'",Result)
+						If (Result.Rows[1,1]=v.txt) {
+							GuiControl,label:,updatetip,修改成功！
+							Sleep 2500
+							GuiControl,label:,updatetip,
+						}else{
+							LV_Modify(v.Row,"text",labelText1,labelText2,labelText3)
+							GuiControl,label:,updatetip,修改失败！
+							Sleep 2500
+							GuiControl,label:,updatetip,
+						}
+					}
+				}else If (v.Txt=""){
+					LV_Modify(v.Row,"text",labelText1,labelText2,labelText3)
+				}
+			}
+			labellv.Remove("Changed")
+		}
+	}else if (A_GuiEvent = "Normal") {
 		loop, % LV_GetCount()+1
 		{
 			if LV_GetNext( A_Index-1, "Checked" ){
 				GuiControl, label:Enable, Dlabel
-				if LsVar {
-					For k,v In ["Setlabel","Savelabel"]
-						GuiControl, label:Disable, %v%
-				}
 				break
 			}else{
 				GuiControl, label:Disable, Dlabel
-				if LsVar {
-					For k,v In ["Setlabel","Savelabel"]
-						GuiControl, label:Enable, %v%
-					GuiControl,label:, Setlabel ,
-				}
 				break
 			}
 		}
-		if LsVar
-			EM_SetCueBanner(LEdit, labelName)
-			;GuiControl,label:, Setlabel ,% labelName
+	}else if (A_GuiEvent = "DoubleClick"&&A_EventInfo) {
+		LV_GetText(labelText1,A_EventInfo,1),LV_GetText(labelText2,A_EventInfo,2), LV_GetText(labelText3,A_EventInfo,3)
 	}
 return
 
-Rlabel:
+Restlabel:
 	Gui +OwnDialogs
 	MsgBox, 262452, 提示, 是否重置所有标签?
 	IfMsgBox, Yes
@@ -2083,42 +2122,6 @@ DelLabel(deb =""){
 			++a
 	}
 }
-
-Ulabel:
-	GuiControlGet, LsVar, label:Visible , Setlabel
-	if LsVar {
-		For k,v In ["Setlabel","Savelabel"]
-			GuiControl, label:Hide, %v%
-		For k,v In ["Setlabel","Savelabel"]
-			GuiControl, label:Disable, %v%
-		GuiControl,label:, Setlabel ,
-	}else if (posInfo<>""&&!LsVar){
-		GuiControlGet, opvar, label:Enabled , Dlabel
-		For k,v In ["Setlabel","Savelabel"]
-			GuiControl, label:Show, %v%
-		ControlFocus , Edit1, A
-		EM_SetCueBanner(LEdit, labelName)
-		;GuiControl,label:, Setlabel ,% labelName
-		if opvar {
-			For k,v In ["Setlabel","Savelabel"]
-				GuiControl, label:Disable, %v%
-		}
-	}
-Return
-
-Savelabel:
-	GuiControlGet, Setlabel,, Setlabel, text
-	if (not Setlabel~="\s+"&&Setlabel<>"") {
-		if (DB.Exec("UPDATE 'extend'.'label' SET B_Key ='" Setlabel "' WHERE B_Key ='" labelName "';"))>0
-		{
-			LV_Modify(posInfo,"text",Setlabel)
-			TrayTip,, 修改成功
-		}
-		For k,v In ["Setlabel","Savelabel"]
-			GuiControl, label:Hide, %v%
-		GuiControl,label:, Setlabel ,
-	}
-Return
 
 SetInput_Mode:
 	GuiControlGet, CNMode ,, SetInput_CNMode, Checkbox
@@ -3218,19 +3221,31 @@ Setsj:
 				If (v.Col=3&&objCount(JsonData_Date[v.Txt])&&v.Txt<>""){
 					If !GetArrIndex(JsonData_Date[v.Txt],formatText1)
 						JsonData_Date[v.Txt].Push(formatText1)
-					If (Index:=GetArrIndex(JsonData_Date[formatText3],formatText1))
-						JsonData_Date[formatText3].RemoveAt(Index)
+					If (Index:=GetArrIndex(JsonData_Date[formatText3],formatText1)) {
+						If (objCount(JsonData_Date[formatText3])=1)
+							JsonData_Date.Delete(formatText3)
+						else
+							JsonData_Date[formatText3].RemoveAt(Index)
+					}
 				}else If (v.Col=1&&objCount(JsonData_Date[formatText3])&&v.Txt<>"") {
 					If (Index:=GetArrIndex(JsonData_Date[formatText3],formatText1))
 						JsonData_Date[formatText3,Index]:=v.Txt
 					LV_Modify(v.Row,"text",v.Txt,v.Txt~="^[dghHmMsy]"?FormatTime("",v.Txt):FormatTime(v.Txt,FormatTime(formatDate(v.Txt),FormatDate(v.Txt,2,1))),formatText3)
 				}else If (v.Col=3&&!objCount(JsonData_Date[v.Txt])&&v.Txt<>"") {
 					JsonData_Date[v.Txt]:=[formatText1]
-					If (Index:=GetArrIndex(JsonData_Date[formatText3],formatText1))
-						JsonData_Date[formatText3].RemoveAt(Index)
+					If (Index:=GetArrIndex(JsonData_Date[formatText3],formatText1)) {
+						If (objCount(JsonData_Date[formatText3])=1)
+							JsonData_Date.Delete(formatText3)
+						else
+							JsonData_Date[formatText3].RemoveAt(Index)
+					}
 				}else If (v.Txt="") {
-					If (Index:=GetArrIndex(JsonData_Date[formatText3],formatText1))
-						JsonData_Date[formatText3].RemoveAt(Index)
+					If (Index:=GetArrIndex(JsonData_Date[formatText3],formatText1)) {
+						If (objCount(JsonData_Date[formatText3])=1)
+							JsonData_Date.Delete(formatText3)
+						else
+							JsonData_Date[formatText3].RemoveAt(Index)
+					}
 					LV_Delete(v.Row)
 				}
 			}
