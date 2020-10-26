@@ -2007,7 +2007,7 @@ MyLabel:
 			}
 			labellv.Remove("Changed")
 		}
-	}else if (A_GuiEvent = "Normal") {
+	}else if (A_GuiEvent = "Normal"&&Dellabel) {
 		loop, % LV_GetCount()+1
 		{
 			if LV_GetNext( A_Index-1, "Checked" ){
