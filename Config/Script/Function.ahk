@@ -1996,20 +1996,15 @@ Get_Date(){
 	Return sj
 }
 
-formatChineseDate(chars){
-	if (chars="")
-		Return
-	rq:={y:{1:"一", 2:"二", 3:"三", 4:"四", 5:"五", 6:"六", 7:"七", 8:"八", 9:"九", 0:"〇"}
-		, m:{1:"一月", 2:"二月", 3:"三月", 4:"四月", 5:"五月", 6:"六月", 7:"七月", 8:"八月", 9:"九月", 10:"十月", 11:"十一月", 12:"十二月"}
-		, d:{1:"一", 2:"二", 3:"三", 4:"四", 5:"五", 6:"六", 7:"七", 8:"八", 9:"九", 10:"十", 11:"十一", 12:"十二", 13:"十三", 14:"十四", 15:"十五", 16:"十六", 17:"十七"
-			, 18:"十八", 19:"十九", 20:"二十",21:"二十一", 22:"二十二", 23:"二十三", 24:"二十四", 25:"二十五", 26:"二十六", 27:"二十七", 28:"二十八", 29:"二十九", 30:"三十", 31:"三十一"}}
-	if (Strlen(chars)>7){
-		loop, 4
-			yy .=rq.y[SubStr(chars,A_Index,1)]
-		Return yy "年" rq.m[SubStr(chars,5,2)] rq.d[SubStr(chars,7,2)] (SubStr(chars,7,2)<32&&SubStr(chars,7,2)>0?"日":"")
-	}else{
-		Return "无效数字"
-	}
+formatChineseDate(num){
+	if (not num~="\d"||strlen(num)<8)
+		Return "无效日期"
+	Arr:=["一","二","三","四","五","六","七","八","九","〇"]
+	loop,4
+		year.=Arr[substr(num,A_Index,1)>0?substr(num,A_Index,1):10]
+	month:=(substr(num,5,1)=1?"十":substr(num,5,1)>1?Arr[substr(num,5,1)] "十":"") Arr[substr(num,6,1)]
+	day:=(substr(num,7,1)=1?"十":substr(num,7,1)>1?Arr[substr(num,7,1)] "十":"") Arr[substr(num,8,1)]
+	Return year&&month&&day?year "年" month "月" day "日":""
 }
 
 Get_Time(){
