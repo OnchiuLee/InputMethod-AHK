@@ -3183,13 +3183,13 @@ FormatInfo:
 	Gui, Info: Margin,10,10
 	Gui, Info: Color,ffffff
 	Gui, Info:Font, s10 bold, %Font_%
-	Gui Info:Add, GroupBox,xm w450 h275, 格式设置说明：
+	Gui Info:Add, GroupBox,xm w450 h300, 格式设置说明：
 	Gui, Info:Font, s9 bold, %Font_%
-	Gui Info:Add, text,xm+10 yp+30 cred,中文格式：（分割符自行定义、输出以/+编码、双击删除行）
+	Gui Info:Add, text,xm+10 yp+30 cred,中文格式：（分割符自行定义、输出以/+编码、双击修改）
 	Gui, Info:Font, s8 norm, %Font_%
-	Gui Info:Add, text,y+5,年、月、日、时/点/全时/全点、分、秒、星期/周、周数、公元、ln(农历年)、ly(农历月)`n、lr(农历日)、ls(农历时辰)、节气、干支、关键字以``键转义可以不当作参数使用。
+	Gui Info:Add, text,y+5,年、月、日、时/点/全时/全点、分、秒、星期/周、周数、公元、ln(农历年)、ly(农历月)`n、lr(农历日)、ls(农历时辰)、节气、干支、中文格式(中文格式日期)`n，关键字以``键转义可以不当作参数使用。
 	Gui, Info:Font, s9 bold, %Font_%
-	Gui Info:Add, text,xm+10 y+5 cred,英文格式：（分割符自行定义、输出以/+编码、双击删除行）
+	Gui Info:Add, text,xm+10 y+5 cred,英文格式：（分割符自行定义、输出以/+编码、双击修改）
 	Gui, Info:Font, s8 norm, %Font_%
 	Gui Info:Add, text,y+5,年：【yyyy 含世纪的年份】【yy 不含世纪的年份, 含前导零】【gg 公元纪年】`n       【y 不含世纪的年份, 不含前导零】`n月：【MMMM 当前语言月份全称】【MMM 当前语言月份简称】【MM 含前导零】`n       【M 不含前导零】`n日：【dddd 当前语言星期全称】【ddd 当前语言星期简称】【dd 含前导零】`n       【d 不含前导零】`n时：【hh 含前导零12小时制】【h 不含前导零12小时制】【HH 含前导零24小时制】`n       【H 不含前导零24小时制】`n分：【mm 含前导零】【m 不含前导零】`n秒：【ss 含前导零】【s 不含前导零】
 	InfoWidth:=A_ScreenWidth/2-600

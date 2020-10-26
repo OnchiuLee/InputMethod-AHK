@@ -1321,7 +1321,7 @@ FormatDate(SJ,s:=0, t:=0){   ;;s=1为格式化后时间格式，s=0为源格式�
 	RegExMatch(Lunar[1],"年.+月",date1), LunarMon:=substr(Date1,2,-1), RegExMatch(Lunar[1],"月.+",date2), LunarDay:=substr(Date2,2)
 	FormatObj:={sj1:[["年"," A_YYYY "],["月"," A_MMM "], ["日"," A_DD "], ["全时"," A_Hour "], ["时"," A_Hour "], ["全点"," A_Hour "], ["点"," A_Hour "], ["分"," A_Min "] ,["毫秒"," A_MSec "], ["秒"," A_Sec "], ["周数"," A_YWeek "] , ["星期"," A_DDDD "] ,["周"," A_DDD "], ["公元","gg"]]
 		, sj2:[["年","yyyy``年"],["ln",LunarYear "``年"],["月","MM``月"],["ly",LunarMon "``月"], ["lr",LunarDay],["日","d``日"],["时",t?"tthh时":"HH``时"], ["ls",SubStr(Time_GetShichen(A_Hour),1,1) "``时"], ["点",t?"tthh点":"HH``点"], ["分","mm``分"] 
-		,["毫秒"," A_MSec "], ["秒","ss``秒"] , ["周数","第" SubStr(A_YWeek, 5) "週"], ["周","ddd"], ["星期","dddd"], ["公元","gg"], ["节气",Lunar[5]],["干支",Lunar[2]],["全时","HH"],["全点","HH"],["週","周"]]}
+		,["毫秒"," A_MSec "], ["秒","ss``秒"] , ["周数","第" SubStr(A_YWeek, 5) "週"], ["周","ddd"], ["星期","dddd"], ["公元","gg"], ["节气",Lunar[5]],["干支",Lunar[2]],["全时","HH"],["全点","HH"],["週","周"],["中文格式",formatChineseDate(A_Now)]]}
 	For Section,element In FormatObj[s?"sj2":"sj1"]
 	{
 		If (SJ ~= element[1]&&not SJ ~="``" element[1]) {
@@ -1943,9 +1943,9 @@ Conv_LunarDate(date){
 		result.Push([LunarTg[2]?LunarTg[2]:"日期超限",ObjLength(LunarTg)&&strlen(LunarTg[2])>8?"〔 干支纪年 〕":"",ObjLength(LunarTg)&&strlen(LunarTg[2])>8?"〔 干支纪年 〕":""])
 	}
 	If ObjLength(LunarTg_1)
-		result.Push([ TransDate( ld ) jq,"〔 农历转公历① 〕","〔 农历转公历① 〕"]), result.Push([ LunarTg_1[2]?LunarTg_1[2]:"日期超限" ,strlen(LunarTg_1[2])>8?"〔 干支纪年① 〕":"",strlen(LunarTg_1[2])>8?"〔 干支纪年① 〕":""])
+		result.Push([ formatChineseDate( ld ) jq,"〔 农历转公历① 〕","〔 农历转公历① 〕"]), result.Push([ LunarTg_1[2]?LunarTg_1[2]:"日期超限" ,strlen(LunarTg_1[2])>8?"〔 干支纪年① 〕":"",strlen(LunarTg_1[2])>8?"〔 干支纪年① 〕":""])
 	if ObjLength(LunarTg_2)
-		result.Push([ "" TransDate( ldp) jq2,"〔 农历转公历(闰) 〕","〔 农历转公历(闰) 〕"]), result.Push([ LunarTg_2[2]?LunarTg_2[2]:"日期超限" ,strlen(LunarTg_2[2])>8?"〔 干支纪年(闰) 〕":"",strlen(LunarTg_2[2])>8?"〔 干支纪年(闰) 〕":""])
+		result.Push([ "" formatChineseDate( ldp) jq2,"〔 农历转公历(闰) 〕","〔 农历转公历(闰) 〕"]), result.Push([ LunarTg_2[2]?LunarTg_2[2]:"日期超限" ,strlen(LunarTg_2[2])>8?"〔 干支纪年(闰) 〕":"",strlen(LunarTg_2[2])>8?"〔 干支纪年(闰) 〕":""])
 	Return result
 }
 
@@ -1991,19 +1991,19 @@ Get_Date(){
 	FormatTime, RQVar2, , yyyy/MM/dd
 	FormatTime, DateVar, , ggyyyy年M月d日-dddd
 	date=%DateVar%｜第%wk%周
-	for section,element in [[TransDate(RQVar)],[date],[RQVar1],[RQVar2],[Days_Count(RQVar)]]
+	for section,element in [[formatChineseDate(RQVar)],[date],[RQVar1],[RQVar2],[Days_Count(RQVar)]]
 		sj.Push(element)
 	Return sj
 }
 
-TransDate(chars){
+formatChineseDate(chars){
 	if (chars="")
 		Return
 	rq:={y:{1:"一", 2:"二", 3:"三", 4:"四", 5:"五", 6:"六", 7:"七", 8:"八", 9:"九", 0:"〇"}
 		, m:{1:"一月", 2:"二月", 3:"三月", 4:"四月", 5:"五月", 6:"六月", 7:"七月", 8:"八月", 9:"九月", 10:"十月", 11:"十一月", 12:"十二月"}
 		, d:{1:"一", 2:"二", 3:"三", 4:"四", 5:"五", 6:"六", 7:"七", 8:"八", 9:"九", 10:"十", 11:"十一", 12:"十二", 13:"十三", 14:"十四", 15:"十五", 16:"十六", 17:"十七"
-		, 18:"十八", 19:"十九", 20:"二十",21:"二十一", 22:"二十二", 23:"二十三", 24:"二十四", 25:"二十五", 26:"二十六", 27:"二十七", 28:"二十八", 29:"二十九", 30:"三十", 31:"三十一"}}
-	if (Strlen(chars)=8){
+			, 18:"十八", 19:"十九", 20:"二十",21:"二十一", 22:"二十二", 23:"二十三", 24:"二十四", 25:"二十五", 26:"二十六", 27:"二十七", 28:"二十八", 29:"二十九", 30:"三十", 31:"三十一"}}
+	if (Strlen(chars)>7){
 		loop, 4
 			yy .=rq.y[SubStr(chars,A_Index,1)]
 		Return yy "年" rq.m[SubStr(chars,5,2)] rq.d[SubStr(chars,7,2)] (SubStr(chars,7,2)<32&&SubStr(chars,7,2)>0?"日":"")
