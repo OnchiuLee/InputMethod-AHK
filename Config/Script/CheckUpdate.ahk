@@ -9,11 +9,11 @@ OnMessage(0x201, "MoveProgress")
 If (!DllCall("Wininet.dll\InternetCheckConnection", "Str", Sourceurl, "UInt", 0x1, "UInt", 0x0, "Int"))
 	MsgBox, 262160, 检查更新, 网络异常！, 8
 else{
-	_sj:=StrSplit(GetVersion(Sourceurl), "@")
+	GetVersionInfo:=GetVersion(Sourceurl), _sj:=StrSplit(GetVersionInfo[1], "@")
 	If (_sj[2]>SubStr(Versions,1,10)&&_sj.Length()) {
 		Progress, off
 		MsgBoxRenBtn("下载","打开下载页","取消")
-		MsgBox, 262723, 更新提示, 发现新版本，是否下载至电脑桌面？`n下载过程中，请该干嘛去干嘛！！！
+		MsgBox, 262723, 更新提示, % "发现新版本>> " _sj[2] (GetVersionInfo[2]?"`n*********************************************************`n" GetVersionInfo[2] "`n*********************************************************`n":"`n") "是否下载至电脑桌面？下载过程中，请该干嘛去干嘛！！！"
 		IfMsgBox, Yes
 			UrlDownloadToFile("https://github.com/OnchiuLee/AHK-Input-method/archive/master.zip", InputMethodName "-" _sj[2] ".zip",1800)
 		else IfMsgBox, No
@@ -43,13 +43,15 @@ GetVersion(URL,Charset="",Timeout=-1)
 	WebRequest.WaitForResponse(Timeout)
 	if (Charset=""){
 		RegExMatch(WebRequest.ResponseText(), "/[a-zA-Z0-9]*@20[2-3][0-5][0-9]{6}", UpdateVersion)
-		return,UpdateVersion
+		RegExMatch(WebRequest.ResponseText(), "\〔(.*)\〕", UpdateInfo)
+		return [UpdateVersion,UpdateInfo]
 	}else{
 		ADO:=ComObjCreate("adodb.stream"), ADO.Type:=1, ADO.Mode:=3
 		ADO.Open(), ADO.Write(WebRequest.ResponseBody())
 		ADO.Position:=0, ADO.Type:=2, ADO.Charset:=Charset
 		RegExMatch(WebRequest.ResponseText(), "/[a-zA-Z0-9]*@20[2-3][0-5][0-9]{6}", UpdateVersion)
-		return,UpdateVersion
+		RegExMatch(WebRequest.ResponseText(), "\〔(.*)\〕", UpdateInfo)
+		return [UpdateVersion,UpdateInfo]
 	}
 }
 
@@ -58,7 +60,7 @@ UrlDownloadToFile(URL, FilePath:="",Timeout=-1){   ;Timeout 超时限制设置 �
 		FilePath:=Url2Decode(RegExReplace(URL,".+\/"))
 	ComObjError(1)
 	If RegExMatch(LTrim(FilePath, "\"), "(.*\\)?([^\\]+)$", FilePath){
-		Progress,B2 M ZH-1 ZW-1 Y80 W400 FM12 C0 FS14 WS700 CW0078d7 CTffffff, %FilePath%-从GitHub下载中...
+		Progress,B2 M ZH-1 ZW-1 Y80 W400 FM12 C0 FS14 WS700 CW0078d7 CTffffff, %FilePath%-下载中...
 		OnMessage(0x201, "MoveProgress")
 		If (FilePath1&&!FileExist(FilePath1)){
 			FileCreateDir, %FilePath1%
