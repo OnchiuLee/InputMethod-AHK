@@ -35,7 +35,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020102711"
+version :="2020102718"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -258,7 +258,7 @@ hk_conv(Srf_Hotkey){
 }
 if not GetKeyState(RegExReplace(Srf_Hotkey,".+\&",""))~="\d"
 	Srf_Hotkey:=RegExReplace(Srf_Hotkey,"\&.+","")
-global Srf_Hotkey_ :=hk_conv(Srf_Hotkey)
+Srf_Hotkey_ :=hk_conv(Srf_Hotkey)
 Hotkey, %Srf_Hotkey_%, SetHotkey,on
 
 tiphotkey:=tip_hotkey, AddCodehotkey:=Addcode_hotkey, s2thotkey:=s2t_hotkey, cfhotkey:=cf_hotkey, Suspendhotkey:=Suspend_hotkey,exithotkey:=Exit_hotkey
@@ -430,10 +430,10 @@ WM_MOUSEMOVE()
 		,FocusColor:"候选框焦点选项字体色", FontColor:"候选词字体颜色", FontCodeColor:"候选框编码字体颜色", SBA1:"繁体开关（输简出繁）快捷键启用开关",select_value:"候选框词条显示数目`n范围[3-10]", SBA18:"当前笔画键位为：" StrockeKey, zKeySet:"Z键引导反查方式"
 		, SBA4:"加入开机自启动任务：「`non＝>为建立系统计划任务实现自启`noff＝>为关闭开机自启`nsc＝>为在系统自启目录建立快捷方式实现自启」`n计划任务自启成功率不高，建议开启建立「快捷方式自启」的自启方式",ciku6:"特殊符号词库导出`n（导出为txt）",set_GdipRadius:"Gdip候选框圆角大小`n范围[0-15]"
 		,tip_hotkey:"通过快捷键开关划词反查",SizeValue:"桌面色块尺寸`n范围[1-150]",SBA20:"候选框分页数显示",FontIN:"字根拆分字体安装",set_regulate_Hx:"ToolTip候选框编码框`n与选词框距离范围[3-25)]",FontType:"中文方案显示的字体",FontSelect:"英文方案或临时英文显示的字体"
-		, SBA13:"显示/隐藏桌面色块图标",SBA19:"有焦点色块选项的候选框",SetInput_CNMode:"程序启动时默认中文输入模式",SetInput_ENMode:"程序启动时默认英文输入模式", SBA12 : "候选词显示粗体",SBA26:"四码唯一时自动上屏〔独立开关〕"
+		, SBA13:"显示/隐藏桌面色块图标",SBA19:"有焦点色块选项的候选框",SetInput_CNMode:"程序启动时默认中文输入模式",SetInput_ENMode:"程序启动时默认英文输入模式", SBA12 : "候选词显示粗体",SBA26:"四码候选唯一时自动上屏"
 		,ciku1:"导入txt词库至数据库`ntxt码表格式需为「单行单义」",ciku2:"导出词库为「单行单义」的txt格式文本",SBA2:"拆分功能快捷键启用开关`n（需特殊字体支持，字体在本程序Font目录）",GdipRadius:"Gdip候选框圆角大小`n范围[0-15]"
 		,sethotkey_2:"打开小键盘选取键值",InputStatus:"窗口程序输入状态配置，切换窗口有效！",set_SizeValue:"桌面色块尺寸`n范围[1-150]", vset_regulate:"ToolTip候选框编码框`n与选词框距离范围[3-25]",SBA28:"启动时切换到英语键盘模式"
-		,set_FocusRadius:"焦点候选框焦点项背景圆角`n范围[0-18]",set_FocusRadius_value:"焦点候选框焦点项背景圆角`n范围[0-18]", SBA3:"当编码无词条时模糊匹配提示",SBA7:"四位编码候选唯一时自动上屏，五码时顶首选上屏"
+		,set_FocusRadius:"焦点候选框焦点项背景圆角`n范围[0-18]",set_FocusRadius_value:"焦点候选框焦点项背景圆角`n范围[0-18]", SBA3:"当编码无词条时模糊匹配提示",SBA7:"五码时顶首选上屏"
 		,SBA9:"Gdip候选框圆角开关",SBA10:"Gdip候选样式中间分隔线",yaml_:"导出词库为yaml格式可直接应用于rime平台，`n需Sync目录有header.txt文件头支持",search_1:"〔 词频为0的为主词库已删除的，勾选删除即恢复！ 〕"
 		,IM_DDL:"此处选择你要更改的内容",WinMode:"设置每个有窗口进程的输入状态与上屏方式",SBA22:"程序退出快捷键启用开关",Exit_hotkey:"程序退出操作快捷键",SBA23:"GB2312字集过滤", showtools:"独立显示指示功能条，不显示色块"
 		,set_select_value:"候选框词条显示数目`n范围[3-10]", Save:"格式：“纯中文词条”或者“编码=词条”",SrfSlider:"当前透明值为：" transparentX,LogoColor_cn:"中文状态色块颜色",LogoColor_en:"英文状态色块颜色",LogoColor_caps:"大写状态色块颜色"
