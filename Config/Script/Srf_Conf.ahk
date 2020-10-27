@@ -370,9 +370,7 @@ Return
 
 #If
 
-#if srf_all_input&&not srf_all_input~="\d+"
-
-;快速选词快捷键
+#if srf_mode&&srf_all_input&&not srf_all_input~="\d+"
 	Space::
 	1::
 		srf_select(ToolTipStyle~="i)gdip"&&FocusStyle?localpos:1,A_ThisHotkey)
@@ -383,6 +381,7 @@ Return
 	'::
 		srf_select(3)
 	return
+
 	2::srf_select(2)
 	3::srf_select(3)
 	4::srf_select(4)
@@ -532,11 +531,15 @@ Return
 	Return
 
 	PgUp::
-		Gosub lessWait
+		If (TurnPage=4) {
+			gosub LessWait
+		}
 	return
 
 	PgDn::
-		Gosub MoreWait
+		If (TurnPage=4) {
+			gosub MoreWait
+		}
 	return
 
 	[::

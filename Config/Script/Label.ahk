@@ -676,20 +676,19 @@ Return
 
 ;提词结果处理
 srf_tooltip:
-	If (limit_code ~="i)on"&&!EN_Mode)
-	{
+	If (!EN_Mode){
 		if (StrLen(srf_all_input)=4&&srf_all_input ~="^[a-yA-Y]+$")
 		{
 			if srf_for_select_Array.Length()=0{    ;如果无候选，则自动清空
 				srf_for_select_for_tooltip:=
 			}
-			else if (srf_for_select_Array.Length()=1&&length_code~="i)on") ;如果候选唯一，则自动上屏
+			else if (srf_for_select_Array.Length()=1&&length_code="on") ;如果候选唯一，则自动上屏
 			{
 				srf_select(1)
 				gosub srf_value_off
 			}
 		}
-		else if (StrLen(srf_all_input)>4&&srf_all_input ~="^[a-yA-Y]+$") ;五码顶字上屏，排除编码含z的拼音反查
+		else if (StrLen(srf_all_input)>4&&srf_all_input ~="^[a-yA-Y]+$"&&limit_code ="on") ;五码顶字上屏，排除编码含z的拼音反查
 		{
 			srf_for_select_for_tooltip:=RegExReplace(srf_for_select_for_tooltip,"\s.+|\n.+|^\w+\.|\〔.+")
 			UpperScreenMode(StrSplit(srf_for_select_for_tooltip,Textdirection ~="i)vertical"?"`n":A_Space)[1])
@@ -1123,14 +1122,14 @@ More_Setting:
 	SMENU := Menu_GetMenuByName("SchemaList")
 	Menu, MainMenu, Add, 方案选择, :SchemaList
 	Menu, MainMenu, Add,
-	Menu, ImportCiku, Add, 文本码表导入, ciku1
+	Menu, ImportCiku, Add, 方案码表导入, ciku1
 	Menu, ImportCiku, Add, 英文词库导入, ciku3
 	Menu, ImportCiku, Add, 特殊符号导入, ciku5
 	Menu, ImportCiku, Add, 读音词库导入, ciku10
 	Menu, ImportCiku, Add, 造词源表导入, ciku12
 	Menu, ImportCiku, Add, 拆分源表导入, ciku14
 	Menu, ImportCiku, Add, 笔画码表导入, Write_Strocke
-	Menu, ImportCiku, Disable, 笔画码表导入
+	;;Menu, ImportCiku, Disable, 笔画码表导入
 	Menu, MainMenu, Add, 词库导入, :ImportCiku
 	Menu, MainMenu, Add,
 	Menu, ExportCiku, Add, 原始词库导出, ciku8
@@ -1138,6 +1137,7 @@ More_Setting:
 	Menu, ExportCiku, Add, 英文词库导出, ciku4
 	Menu, ExportCiku, Add, 特殊符号导出, ciku6
 	Menu, ExportCiku, Add, 读音词库导出, ciku11
+	Menu, ExportCiku, Add, 笔画词库导出, Export_Strocke
 	Menu, MainMenu, Add, 词库导出, :ExportCiku
 	Menu, MainMenu, Add,
 	Menu, MainMenu, Add, 自造词管理, DB_management
@@ -1150,11 +1150,11 @@ More_Setting:
 	Menu, Custom, Add, 主题管理, themelists
 	Menu, Custom, Color, FFFFFF
 	Menu, Main, Add, 候选框 , :Custom
+	Menu, ExtendTool, Add, 自定义标点, Sym_Gui
 	Menu, ExtendTool, Add, 超级标签管理, Label_management
-	Menu, ExtendTool, Add, 标点符号映射, Sym_Gui
 	Menu, ExtendTool, Add, 长字符串管理, LongStringlists
 	Menu, ExtendTool, Add, 时间输出设定, format_Date
-	Menu, ExtendTool, Add, 全码单字过滤, ciku13
+	Menu, ExtendTool, Add, 全码单字提取, ciku13
 	Menu, ExtendTool, Add, 码表格式转换, TransformCiku
 	Menu, ExtendTool, Color, FFFFFF
 	Menu, Main, Add, 扩展工具, :ExtendTool
@@ -1340,7 +1340,7 @@ More_Setting:
 	}
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA24 gSBA24 Checked%PromptChar%, 逐码提示
 	Gui, 98:Add, CheckBox,x+8 yp+0 vSBA25 gSBA25 Checked%EN_Mode%, 英文输入模式
-	Gui, 98:Add, CheckBox,x+8 yp+0 vSBA7 gSBA7, 五码顶字上屏
+	Gui, 98:Add, CheckBox,x+8 yp+0 vSBA7 gSBA7, 五码首选上屏
 	if Prompt_Word~="i)on" {
 		PromptChar:=WubiIni.Settings["PromptChar"]:=0
 		GuiControl,98:, SBA3 , 0
@@ -1350,8 +1350,6 @@ More_Setting:
 	Gui, 98:Add, CheckBox,x+8 yp+0 vSBA26 gSBA26, 四码唯一上屏
 	if (not Wubi_Schema ~="i)zi|ci")
 		GuiControl, 98:Disable, SBA23
-	If limit_code~="i)off"
-		GuiControl,98:Disable,SBA26
 	Gui, 98:Add, CheckBox,x190 y+10 vyaml_ gyaml_, 导出为yaml格式
 	if !FileExist(A_ScriptDir "\Sync\header.txt")
 		GuiControl, 98:Disable, yaml_
@@ -1359,7 +1357,7 @@ More_Setting:
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA14 gSBA14, 中文时使用英文标点
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, Button,x+10 yp-2 vSBA21 gSBA21 hwndBBT, 标点符号映射
+	Gui, 98:Add, Button,x+10 yp-2 vSBA21 gSBA21 hwndBBT, 自定义标点
 	ImageButton.Create(BBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
@@ -1450,7 +1448,7 @@ More_Setting:
 	Gui, 98:Add, Text, x190 y+10 left vTextInfo21, 翻页按键：
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, DDL,x%CheckPos1X% yp w110  vPageChoice gPageChoice  AltSubmit HwndPCDL , 逗号句号|减号等号|左右方括号    ;;+0x0210
+	Gui, 98:Add, DDL,x%CheckPos1X% yp w110  vPageChoice gPageChoice  AltSubmit HwndPCDL , 逗号-句号|减号-等号|左右方括号|PgUp-PgDn    ;;+0x0210
 	;;OD_Colors.Attach(PCDL,{T: 0xffe89e, B: 0x0178d6})
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
@@ -2441,6 +2439,8 @@ PageChoice:
 		TurnPage:=WubiIni.Settings["TurnPage"]:=2,WubiIni.save()
 	else If PageChoice~="括号"
 		TurnPage:=WubiIni.Settings["TurnPage"]:=3,WubiIni.save()
+	else
+		TurnPage:=WubiIni.Settings["TurnPage"]:=4,WubiIni.save()
 Return
 
 sChoice1:
@@ -3055,22 +3055,12 @@ Return
 
 SBA7:
 	GuiControlGet, SBA ,, SBA7, Checkbox
-	if (SBA==1) {
-		limit_code:=WubiIni.Settings["limit_code"]:="on",WubiIni.save()
-		GuiControl,98:Enable,SBA26
-	}else{
-		limit_code:=WubiIni.Settings["limit_code"]:="off",WubiIni.save()
-		GuiControl,98:Disable,SBA26
-	}
+	limit_code:=WubiIni.Settings["limit_code"]:=SBA?"on":"off",WubiIni.save()
 Return
 
 SBA26:
 	GuiControlGet, SBA ,, SBA26, Checkbox
-	if (SBA==1) {
-		length_code:=WubiIni.Settings["length_code"]:="on",WubiIni.save()
-	}else{
-		length_code:=WubiIni.Settings["length_code"]:="off",WubiIni.save()
-	}
+	length_code:=WubiIni.Settings["length_code"]:=SBA?"on":"off",WubiIni.save()
 Return
 
 format_Date:
@@ -4262,7 +4252,7 @@ Write_DB:
 	} Else {
 		if Wubi_Schema~="i)ci"
 			Gosub Backup_CustomDB
-		Start:=A_TickCount
+		startTime:= CheckTickCount()
 		TrayTip,, 词库写入中，请稍后...
 		Gosub DROP_Status
 		Create_Ci(DB,MaBiaoFile)
@@ -4307,6 +4297,7 @@ Write_DB:
 		Progress,off
 		if DB.Exec(SQL :="INSERT INTO " Wubi_Schema " VALUES " RegExReplace(Insert_ci,"\,$","") ";")>0
 		{
+			timecount:= CheckTickCount(startTime)
 			Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, 写入%count%行！完成用时 %timecount%！, 完成提示
 			TrayTip,, 写入%count%行！完成用时 %timecount%
 			Sleep 5000
@@ -4338,13 +4329,13 @@ Write_Strocke:
 	If !filename
 		Return
 	Gui +OwnDialogs
-	MsgBox, 262452, 提示, 要导入以下词库进行替换？`n文件格式：汉字+Tab+笔画编码+词频
+	MsgBox, 262452, 提示, 要导入以下词库进行替换？`n文件格式：汉字+Tab+笔画编码(数字1-5)+词频
 	IfMsgBox, No
 	{
 		TrayTip,, 导入已取消！
 		Return
 	} Else {
-		Start:=A_TickCount
+		startTime:= CheckTickCount()
 		TrayTip,, 词库写入中，请稍后...
 		Create_Strocke(DB,MaBiaoFile)
 		tarr:=[],count :=0
@@ -4375,6 +4366,7 @@ Write_Strocke:
 			Progress,off
 			if DB.Exec("INSERT INTO 'extend'.'Strocke' VALUES" RegExReplace(Insert_ci,"\,$") "")>0
 			{
+				timecount:= CheckTickCount(startTime)
 				Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, 写入%count%行！完成用时 %timecount%！, 完成提示
 				TrayTip,, 写入%count%行！完成用时 %timecount%
 				Sleep 5000
@@ -4390,7 +4382,30 @@ Write_Strocke:
 		}
 	}
 	MaBiao:=Insert_ci:=""
-return
+Return
+
+Export_Strocke:
+	Gui +OwnDialogs
+	FileSelectFolder, OutFolder,*%A_ScriptDir%\Sync\,3,请选择导出后保存的位置
+	if OutFolder<>
+	{
+		startTime:= CheckTickCount()
+		Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, % "笔画码表导出中...", 码表导出
+		if DB.gettable("SELECT * FROM 'extend'.'Strocke';",Result){
+			FileDelete, %OutFolder%\Strocke.txt
+			Loop % Result.RowCount
+			{
+				Resoure_ .=Result.Rows[A_index,1] A_tab Result.Rows[A_index,2] A_tab Result.Rows[A_index,3] (Result.Rows[A_index,4]?A_tab Result.Rows[A_index,4]:"") "`n"
+			}
+			timecount:= CheckTickCount(startTime)
+			FileAppend,%Resoure_%,%OutFolder%\Strocke.txt, UTF-8
+			Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, 导出完成用时 %timecount%！, 码表导出
+			Resoure_ :=OutFolder :="", Result:={}
+			TrayTip,, 导出完成用时 %timecount%
+			Sleep 4000
+		}
+		Progress, off
+	}
 Return
 
 ;词库导入（英文+symbols）
@@ -4413,7 +4428,7 @@ Write_En:
 		TrayTip,, 导入已取消！
 		Return
 	} Else {
-		Start:=A_TickCount
+		startTime:= CheckTickCount()
 		TrayTip,, 词库写入中，请稍后...
 		Create_En(DB,MaBiaoFile)
 		tarr:=[],count :=0
@@ -4422,6 +4437,7 @@ Write_En:
 			MsgBox, 262160, 错误提示, 文件编码格式非〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 10
 			Return
 		}
+		totalCount:=CountLines(MaBiao), num:=Ceil(totalCount/100)
 		Loop, Parse, MaBiao, `n, `r
 		{
 			count++
@@ -4429,22 +4445,25 @@ Write_En:
 				Continue
 			tarr:=StrSplit(A_LoopField,A_Tab,A_Tab)
 			Insert_ci .="('" tarr[1] "','" tarr[2] "')" ","
+			If (Mod(count, num)=0) {
+				tx :=Ceil(count/num)
+				Progress, %tx% , %count%/%totalCount%`n, 词库导入中..., 已完成%tx%`%
+			}
 		}
 		Insert_ci :=RegExReplace(Insert_ci,"\,$","")
 		if bd ~="i)En"?(DB.Exec("INSERT INTO encode VALUES" Insert_ci "")):(DB.Exec("INSERT INTO 'extend'.'symbols' VALUES" Insert_ci ""))>0
 		{
-			ElapsedTime := (A_TickCount - Start)/1000
-			if (ElapsedTime>60)
-				timecount:=Ceil(ElapsedTime/60) "分" Mod(Ceil(ElapsedTime),60) "秒"
-			Else
-				timecount:=Ceil(ElapsedTime) "秒"
+			timecount:= CheckTickCount(startTime)
+			Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, 写入%count%行！完成用时 %timecount%！, 完成提示
 			TrayTip,, 写入%count%行！完成用时 %timecount%
+			Sleep 3000
 		}
 		else
 		{
 			TrayTip,, 格式不对...
 			return
 		}
+		Progress, off
 	}
 	MaBiao:=Insert_ci:=""
 return
@@ -4476,7 +4495,7 @@ Backup_DB_2:
 	FileSelectFolder, OutFolder,*%A_ScriptDir%\Sync\,3,请选择导出后保存的位置
 	if OutFolder<>
 	{
-		Start_out:=A_TickCount
+		startTime:= CheckTickCount()
 		if Wubi_Schema~="i)ci"{
 			if init_db
 				SQL := "SELECT aim_chars,A_Key,C_Key FROM ci WHERE C_Key>0 ORDER BY A_Key,C_Key DESC;"
@@ -4488,6 +4507,7 @@ Backup_DB_2:
 				SQL := "SELECT aim_chars,A_Key,B_Key FROM ci WHERE B_Key>0 ORDER BY A_Key,B_Key DESC;"
 		}else
 			SQL := "SELECT aim_chars,A_Key,B_Key FROM " Wubi_Schema " ORDER BY A_Key,B_Key DESC;"
+		Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, % "〔" (Wubi_Schema~="i)ci"?"含词":Wubi_Schema~="i)zi"?"单字":Wubi_Schema~="i)chaoji"?"超集":"字根") "〕单行多义码表导出中...", 码表导出
 		if DB.gettable(SQL,Result){
 			For Section,element In Result.Rows
 			{
@@ -4498,20 +4518,19 @@ Backup_DB_2:
 				bianma:=element[2]
 			}
 			Resoure_:=RegExReplace(Resoure_,"^\n")
-			ElapsedTime := (A_TickCount - Start_out)/1000
-			if (ElapsedTime>60)
-				timecount:=Ceil(ElapsedTime/60) "分" Mod(Ceil(ElapsedTime),60) "秒"
-			Else
-				timecount:=Ceil(ElapsedTime) "秒"
-			fileNewname:=init_db?"主码表":custom_db?"用户词":Wubi_Schema
-			FileDelete, %OutFolder%\wubi98-%fileNewname%_多义.txt
-			FileAppend,%Resoure_%,%OutFolder%\wubi98-%fileNewname%_多义.txt, UTF-8
+			timecount:= CheckTickCount(startTime)
+			FileDelete, %OutFolder%\wubi98-%Wubi_Schema%_多义.txt
+			FileAppend,%Resoure_%,%OutFolder%\wubi98-%Wubi_Schema%_多义.txt, UTF-8
 			Resoure_ :=OutFolder :="", custom_db:=init_db:=0, Result_:=Results_:=Result:=[]
+			Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, 导出完成用时 %timecount%！, 码表导出
 			TrayTip,, 导出完成用时 %timecount%
+			Sleep 4000
+			Progress,off
 		}else{
 			TrayTip,, 导出失败！
 			custom_db:=init:=0
 		}
+		Progress,off
 	}
 Return
 
@@ -4521,7 +4540,7 @@ Backup_DB:
 	FileSelectFolder, OutFolder,*%A_ScriptDir%\Sync\,3,请选择导出后保存的位置
 	if OutFolder<>
 	{
-		Start_out:=A_TickCount
+		startTime:= CheckTickCount()
 		if Wubi_Schema~="i)ci"{
 			if init_db
 				SQL := "SELECT aim_chars,A_Key,C_Key FROM ci WHERE C_Key>0 ORDER BY A_Key,C_Key DESC;"
@@ -4538,11 +4557,7 @@ Backup_DB:
 			{
 				Resoure_ .=Result.Rows[A_index,1] A_tab Result.Rows[A_index,2] A_tab Result.Rows[A_index,3] "`n"
 			}
-			ElapsedTime := (A_TickCount - Start_out)/1000
-			if (ElapsedTime>60)
-				timecount:=Ceil(ElapsedTime/60) "分" Mod(Ceil(ElapsedTime),60) "秒"
-			Else
-				timecount:=Ceil(ElapsedTime) "秒"
+			timecount:= CheckTickCount(startTime)
 			fileNewname:=init_db?"主码表":custom_db?"用户词":Wubi_Schema
 			If (FileExist(A_ScriptDir "\Sync\header.txt")&&BUyaml&&!custom_db){
 				GetFileFormat(A_ScriptDir "\Sync\header.txt",HeadInfo,Encoding)
@@ -4574,21 +4589,22 @@ Backup_En:
 	FileSelectFolder, OutFolder,*%A_ScriptDir%\Sync\,3,请选择导出后保存的位置
 	if OutFolder<>
 	{
-		Start_out:=A_TickCount
+		startTime:= CheckTickCount()
+		Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, % "英文词库导出中...", 码表导出
 		if DB.gettable("SELECT aim_chars,A_Key FROM " (bd~="En"?"encode":"'extend'.'symbols'") "",Result){
 			FileDelete, %OutFolder%\wubi98-%bd%.txt
 			Loop % Result.RowCount
 			{
 				Resoure_ .=Result.Rows[A_index,1] A_tab Result.Rows[A_index,2] "`n"
 			}
-			ElapsedTime := (A_TickCount - Start_out)/1000
-			if (ElapsedTime>60)
-				timecount:=Ceil(ElapsedTime/60) "分" Mod(Ceil(ElapsedTime),60) "秒"
-			Else
-				timecount:=Ceil(ElapsedTime) "秒"
+			timecount:= CheckTickCount(startTime)
 			FileAppend,%Resoure_%,%OutFolder%\wubi98-%bd%.txt, UTF-8
 			Resoure_ :=OutFolder :=""
-		}	TrayTip,, 导出完成用时 %timecount%
+			Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, 导出完成用时 %timecount%！, 码表导出
+			TrayTip,, 导出完成用时 %timecount%
+			Sleep 4000
+		}
+		Progress,off
 	}
 return
 

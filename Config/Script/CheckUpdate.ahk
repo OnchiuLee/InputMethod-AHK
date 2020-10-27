@@ -4,7 +4,7 @@
 Sourceurl:="https://github.com/OnchiuLee/AHK-Input-method/blob/master/Version.txt"
 IniRead, Versions, %A_Temp%\InputMethodData\Config.ini, Settings, versions
 InputMethodName:="五笔98版"
-Progress, M ZH-1 ZW-1 Y100 FM11 W420 C0 FM14 WS700 CTffffff CW0078d7,, 正在检查最新版本。。。, 检查更新
+Progress, M ZH-1 ZW-1 Y100 W420 C0 FM14 WS700 CTffffff CW0078d7,, 正在检查最新版本。。。, 检查更新
 OnMessage(0x201, "MoveProgress")
 If (!DllCall("Wininet.dll\InternetCheckConnection", "Str", Sourceurl, "UInt", 0x1, "UInt", 0x0, "Int"))
 	MsgBox, 262160, 检查更新, 网络异常！, 8
@@ -60,7 +60,7 @@ UrlDownloadToFile(URL, FilePath:="",Timeout=-1){   ;Timeout 超时限制设置 �
 		FilePath:=Url2Decode(RegExReplace(URL,".+\/"))
 	ComObjError(1)
 	If RegExMatch(LTrim(FilePath, "\"), "(.*\\)?([^\\]+)$", FilePath){
-		Progress,B2 M ZH-1 ZW-1 Y80 W400 FM12 C0 FS14 WS700 CW0078d7 CTffffff, %FilePath%-下载中...
+		Progress,M ZH-1 ZW-1 Y80 FM14 W400 C0 FS14 WS700 CW0078d7 CTffffff,, %FilePath%-下载中..., 检查更新
 		OnMessage(0x201, "MoveProgress")
 		If (FilePath1&&!FileExist(FilePath1)){
 			FileCreateDir, %FilePath1%
