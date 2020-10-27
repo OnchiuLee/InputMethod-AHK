@@ -93,7 +93,6 @@ Return
 #If
 
 #if srf_mode&&!srf_all_input
-
 	Numpad1::
 	1::
 		send {1}
@@ -237,7 +236,11 @@ return
 
 #if !srf_mode&&!srf_all_input
 	+'::
-		send {"}
+		send % srf_symblos["""",1]
+	return
+
+	'::
+		send % srf_symblos["'",1]
 	return
 
 	CapsLock::
@@ -375,13 +378,13 @@ Return
 		srf_select(ToolTipStyle~="i)gdip"&&FocusStyle?localpos:1,A_ThisHotkey)
 	Return
 	`;::
-	2::
 		srf_select(2)
-	Return
+	return
 	'::
-	3::
 		srf_select(3)
-	Return
+	return
+	2::srf_select(2)
+	3::srf_select(3)
 	4::srf_select(4)
 	5::srf_select(5)
 	6::srf_select(6)
@@ -529,15 +532,76 @@ Return
 	Return
 
 	PgUp::
-	[::
-	-::
 		Gosub lessWait
-	Return
+	return
 
 	PgDn::
-	]::
-	=::
 		Gosub MoreWait
+	return
+
+	[::
+		If (TurnPage=3) {
+			gosub LessWait
+		}else{
+			If symb_send ~="on" {
+				srf_select(1)
+				send % srf_symblos["[",symb_mode]
+			}
+		}
+	return
+
+	]::
+		If (TurnPage=3) {
+			gosub MoreWait
+		}else{
+			If symb_send ~="on" {
+				srf_select(1)
+				send % srf_symblos["]",symb_mode]
+			}
+		}
+	return
+
+	-::
+		If (TurnPage=2) {
+			gosub LessWait
+		}else{
+			If symb_send ~="on" {
+				srf_select(1)
+				send % srf_symblos["-",symb_mode]
+			}
+		}
+	Return
+
+	=::
+		If (TurnPage=2) {
+			gosub MoreWait
+		}else{
+			If symb_send ~="on" {
+				srf_select(1)
+				send % srf_symblos["=",symb_mode]
+			}
+		}
+	Return
+
+	,::
+		If (TurnPage=1) {
+			gosub LessWait
+		}else{
+			If symb_send ~="on" {
+				srf_select(1)
+				send % srf_symblos[",",symb_mode]
+			}
+		}
+	Return
+	.::
+		If (TurnPage=1) {
+			gosub MoreWait
+		}else{
+			If symb_send ~="on" {
+				srf_select(1)
+				send % srf_symblos[".",symb_mode]
+			}
+		}
 	Return
 
 	Esc::
@@ -574,7 +638,7 @@ Return
 	Return
 #if
 
-#if srf_mode&&srf_all_input&&srf_for_select_Array.Length()>0&&symb_send ~="on"
+#if srf_mode&&srf_all_input&&objCount(srf_for_select_Array)&&symb_send ~="on"
 {
 	+1::
 		srf_select(1)
@@ -654,25 +718,9 @@ Return
 		srf_select(1)
 		send {？}
 	Return
-	,::
-		srf_select(1)
-		send {，}
-	Return
-	.::
-		srf_select(1)
-		send {。}
-	Return
 	/::
 		srf_select(1)
 		send {、}
-	Return
-	[::
-		srf_select(1)
-		send {「}
-	Return
-	]::
-		srf_select(1)
-		send {」}
 	Return
 	+\::
 		srf_select(1)

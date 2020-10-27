@@ -1170,17 +1170,17 @@ More_Setting:
 	TV_Modify(TV1, "Expand"),TV_Modify(TV1_1, "Select")
 	TV2 := TV_Add("功能设置",, "Bold")
 	TV2_1 := TV_Add("候选框参数", TV2)
-	TV2_2 := TV_Add("输入设定", TV2)
-	TV2_3 := TV_Add("上屏设定", TV2)
+	TV2_2 := TV_Add("输出设置", TV2)
+	TV2_3 := TV_Add("其它设置", TV2)
 	TV_Modify(TV2, "Expand")
-	TV3 := TV_Add("快捷键设置",, "Bold")
+	TV3 := TV_Add("快捷键",, "Bold")
 	TV4 := TV_Add("关于",, "Bold")
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
 	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","Initialize","SBA13","TextInfo1","showtools","SrfSlider","SizeValue","set_SizeValue","ExSty","DPISty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","TextInfo27","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 		,GBoxList2:["GBox2","TextInfo25","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","font_size","TextInfo11","FontSelect","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
 		,GBoxList3:["GBox3","SBA7","SBA26","SBA27","SBA28","SBA23","SBA24","TextInfo29","zKeySet","UIAccess","SBA6","SBA14","SBA18","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC","Cursor_Status","yaml_"]
-		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode"]
+		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode","TextInfo21","PageChoice"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","linkinfo1","linkinfo2","linkinfo3","versionsinfo","infos_"]}
 
@@ -1326,28 +1326,28 @@ More_Setting:
 
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
-	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox3, 输入设定
+	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox3, 输出设置
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui, 98:Add, CheckBox, x190 yp+40 gEnableUIAccess vUIAccess , 权限提升
 	;;GuiControlGet, CheckVar1, Pos , EnableUIAccess
-	Gui, 98:Add, CheckBox,x+15 yp+0 vSBA6 gSBA6, 符号顶屏
-	Gui, 98:Add, CheckBox,x+15 yp+0 vSBA3 gSBA3, 空码提示
+	Gui, 98:Add, CheckBox,x+8 yp+0 vSBA6 gSBA6, 符号顶字上屏
+	Gui, 98:Add, CheckBox,x+8 yp+0 vSBA3 gSBA3, 空码模糊提示
 	if PromptChar
 	{
 		Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="off"
 		GuiControl,98:, SBA24 , 0
 	}
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA24 gSBA24 Checked%PromptChar%, 逐码提示
-	Gui, 98:Add, CheckBox,x+15 yp+0 vSBA25 gSBA25 Checked%EN_Mode%, 英文模式
-	Gui, 98:Add, CheckBox,x+15 yp+0 vSBA7 gSBA7, 顶字上屏
+	Gui, 98:Add, CheckBox,x+8 yp+0 vSBA25 gSBA25 Checked%EN_Mode%, 英文输入模式
+	Gui, 98:Add, CheckBox,x+8 yp+0 vSBA7 gSBA7, 五码顶字上屏
 	if Prompt_Word~="i)on" {
 		PromptChar:=WubiIni.Settings["PromptChar"]:=0
 		GuiControl,98:, SBA3 , 0
 	}
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA23 gSBA23 Checked%CharFliter%, 字集过滤
-	Gui, 98:Add, CheckBox, x+15 yp+0 Checked%EnKeyboardMode% vSBA28 gSBA28, 美式键盘
-	Gui, 98:Add, CheckBox,x+15 yp+0 vSBA26 gSBA26, 候选唯一上屏
+	Gui, 98:Add, CheckBox, x+8 yp+0 Checked%EnKeyboardMode% vSBA28 gSBA28, 默认美式键盘
+	Gui, 98:Add, CheckBox,x+8 yp+0 vSBA26 gSBA26, 四码唯一上屏
 	if (not Wubi_Schema ~="i)zi|ci")
 		GuiControl, 98:Disable, SBA23
 	If limit_code~="i)off"
@@ -1356,10 +1356,10 @@ More_Setting:
 	if !FileExist(A_ScriptDir "\Sync\header.txt")
 		GuiControl, 98:Disable, yaml_
 	Gui 98:Add, Text,x190 y+5 w365 h2 0x10 vTextInfo28
-	Gui, 98:Add, CheckBox,x190 y+10 vSBA14 gSBA14, 中文使用英文标点
+	Gui, 98:Add, CheckBox,x190 y+10 vSBA14 gSBA14, 中文时使用英文标点
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, Button,x+10 yp-2 vSBA21 gSBA21 hwndBBT, 标点映射
+	Gui, 98:Add, Button,x+10 yp-2 vSBA21 gSBA21 hwndBBT, 标点符号映射
 	ImageButton.Create(BBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
@@ -1370,7 +1370,7 @@ More_Setting:
 	;;OD_Colors.Attach(ZDDL,{T: 0xffe89e, B: 0x0178d6})
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, Button,x+10 yp-2 vSBA18 gSBA18 hwndBHBT, 键位设置
+	Gui, 98:Add, Button,x+10 yp-2 vSBA18 gSBA18 hwndBHBT, 笔画键位定义
 	ImageButton.Create(BHBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
@@ -1415,41 +1415,51 @@ More_Setting:
 
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
-	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox4, 上屏设定
+	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox4, 其它设置
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
-	Gui, 98:Add, Text, x190 yp+45 left vTextInfo15, 开机自启：
+	Gui, 98:Add, Text, x190 yp+45  left vTextInfo17, 回车键设定：
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, DDL,x+25 w135  vSBA4 gSBA4 HwndSDDL4 , 计划任务自启|快捷方式自启|不自启    ;;+0x0210
+	Gui, 98:Add, DDL,x+5 w110 vsChoice2 gsChoice2 HwndSCDL2 , 编码上屏|清空编码    ;;+0x0210
+	;;OD_Colors.Attach(SCDL2,{T: 0xffe89e, B: 0x0178d6})
+	Gui,98:Font
+	Gui,98:Font, s10 norm, %font_%
+	Gui, 98:Add, Text, x190 y+10 left vTextInfo18, 候选框显示：
+	Gui,98:Font
+	Gui,98:Font, s9 bold, %font_%
+	Gui, 98:Add, DDL,x+5 w110 vsChoice3 gsChoice3 HwndSCDL3 , 候选横排|候选竖排    ;;+0x0210
+	;;OD_Colors.Attach(SCDL3,{T: 0xffe89e, B: 0x0178d6})
+	Gui,98:Font
+	Gui,98:Font, s10 norm, %font_%
+	GuiControlGet, CheckPos1, Pos , sChoice3
+	Gui, 98:Add, Text, x190 y+10 left vTextInfo15, 开机自启：
+	Gui,98:Font
+	Gui,98:Font, s9 bold, %font_%
+	Gui, 98:Add, DDL,x%CheckPos1X% yp w110  vSBA4 gSBA4 HwndSDDL4 , 计划任务自启|快捷方式自启|不自启    ;;+0x0210
 	;;OD_Colors.Attach(SDDL4,{T: 0xffe89e, B: 0x0178d6})
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, Text, x190 y+10 left vTextInfo16, 上屏方式：
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, DDL,x+25 w135  vsChoice1 gsChoice1  AltSubmit HwndSCDL1 , 常规上屏|剪切板上屏    ;;+0x0210
+	Gui, 98:Add, DDL,x%CheckPos1X% yp w110  vsChoice1 gsChoice1  AltSubmit HwndSCDL1 , 常规上屏|剪切板上屏    ;;+0x0210
 	;;OD_Colors.Attach(SCDL1,{T: 0xffe89e, B: 0x0178d6})
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
-	Gui, 98:Add, Text, x190 y+10  left vTextInfo17, Enter设定：
+	Gui, 98:Add, Text, x190 y+10 left vTextInfo21, 翻页按键：
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, DDL,x+20 w135 vsChoice2 gsChoice2 HwndSCDL2 , 编码上屏|回车清空    ;;+0x0210
-	;;OD_Colors.Attach(SCDL2,{T: 0xffe89e, B: 0x0178d6})
+	Gui, 98:Add, DDL,x%CheckPos1X% yp w110  vPageChoice gPageChoice  AltSubmit HwndPCDL , 逗号句号|减号等号|左右方括号    ;;+0x0210
+	;;OD_Colors.Attach(PCDL,{T: 0xffe89e, B: 0x0178d6})
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
-	Gui, 98:Add, Text, x190 y+10 left vTextInfo18, 候选模式：
-	Gui,98:Font
-	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, DDL,x+25 w135 vsChoice3 gsChoice3 HwndSCDL3 , 候选横排|候选竖排    ;;+0x0210
-	;;OD_Colors.Attach(SCDL3,{T: 0xffe89e, B: 0x0178d6})
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, Text, x190 y+10 left vTextInfo19, 中英切换：
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
-	Gui, 98:Add, DDL, vsethotkey_1 gsethotkey_1 x+25 yp-1 w60 HwndHKDL , Ctrl|Shift|Alt|LWin    ;;+0x0210
+	Gui, 98:Add, DDL, vsethotkey_1 gsethotkey_1 x%CheckPos1X% yp-1 w60 HwndHKDL , Ctrl|Shift|Alt|LWin    ;;+0x0210
 	;;OD_Colors.Attach(HKDL,{T: 0xffe89e, B: 0x0178d6})
 	Gui 98:Add, Text, yp x+10 h22 w65 Center Border cblue vsethotkey_2 gsethotkey_2, % RegExReplace(Srf_Hotkey,"i)Shift|Ctrl|Alt|LWin|&","")
 	Gui,98:Font
@@ -1467,7 +1477,7 @@ More_Setting:
 
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
-	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox5, 快捷键设置
+	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox5, 快捷键
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, CheckBox,x190 yp+45 vSBA1 gSBA1, 简繁切换>>
@@ -2323,6 +2333,7 @@ ControlGui:
 	}else{
 		GuiControl,98:choose, sChoice2 , 1
 	}
+	GuiControl,98:choose, PageChoice , %TurnPage%
 	if Textdirection~="i)vertical" {
 		GuiControl,98:choose, sChoice3 , 2
 	}else{
@@ -2420,6 +2431,16 @@ zKeySet:
 		zkey_mode:=WubiIni.Settings["zkey_mode"]:=1,WubiIni.save()
 		GuiControl, 98:Disable, SBA18
 	}
+Return
+
+PageChoice:
+	GuiControlGet, PageChoice,, PageChoice, text
+	If PageChoice~="句号"
+		TurnPage:=WubiIni.Settings["TurnPage"]:=1,WubiIni.save()
+	else If PageChoice~="等号"
+		TurnPage:=WubiIni.Settings["TurnPage"]:=2,WubiIni.save()
+	else If PageChoice~="括号"
+		TurnPage:=WubiIni.Settings["TurnPage"]:=3,WubiIni.save()
 Return
 
 sChoice1:
