@@ -801,7 +801,7 @@ get_single_py(chars){
 	global
 	If (chars="")
 		Return []
-	else if (chars ~="\d+|[a-z]+")
+	else if (chars ~="\w+")
 		Return []
 	else
 	{
@@ -1065,10 +1065,19 @@ Create_Strocke(DB,Name){
 		Return
 	DB.Exec("DROP TABLE IF EXISTS 'extend'.'Strocke';")
 	DB.Exec("BEGIN TRANSACTION;")
-	_SQL = CREATE TABLE 'extend'.'Strocke' ("aim_chars" TEXT PRIMARY KEY,"A_Key" INTEGER,"B_Key" INTEGER,"C_Key" TEXT);
+	_SQL = CREATE TABLE 'extend'.'Strocke' ("aim_chars" TEXT PRIMARY KEY,"A_Key" TEXT,"B_Key" TEXT,"C_Key" TEXT);
 	DB.Exec(_SQL)
 	;DB.Exec("CREATE UNIQUE INDEX IF NOT EXISTS 'extend'.'sy_Strocke' ON 'Strocke' ('aim_chars');")
 	DB.Exec("COMMIT TRANSACTION;VACUUM;")
+}
+
+Get_Weight(Char){
+	global DB
+	If (Char="")
+		Return
+	DB.gettable("SELECT weight FROM 'extend'.'GBChars' WHERE Chars ='" Char "';",Result)
+	If Result.Rows[1,1]
+		Return Result.Rows[1,1]
 }
 
 ;创建label表

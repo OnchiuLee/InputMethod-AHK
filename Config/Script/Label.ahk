@@ -4344,9 +4344,9 @@ Write_Strocke:
 			MsgBox, 262160, 错误提示, 文件编码格式非〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 10
 			Return
 		}
-		If MaBiao~="\n\W+\t\d+\t\d+" {
+		If MaBiao~="\n\W+\t[1-5]+" {
 			totalCount:=CountLines(MaBiaoFile), num:=Ceil(totalCount/100)
-			Progress, M1 FM14 Y100 W350, 1/%totalCount%, 笔画词库写入中..., 1
+			Progress, M1 FM14 Y100 W350, 1/%totalCount%, 笔画词库写入中..., 1`%
 			OnMessage(0x201, "MoveProgress")
 			Loop, Parse, MaBiao, `n, `r
 			{
@@ -4356,8 +4356,14 @@ Write_Strocke:
 				tarr:=StrSplit(A_LoopField,A_Tab,A_Tab)
 				If objCount(tarr)>3
 					Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "','" tarr[4] "')" ","
-				else
-					Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "',null)" ","
+				else{
+					If (objCount(tarr)=3&&tarr[3]~="^\d+$")
+						Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "',null)" ","
+					else If (objCount(tarr)=2)
+						Insert_ci .="('" tarr[1] "','" tarr[2] "','" ((dzcp:=Get_Weight(tarr[1]))?dzcp:1) "',null)" ","
+					else
+						Continue
+				}
 				If (Mod(count, num)=0) {
 					tx :=Ceil(count/num)
 					Progress, %tx% , %count%/%totalCount%`n, 笔画词库写入中..., 已完成%tx%`%
