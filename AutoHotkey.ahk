@@ -35,7 +35,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020110118"
+version :="2020110120"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -295,7 +295,7 @@ Gosub Backup_CustomDB
 If FileExist("Config\6763字频表.txt") {
 	DB.GetTable("PRAGMA table_info('GBChars');",Result)
 	if (Result.RowCount<3) {
-		SQL =DROP TABLE IF EXISTS GBChars;CREATE TABLE 'extend'.'GBChars' ("Rid" int PRIMARY KEY NOT NULL, "Chars" TEXT, "weight" TEXT);
+		SQL =DROP TABLE IF EXISTS 'extend'.'GBChars';CREATE TABLE 'extend'.'GBChars' ("Rid" int PRIMARY KEY NOT NULL, "Chars" TEXT, "weight" TEXT);
 		DB.Exec(SQL)
 		FileRead,Chars,Config\6763字频表.txt
 		Loop,parse,Chars,`n,`r
