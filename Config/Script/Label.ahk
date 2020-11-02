@@ -3145,7 +3145,7 @@ UpLine:
 				GuiControl, date:Enable,UpLine
 			LV_Modify(SelectLine-1 , "Select Focus", Text, Text~="^[dghHmMsy]"?FormatTime("",Text):FormatTime(Text,FormatTime(formatDate(Text),FormatDate(Text,2,1))),Text1_3)
 			LV_Modify(SelectLine , "", Text_1, Text_1~="^[dghHmMsy]"?FormatTime("",Text_1):FormatTime(Text_1,FormatTime(formatDate(Text_1),FormatDate(Text_1,2,1))),Text_1_3)
-			JsonData_Date[Text1_3,GetArrIndex(JsonData_Date[Text1_3],Text)] :=Text_1, JsonData_Date[Text1_3,GetArrIndex(JsonData_Date[Text1_3],Text_1)] :=Text
+			JsonData_Date[Text1_3,Index:=GetArrIndex(JsonData_Date[Text1_3],Text)] :=Text_1, JsonData_Date[Text1_3,Index-1] :=Text
 			Json_ObjToFile(JsonData_Date, A_ScriptDir "\Sync\JsonData_Date.json", "UTF-8")
 		}else{
 			GuiControl, date:Disable,UpLine
@@ -3173,7 +3173,7 @@ DnLine:
 				GuiControl, date:Enable,UpLine
 			LV_Modify(SelectLine+1 , "Select Focus", Text, Text~="^[dghHmMsy]"?FormatTime("",Text):FormatTime(Text,FormatTime(formatDate(Text),FormatDate(Text,2,1))),Text1_3)
 			LV_Modify(SelectLine , "", Text_1, Text_1~="^[dghHmMsy]"?FormatTime("",Text_1):FormatTime(Text_1,FormatTime(formatDate(Text_1),FormatDate(Text_1,2,1))),Text_1_3)
-			JsonData_Date[Text1_3,GetArrIndex(JsonData_Date[Text1_3],Text)] :=Text_1, JsonData_Date[Text1_3,GetArrIndex(JsonData_Date[Text1_3],Text_1)] :=Text
+			JsonData_Date[Text1_3,Index:=GetArrIndex(JsonData_Date[Text1_3],Text)] :=Text_1, JsonData_Date[Text1_3,Index+1] :=Text
 			Json_ObjToFile(JsonData_Date, A_ScriptDir "\Sync\JsonData_Date.json", "UTF-8")
 		}else{
 			GuiControl, date:Enable,UpLine
@@ -4346,7 +4346,7 @@ Write_Strocke:
 		}
 		If MaBiao~="\n\W+\t[1-5]+" {
 			totalCount:=CountLines(MaBiaoFile), num:=Ceil(totalCount/100)
-			Progress, M1 FM14 Y100 W350, 1/%totalCount%, 笔画词库写入中..., 1`%
+			Progress, M1 FM14 Y100 W380, 1/%totalCount%, 笔画词库写入中,请稍候..., 1`%
 			OnMessage(0x201, "MoveProgress")
 			Loop, Parse, MaBiao, `n, `r
 			{
@@ -4366,7 +4366,7 @@ Write_Strocke:
 				}
 				If (Mod(count, num)=0) {
 					tx :=Ceil(count/num)
-					Progress, %tx% , %count%/%totalCount%`n, 笔画词库写入中..., 已完成%tx%`%
+					Progress, %tx% , %count%/%totalCount%`n, 笔画词库写入中,请稍候..., 已完成%tx%`%
 				}
 			}
 			Progress,off
