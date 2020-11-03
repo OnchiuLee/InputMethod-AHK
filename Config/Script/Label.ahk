@@ -179,11 +179,11 @@ Return
 Logo_Switch:
 	Logo_Switch :=WubiIni.Settings["Logo_Switch"] :=Logo_Switch="off"?"on":"off", WubiIni.save()
 	if Logo_Switch ~="i)off"{
-		Menu, More, Rename, 隐藏状态条 , 显示状态条
+		Menu, More, Rename, 隐藏Logo , 显示Logo
 		Gui, SrfTip:Destroy
 		Gui, logo:Destroy
 	}else{
-		Menu, More, Rename, 显示状态条 , 隐藏状态条
+		Menu, More, Rename, 显示Logo , 隐藏Logo
 		Gosub ShowSrfTip
 	}
 Return
@@ -361,6 +361,7 @@ TRAY_Menu:
 	Menu, DB, Add
 	Menu, DB, Add, 自造词导出,ciku7
 	Menu, DB, Icon, 自造词导出, shell32.dll, 69
+/*
 	Menu, DB, Add
 	Menu, DB, Add, 长字符串导入,Write_LongChars
 	Menu, DB, Icon, 长字符串导入, shell32.dll, 60
@@ -370,16 +371,17 @@ TRAY_Menu:
 	Menu, DB, Add
 	Menu, DB, Add, 单/多义转换,TransformCiku
 	Menu, DB, Icon, 单/多义转换, shell32.dll, 239
+*/
 	Menu, Tray, Add, 词库,:DB
 	Menu, Tray, Icon, 词库, shell32.dll, 131
 	Menu, Tray, Add
-	Menu, Schema, Add, 含词, ChoiceItems
+	Menu, Schema, Add, 五笔含词, ChoiceItems
 	Menu, Schema, Add
-	Menu, Schema, Add, 单字, ChoiceItems
+	Menu, Schema, Add, 五笔单字, ChoiceItems
 	Menu, Schema, Add
-	Menu, Schema, Add, 超集, ChoiceItems
+	Menu, Schema, Add, 98超集, ChoiceItems
 	Menu, Schema, Add
-	Menu, Schema, Add, 字根, ChoiceItems
+	Menu, Schema, Add, 五笔字根, ChoiceItems
 	Menu, Schema, Color, FFFFFF
 	SCMENU := Menu_GetMenuByName("Schema")
 	Menu, More, Add, 方案切换,:Schema
@@ -407,8 +409,8 @@ TRAY_Menu:
 		Menu, More, Disable, 批量造词
 	Menu, More, Icon, 批量造词, shell32.dll, 281
 	Menu, More, Add,
-	Menu, More, Add, % Logo_Switch="on"?"隐藏状态条":"显示状态条",Logo_Switch
-	Menu, More, Icon, % Logo_Switch="on"?"隐藏状态条":"显示状态条", shell32.dll, 141
+	Menu, More, Add, % Logo_Switch="on"?"隐藏Logo":"显示Logo",Logo_Switch
+	Menu, More, Icon, % Logo_Switch="on"?"隐藏Logo":"显示Logo", shell32.dll, 141
 	Menu, More, Add
 	Menu, More, Add, 初始化配置,Initialize
 	Menu, More, Icon, 初始化配置, shell32.dll, 236
@@ -1107,10 +1109,10 @@ More_Setting:
 	Gui, 98:Destroy
 	Gui, 98:Default
 	SysGet, SGW, 71
-	Menu, SchemaList, Add, 98五笔•含词, sChoice4
-	Menu, SchemaList, Add, 98五笔•单字, sChoice4
-	Menu, SchemaList, Add, 98五笔•超集, sChoice4
-	Menu, SchemaList, Add, 98五笔•字根, sChoice4
+	Menu, SchemaList, Add, 五笔•含词, sChoice4
+	Menu, SchemaList, Add, 五笔•单字, sChoice4
+	Menu, SchemaList, Add, 五笔98•超集, sChoice4
+	Menu, SchemaList, Add, 五笔•字根, sChoice4
 	Menu, SchemaList, Color, FFFFFF
 	Menu, StyleMenu, Add, Tooltip样式, ChangeTooltipstyle
 	Menu, StyleMenu, Add, Gui候选框样式, ChangeTooltipstyle
@@ -1125,10 +1127,11 @@ More_Setting:
 	Menu, ImportCiku, Add, 方案码表导入, ciku1
 	Menu, ImportCiku, Add, 英文词库导入, ciku3
 	Menu, ImportCiku, Add, 特殊符号导入, ciku5
-	Menu, ImportCiku, Add, 读音词库导入, ciku10
+	Menu, ImportCiku, Add, 注音词库导入, ciku10
 	Menu, ImportCiku, Add, 造词源表导入, ciku12
 	Menu, ImportCiku, Add, 拆分源表导入, ciku14
 	Menu, ImportCiku, Add, 笔画码表导入, Write_Strocke
+	Menu, ImportCiku, Add, 临时拼音导入, ImportPinyin
 	;;Menu, ImportCiku, Disable, 笔画码表导入
 	Menu, MainMenu, Add, 词库导入, :ImportCiku
 	Menu, MainMenu, Add,
@@ -1136,8 +1139,9 @@ More_Setting:
 	Menu, ExportCiku, Add, 词库合并导出, ciku2
 	Menu, ExportCiku, Add, 英文词库导出, ciku4
 	Menu, ExportCiku, Add, 特殊符号导出, ciku6
-	Menu, ExportCiku, Add, 读音词库导出, ciku11
+	Menu, ExportCiku, Add, 注音词库导出, ciku11
 	Menu, ExportCiku, Add, 笔画词库导出, Export_Strocke
+	Menu, ExportCiku, Add, 临时拼音导出, ExportPinyin
 	Menu, MainMenu, Add, 词库导出, :ExportCiku
 	Menu, MainMenu, Add,
 	Menu, MainMenu, Add, 自造词管理, DB_management
@@ -2754,6 +2758,20 @@ sChoice4:
 	Gosub ChangeTray
 Return
 
+ImportPinyin:
+	If FileExist("Config\Script\ImportPinyin.ahk") {
+		Run *RunAs "%A_AhkPath%" /restart "Config\Script\ImportPinyin.ahk"
+	}else
+		MsgBox, 262160, 错误提示, ImportPinyin.ahk脚本不存在！, 10
+Return
+
+ExportPinyin:
+	If FileExist("Config\Script\ExportPinyin.ahk") {
+		Run *RunAs "%A_AhkPath%" /restart "Config\Script\ExportPinyin.ahk"
+	}else
+		MsgBox, 262160, 错误提示, ExportPinyin.ahk脚本不存在！, 10
+Return
+
 ciku1:
 	If FileExist("Config\Script\ImportCiku.ahk") {
 		Run *RunAs "%A_AhkPath%" /restart "Config\Script\ImportCiku.ahk"
@@ -4233,87 +4251,88 @@ return
 ;方案词库导入（超集+含词+单字）
 Write_DB:
 	Gui +OwnDialogs
-	FileSelectFile, MaBiaoFile, 3, , 导入词库, Text Documents (*.txt)
+	FileSelectFile, MaBiaoFile, 3,%A_Desktop% , 导入词库, Text Documents (*.txt)
 	SplitPath, MaBiaoFile, , , , filename
-	If (MaBiaoFile = ""){
-		TrayTip,, 取消导入
-		Return
-	} Else {
-		TrayTip,, 你选择了文件「%filename%」
-	}
-	If !filename
-		Return
-	Gui +OwnDialogs
-	MsgBox, 262452, 提示, 要导入以下词库进行替换？`n词库格式为：单行单义/单行多义
-	IfMsgBox, No
-	{
-		TrayTip,, 导入已取消！
-		Return
-	} Else {
-		if Wubi_Schema~="i)ci"
-			Gosub Backup_CustomDB
-		startTime:= CheckTickCount()
-		TrayTip,, 词库写入中，请稍后...
-		Gosub DROP_Status
-		Create_Ci(DB,MaBiaoFile)
-		tarr:=[],count :=0
-		GetFileFormat(MaBiaoFile,MaBiao,Encoding)
-		If (Encoding="UTF-16BE BOM") {
-			MsgBox, 262160, 错误提示, 文件编码格式非〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 10
-			Return
-		}
-		if MaBiao~="`n[a-z]+\s"
-			MaBiao:=Transform_mb(MaBiao)
-		else if not MaBiao~="\t\d+"
-			MaBiao:=Transform_cp(MaBiao)
-		totalCount:=CountLines(MaBiaoFile), num:=Ceil(totalCount/100)
-		tip:=Wubi_Schema~="i)ci"?"【含词】":Wubi_Schema~="i)zi"?"【单字】":Wubi_Schema~="i)chaoji"?"【超集】":"【字根】"
-		Progress, M1 Y100 FM14 W350, 1/%totalCount%, %tip%词库写入中..., 1
-		OnMessage(0x201, "MoveProgress")
-		Loop, Parse, MaBiao, `n, `r
+	If (MaBiaoFile<> ""&&filename){
+		MsgBox, 262452, 提示, 要导入以下词库进行替换？`n词库格式为：单行单义/单行多义`n码表处理过程中耗时30秒左右，请稍等。。。
+		IfMsgBox, Yes
 		{
-			count++
-			If (A_LoopField = "")
-				Continue
-			tarr:=StrSplit(A_LoopField,A_Tab,A_Tab)
-			if (tarr[3]){
-				if Wubi_Schema~="i)ci"{
-					if tarr[4]
-						Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "','" tarr[4] "','" tarr[5] "','" split_wubizg(tarr[1]) "','" get_en_code(tarr[1]) "')" ","
-					else
-						Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "','" tarr[3] "','" tarr[3] "','" split_wubizg(tarr[1]) "','" get_en_code(tarr[1]) "')" ","
-				}else{
-					If not Wubi_Schema~="i)zg"
-						Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "','" split_wubizg(tarr[1]) "','" get_en_code(tarr[1]) "')" ","
-					else
-						Insert_ci .="('" tarr[1] "','" tarr[2] "')" ","
+			startTime:= CheckTickCount()
+			TrayTip,, 码表处理中，请稍后...
+			tarr:=[],count :=0
+			GetFileFormat(MaBiaoFile,MaBiao,Encoding)
+			If (Encoding="UTF-16BE BOM")
+				MsgBox, 262160, 错误提示, 文件编码格式非〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 5
+			if MaBiao~="`n[a-z]\s.+\s.+"
+				MaBiao:=TransformCiku(MaBiao)
+			else if not MaBiao~="\t[a-z]+\t\d+"&&MaBiao~="\t[a-z]+$"
+				MaBiao:=Transform_cp(MaBiao)
+			If MaBiao~="\t[a-z]+\t\d+" {
+				totalCount:=CountLines(MaBiao), num:=Ceil(totalCount/100), EtymologyPhrase:=GetEtymologyPhrase(DB), EnPhrase:=GetEnPhrase(DB)
+				tip:=Wubi_Schema~="i)ci"?"【含词】":Wubi_Schema~="i)zi"?"【单字】":Wubi_Schema~="i)chaoji"?"【超集】":"【字根】"
+				Progress, M1 Y10 FM14 W350, 1/%totalCount%, %tip%词库处理中..., 1`%
+				Loop, Parse, MaBiao, `n, `r
+				{
+					If (A_LoopField = "")
+						Continue
+					tarr:=StrSplit(A_LoopField,A_Tab)
+					if (tarr[3]){
+						count++
+						If (Wubi_Schema="ci") {
+							If (strlen(tarr[1])=1)
+								Etymology:=EtymologyPhrase[tarr[1],1], bianma:=EnPhrase[tarr[1],1]
+							else If (strlen(tarr[1])=2) {
+								Etymology:=EtymologyPhrase[SubStr(tarr[1],1,1),2] EtymologyPhrase[SubStr(tarr[1],1,1),3] EtymologyPhrase[SubStr(tarr[1],2,1),2] EtymologyPhrase[SubStr(tarr[1],2,1),3]
+								bianma:=EnPhrase[SubStr(tarr[1],1,1),2] EnPhrase[SubStr(tarr[1],1,1),3] EnPhrase[SubStr(tarr[1],2,1),2] EnPhrase[SubStr(tarr[1],2,1),3]
+							}else If (strlen(tarr[1])=3) {
+								Etymology:=EtymologyPhrase[SubStr(tarr[1],1,1),2] EtymologyPhrase[SubStr(tarr[1],2,1),2] EtymologyPhrase[SubStr(tarr[1],3,1),2] EtymologyPhrase[SubStr(tarr[1],3,1),3]
+								bianma:=EnPhrase[SubStr(tarr[1],1,1),2] EnPhrase[SubStr(tarr[1],2,1),2] EnPhrase[SubStr(tarr[1],3,1),2] EnPhrase[SubStr(tarr[1],3,1),3]
+							}else If (strlen(tarr[1])>3) {
+								Etymology:=EtymologyPhrase[SubStr(tarr[1],1,1),2] EtymologyPhrase[SubStr(tarr[1],2,1),2] EtymologyPhrase[SubStr(tarr[1],3,1),2] EtymologyPhrase[SubStr(tarr[1],0),2]
+								bianma:=EnPhrase[SubStr(tarr[1],1,1),2] EnPhrase[SubStr(tarr[1],2,1),2] EnPhrase[SubStr(tarr[1],3,1),2] EnPhrase[SubStr(tarr[1],0),2]
+							}
+							Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "','" tarr[3] "','" tarr[3] "','" Etymology "','" bianma "')" ","
+
+						}else If Wubi_Schema~="i)zi|chaoji" {
+							Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "','" EtymologyPhrase[tarr[1],1] "','" EnPhrase[tarr[1],1] "')" ","
+						}else
+							Insert_ci .="('" tarr[1] "','" tarr[2] "')" ","
+					}
+					If (Mod(count, num)=0) {
+						tx :=Ceil(count/num)
+						Progress, %tx% , %count%/%totalCount%`n, %tip%词库处理中..., 已完成%tx%`%
+					}
 				}
-			}
-			If (Mod(count, num)=0) {
-				tx :=Ceil(count/num)
-				Progress, %tx% , %count%/%totalCount%`n, %tip%词库写入中..., 已完成%tx%`%
-			}
-		}
-		Progress,off
-		if DB.Exec(SQL :="INSERT INTO " Wubi_Schema " VALUES " RegExReplace(Insert_ci,"\,$","") ";")>0
-		{
-			timecount:= CheckTickCount(startTime)
-			Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, 写入%count%行！完成用时 %timecount%！, 完成提示
-			TrayTip,, 写入%count%行！完成用时 %timecount%
-			Sleep 5000
-			Progress,off
-			if Wubi_Schema~="i)ci"
-				FileDelete, %A_ScriptDir%\Config\Script\wubi98_ci.json
-		}
-		else
-		{
-			TrayTip,, 格式不对...
-			return
-		}
-		ToolTip(1,"")
+
+				Progress,off
+				If Insert_ci
+				{
+					MsgBox, 262452, 写入提示, 码表处理完成是否写入到词库？`n写入需要几秒钟，请等待。。。
+					IfMsgBox, Yes
+					{
+						Create_Ci(DB,MaBiaoFile)
+						if DB.Exec("INSERT INTO " Wubi_Schema " VALUES " RegExReplace(Insert_ci,"\,$","") ";")>0
+						{
+							timecount:= CheckTickCount(startTime)
+							Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, 写入%count%行！完成用时 %timecount%！, 完成提示
+							TrayTip,完成提示, 写入%count%行！完成用时 %timecount%！
+							Sleep 3000
+						}
+						else
+						{
+							MsgBox, 262160, 错误提示, 导入失败！, 8
+							return
+						}
+					}
+				}else
+					MsgBox, 262160, 错误提示, 格式不对！, 5
+			}else
+				MsgBox, 262160, 错误提示, 码表格式不对, 10
+		}else
+			TrayTip,, 导入已取消...
 	}
 	Progress,off
-	MaBiao:=Insert_ci:="",tarr:=[]
+	Gosub OnReload
 return
 
 Write_Strocke:

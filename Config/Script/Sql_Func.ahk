@@ -548,7 +548,7 @@ get_word(input, cikuname){
 			if (srf_all_Input~="i)^z"&&!zkey_mode) {
 				;;SQL :="SELECT p.aim_chars,p.C_Key,GROUP_CONCAT(e.A_Key) FROM pinyin AS p LEFT JOIN ci AS e where REPLACE(p.A_key,' ','') ='" RegExReplace(input,"^z|'","") "' AND p.aim_chars =e.aim_chars " (cikuname~="zi|chaoji"?"AND length(p.aim_chars)=1":"") " GROUP BY e.aim_chars,p.B_Key ORDER BY p.B_Key DESC"
 				;;SQL :="SELECT p.aim_chars,p.C_Key,e.A_Key FROM pinyin AS p LEFT JOIN EN_Chr AS e where REPLACE(p.A_key,' ','') ='" RegExReplace(input,"^z|'","") "' AND p.aim_chars =e.aim_chars " (cikuname~="zi|chaoji"?"AND length(p.aim_chars)=1":"") " ORDER BY p.B_Key DESC"
-				SQL :="SELECT aim_chars,C_Key,D_Key FROM pinyin WHERE REPLACE(A_key,' ','') ='" RegExReplace(input,"^z|'","") "' " (cikuname~="zi|chaoji"?"AND length(aim_chars)=1":"") " ORDER BY B_Key DESC;"
+				SQL :="SELECT aim_chars,C_Key,D_Key FROM pinyin WHERE REPLACE(A_key,' ','') ='" RegExReplace(input,"^z|'","") "' " (cikuname~="zi|chaoji"?"AND length(aim_chars)=1":"") " ORDER BY REPLACE(A_key,' ',''),B_key DESC;"
 				If DB.GetTable(SQL, Result)
 					Return Result.Rows
 			}else if (srf_all_Input ~="^[a-y]+z$|^[a-y]+z[a-z]+$|^z[a-y]+$|^z[a-y]+z[a-y]+|^[a-y]+z[a-z]+z$|^z[a-y]+z$"&&zkey_mode=1){

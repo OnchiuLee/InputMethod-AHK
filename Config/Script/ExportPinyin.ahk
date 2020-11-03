@@ -1,167 +1,105 @@
-﻿/*
-          ;方案词库导入（超集+含词+单字）
-*/
-#NoEnv
+﻿#NoEnv
 #NoTrayIcon
 #SingleInstance, Force
 #Include %A_ScriptDir%
 #Include ..\Lib\Class_EasyIni.ahk
 SetWorkingDir %A_ScriptDir%
 
-FileSelectFile, MaBiaoFile, 3,%A_Desktop% , 导入词库, Text Documents (*.txt)
-SplitPath, MaBiaoFile, , , , filename
-If (MaBiaoFile<> ""&&filename){
-	MsgBox, 262452, 提示, 要导入以下词库进行替换？`n词库格式为：单行单义/单行多义`n码表处理过程中耗时可能较长但不影响正常输入法使用。
-	IfMsgBox, Yes
-	{
-		WubiIni:=class_EasyIni(A_Temp "\InputMethodData\Config.ini"), Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]
-		DBFileName:=SubStr(A_ScriptDir,1,-13) "DB\wubi98.db", DB := New SQLiteDB
-		If !FileExist(DBFileName) {
-			MsgBox, 262160, 错误警告, %DBFileName%不存在, 5
-			ExitApp
-		}
-		If !DB.OpenDB(DBFileName) {
-			MsgBox, 262160, 数据库DB错误, % "消息:`t" DB.ErrorMsg "`n代码:`t" DB.ErrorCode, 5
-			ExitApp
-		}
-		startTime:= CheckTickCount()
-		TrayTip,, 码表处理中，请稍后...
-		tarr:=[],count :=0
-		GetFileFormat(MaBiaoFile,MaBiao,Encoding)
-		If (Encoding="UTF-16BE BOM") {
-			MsgBox, 262160, 错误提示, 文件编码格式非〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 10
-			ExitApp
-		}
-		if MaBiao~="`n[a-z]\s.+\s.+"
-			MaBiao:=TransformCiku(MaBiao)
-		else if not MaBiao~="\t[a-z]+\t\d+"&&MaBiao~="\t[a-z]+$"
-			MaBiao:=Transform_cp(MaBiao)
-		If MaBiao~="\t[a-z]+\t\d+" {
-			totalCount:=CountLines(MaBiao), num:=Ceil(totalCount/100), EtymologyPhrase:=GetEtymologyPhrase(DB), EnPhrase:=GetEnPhrase(DB)
-			tip:=Wubi_Schema~="i)ci"?"【含词】":Wubi_Schema~="i)zi"?"【单字】":Wubi_Schema~="i)chaoji"?"【超集】":"【字根】"
-			Progress, M1 Y10 FM14 W350, 1/%totalCount%, %tip%词库处理中..., 1`%
-			Loop, Parse, MaBiao, `n, `r
-			{
-				If (A_LoopField = "")
-					Continue
-				tarr:=StrSplit(A_LoopField,A_Tab)
-				if (tarr[3]){
-					count++
-					If (Wubi_Schema="ci") {
-						If (strlen(tarr[1])=1)
-							Etymology:=EtymologyPhrase[tarr[1],1], bianma:=EnPhrase[tarr[1],1]
-						else If (strlen(tarr[1])=2) {
-							Etymology:=EtymologyPhrase[SubStr(tarr[1],1,1),2] EtymologyPhrase[SubStr(tarr[1],1,1),3] EtymologyPhrase[SubStr(tarr[1],2,1),2] EtymologyPhrase[SubStr(tarr[1],2,1),3]
-							bianma:=EnPhrase[SubStr(tarr[1],1,1),2] EnPhrase[SubStr(tarr[1],1,1),3] EnPhrase[SubStr(tarr[1],2,1),2] EnPhrase[SubStr(tarr[1],2,1),3]
-						}else If (strlen(tarr[1])=3) {
-							Etymology:=EtymologyPhrase[SubStr(tarr[1],1,1),2] EtymologyPhrase[SubStr(tarr[1],2,1),2] EtymologyPhrase[SubStr(tarr[1],3,1),2] EtymologyPhrase[SubStr(tarr[1],3,1),3]
-							bianma:=EnPhrase[SubStr(tarr[1],1,1),2] EnPhrase[SubStr(tarr[1],2,1),2] EnPhrase[SubStr(tarr[1],3,1),2] EnPhrase[SubStr(tarr[1],3,1),3]
-						}else If (strlen(tarr[1])>3) {
-							Etymology:=EtymologyPhrase[SubStr(tarr[1],1,1),2] EtymologyPhrase[SubStr(tarr[1],2,1),2] EtymologyPhrase[SubStr(tarr[1],3,1),2] EtymologyPhrase[SubStr(tarr[1],0),2]
-							bianma:=EnPhrase[SubStr(tarr[1],1,1),2] EnPhrase[SubStr(tarr[1],2,1),2] EnPhrase[SubStr(tarr[1],3,1),2] EnPhrase[SubStr(tarr[1],0),2]
-						}
-						Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "','" tarr[3] "','" tarr[3] "','" Etymology "','" bianma "')" ","
-
-					}else If Wubi_Schema~="i)zi|chaoji" {
-						Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "','" EtymologyPhrase[tarr[1],1] "','" EnPhrase[tarr[1],1] "')" ","
-					}else
-						Insert_ci .="('" tarr[1] "','" tarr[2] "')" ","
-				}
-				If (Mod(count, num)=0) {
-					tx :=Ceil(count/num)
-					Progress, %tx% , %count%/%totalCount%`n, %tip%词库处理中..., 已完成%tx%`%
-				}
+WubiIni:=class_EasyIni(A_Temp "\InputMethodData\Config.ini"), Wubi_Schema:=WubiIni.Settings["Wubi_Schema"], BUyaml:=WubiIni.Settings["BUyaml"] 
+Frequency:=WubiIni.Settings["Frequency"], Prompt_Word:=WubiIni.Settings["Prompt_Word"], Trad_Mode:=WubiIni.Settings["Trad_Mode"]
+MsgBoxRenBtn("单行单义","单行多义","取消")
+Gui +OwnDialogs
+MsgBox, 262723, 导出提示, 请选择码表导出格式！！！
+IfMsgBox, No
+	mabiao:=1
+else IfMsgBox, Cancel
+{
+	DB.CloseDB()
+	ExitApp
+}
+FileSelectFolder, OutFolder,*%A_ScriptDir%\,3,请选择导出后保存的位置
+if (OutFolder<>"")
+{
+	DBFileName:=SubStr(A_ScriptDir,1,-13) "DB\wubi98.db", DB := New SQLiteDB
+	If !FileExist(DBFileName) {
+		MsgBox, 262160, 错误警告, %DBFileName%不存在, 5
+		ExitApp
+	}
+	If !DB.OpenDB(DBFileName) {
+		MsgBox, 262160, 数据库DB错误, % "消息:`t" DB.ErrorMsg "`n代码:`t" DB.ErrorCode, 5
+		ExitApp
+	}
+	startTime:= CheckTickCount()
+	Progress, M ZH-1 ZW-1 Y10 FM12 C0 FM14 WS700 ,, 正在导出。。。！, 码表导出
+	if DB.gettable("SELECT aim_chars,A_Key,B_Key FROM pinyin ORDER BY REPLACE(A_key,' ',''),B_key DESC;",Result){
+		totalCount:=Result.RowCount, num:=Ceil(totalCount/100)
+		Progress, M1 Y10 FM14 W350, 1/%totalCount%, % (mabiao?"单行多义":"单行单义") "码表导出中...", 1`%
+		Loop % Result.RowCount
+		{
+			Resoure_ .=Result.Rows[A_index,1] A_tab RegExReplace(Result.Rows[A_index,2],"\s+","'") A_tab Result.Rows[A_index,3] "`n"
+			If (Mod(A_index, num)=0) {
+				tx :=Ceil(A_index/num)
+				Progress, %tx% , %A_index%/%totalCount%`n, 临时拼音词库导出中..., 已完成%tx%`%
 			}
-
-			Progress,off
-			If Insert_ci
-			{
-				MsgBox, 262452, 写入提示, 码表处理完成是否写入到词库？`n写入需要几秒钟，请等待。。。
-				IfMsgBox, Yes
-				{
-					Create_Ci(DB,MaBiaoFile)
-					if DB.Exec("INSERT INTO " Wubi_Schema " VALUES " RegExReplace(Insert_ci,"\,$","") ";")>0
-					{
-						timecount:= CheckTickCount(startTime)
-						;;MsgBox, 262208, 完成提示, 写入%count%行！完成用时 %timecount%！,5
-						Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, 写入%count%行！完成用时 %timecount%！, 完成提示
-						Sleep 8000
-						Progress,off
-					}
-					else
-					{
-						MsgBox, 262160, 错误提示, 导入失败！, 8
-						return
-					}
-				}
-				MaBiao:=Insert_ci:="",tarr:=[]
-			}else
-				MsgBox, 262160, 错误提示, 格式不对！, 5
-		}else
-			MsgBox, 262160, 错误提示, 码表格式不对, 10
-	}else
-		TrayTip,, 导入已取消...
+		}
+		If mabiao
+			Resoure_:=TransformCiku(Resoure_)
+		timecount:= CheckTickCount(startTime)
+		FileName:=mabiao?"pinyin_多义.txt":"pinyin__单义.txt"
+		FileDelete, %OutFolder%\%FileName%
+		FileAppend,%Resoure_%,%OutFolder%\%FileName%, UTF-8
+		Resoure_ :=OutFolder :="", Result_:=Results_:=Result:=[]
+		;;MsgBox, 262208, 完成提示, 导出完成用时 %timecount%！,8
+		Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, 导出完成用时 %timecount%！, 码表导出
+		Sleep 8000
+		Progress,off
+	}else{
+		Progress,off
+		MsgBox, 262160, 错误提示, 导出失败！, 8
+	}
 	DB.CloseDB()
 }
 ExitApp
 
-GetEtymologyPhrase(DB){
-	DB.gettable("SELECT * FROM EtymologyChr;",Result)
-	startTime:= CheckTickCount(), totalCount:=Result.RowCount, num:=Ceil(totalCount/100)
-	,resultObj:={}, Phrase:=[],count:=0
-	Progress, M1 Y10 FM14 W350, 1/%totalCount%, 拆分码表处理中..., 1`%
-	OnMessage(0x201, "MoveProgress")
-	For section,element in Result.Rows
-	{
-		count++, count_1:=0
-		Phrase:=RegExReplace(element[2],"\〔|\〕|\「|\」"), str1:=Phrase~=SubStr(Phrase,1,1)?SubStr(Phrase,1,1):(SubStr(Phrase,1,2), count_1++)
-		str2:=count_1>0?(Phrase~=SubStr(Phrase,3,1)?SubStr(Phrase,3,1):SubStr(Phrase,3,2)):(Phrase~=SubStr(Phrase,2,1)?SubStr(Phrase,2,1):SubStr(Phrase,2,2))
-		resultObj[element[1]]:=[Phrase,str1,str2]
-		If (Mod(count, num)=0) {
-			tx :=Ceil(count/num)
-			Progress, %tx% , %count%/%totalCount%`n, 拆分码表处理中..., 已完成%tx%`%
-		}
-	}
-	return resultObj
-}
-
-GetEnPhrase(DB){
-	DB.gettable("SELECT * FROM EN_Chr;",Result)
-	startTime:= CheckTickCount(), totalCount:=Result.RowCount
-	, num:=Ceil(totalCount/100) ,resultObj:={}, count:=0
-	Progress, M1 Y10 FM14 W350, 1/%totalCount%, 造词源表处理中..., 1`%
-	OnMessage(0x201, "MoveProgress")
-	For section,element in Result.Rows
-	{
-		count++
-		resultObj[element[1]]:=[element[2],SubStr(element[2],1,1),SubStr(element[2],2,1)]
-		If (Mod(count, num)=0) {
-			tx :=Ceil(count/num)
-			Progress, %tx% , %count%/%totalCount%`n, 造词源表处理中..., 已完成%tx%`%
-		}
-	}
-	return resultObj
-}
-
-;;单行多义格式转换为单行单义
+;;单行单义格式转换为单行多义
 TransformCiku(Chars){
 	If (Chars="")
 		return ""
-	If Chars~="[a-z]\s.+\s.+" {
-		Loop,parse,Chars,`n,`r
+	If chars~="\W+\t[a-z]+" {
+		consistent_all:={}, totalCount:=CountLines(Chars), num:=Ceil(totalCount/100)
+		Progress, M1 Y10 FM14 W350, 1/%totalCount%, 单义处理中..., 1`%
+		Loop,parse,chars,`n,`r
 		{
 			If A_LoopField
 			{
-				consistent_part:=StrSplit(RegExReplace(A_LoopField,"\s+",A_space),A_space)
-				loopvalue_:=consistent_part[1]
-				For key,value in consistent_part
-					If (key>1&&value)
-						loopvalue.=value A_tab loopvalue_ "`r`n"
+				consistent_part:=StrSplit(A_LoopField,A_tab)
+				If (IsObject(consistent_all[RegExReplace(consistent_part[2],"\s+","'")]))
+					consistent_all[RegExReplace(consistent_part[2],"\s+","'")].push(consistent_part[1])
+				else
+					consistent_all[RegExReplace(consistent_part[2],"\s+","'")]:=[consistent_part[1]]
+			}
+			If (Mod(A_index, num)=0) {
+				tx :=Ceil(A_index/num)
+				Progress, %tx% , %A_index%/%totalCount%`n, 单义处理中..., 已完成%tx%`%
 			}
 		}
-		return Transform_cp(loopvalue)
+		totalCount:=objCount(consistent_all), num:=Ceil(totalCount/100), count:=0
+		Progress, M1 Y10 FM14 W350, 1/%totalCount%, 转换单行多义中..., 1`%
+		For section,element in consistent_all
+		{
+			For key,value in element
+				If value
+					loopvalue_.=A_space value
+			If loopvalue_
+				loopvalue.=section loopvalue_ "`r`n", loopvalue_:="", count++
+			If (Mod(count, num)=0) {
+				tx :=Ceil(count/num)
+				Progress, %tx% , %count%/%totalCount%`n, 转换单行多义中..., 已完成%tx%`%
+			}
+		}
+		return loopvalue
 	}else{
-		return ""
+		return 0
 	}
 }
 
@@ -176,6 +114,17 @@ CountLines(file){
 	Return ErrorLevel + 1
 }
 
+CheckTickCount(TC:=0){
+	if !TC {
+		DllCall("QueryPerformanceFrequency", "Int64*", freq), DllCall("QueryPerformanceCounter", "Int64*", CounterBefore)
+		Return {CB:CounterBefore,Perf:freq}
+	}Else{
+		DllCall("QueryPerformanceCounter", "Int64*", CounterAfter), t:=(CounterAfter-TC.CB)/TC.Perf
+		TickCount:=t<1?t*1000 "毫秒":(t>60?Floor(t/60) "分" mod(t,60) "秒":t "秒")
+		Return TickCount
+	}
+}
+
 GetFileFormat(FilePath,ByRef FileContent,ByRef Encoding){
 	FileRead,text,*c %FilePath%
 	If (0xBFBBEF=NumGet(&text,"UInt") & 0xFFFFFF){
@@ -188,152 +137,26 @@ GetFileFormat(FilePath,ByRef FileContent,ByRef Encoding){
 	FileRead,FileContent, %FilePath%
 }
 
-;;单行单义码表生成词频
-Transform_cp(chars){
-	CpCount:=0,arr:=[]
-	totalCount:=CountLines(Chars), num:=Ceil(totalCount/100), count:=0
-	Progress, M1 Y10 FM14 W350, 1/%totalCount%, 词频生成中..., 1`%
-	loop,parse, chars, `n, `r
-	{
-		if A_LoopField
-		{
-			CpCount:=bianma<>bianma_?1:CpCount++, count++
-			arr:=StrSplit(A_LoopField,"`t")
-			citiao:=arr[1],bianma:=arr[2]
-			cp :=citiao A_Tab bianma A_Tab (34526534-A_Index*CpCount-A_Index*24)
-			cip .=cp "`r`n", cp:="", bianma_:=bianma
-			If (Mod(count, num)=0) {
-				tx :=Ceil(count/num)
-				Progress, %tx% , %count%/%totalCount%`n, 词频生成中..., 已完成%tx%`%
-			}
+MsgBoxRenBtn(btn1="",btn2="",btn3=""){
+	Static sbtn1:="", sbtn2:="", sbtn3:="", i=0
+	sbtn1 := btn1, sbtn2 := btn2, sbtn3 := btn3, i=0
+	SetTimer, MsgBoxRenBtn, 1
+	Return
+
+	MsgBoxRenBtn:
+		If (hwnd:=WinActive("ahk_class #32770")) {
+			if (sbtn1)
+				ControlSetText, Button1, % sbtn1, ahk_id %hwnd%
+			if (sbtn2)
+				ControlSetText, Button2, % sbtn2, ahk_id %hwnd%
+			if (sbtn3)
+				ControlSetText, Button3, % sbtn3, ahk_id %hwnd%
+			SetTimer, MsgBoxRenBtn, Off
 		}
-	}
-	Progress, off
-	Return RegExReplace(cip,"^`r`n")
-}
-
-Create_Ci(DB,Name)
-{
-	global Wubi_Schema
-	If !Name
-		Return
-	SQL:="DROP TABLE IF EXISTS " Wubi_Schema ";"
-	DB.Exec(SQL)
-	DB.Exec("BEGIN TRANSACTION;")
-	if Wubi_Schema~="i)ci"
-		_SQL := "CREATE TABLE ci ('aim_chars' TEXT,'A_Key' TEXT ,'B_Key' INTEGER,'C_Key' INTEGER,'D_Key' INTEGER,'E_Key' TEXT,'F_Key' TEXT);"
-	else{
-		If not Wubi_Schema~="i)zg"
-			_SQL := "CREATE TABLE " Wubi_Schema " ('aim_chars' TEXT,'A_Key' TEXT ,'B_Key' INTEGER,'C_Key' TEXT,'D_Key' TEXT);"
-		else
-			_SQL := "CREATE TABLE " Wubi_Schema " ('aim_chars' TEXT,'A_Key' TEXT );"
-	}
-	DB.Exec(_SQL)
-	DB.Exec("CREATE INDEX IF NOT EXISTS 'main'.'sy_" Wubi_Schema "' ON '" Wubi_Schema "' ('A_Key');")
-	DB.Exec("COMMIT TRANSACTION;VACUUM;")
-}
-
-;词条拆分字根生成
-split_wubizg(input){
-	global DB
-	If (input="")
-		Return []
-	else
-	{
-		if (strlen(input)=1)
-		{
-			If DB.gettable("SELECT A_Key FROM EtymologyChr WHERE aim_chars = '" input "'", Result){
-				Result_ := Result.Rows[1,1]
-			}
-			Return RegExReplace(Result_,"\〔|\〕","")
-		} else if (strlen(input)=2) {
-			loop % 2
-			{
-				If DB.gettable("SELECT A_Key,B_Key FROM EtymologyPhrase WHERE aim_chars = '" SubStr(input,a_index,1) "'", Result){
-					Result_part :=Result.Rows[1,1] . Result.Rows[1,2]
-				}
-				Result_ .=Result_part
-			}
-			Return Result_
-		} else if (strlen(input)=3) {
-			loop % 3
-			{
-				If DB.gettable("SELECT A_Key,B_Key FROM EtymologyPhrase WHERE aim_chars = '" SubStr(input,a_index,1) "'", Result){
-					if a_index=3
-						Result_part := Result.Rows[1,1] . Result.Rows[1,2]
-					else
-						Result_part := Result.Rows[1,1]
-				}
-				Result_ .=Result_part
-			}
-			Return Result_
-		} else if (strlen(input)>3){
-			loop % 4
-			{
-				if a_index=4
-					SQL_chars :=SubStr(input,0,1)
-				else
-					SQL_chars :=SubStr(input,a_index,1)
-				If DB.gettable("SELECT A_Key,B_Key FROM EtymologyPhrase WHERE aim_chars = '" SQL_chars "'", Result){
-					Result_part := Result.Rows[1,1]
-				}
-				Result_ .=Result_part
-			}
-			Return Result_
-		}
-	}
-}
-
-;自造词条编码生成
-get_en_code(chars){
-	global DB, Wubi_Schema
-	If (chars="")
-		Return []
-	else
-	{
-		If Wubi_Schema~="i)chaoji" {
-			if (StrLen(chars)>1)
-				DB.gettable("SELECT A_Key FROM chaoji WHERE aim_chars = '" chars "';", Result)
-			else
-				DB.gettable("SELECT A_Key FROM EN_Chr WHERE aim_chars = '" chars "';", Result)
-			if (Result.Rows[1,1]<>"")
-				Result_ := Result.Rows[1,1]
-		}else{
-			Loop,% StrLen(chars)
-			{
-				If DB.gettable("SELECT A_Key FROM EN_Chr WHERE aim_chars = '" SubStr(chars,a_index,1) "'", Result){
-					if (strlen(chars)=1){
-						Result_part := Result.Rows[1,1]
-					}else{
-					if (strlen(chars)=2)
-							Result_part := SubStr(Result.Rows[1,1],1,2)
-						else if (strlen(chars)=3){
-							If (A_Index=3)
-								Result_part := SubStr(Result.Rows[1,1],1,2)
-							else
-								Result_part := SubStr(Result.Rows[1,1],1,1)
-						}if (strlen(chars)>3){
-							If (A_Index<4||A_Index=strlen(chars))
-								Result_part := SubStr(Result.Rows[1,1],1,1)
-						}
-					}
-				}
-				Result_ .=Result_part, Result_part:=""
-			}
-		}
-		Return Result_
-	}
-}
-
-CheckTickCount(TC:=0){
-	if !TC {
-		DllCall("QueryPerformanceFrequency", "Int64*", freq), DllCall("QueryPerformanceCounter", "Int64*", CounterBefore)
-		Return {CB:CounterBefore,Perf:freq}
-	}Else{
-		DllCall("QueryPerformanceCounter", "Int64*", CounterAfter), t:=(CounterAfter-TC.CB)/TC.Perf
-		TickCount:=t<1?t*1000 "毫秒":(t>60?Floor(t/60) "分" mod(t,60) "秒":t "秒")
-		Return TickCount
-	}
+		if (i >= 1000)
+			SetTimer, MsgBoxRenBtn, Off
+		i++
+	Return
 }
 ;;=============================================================Class SQLite=========================================================================================
 Class SQLiteDB {

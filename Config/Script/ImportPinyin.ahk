@@ -1,20 +1,18 @@
 ﻿/*
-          ;方案词库导入（超集+含词+单字）
+          ;临时拼音词库导入
 */
 #NoEnv
 #NoTrayIcon
 #SingleInstance, Force
 #Include %A_ScriptDir%
-#Include ..\Lib\Class_EasyIni.ahk
 SetWorkingDir %A_ScriptDir%
 
-FileSelectFile, MaBiaoFile, 3,%A_Desktop% , 导入词库, Text Documents (*.txt)
+FileSelectFile, MaBiaoFile, 3,%A_Desktop% , 导入临时拼音词库, Text Documents (*.txt)
 SplitPath, MaBiaoFile, , , , filename
 If (MaBiaoFile<> ""&&filename){
-	MsgBox, 262452, 提示, 要导入以下词库进行替换？`n词库格式为：单行单义/单行多义`n码表处理过程中耗时可能较长但不影响正常输入法使用。
+	MsgBox, 262452, 提示, 是否导入临时拼音词库进行替换？`n词库格式为：无比+制表符+wu'bi 或 「多义码表」`n码表处理耗时30秒左右。
 	IfMsgBox, Yes
 	{
-		WubiIni:=class_EasyIni(A_Temp "\InputMethodData\Config.ini"), Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]
 		DBFileName:=SubStr(A_ScriptDir,1,-13) "DB\wubi98.db", DB := New SQLiteDB
 		If !FileExist(DBFileName) {
 			MsgBox, 262160, 错误警告, %DBFileName%不存在, 5
@@ -25,7 +23,6 @@ If (MaBiaoFile<> ""&&filename){
 			ExitApp
 		}
 		startTime:= CheckTickCount()
-		TrayTip,, 码表处理中，请稍后...
 		tarr:=[],count :=0
 		GetFileFormat(MaBiaoFile,MaBiao,Encoding)
 		If (Encoding="UTF-16BE BOM") {
@@ -34,12 +31,11 @@ If (MaBiaoFile<> ""&&filename){
 		}
 		if MaBiao~="`n[a-z]\s.+\s.+"
 			MaBiao:=TransformCiku(MaBiao)
-		else if not MaBiao~="\t[a-z]+\t\d+"&&MaBiao~="\t[a-z]+$"
+		If not MaBiao~="\t\d+$"
 			MaBiao:=Transform_cp(MaBiao)
-		If MaBiao~="\t[a-z]+\t\d+" {
+		If MaBiao~="\W+\t\w+\t\d+" {
 			totalCount:=CountLines(MaBiao), num:=Ceil(totalCount/100), EtymologyPhrase:=GetEtymologyPhrase(DB), EnPhrase:=GetEnPhrase(DB)
-			tip:=Wubi_Schema~="i)ci"?"【含词】":Wubi_Schema~="i)zi"?"【单字】":Wubi_Schema~="i)chaoji"?"【超集】":"【字根】"
-			Progress, M1 Y10 FM14 W350, 1/%totalCount%, %tip%词库处理中..., 1`%
+			Progress, M1 Y10 FM14 W350, 1/%totalCount%, 临时拼音词库处理中..., 1`%
 			Loop, Parse, MaBiao, `n, `r
 			{
 				If (A_LoopField = "")
@@ -47,40 +43,33 @@ If (MaBiaoFile<> ""&&filename){
 				tarr:=StrSplit(A_LoopField,A_Tab)
 				if (tarr[3]){
 					count++
-					If (Wubi_Schema="ci") {
-						If (strlen(tarr[1])=1)
-							Etymology:=EtymologyPhrase[tarr[1],1], bianma:=EnPhrase[tarr[1],1]
-						else If (strlen(tarr[1])=2) {
-							Etymology:=EtymologyPhrase[SubStr(tarr[1],1,1),2] EtymologyPhrase[SubStr(tarr[1],1,1),3] EtymologyPhrase[SubStr(tarr[1],2,1),2] EtymologyPhrase[SubStr(tarr[1],2,1),3]
-							bianma:=EnPhrase[SubStr(tarr[1],1,1),2] EnPhrase[SubStr(tarr[1],1,1),3] EnPhrase[SubStr(tarr[1],2,1),2] EnPhrase[SubStr(tarr[1],2,1),3]
-						}else If (strlen(tarr[1])=3) {
-							Etymology:=EtymologyPhrase[SubStr(tarr[1],1,1),2] EtymologyPhrase[SubStr(tarr[1],2,1),2] EtymologyPhrase[SubStr(tarr[1],3,1),2] EtymologyPhrase[SubStr(tarr[1],3,1),3]
-							bianma:=EnPhrase[SubStr(tarr[1],1,1),2] EnPhrase[SubStr(tarr[1],2,1),2] EnPhrase[SubStr(tarr[1],3,1),2] EnPhrase[SubStr(tarr[1],3,1),3]
-						}else If (strlen(tarr[1])>3) {
-							Etymology:=EtymologyPhrase[SubStr(tarr[1],1,1),2] EtymologyPhrase[SubStr(tarr[1],2,1),2] EtymologyPhrase[SubStr(tarr[1],3,1),2] EtymologyPhrase[SubStr(tarr[1],0),2]
-							bianma:=EnPhrase[SubStr(tarr[1],1,1),2] EnPhrase[SubStr(tarr[1],2,1),2] EnPhrase[SubStr(tarr[1],3,1),2] EnPhrase[SubStr(tarr[1],0),2]
-						}
-						Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "','" tarr[3] "','" tarr[3] "','" Etymology "','" bianma "')" ","
-
-					}else If Wubi_Schema~="i)zi|chaoji" {
-						Insert_ci .="('" tarr[1] "','" tarr[2] "','" tarr[3] "','" EtymologyPhrase[tarr[1],1] "','" EnPhrase[tarr[1],1] "')" ","
-					}else
-						Insert_ci .="('" tarr[1] "','" tarr[2] "')" ","
+					If (strlen(tarr[1])=1)
+						Etymology:=EtymologyPhrase[tarr[1],1], bianma:=EnPhrase[tarr[1],1]
+					else If (strlen(tarr[1])=2) {
+						Etymology:=EtymologyPhrase[SubStr(tarr[1],1,1),2] EtymologyPhrase[SubStr(tarr[1],1,1),3] EtymologyPhrase[SubStr(tarr[1],2,1),2] EtymologyPhrase[SubStr(tarr[1],2,1),3]
+						bianma:=EnPhrase[SubStr(tarr[1],1,1),2] EnPhrase[SubStr(tarr[1],1,1),3] EnPhrase[SubStr(tarr[1],2,1),2] EnPhrase[SubStr(tarr[1],2,1),3]
+					}else If (strlen(tarr[1])=3) {
+						Etymology:=EtymologyPhrase[SubStr(tarr[1],1,1),2] EtymologyPhrase[SubStr(tarr[1],2,1),2] EtymologyPhrase[SubStr(tarr[1],3,1),2] EtymologyPhrase[SubStr(tarr[1],3,1),3]
+						bianma:=EnPhrase[SubStr(tarr[1],1,1),2] EnPhrase[SubStr(tarr[1],2,1),2] EnPhrase[SubStr(tarr[1],3,1),2] EnPhrase[SubStr(tarr[1],3,1),3]
+					}else If (strlen(tarr[1])>3) {
+						Etymology:=EtymologyPhrase[SubStr(tarr[1],1,1),2] EtymologyPhrase[SubStr(tarr[1],2,1),2] EtymologyPhrase[SubStr(tarr[1],3,1),2] EtymologyPhrase[SubStr(tarr[1],0),2]
+						bianma:=EnPhrase[SubStr(tarr[1],1,1),2] EnPhrase[SubStr(tarr[1],2,1),2] EnPhrase[SubStr(tarr[1],3,1),2] EnPhrase[SubStr(tarr[1],0),2]
+					}
+					Insert_ci .="('" count "','" tarr[1] "','" RegExReplace(tarr[2],"\'",A_space) "','" tarr[3] "','" Etymology "','" bianma "')" ","
 				}
 				If (Mod(count, num)=0) {
 					tx :=Ceil(count/num)
-					Progress, %tx% , %count%/%totalCount%`n, %tip%词库处理中..., 已完成%tx%`%
+					Progress, %tx% , %count%/%totalCount%`n, 临时拼音词库处理中..., 已完成%tx%`%
 				}
 			}
-
 			Progress,off
 			If Insert_ci
 			{
-				MsgBox, 262452, 写入提示, 码表处理完成是否写入到词库？`n写入需要几秒钟，请等待。。。
+				MsgBox, 262452, 写入提示, 码表处理完成是否写入到临时拼音词库？`n写入需要几秒钟，请等待。。。
 				IfMsgBox, Yes
 				{
-					Create_Ci(DB,MaBiaoFile)
-					if DB.Exec("INSERT INTO " Wubi_Schema " VALUES " RegExReplace(Insert_ci,"\,$","") ";")>0
+					Create_pinyin(DB,MaBiaoFile)
+					if DB.Exec("INSERT INTO pinyin VALUES " RegExReplace(Insert_ci,"\,$","") ";")>0
 					{
 						timecount:= CheckTickCount(startTime)
 						;;MsgBox, 262208, 完成提示, 写入%count%行！完成用时 %timecount%！,5
@@ -148,44 +137,29 @@ TransformCiku(Chars){
 	If (Chars="")
 		return ""
 	If Chars~="[a-z]\s.+\s.+" {
+		totalCount:=CountLines(Chars), num:=Ceil(totalCount/100), count:=0
+		Progress, M1 Y10 FM14 W350, 1/%totalCount%, 转换单行单义中..., 1`%
 		Loop,parse,Chars,`n,`r
 		{
 			If A_LoopField
 			{
-				consistent_part:=StrSplit(RegExReplace(A_LoopField,"\s+",A_space),A_space)
+				consistent_part:=StrSplit(RegExReplace(A_LoopField,"\s+",A_space),A_space),count++
 				loopvalue_:=consistent_part[1]
 				For key,value in consistent_part
 					If (key>1&&value)
 						loopvalue.=value A_tab loopvalue_ "`r`n"
+				If (Mod(count, num)=0) {
+					tx :=Ceil(count/num)
+					Progress, %tx% , %count%/%totalCount%`n, 转换单行单义中..., 已完成%tx%`%
+				}
 			}
 		}
+		Progress, off
 		return Transform_cp(loopvalue)
 	}else{
+		Progress, off
 		return ""
 	}
-}
-
-;;统计行数
-CountLines(file){ 
-	If not file~="`n"
-		FileRead, Text, %file%
-	else
-		Text:=file
-	StringReplace, Text, Text, `n, `n, UseErrorLevel
-	Text:=""
-	Return ErrorLevel + 1
-}
-
-GetFileFormat(FilePath,ByRef FileContent,ByRef Encoding){
-	FileRead,text,*c %FilePath%
-	If (0xBFBBEF=NumGet(&text,"UInt") & 0xFFFFFF){
-		Encoding:= "UTF-8 BOM" 
-	}else if (0xFFFE=NumGet(&text,"UShort") ){
-		Encoding:= "UTF-16BE BOM"
-	}else If (0xFEFF=NumGet(&text,"UShort") ){
-		Encoding:= "UTF-16LE BOM"
-	}
-	FileRead,FileContent, %FilePath%
 }
 
 ;;单行单义码表生成词频
@@ -212,117 +186,38 @@ Transform_cp(chars){
 	Return RegExReplace(cip,"^`r`n")
 }
 
-Create_Ci(DB,Name)
+;;统计行数
+CountLines(file){ 
+	If not file~="`n"
+		FileRead, Text, %file%
+	else
+		Text:=file
+	StringReplace, Text, Text, `n, `n, UseErrorLevel
+	Text:=""
+	Return ErrorLevel + 1
+}
+
+GetFileFormat(FilePath,ByRef FileContent,ByRef Encoding){
+	FileRead,text,*c %FilePath%
+	If (0xBFBBEF=NumGet(&text,"UInt") & 0xFFFFFF){
+		Encoding:= "UTF-8 BOM" 
+	}else if (0xFFFE=NumGet(&text,"UShort") ){
+		Encoding:= "UTF-16BE BOM"
+	}else If (0xFEFF=NumGet(&text,"UShort") ){
+		Encoding:= "UTF-16LE BOM"
+	}
+	FileRead,FileContent, %FilePath%
+}
+
+Create_Pinyin(DB,Name)
 {
-	global Wubi_Schema
 	If !Name
 		Return
-	SQL:="DROP TABLE IF EXISTS " Wubi_Schema ";"
-	DB.Exec(SQL)
+	DB.Exec("DROP TABLE IF EXISTS pinyin;")
 	DB.Exec("BEGIN TRANSACTION;")
-	if Wubi_Schema~="i)ci"
-		_SQL := "CREATE TABLE ci ('aim_chars' TEXT,'A_Key' TEXT ,'B_Key' INTEGER,'C_Key' INTEGER,'D_Key' INTEGER,'E_Key' TEXT,'F_Key' TEXT);"
-	else{
-		If not Wubi_Schema~="i)zg"
-			_SQL := "CREATE TABLE " Wubi_Schema " ('aim_chars' TEXT,'A_Key' TEXT ,'B_Key' INTEGER,'C_Key' TEXT,'D_Key' TEXT);"
-		else
-			_SQL := "CREATE TABLE " Wubi_Schema " ('aim_chars' TEXT,'A_Key' TEXT );"
-	}
+	_SQL = CREATE TABLE pinyin ("list" INTEGER PRIMARY KEY AUTOINCREMENT,"aim_chars" TEXT,"A_Key" TEXT,"B_Key" TEXT,"C_Key" TEXT,"D_Key" TEXT);
 	DB.Exec(_SQL)
-	DB.Exec("CREATE INDEX IF NOT EXISTS 'main'.'sy_" Wubi_Schema "' ON '" Wubi_Schema "' ('A_Key');")
 	DB.Exec("COMMIT TRANSACTION;VACUUM;")
-}
-
-;词条拆分字根生成
-split_wubizg(input){
-	global DB
-	If (input="")
-		Return []
-	else
-	{
-		if (strlen(input)=1)
-		{
-			If DB.gettable("SELECT A_Key FROM EtymologyChr WHERE aim_chars = '" input "'", Result){
-				Result_ := Result.Rows[1,1]
-			}
-			Return RegExReplace(Result_,"\〔|\〕","")
-		} else if (strlen(input)=2) {
-			loop % 2
-			{
-				If DB.gettable("SELECT A_Key,B_Key FROM EtymologyPhrase WHERE aim_chars = '" SubStr(input,a_index,1) "'", Result){
-					Result_part :=Result.Rows[1,1] . Result.Rows[1,2]
-				}
-				Result_ .=Result_part
-			}
-			Return Result_
-		} else if (strlen(input)=3) {
-			loop % 3
-			{
-				If DB.gettable("SELECT A_Key,B_Key FROM EtymologyPhrase WHERE aim_chars = '" SubStr(input,a_index,1) "'", Result){
-					if a_index=3
-						Result_part := Result.Rows[1,1] . Result.Rows[1,2]
-					else
-						Result_part := Result.Rows[1,1]
-				}
-				Result_ .=Result_part
-			}
-			Return Result_
-		} else if (strlen(input)>3){
-			loop % 4
-			{
-				if a_index=4
-					SQL_chars :=SubStr(input,0,1)
-				else
-					SQL_chars :=SubStr(input,a_index,1)
-				If DB.gettable("SELECT A_Key,B_Key FROM EtymologyPhrase WHERE aim_chars = '" SQL_chars "'", Result){
-					Result_part := Result.Rows[1,1]
-				}
-				Result_ .=Result_part
-			}
-			Return Result_
-		}
-	}
-}
-
-;自造词条编码生成
-get_en_code(chars){
-	global DB, Wubi_Schema
-	If (chars="")
-		Return []
-	else
-	{
-		If Wubi_Schema~="i)chaoji" {
-			if (StrLen(chars)>1)
-				DB.gettable("SELECT A_Key FROM chaoji WHERE aim_chars = '" chars "';", Result)
-			else
-				DB.gettable("SELECT A_Key FROM EN_Chr WHERE aim_chars = '" chars "';", Result)
-			if (Result.Rows[1,1]<>"")
-				Result_ := Result.Rows[1,1]
-		}else{
-			Loop,% StrLen(chars)
-			{
-				If DB.gettable("SELECT A_Key FROM EN_Chr WHERE aim_chars = '" SubStr(chars,a_index,1) "'", Result){
-					if (strlen(chars)=1){
-						Result_part := Result.Rows[1,1]
-					}else{
-					if (strlen(chars)=2)
-							Result_part := SubStr(Result.Rows[1,1],1,2)
-						else if (strlen(chars)=3){
-							If (A_Index=3)
-								Result_part := SubStr(Result.Rows[1,1],1,2)
-							else
-								Result_part := SubStr(Result.Rows[1,1],1,1)
-						}if (strlen(chars)>3){
-							If (A_Index<4||A_Index=strlen(chars))
-								Result_part := SubStr(Result.Rows[1,1],1,1)
-						}
-					}
-				}
-				Result_ .=Result_part, Result_part:=""
-			}
-		}
-		Return Result_
-	}
 }
 
 CheckTickCount(TC:=0){

@@ -2361,21 +2361,49 @@ Transform_mb(chars){
 	}
 }
 
-;导入单义码表加词频
+;;单行多义格式转换为单行单义
+TransformCiku(Chars){
+	If (Chars="")
+		return ""
+	If Chars~="[a-z]\s.+\s.+" {
+		Loop,parse,Chars,`n,`r
+		{
+			If A_LoopField
+			{
+				consistent_part:=StrSplit(RegExReplace(A_LoopField,"\s+",A_space),A_space)
+				loopvalue_:=consistent_part[1]
+				For key,value in consistent_part
+					If (key>1&&value)
+						loopvalue.=value A_tab loopvalue_ "`r`n"
+			}
+		}
+		return Transform_cp(loopvalue)
+	}else{
+		return ""
+	}
+}
+
+;;单行单义码表生成词频
 Transform_cp(chars){
-	Traytip,,正在转换。。。
-	CpCount:=0
+	CpCount:=0,arr:=[]
+	totalCount:=CountLines(Chars), num:=Ceil(totalCount/100), count:=0
+	Progress, M1 Y10 FM14 W350, 1/%totalCount%, 词频生成中..., 1`%
 	loop,parse, chars, `n, `r
 	{
 		if A_LoopField
 		{
-			CpCount:=bianma<>bianma_?1:CpCount++
-			RegExMatch(A_LoopField, "^.+(?=\t[a-z])", citiao)
-			RegExMatch(A_LoopField, "(?<=.\t)[a-z]+$", bianma)
+			CpCount:=bianma<>bianma_?1:CpCount++, count++
+			arr:=StrSplit(A_LoopField,"`t")
+			citiao:=arr[1],bianma:=arr[2]
 			cp :=citiao A_Tab bianma A_Tab (34526534-A_Index*CpCount-A_Index*24)
-			cip .=cp "`r`n", cp:=""
+			cip .=cp "`r`n", cp:="", bianma_:=bianma
+			If (Mod(count, num)=0) {
+				tx :=Ceil(count/num)
+				Progress, %tx% , %count%/%totalCount%`n, 词频生成中..., 已完成%tx%`%
+			}
 		}
 	}
+	Progress, off
 	Return RegExReplace(cip,"^`r`n")
 }
 
@@ -3624,6 +3652,44 @@ HexToRGB(Color, Mode="") ; Input: 6 characters HEX-color. Mode can be RGB, Messa
 	else
 		Out := R . G . B ; Returns 255255255
 	return Out
+}
+
+GetEtymologyPhrase(DB){
+	DB.gettable("SELECT * FROM EtymologyChr;",Result)
+	startTime:= CheckTickCount(), totalCount:=Result.RowCount, num:=Ceil(totalCount/100)
+	,resultObj:={}, Phrase:=[],count:=0
+	Progress, M1 Y10 FM14 W350, 1/%totalCount%, 拆分码表处理中..., 1`%
+	OnMessage(0x201, "MoveProgress")
+	For section,element in Result.Rows
+	{
+		count++, count_1:=0
+		Phrase:=RegExReplace(element[2],"\〔|\〕|\「|\」"), str1:=Phrase~=SubStr(Phrase,1,1)?SubStr(Phrase,1,1):(SubStr(Phrase,1,2), count_1++)
+		str2:=count_1>0?(Phrase~=SubStr(Phrase,3,1)?SubStr(Phrase,3,1):SubStr(Phrase,3,2)):(Phrase~=SubStr(Phrase,2,1)?SubStr(Phrase,2,1):SubStr(Phrase,2,2))
+		resultObj[element[1]]:=[Phrase,str1,str2]
+		If (Mod(count, num)=0) {
+			tx :=Ceil(count/num)
+			Progress, %tx% , %count%/%totalCount%`n, 拆分码表处理中..., 已完成%tx%`%
+		}
+	}
+	return resultObj
+}
+
+GetEnPhrase(DB){
+	DB.gettable("SELECT * FROM EN_Chr;",Result)
+	startTime:= CheckTickCount(), totalCount:=Result.RowCount
+	, num:=Ceil(totalCount/100) ,resultObj:={}, count:=0
+	Progress, M1 Y10 FM14 W350, 1/%totalCount%, 造词源表处理中..., 1`%
+	OnMessage(0x201, "MoveProgress")
+	For section,element in Result.Rows
+	{
+		count++
+		resultObj[element[1]]:=[element[2],SubStr(element[2],1,1),SubStr(element[2],2,1)]
+		If (Mod(count, num)=0) {
+			tx :=Ceil(count/num)
+			Progress, %tx% , %count%/%totalCount%`n, 造词源表处理中..., 已完成%tx%`%
+		}
+	}
+	return resultObj
 }
 
 ChangeWindowIcon(IconFile, hWnd:="A", IconNumber:=1, IconSize:=128) {    ;ico图标文件IconNumber和IconSize不用填，如果是icl图标库需要填
