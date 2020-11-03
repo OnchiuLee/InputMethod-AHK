@@ -35,7 +35,7 @@ If !FileExist(A_Temp "\InputMethodData\Config.ini") {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020110208"
+version :="2020110218"
 ;;--------------------------------------------------------
 FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
 RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
@@ -567,7 +567,7 @@ ShellIMEMessage( wParam,lParam ) {
 			Gosub RestLogo
 		}
 		LastWinEXE:=WinEXE_, Eid:=WinExist(), lunarDate:=Date2LunarDate(SubStr( A_Now,1,10),GzType)
-		program:="※ " Startup_Name " ※`n◆ 当前方案：" (Wubi_Schema~="i)ci"?"【98五笔•含词】":Wubi_Schema~="i)zi"?"【98五笔•单字】":Wubi_Schema~="i)zg"?"【98五笔•字根】":"【98五笔•超集】") "`n◆ 农历日期：" lunarDate[1] "〖 " A_DDDD " 〗`n◆ 甲子历：" lunarDate[2] "`n◆ 农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))   ;;"`n◆ 版本日期：" versions
+		program:="※ " Startup_Name " ※`n◆ 当前方案：" (Wubi_Schema~="i)ci"?"【五笔•含词】":Wubi_Schema~="i)zi"?"【五笔•单字】":Wubi_Schema~="i)zg"?"【五笔•字根】":"【98五笔•超集】") "`n◆ 农历日期：" lunarDate[1] "〖 " A_DDDD " 〗`n◆ 甲子历：" lunarDate[2] "`n◆ 农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))   ;;"`n◆ 版本日期：" versions
 		Menu,Tray,Tip,%program%
 		Gosub SelectItems
 	Return
