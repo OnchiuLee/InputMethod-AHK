@@ -2860,7 +2860,7 @@ FocusGdipGui(codetext, Textobj, x:=0, y:=0, Font:="Microsoft YaHei UI"){
 				TPosObj[A_Index+1,1]:=srf_all_Input~="\d+"?t+FontSize:t+FontSize*0.5, TPosObj[A_Index+1,2]:=TPosObj[A_Index,2], t+=TPosObj[A_Index+1,3]+hoffset
 		}
 		mw:=Max(mw,t)+(srf_all_Input~="\d+"?FontSize*2:ObjLength(Textobj)>1?FontSize*0.5:0)
-		mh+=TPosObj[TPosObj.Length(),4]*DPI
+		mh+=TPosObj[TPosObj.Length(),4]*(DPI>1.25?1.2:DPI<1.25?1.3:DPI)
 		Loop % Textobj[0].Length()
 			TPosObj[0,A_Index] := Gdip_MeasureString2(G, Textobj[0,A_Index], hFont, hFormat, RC), TPosObj[0,A_Index,1]:=xoffset, TPosObj[0,A_Index,2]:=mh, mh += TPosObj[0,A_Index,4], mw:=Max(mw,TPosObj[0,A_Index,3])
 		Loop % Textobj[0].Length()
