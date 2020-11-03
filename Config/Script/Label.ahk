@@ -375,13 +375,13 @@ TRAY_Menu:
 	Menu, Tray, Add, 词库,:DB
 	Menu, Tray, Icon, 词库, shell32.dll, 131
 	Menu, Tray, Add
-	Menu, Schema, Add, 五笔含词, ChoiceItems
+	Menu, Schema, Add, 含词, ChoiceItems
 	Menu, Schema, Add
-	Menu, Schema, Add, 五笔单字, ChoiceItems
+	Menu, Schema, Add, 单字, ChoiceItems
 	Menu, Schema, Add
-	Menu, Schema, Add, 98超集, ChoiceItems
+	Menu, Schema, Add, 超集, ChoiceItems
 	Menu, Schema, Add
-	Menu, Schema, Add, 五笔字根, ChoiceItems
+	Menu, Schema, Add, 五笔•字根, ChoiceItems
 	Menu, Schema, Color, FFFFFF
 	SCMENU := Menu_GetMenuByName("Schema")
 	Menu, More, Add, 方案切换,:Schema
@@ -513,6 +513,15 @@ Return
 SelectItems:
 	Menu_CheckRadioItem(SCMENU, Wubi_Schema~="i)ci"?1:Wubi_Schema~="i)zi"?3:Wubi_Schema~="i)chaoji"?5:7)
 	Menu_CheckRadioItem(TMENU, ToolTipStyle~="i)on"?1:ToolTipStyle~="i)off"?3:5), Menu_CheckRadioItem(HMENU, ToolTipStyle ~="i)on"?1:ToolTipStyle ~="i)off"?2:3)
+	SchemaType:=CheckWubiVersion(DB), Startup_Name:="五笔" SchemaType["ci"] "版"
+	Menu, Schema, Rename, % Menu_GetItemName(SCMENU, 1) , % SchemaType["ci"] "五笔•含词"
+	Menu, Schema, Rename, % Menu_GetItemName(SCMENU, 3) , % SchemaType["zi"] "五笔•单字"
+	Menu, Schema, Rename, % Menu_GetItemName(SCMENU, 5) , % SchemaType["chaoji"] "五笔•超集"
+	If WinExist("输入法设置") {
+		Menu, SchemaList, Rename, % Menu_GetItemName(SMENU, 1) , % SchemaType["ci"] "五笔•含词"
+		Menu, SchemaList, Rename, % Menu_GetItemName(SMENU, 2) , % SchemaType["zi"] "五笔•单字"
+		Menu, SchemaList, Rename, % Menu_GetItemName(SMENU, 3) , % SchemaType["chaoji"] "五笔•超集"
+	}
 Return
 
 ChoiceItems:

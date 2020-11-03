@@ -986,7 +986,7 @@ prompt_symbols(input){
 }
 
 Getotherinfo(input){
-	global Wubi_Schema, Initial_Mode, EN_Mode, CharFliter, PromptChar, Prompt_Word, Trad_Mode
+	global Wubi_Schema, Initial_Mode, EN_Mode, CharFliter, PromptChar, Prompt_Word, Trad_Mode, SchemaType
 	If (input="")
 		Return []
 	ResultAll:=[]
@@ -1005,9 +1005,9 @@ Getotherinfo(input){
 	}else{
 		scObject:={zznl:Get_LunarDate()
 			,zzsj:Get_Time(),zzrq:Get_Date()
-			,sc:[["含词",Wubi_Schema~="i)ci"&&!EN_Mode?"√":"",Wubi_Schema~="i)ci"&&!EN_Mode?"√":"","ci"]
-				,["单字",Wubi_Schema~="i)zi"&&!EN_Mode?"√":"",Wubi_Schema~="i)zi"&&!EN_Mode?"√":"","zi"]
-				,["超集",Wubi_Schema~="i)chaoji"&&!EN_Mode?"√":"",Wubi_Schema~="i)chaoji"&&!EN_Mode?"√":"","chaoji"]
+			,sc:[[SchemaType["ci"] "含词",Wubi_Schema~="i)ci"&&!EN_Mode?"√":"",Wubi_Schema~="i)ci"&&!EN_Mode?"√":"","ci"]
+				,[SchemaType["zi"] "单字",Wubi_Schema~="i)zi"&&!EN_Mode?"√":"",Wubi_Schema~="i)zi"&&!EN_Mode?"√":"","zi"]
+				,[SchemaType["chaoji"] "超集",Wubi_Schema~="i)chaoji"&&!EN_Mode?"√":"",Wubi_Schema~="i)chaoji"&&!EN_Mode?"√":"","chaoji"]
 				,["英文",EN_Mode?"√":"",EN_Mode?"√":"","en"]
 				,["字根",Wubi_Schema~="i)zg"&&!EN_Mode?"√":"",Wubi_Schema~="i)zg"&&!EN_Mode?"√":"","zg"]]
 			,sp:[[Initial_Mode~="i)off"?"发送上屏":"剪切板上屏",Initial_Mode~="i)on"?"√":"",Initial_Mode~="i)on"?"√":"","clip"]
