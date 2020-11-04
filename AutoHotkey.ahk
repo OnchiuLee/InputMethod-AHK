@@ -16,29 +16,50 @@
 #WinActivateForce
 #Include %A_ScriptDir%
 
-ProcessName :=RegExReplace(A_AhkPath,".+\\") 
-Loop, Files, main\*.exe
-{
-	If (InStr( GetFileInfo(A_LoopFileLongPath), 64)&&InStr( GetFileInfo(A_AhkPath), 32)&&A_Is64bitOS) {
-		Run *RunAs "%A_LoopFileLongPath%" /restart "%A_ScriptFullPath%"
-		runwait, %ComSpec% /c taskkill /f /IM %ProcessName%, , Hide
-		break
+If FileExist(A_ScriptDir "\main\*_UIA.exe")
+	FileDelete,main\*_UIA.exe
+If FileExist(A_ScriptDir "\*_UIA.exe")
+	FileDelete,*_UIA.exe
+If (!FileExist(Program:=(StrReplace(A_ProgramFiles, " (x86)") "\WubiInputMethod"))&&A_Is64bitOS) {
+	FileCreateDir,%Program%\x64
+	FileCreateDir,%Program%\x86
+	FileCopy, *.exe, %Program%\x86\*.*
+	FileCopy, main\*.exe, %Program%\x64\*.*
+}else If !FileExist(A_ProgramFiles "\WubiInputMethod")&&!A_Is64bitOS{
+	FileCreateDir,%A_ProgramFiles%\WubiInputMethod\x86
+	FileCopy, *.exe, %A_ProgramFiles%\WubiInputMethod\x86\*.*
+}
+BaseDir:=A_Is64bitOS?(FileExist(A_ScriptDir "\main\*.exe")?StrReplace(A_ProgramFiles, " (x86)") "\WubiInputMethod\x64":StrReplace(A_ProgramFiles, " (x86)") "\WubiInputMethod\x86"):A_ProgramFiles "\WubiInputMethod\x86" 
+If FileExist(BaseDir) {
+	ProcessName :=RegExReplace(A_AhkPath,".+\\"), count:=count_:=0
+	IniRead, UIA, %A_Temp%\InputMethodData\Config.ini, Settings, UIAccess ,0
+	Loop, Files, %BaseDir%\*.exe
+	{
+		count_++
+		If (UIA&&InStr(A_LoopFileLongPath,"_UIA")&&!InStr(A_AhkPath,"_UIA")) {
+			Run *RunAs "%A_LoopFileLongPath%" /restart "%A_ScriptFullPath%"
+			runwait, %ComSpec% /c taskkill /f /IM %ProcessName%, , Hide
+			break
+		}else If (!UIA&&!InStr(A_LoopFileLongPath,"_UIA")&&A_AhkPath<>A_LoopFileLongPath) {
+			Run *RunAs "%A_LoopFileLongPath%" /restart "%A_ScriptFullPath%"
+			runwait, %ComSpec% /c taskkill /f /IM %ProcessName%, , Hide
+			break
+		}else If (UIA&&!InStr(A_LoopFileLongPath,"_UIA")&&!InStr(A_AhkPath,"_UIA")) 
+			sPath:=A_LoopFileLongPath, count++
 	}
+	If (UIA&&count=count_)
+		EnableUIAccess(sPath,UIA)
 }
 
 If !FileExist(A_Temp "\InputMethodData")
 	FileCreateDir,%A_Temp%\InputMethodData
-If !FileExist(A_Temp "\InputMethodData\Config.ini") {
-	FileDelete,main\*_UIA.exe
-	FileDelete,*_UIA.exe
-}
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020110317"
+version :="2020110418"
 ;;--------------------------------------------------------
-FileRead,_content,%A_Temp%\InputMethodData\Config.ini   ;
-RegExMatch(_content,"(?<=ThemeName\=).+",tName), _content:=""
+FileRead, inivar, %A_Temp%\InputMethodData\Config.ini
+RegExMatch(inivar,"(?<=ThemeName\=).+",tName)
 tName:=tName?tName:(FileExist("Config\Skins\" DefaultThemeName ".json")?DefaultThemeName:"Steam"), ThemeObject:= Json_FileToObj("Config\Skins\" tName ".json")
 Bg_Color :=SubStr(ThemeObject["color_scheme","BgColor"],5,2) SubStr(ThemeObject["color_scheme","BgColor"],3,2) SubStr(ThemeObject["color_scheme","BgColor"],1,2)
 Border_Color:=SubStr(ThemeObject["color_scheme","BorderColor"],5,2) SubStr(ThemeObject["color_scheme","BorderColor"],3,2) SubStr(ThemeObject["color_scheme","BorderColor"],1,2)
@@ -105,7 +126,7 @@ else
 	IniRead, status, %A_Temp%\InputMethodData\Config.ini, Initialize, status ,0
 global srf_default_value,config_tip, WubiIni:=class_EasyIni(A_Temp "\InputMethodData\Config.ini")
 , srf_default_obj:={LogoColor:{LogoColor_cn:"008000",LogoColor_en:"00FFFF",LogoColor_caps:"0000ff"}
-	,Settings:{Startup:"off",CNID:CpuID,IStatus:1,CharFliter:0,Exit_switch:1,PromptChar:0, DPIScale:1,CursorStatus:0,Exit_hotkey:"^esc", symb_mode:2,Frequency:0,StrockeKey:"h|s|p|n|z"
+	,Settings:{Startup:"off",IStatus:1,CharFliter:0,Exit_switch:1,PromptChar:0, DPIScale:1,CursorStatus:0,Exit_hotkey:"^esc", symb_mode:2,Frequency:0,StrockeKey:"h|s|p|n|z"
 		,Freq_Count:3,srfTool:0,length_code:"on",GzType:0, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f",versions:version,EnKeyboardMode:0
 		, cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"10", Logo_Y:A_ScreenHeight/2, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock"
 		, Suspend_switch:1,zkey_mode:0, Suspend_hotkey:"!z", tip_hotkey:"!q", rlk_switch:0, Logo_Switch:"on",Srf_Hotkey:"Shift", Select_Enter:"clean", TurnPage:2
@@ -117,7 +138,7 @@ global srf_default_value,config_tip, WubiIni:=class_EasyIni(A_Temp "\InputMethod
 	, CustomColors:{Color_Row1:"0x1C7399,0xEEEEEC,0x014E8B,0x444444,0x009FE8,0xDEF9FA,0xF8B62D,0x90FC0F", Color_Row2:"0x0078D7,0x0D1B0A,0xB9D497,0x00ADEF,0x1778BF,0xFDF6E3,0x002B36,0xDEDEDE"}}
 ;初始化默认配置
 if (FileExist(A_ScriptDir "\Sync\Default.json")&&!status) {
-	srf_default_value:=Json_FileToObj(A_ScriptDir "\Sync\Default.json"), srf_default_value["Settings","CNID"]=CpuID
+	srf_default_value:=Json_FileToObj(A_ScriptDir "\Sync\Default.json")
 	For Section, element In srf_default_obj
 	{
 		For key,value In element
@@ -194,16 +215,6 @@ For Section, element In config_tip
 Gosub IsGdipline
 WubiIni.Save()
 ;}}}}}
-
-If (UIAccess&&CNID=CpuID){             ;FileExist(RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")) "*_UIA.exe")
-	EnableUIAccess()
-}else If (CNID<>CpuID){
-	UIAccess:=WubiIni.Settings["UIAccess"]:=0,CNID:=WubiIni.Settings["CNID"]:=CpuID, WubiIni.Save()
-	If FileExist(RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")) "*_UIA.exe")
-		FileDelete, % RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")) "*_UIA.exe"
-}else If (UIAccess&&not RegExReplace(A_AhkPath,".+\\")~="i)\_UIA"){
-	UIAccess:=WubiIni.Settings["UIAccess"]:=0,CNID:=WubiIni.Settings["CNID"]:=CpuID, WubiIni.Save()
-}
 
 Gosub TRAY_Menu
 if FileExist(A_ScriptDir "\*.ico") {
