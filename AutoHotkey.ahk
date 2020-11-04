@@ -20,6 +20,8 @@ If FileExist(A_ScriptDir "\main\*_UIA.exe")
 	FileDelete,main\*_UIA.exe
 If FileExist(A_ScriptDir "\*_UIA.exe")
 	FileDelete,*_UIA.exe
+If !FileExist(A_Temp "\InputMethodData")
+	FileCreateDir,%A_Temp%\InputMethodData
 If (!FileExist(Program:=(StrReplace(A_ProgramFiles, " (x86)") "\WubiInputMethod"))&&A_Is64bitOS) {
 	FileCreateDir,%Program%\x64
 	FileCreateDir,%Program%\x86
@@ -50,9 +52,6 @@ If FileExist(BaseDir) {
 	If (UIA&&count=count_)
 		EnableUIAccess(sPath,UIA)
 }
-
-If !FileExist(A_Temp "\InputMethodData")
-	FileCreateDir,%A_Temp%\InputMethodData
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
