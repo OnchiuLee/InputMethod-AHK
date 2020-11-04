@@ -55,7 +55,7 @@ If FileExist(BaseDir) {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020110418"
+version :="2020110419"
 ;;--------------------------------------------------------
 FileRead, inivar, %A_Temp%\InputMethodData\Config.ini
 RegExMatch(inivar,"(?<=ThemeName\=).+",tName)
@@ -517,13 +517,23 @@ if !ObjCount(InputModeData) {
 		If !ObjCount(element)
 			InputModeData[Section]:=DefaultModeData[Section], Json_ObjToFile(InputModeData, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
 }
+
+;;监控消息回调ShellIMEMessage监控窗口变化
 Gui +LastFound
 DllCall( "RegisterShellHookWindow", UInt,WinExist() )   ;WinActive()
 OnMessage( DllCall( "RegisterWindowMessage", Str,"SHELLHOOK" ), "ShellIMEMessage")
 ShellIMEMessage( wParam,lParam ) {
+	/*    wParam参数：
+		;1 顶级窗体被创建 	;2 顶级窗体即将被关闭 	;54 退出全屏	;32772 窗口切换
+		;3 SHELL 的主窗体将被激活 	;4 顶级窗体被激活 	;&H8000& 掩码 	;53 全屏
+		;5 顶级窗体被最大化或最小化 	;6 Windows 任务栏被刷新，也可以理解成标题变更
+		;7 任务列表的内容被选中 	;8 中英文切换或输入法切换 	;13 wParam=被替换的顶级窗口的hWnd 
+		;9 显示系统菜单 	;10 顶级窗体被强制关闭 	;14 wParam=替换顶级窗口的窗口hWnd
+		;12 没有被程序处理的APPCOMMAND。见WM_APPCOMMAND
+	*/
 	global srf_mode, InputModeData, Initial_Mode, WubiIni,StyleN,IStatus, program, IMEmode ,CursorStatus, versions, GzType, SchemaType
 		, Startup_Name, Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, srf_all_input, ID_Cursor, Logo_Switch
-	If (wParam = 1 ){    ; wParam = 6
+	If (wParam = 1||wParam=32772 ){
 		WinGet, WinEXE, ProcessName , ahk_id %lParam%
 		WinGetclass, WinClass, ahk_id %lParam%
 		;WinActivate,ahk_class %WinClass%
