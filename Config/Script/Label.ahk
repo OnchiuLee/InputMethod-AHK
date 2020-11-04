@@ -1192,17 +1192,13 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","Initialize","SBA13","TextInfo1","showtools","SrfSlider","SizeValue","set_SizeValue","ExSty","DPISty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","TextInfo27","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 		,GBoxList2:["GBox2","TextInfo25","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","font_size","TextInfo11","FontSelect","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
-		,GBoxList3:["GBox3","SBA7","SBA26","SBA27","SBA28","SBA23","SBA24","TextInfo29","zKeySet","UIAccess","SBA6","SBA14","SBA18","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC","Cursor_Status","yaml_"]
+		,GBoxList3:["GBox3","SBA7","SBA26","SBA27","SBA28","SBA23","SBA24","TextInfo29","TextInfo22","zKeySet","UIAccess","SBA6","SBA14","SBA18","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC","Cursor_Status","yaml_"]
 		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode","TextInfo21","PageChoice"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","linkinfo1","linkinfo2","linkinfo3","versionsinfo","infos_"]}
 
 	Gui, 98:Add, GroupBox,x+10 yp w400 h400 vGBox1, 主题配置
 	Gui, 98:Add, Picture,xp+100 yp+30 h-1 vthemelogo, Config\Skins\preview\默认.png
-	if FileExist(A_ScriptDir "\Config\Skins\preview\" ThemeName ".png")
-		GuiControl,98:, themelogo,Config\Skins\preview\%ThemeName%.png
-	else
-		GuiControl,98:, themelogo,Config\Skins\preview\Error.png
 	Gui 98:Add, Text,x190 y+5 w365 h2 0x10 vlineText1
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
@@ -1225,8 +1221,6 @@ More_Setting:
 	ImageButton.Create(RBT, [6, 0x80404040, 0xC0C0C0, 0x00220b], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, 98:Add, Button,x+10 yp gInitialize vInitialize hwndINBT,初始化
 	ImageButton.Create(INBT, [6, 0x80404040, 0xC0C0C0, 0xc13a37], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	if !FileExist(A_ScriptDir "\Sync\Default.json")
-		GuiControl, 98:Disable, Rest_Conf
 	Loop Files, config\Skins\logoStyle\*.icl
 		logoList.="|" SubStr(A_LoopFileName,1,-4)
 	GuiControlGet, scvar, Pos , Backup_Conf
@@ -1242,8 +1236,6 @@ More_Setting:
 	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, CheckBox,x+10 yp+2 vshowtools gshowtools Checked%srfTool%, 独立显示
 	GuiControl, 98:ChooseString, select_logo, %StyleN%
-	If Logo_Switch~="i)off"
-		GuiControl, 98:Disable, select_logo
 	Gui, 98:Add, Text,x190 y+10 vTextInfo27 left, 色块调整：
 	Gui,98:Font
 	Gui,98:Font, s9 norm, %font_%
@@ -1336,36 +1328,25 @@ More_Setting:
 	Gui,98:Font, s9, %font_%
 	Gui, 98:Add, Edit, x%EditVar1X% yp-3 w45 Limit2 Number vfont_value gfont_value
 	Gui, 98:Add, UpDown, x+0 w45 Range9-40 gfont_size vfont_size, %FontSize%
-
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox3, 输出设置
 	Gui,98:Font
+	Gui,98:Font, s8, %font_%
+	Gui, 98:Add, Text, x190 yp+25 left vTextInfo22 cred, ⚑ 提权操作非管理员身份运行的不提供选择！
+	Gui,98:Font
 	Gui,98:Font, s10, %font_%
-	Gui, 98:Add, CheckBox, x190 yp+40 gEnableUIAccess vUIAccess , 权限提升
+	Gui, 98:Add, CheckBox, x190 y+5 gEnableUIAccess vUIAccess , 权限提升
 	;;GuiControlGet, CheckVar1, Pos , EnableUIAccess
 	Gui, 98:Add, CheckBox,x+8 yp+0 vSBA6 gSBA6, 符号顶字上屏
 	Gui, 98:Add, CheckBox,x+8 yp+0 vSBA3 gSBA3, 空码模糊提示
-	if PromptChar
-	{
-		Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="off"
-		GuiControl,98:, SBA24 , 0
-	}
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA24 gSBA24 Checked%PromptChar%, 逐码提示
 	Gui, 98:Add, CheckBox,x+8 yp+0 vSBA25 gSBA25 Checked%EN_Mode%, 英文输入模式
 	Gui, 98:Add, CheckBox,x+8 yp+0 vSBA7 gSBA7, 五码首选上屏
-	if Prompt_Word~="i)on" {
-		PromptChar:=WubiIni.Settings["PromptChar"]:=0
-		GuiControl,98:, SBA3 , 0
-	}
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA23 gSBA23 Checked%CharFliter%, 字集过滤
 	Gui, 98:Add, CheckBox, x+8 yp+0 Checked%EnKeyboardMode% vSBA28 gSBA28, 默认美式键盘
 	Gui, 98:Add, CheckBox,x+8 yp+0 vSBA26 gSBA26, 四码唯一上屏
-	if (not Wubi_Schema ~="i)zi|ci")
-		GuiControl, 98:Disable, SBA23
 	Gui, 98:Add, CheckBox,x190 y+10 vyaml_ gyaml_, 导出为yaml格式
-	if !FileExist(A_ScriptDir "\Sync\header.txt")
-		GuiControl, 98:Disable, yaml_
 	Gui 98:Add, Text,x190 y+5 w365 h2 0x10 vTextInfo28
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA14 gSBA14, 中文时使用英文标点
 	Gui,98:Font
@@ -1387,9 +1368,6 @@ More_Setting:
 	Gui,98:Font, s10, %font_%
 	Gui 98:Add, Text,x190 y+5 w365 h2 0x10 vTextInfo13
 	Gui, 98:Add, CheckBox,x190 y+10 Checked%Frequency% vFrequency gFrequency, 动态调频
-	if (not Wubi_Schema~="i)ci"||Trad_Mode~="i)on"||Prompt_Word~="i)on") {
-		GuiControl, 98:Disable, Frequency
-	}
 	Gui, 98:Add, Text, x+5 yp vFTip left vTextInfo14, 调频参数：
 	Gui,98:Font
 	Gui,98:Font, s9 norm, %font_%
@@ -1399,12 +1377,6 @@ More_Setting:
 	Gui,98:Font, s9 bold, %font_%
 	Gui, 98:Add, Button, x+10 yp-1 vRestDB gRestDB hWndRDBT, 重置词频
 	ImageButton.Create(RDBT, [6, 0x80404040, 0xC0C0C0, "Red"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	if (not Wubi_Schema~="i)ci"||Trad_Mode~="i)on"||Prompt_Word~="i)on"||!Frequency) {
-		;;OD_Colors.Attach(FRDL,{T: 0x767641, B: 0xb3b3b3})
-		GuiControl, 98:Disable, FTip
-		GuiControl, 98:Disable, set_Frequency
-		GuiControl, 98:Disable, RestDB
-	}
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui, 98:Add, CheckBox,x190 y+10 Checked%IStatus% vInputStatus gInputStatus, 输入状态控制
@@ -1421,9 +1393,6 @@ More_Setting:
 	Gui,98:Font, s9 bold, %font_%
 	Gui, 98:Add, Button,yp-4 x+10 cred gCreateSC vCreateSC hWndSCBT,建立桌面捷径
 	ImageButton.Create(SCBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	if !IStatus
-		GuiControl,98:Disable,WinMode
-
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox4, 其它设置
@@ -1485,7 +1454,6 @@ More_Setting:
 	Gui, 98:Add, Text, x190 y+10  left vTextInfo20, 默认状态：
 	Gui, 98:Add, Radio,yp+0 x+30 vSetInput_CNMode gSetInput_Mode, 中文
 	Gui, 98:Add, Radio,yp+0 x+30 vSetInput_ENMode gSetInput_Mode, 英文
-
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox5, 快捷键
@@ -1525,7 +1493,6 @@ More_Setting:
 	Gui,98:Font
 	Gui,98:Font, s9 , %font_%
 	Gui, 98:Add, Hotkey, x+0 yp-3 vExit_hotkey gExit_hotkey,% exithotkey
-
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox6, 关于
@@ -2267,6 +2234,42 @@ Return
 
 ControlGui:
 	SendMessage,0xC,, "输入法设置"
+	if FileExist(A_ScriptDir "\Config\Skins\preview\" ThemeName ".png")
+		GuiControl,98:, themelogo,Config\Skins\preview\%ThemeName%.png
+	else
+		GuiControl,98:, themelogo,Config\Skins\preview\Error.png
+	if !FileExist(A_ScriptDir "\Sync\Default.json")
+		GuiControl, 98:Disable, Rest_Conf
+	If Logo_Switch~="i)off"
+		GuiControl, 98:Disable, select_logo
+	If !FileExist(BaseDir)
+		GuiControl,98:Disable,UIAccess
+
+	if PromptChar
+	{
+		Prompt_Word:=WubiIni.Settings["Prompt_Word"]:="off"
+		GuiControl,98:, SBA24 , 0
+	}
+	if Prompt_Word~="i)on" {
+		PromptChar:=WubiIni.Settings["PromptChar"]:=0
+		GuiControl,98:, SBA3 , 0
+	}
+	if (not Wubi_Schema ~="i)zi|ci")
+		GuiControl, 98:Disable, SBA23
+	if !FileExist(A_ScriptDir "\Sync\header.txt")
+		GuiControl, 98:Disable, yaml_
+	if (not Wubi_Schema~="i)ci"||Trad_Mode~="i)on"||Prompt_Word~="i)on") {
+		GuiControl, 98:Disable, Frequency
+	}
+	if (not Wubi_Schema~="i)ci"||Trad_Mode~="i)on"||Prompt_Word~="i)on"||!Frequency) {
+		;;OD_Colors.Attach(FRDL,{T: 0x767641, B: 0xb3b3b3})
+		GuiControl, 98:Disable, FTip
+		GuiControl, 98:Disable, set_Frequency
+		GuiControl, 98:Disable, RestDB
+	}
+	if !IStatus
+		GuiControl,98:Disable,WinMode
+
 	For k,v In ["on","off","Gdip","ci","zi","chaoji","zg"]
 	{
 		if (ToolTipStyle~="i)" v)
@@ -2390,44 +2393,40 @@ Show_Setting:
 	Gosub More_Setting
 Return
 
-EnableUIAccess(hwnd:=""){
-	global WubiIni, UIAccess
-	If (hwnd){
-		GuiControlGet, UIAccess, 98:, UIAccess
-		WubiIni["Settings","UIAccess"]:=UIAccess, WubiIni.Save()
-		Try Run % StrReplace(DllCall("GetCommandLine", "Str"), "_UIA.exe", ".exe")
-		ExitApp
+EnableUIAccess(path="", flag=0){
+	global WubiIni, UIAccess, BaseDir
+	If (A_GuiEvent){
+		GuiControlGet, UIA, 98:, UIAccess
+		WubiIni["Settings","UIAccess"]:=UIA, WubiIni.Save()
+		EXEPath:=RegExReplace(A_AhkPath,"_UIA")
+		Run *RunAs "%EXEPath%" "%A_ScriptFullPath%"
 	}
-	If (UIAccess&&!InStr(DllCall("GetCommandLine", "Str"), "_UIA.exe")){
-		AhkName:=RegExReplace(A_AhkPath,".+\\|\.exe"), AhkPath:=RegExReplace(A_AhkPath,".exe$",(A_AhkPath~="i)_UIA"?".exe":"_UIA.exe"))
-		If FileExist(StrReplace(A_ProgramFiles, " (x86)") "\AutoHotkey\" AhkName "_UIA.exe"){
-			Run % """" StrReplace(A_ProgramFiles, " (x86)") "\AutoHotkey\" AhkName "_UIA.exe"" """ A_ScriptFullPath """"
-		} Else If (A_ScriptFullPath~=StrReplace(A_ProgramFiles, " (x86)")){
-			If !FileExist(StrReplace(A_AhkPath, ".exe", "_UIA.exe"))
-				Try RunWait *RunAs "%A_AhkPath%" "%A_ScriptDir%\Config\Script\EnableUIAccess.ahk" EnableUIAccess
-				Catch
-					Goto Exception
-			Run % """" StrReplace(A_AhkPath, ".exe", "_UIA.exe") "\" AhkName "_UIA.exe"" """ A_ScriptFullPath """"
-		} Else {
-			Try RunWait *RunAs "%A_AhkPath%" "%A_ScriptDir%\Config\Script\EnableUIAccess.ahk" EnableUIAccess
+	If (!path||path~="^\d+$")
+		Loop, Files, %BaseDir%\*.exe
+			If !InStr(A_LoopFileLongPath,"_UIA")
+				path:=A_LoopFileLongPath
+	flag:=UIAccess?UIAccess:flag=1?flag:0
+	If (flag&&!InStr(DllCall("GetCommandLine", "Str"), "_UIA.exe")){  ;;InStr(DllCall("GetCommandLine", "Str"), "_UIA.exe")
+		AhkName:=RegExReplace(path,"\.exe","_UIA.exe"), ProcessName :=RegExReplace(A_AhkPath,".+\\")
+		If FileExist(AhkName) {
+			Run *RunAs "%AhkName%" "%A_ScriptFullPath%"
+		}else{
+			Program:=RegExReplace(AhkName,"\s+","/")
+			Try RunWait *RunAs "%A_AhkPath%" "%A_ScriptDir%\Config\Script\EnableUIAccess.ahk" %Program%
 			Catch
 				Goto Exception
-			if FileExist(StrReplace(A_ProgramFiles, " (x86)") "\AutoHotkey\" AhkName "_UIA.exe")
-				Run % """" StrReplace(A_ProgramFiles, " (x86)") "\AutoHotkey\" AhkName "_UIA.exe"" """ A_ScriptFullPath """"
-			else{
-				Run *RunAs "%AhkPath%" /restart "%A_ScriptFullPath%"
+			If FileExist(AhkName) {
+				Run *RunAs "%AhkName%" "%A_ScriptFullPath%"
+				runwait, %ComSpec% /c taskkill /f /IM %ProcessName%, , Hide
 			}
 		}
-		ExitApp
-	} Else If (!hwnd&&!UIAccess&&FileExist(StrReplace(A_ProgramFiles, " (x86)") "\AutoHotkey"))
-		Try Run *RunAs "%A_AhkPath%" "%A_ScriptDir%\Config\Script\EnableUIAccess.ahk"
+	}
 	Return
 	Exception:
 		WubiIni["Settings","UIAccess"]:=UIAccess:=0
-		If (hwnd)
+		If (A_GuiEvent)
 			GuiControl, 98:, UIAccess, 0
 	Return
-	CNID:=WubiIni.Settings["CNID"]:=CpuID, WubiIni.Save()
 }
 
 zKeySet:

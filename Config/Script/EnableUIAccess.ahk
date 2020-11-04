@@ -4,29 +4,12 @@ If (!A_IsAdmin){
 	Run % "*RunAs " DllCall("GetCommandLine", "Str")
 	ExitApp
 }
-pgfile:=RegExReplace(A_AhkPath, "[^\\]+$")
-AhkName:=RegExReplace(A_AhkPath,".+\\|\.exe")
-If (A_Args[1]="EnableUIAccess"){
-	If !InStr(A_ScriptFullPath, Program:=StrReplace(A_ProgramFiles, " (x86)")){
-		FileRemoveDir % Program "\AutoHotkey"
-		pgfile_:=RegExReplace(pgfile,"\\$")
-		Run *RunAs cmd.exe /c mklink /D "%Program%\AutoHotkey" "%pgfile_%", , Hide, PID
-	}Else{
-		FileCopy, %A_AhkPath%, % pgfile AhkName "_UIA.exe"
-		EnableUIAccess(pgfile AhkName "_UIA.exe")
-	}
-	If (filepath:=A_Args[2]){
-		SplitPath, filepath, OutFileName, OutDir
-		filepath:=SubStr(filepath, 1, -4) "_UIA.exe"
-		If !FileExist(filepath){
-			FileCopy, % A_Args[2], %filepath%
-			EnableUIAccess(filepath)
-		}
-	} Else If !FileExist(pgfile AhkName "_UIA.exe"){
-		FileCopy, %A_AhkPath%, % pgfile AhkName "_UIA.exe"
-		EnableUIAccess(pgfile AhkName "_UIA.exe")
-	}
-	WinWaitClose, ahk_pid%PID%
+
+pgfile:=RegExReplace(A_Args[1],"\/",A_space)
+AhkName:=RegExReplace(pgfile,"_UIA")
+If !FileExist(pgfile) {
+	FileCopy, %AhkName%, %pgfile%
+	EnableUIAccess(pgfile)
 }
 ExitApp
 
