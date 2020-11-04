@@ -1333,7 +1333,7 @@ More_Setting:
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox3, 输出设置
 	Gui,98:Font
 	Gui,98:Font, s8, %font_%
-	Gui, 98:Add, Text, x190 yp+25 left vTextInfo22 cred, ⚑ 提权操作非管理员身份运行的不提供选择！
+	Gui, 98:Add, Text, x190 yp+25 left vTextInfo22 cred, ⚑ 提权操作首次运行非管理员身份不提供选择！
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui, 98:Add, CheckBox, x190 y+5 gEnableUIAccess vUIAccess , 权限提升
