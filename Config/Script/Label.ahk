@@ -2401,7 +2401,7 @@ EnableUIAccess(path="", flag=0){
 		EXEPath:=RegExReplace(A_AhkPath,"_UIA")
 		Run *RunAs "%EXEPath%" "%A_ScriptFullPath%"
 	}
-	If (!path||path~="^\d+$")
+	If (!path||path~="^\d+$"||path="Normal")
 		Loop, Files, %BaseDir%\*.exe
 			If !InStr(A_LoopFileLongPath,"_UIA")
 				path:=A_LoopFileLongPath
