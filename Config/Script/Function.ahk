@@ -3615,20 +3615,42 @@ Url2Decode(Str)
 	}
 }
 
-Un7Zip(source,outdir="",Path=""){
-	If !FileExist(source)
-		return 0
-	If (Path="")
-		Path:=A_ScriptDir "\Config\Tools\7za.exe"
-	If (outdir="")
-		outdir=%A_ScriptDir%\
-	If !FileExist(Path){
-		TrayTip,,%source%解压失败！
-		return 0
-	}
-	Runwait, "%path%" x "%source%" -o"%outdir%" -y,,Hide
-	If !A_LastError
-		return 1
+;;source-解压目录压缩包,outdir-输出目录，为空则为当前目录,Path-7za.exe文件路径,password-解压密码
+Un7Zip(source,outdir="",Path="Config\Tools\7za.exe",password=""){
+	outdir:=outdir?outdir:A_ScriptDir "\"
+	If !FileExist(Path)
+		return 7z_error( "null" )
+	password:=password?"-p" password:""
+	Runwait, "%path%" x "%source%" -o"%outdir%" %password% -y ,,Hide UseErrorLevel
+	return 7z_error(ErrorLevel )
+}
+
+;;PackName-压缩包名, Path-7za.exe文件路径 ,files-需要压缩的文件或文件集合，多文件以数组参数,password-压缩密码
+7z_compress(PackName ,files="", Path="Config\Tools\7za.exe" ,password="") {
+	If len:=objCount(arr:=files)
+		loop,% len
+			files.=A_Space """" arr[A_Index] """"
+	if FileExist(PackName)
+		FileDelete, %PackName%
+	password:=password?"-p" password:""
+	RunWait, %Path% a -t7z "%PackName%" %files% -r -mx9 -slp -m0=LZMA2 -ms=200m -mmt=8 -mhc -mf %password% r,,Hide UseErrorLevel
+	return 7z_error(ErrorLevel)
+}
+
+7z_error(e) {
+	if (e==1)
+		MsgBox, 262160, 错误警告,  警告（非致命错误）。例如，某些文件正在被使用，因此无法进行压缩操作。
+	else if (e==2)
+		MsgBox, 262160, 错误警告,  致命错误！例如，压缩包/文件路径不存在。
+	else if (e==7)
+		MsgBox, 262160, 错误警告,  命令行错误！
+	else if (e==8)
+		MsgBox, 262160, 错误警告,  内存不足，无法进行操作！
+	else if (e==255)
+		MsgBox, 262160, 错误警告,  已停止进程！
+	else if (e="null")
+		MsgBox, 262160, 错误警告,  7za.exe文件不存在！
+	return e
 }
 
 GetFileFormat(FilePath,ByRef FileContent,ByRef Encoding){
