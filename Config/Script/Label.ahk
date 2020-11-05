@@ -1498,7 +1498,7 @@ More_Setting:
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox6, 关于
 	Gui,98:Font
 	Gui,98:Font, s9 c757575, %font_%
-	Gui,98:Add, Text, x190 yp+35 w360 vinfos_ , `t%Startup_Name%是以AutoHotkey脚本语言编写的外挂类型形码输入法，借用同类型的「影子输入法」的实现思路通过调用众多WinAPI整合SQLite数据库实现文字输出等一系列功能。以「数据库码表性能」和「前端呈现」（调用Windows的GdiPlus.dll）两方面对文字内容直接发送上屏，而不进行传统输入法的转换操作，从XP至Win10皆能流畅运行。此版本为王码五笔98版专用，非98五笔的用户移步至「影子输入法」。
+	Gui,98:Add, Text, x190 yp+35 w360 vinfos_ , `t%Startup_Name%是以AutoHotkey脚本语言编写的外挂类型形码输入法，借用同类型的「影子输入法」的实现思路通过调用众多WinAPI整合SQLite数据库实现文字输出等一系列功能。以「数据库码表性能」和「前端呈现」（调用Windows的GdiPlus.dll）两方面对文字内容直接发送上屏，而不进行传统输入法的转换操作，从XP至Win10皆能流畅运行。此版本为王码五笔专用，非王码五笔移步至「影子输入法」。
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui,98:Add, Link, y+15 vlinkinfo1, 简介：<a href="https://wubi98.gitee.io/2020/04/27/2019-12-03-031.yours/">程序简介</a>`nGit：<a href="https://github.com/OnchiuLee/AHK-Input-method">GitHub查看</a> | <a href="https://gitee.com/leeonchiu/AHK-Input-method">Gitee查看</a>
@@ -1557,12 +1557,9 @@ set_SizeValue:
 Return
 
 CreateSC:
-	if FileExist(A_Desktop "\" Startup_Name ".lnk"){
-		FileGetShortcut, %A_Desktop%\%Startup_Name%.lnk , OutAHKPath, AHKOutDir, AHKOutArgs, , , ,
-		if (A_ScriptFullPath<>SubStr(AHKOutArgs,2,-1)){
-			FileDelete, %A_Desktop%\%Startup_Name%.lnk
-			FileCreateShortcut, %A_AhkPath%, %A_Desktop%\%Startup_Name%.lnk , %A_ScriptDir%, "%A_ScriptFullPath%", % "位置: " A_Space SubStr(RegExReplace(A_AhkPath,".+\\"),1,-4) "(" SubStr(RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")),1,-1) ")", %A_ScriptDir%\config\WubiIME.icl, , 30, 1
-		}
+	if FileExist(A_Desktop "\五笔*版.lnk"){
+		FileDelete, %A_Desktop%\五笔*版.lnk
+		FileCreateShortcut, %A_AhkPath%, %A_Desktop%\%Startup_Name%.lnk , %A_ScriptDir%, "%A_ScriptFullPath%", % "位置: " A_Space SubStr(RegExReplace(A_AhkPath,".+\\"),1,-4) "(" SubStr(RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")),1,-1) ")", %A_ScriptDir%\config\WubiIME.icl, , 30, 1
 	}else{
 		FileCreateShortcut, %A_AhkPath%, %A_Desktop%\%Startup_Name%.lnk , %A_ScriptDir%, "%A_ScriptFullPath%", % "位置: " A_Space SubStr(RegExReplace(A_AhkPath,".+\\"),1,-4) "(" SubStr(RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")),1,-1) ")", %A_ScriptDir%\config\WubiIME.icl, , 30, 1
 	}
@@ -2279,7 +2276,7 @@ ControlGui:
 		}
 	}
 	if ToolTipStyle ~="i)off|on"{
-		For k,v In ["SBA12","SBA9","SBA10","SBA19","set_FocusRadius","set_FocusRadius_value"]
+		For k,v In ["SBA12","SBA9","SBA10","SBA19","set_FocusRadius","set_FocusRadius_value","set_FocusRadius","set_FocusRadius_value"]
 			GuiControl, 98:Disable, %v%
 	}
 	For k,v In {Logo_ExStyle:"ExSty",PromptChar:"SBA24",BUyaml:"yaml_",PageShow:"SBA20",Exit_switch:"SBA22",FocusStyle:"SBA19",UIAccess:"UIAccess"}
@@ -2384,7 +2381,7 @@ ControlGui:
 			GuiControl, 98:Disable, %v%
 	}
 	if (ToolTipStyle ~="i)off|on"||Radius~="i)off") {
-		For k,v In ["set_GdipRadius","GdipRadius"]
+		For k,v In ["set_GdipRadius","GdipRadius","set_FocusRadius","set_FocusRadius_value"]
 			GuiControl, 98:Disable, %v%
 	}
 Return
@@ -3049,12 +3046,14 @@ SBA4:
 	if SBA~="计划任务" {
 		Gosub Startup
 	}else if SBA~="快捷方式" {
+		if FileExist(A_Startup "\五笔*版.lnk")
+			FileDelete,%A_Startup%\五笔*版.lnk
 		Gosub CreateShortcut_Startup
 	}else{
 		Command = schtasks /Delete /TN %Startup_Name% /F
 		Run *RunAs cmd.exe /c %Command%, , Hide
-		if FileExist(A_Startup "\" Startup_Name ".lnk"){
-			FileDelete, %A_Startup%\%Startup_Name%.lnk
+		if FileExist(A_Startup "\五笔*版.lnk") {
+			FileDelete,%A_Startup%\五笔*版.lnk
 			Startup :=WubiIni.Settings["Startup"]:="off", WubiIni.save()
 			Traytip,自启提示:,已取消开机自启!
 		}else if not cmdClipReturn(cmd_zq)~=Startup_Name{
@@ -3886,27 +3885,17 @@ CreateShortcut_Startup:
 		Command = schtasks /Delete /TN %Startup_Name% /F
 		Run *RunAs cmd.exe /c %Command%, , Hide
 	}
-	if FileExist(A_Startup "\" Startup_Name ".lnk"){
-		FileGetShortcut, %A_Startup%\%Startup_Name%.lnk , OutAHKPath, AHKOutDir, AHKOutArgs, , , ,
-		if (A_ScriptFullPath<>SubStr(AHKOutArgs,2,-1)){
-			FileDelete, %A_Startup%\%Startup_Name%.lnk
-			FileCreateShortcut, %A_AhkPath%, %A_Startup%\%Startup_Name%.lnk , %A_ScriptDir%, "%A_ScriptFullPath%", 一个便携式98五笔外挂式脚本输入法`n资源库下载地址:http://98wb.ys168.com/, %A_ScriptDir%\config\WubiIME.icl, , 30, 1
-			Startup :=WubiIni.Settings["Startup"]:="sc",WubiIni.save()
-		}else{
-			Startup :=WubiIni.Settings["Startup"]:="sc",WubiIni.save()
-		}
-		Traytip,,你已建立「%Startup_Name%」开机自启！
-	}else{
-		FileCreateShortcut, %A_AhkPath%, %A_Startup%\%Startup_Name%.lnk , %A_ScriptDir%, "%A_ScriptFullPath%", 一个便携式98五笔外挂式脚本输入法`n资源库下载地址:http://98wb.ys168.com/, %A_ScriptDir%\config\WubiIME.icl, , 30, 1
-		Startup :=WubiIni.Settings["Startup"]:="sc",WubiIni.save()
-		Traytip,,你已建立「%Startup_Name%」开机自启！
-	}
+	if FileExist(A_Startup "\五笔*版.lnk")
+		FileDelete,%A_Startup%\五笔*版.lnk
+	FileCreateShortcut, %A_AhkPath%, %A_Startup%\%Startup_Name%.lnk , %A_ScriptDir%, "%A_ScriptFullPath%",便携式五笔外挂式脚本输入法, %A_ScriptDir%\config\WubiIME.icl, , 30, 1
+	Startup :=WubiIni.Settings["Startup"]:="sc",WubiIni.save()
+	Traytip,,你已建立「%Startup_Name%」开机自启！
 Return
 
 ;开机自启动>>>批处理创建系统自启任务
 Startup:
-	if FileExist(A_Startup "\" Startup_Name ".lnk"){
-		FileDelete, %A_Startup%\%Startup_Name%.lnk
+	if FileExist(A_Startup "\五笔*版.lnk"){
+		FileDelete,%A_Startup%\五笔*版.lnk
 	}
 	Startup_path:=RegExReplace(DllCall("GetCommandLine", "Str"),"i)""( | /restart )"""," ")
 	Command = schtasks /Create /TN %Startup_Name% /TR %Startup_path% /SC ONLOGON /RL HIGHEST /F
