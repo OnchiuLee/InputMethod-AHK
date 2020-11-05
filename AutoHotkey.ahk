@@ -25,8 +25,8 @@ If !FileExist(A_Temp "\InputMethodData")
 If (!FileExist(Program:=(StrReplace(A_ProgramFiles, " (x86)") "\WubiInputMethod"))&&A_Is64bitOS) {
 	FileCreateDir,%Program%\x64
 	FileCreateDir,%Program%\x86
-	FileCopy, *.exe, %Program%\x86\*.*
-	FileCopy, main\*.exe, %Program%\x64\*.*
+	FileCopy, *.exe, % Program (InStr(GetFileBits(A_ScriptDir),32)?"\x86":"\x64") "\*.*"
+	FileCopy, main\*.exe, % Program (InStr(GetFileBits(A_ScriptDir "\main"),64)?"\x64":"\x86") "\*.*"
 }else If !FileExist(A_ProgramFiles "\WubiInputMethod")&&!A_Is64bitOS{
 	FileCreateDir,%A_ProgramFiles%\WubiInputMethod\x86
 	FileCopy, *.exe, %A_ProgramFiles%\WubiInputMethod\x86\*.*
@@ -55,7 +55,7 @@ If FileExist(BaseDir) {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020110419"
+version :="2020110511"
 ;;--------------------------------------------------------
 FileRead, inivar, %A_Temp%\InputMethodData\Config.ini
 RegExMatch(inivar,"(?<=ThemeName\=).+",tName)
@@ -224,7 +224,7 @@ if FileExist(A_ScriptDir "\*.ico") {
 	}
 	Menu, Tray, Icon, %IconName_%
 }else
-	Menu, Tray, Icon, config\wubi98.icl,30
+	Menu, Tray, Icon, config\WubiIME.icl,30
 
 srf_mode :=IMEmode~="off"?0:1
 ;;=======================去掉多行注释启用字体注册=========================
@@ -287,12 +287,15 @@ if Exit_switch&&Exit_hotkey
 ;}}}}}
 
 ;{{{{{SQlite类创建,db文件读取
-DBFileName:=A_ScriptDir "\DB\wubi98.db"
-ExtendDBName:=A_ScriptDir "\Config\ExtendData.db"
+DBFileName:=A_ScriptDir "\DB\WubiCiku.db", ExtendDBName:=A_ScriptDir "\Config\ExtendData.db"
+If FileExist("DB\wubi*.7z")&&!FileExist("DB\WubiCiku.7z")
+	FileMove, DB\wubi*.7z, DB\WubiCiku.7z,1
+If !FileExist(DBFileName)&&FileExist("DB\WubiCiku.7z")
+	Un7Zip(A_ScriptDir "\DB\WubiCiku.7z",A_ScriptDir "\DB\")
+If FileExist("DB\wubi*.db")&&!FileExist(DBFileName)
+	FileMove, DB\wubi*.db, DB\WubiCiku.db,1
 If !FileExist(DBFileName)
-	Un7Zip(A_ScriptDir "\DB\wubi98.7z",A_ScriptDir "\DB")
-If !FileExist(DBFileName)
-	MsgBox, 262160, 错误警告, DB目录词库错误！请自行解压, 15
+	MsgBox, 262160, 错误警告, %DBFileName%不存在或解压失败导致DB目录词库错误！请自行解压, 15
 
 If (DB._Handle)
 	DB.CloseDB()
@@ -346,7 +349,7 @@ global num__:=Result_Char:=Select_result :=selectallvalue:=ID_Cursor:=""
 global select_arr:=select_value_arr:=srf_bianma:=add_Array:=add_Result:=Split_code:=labelObj:=[]
 ;}}
 
-Frequency_obj:=Json_FileToObj(A_ScriptDir "\Config\Script\wubi98_ci.json")
+Frequency_obj:=Json_FileToObj(A_ScriptDir "\Config\Script\WubiCiku.json")
 if !Frequency_obj.Count()
 	Frequency_obj:={}
 else{
@@ -412,11 +415,11 @@ WM_RBUTTONDOWN(){
 		if (PosIndex>0&&PosIndex<ListNum+1)
 		{
 			Menu, selectmenu, Add, 置顶词条, set_top   ; +Break
-			Menu, selectmenu, Icon, 置顶词条, config\wubi98.icl, 36
+			Menu, selectmenu, Icon, 置顶词条, config\WubiIME.icl, 36
 			Menu, selectmenu, Add, 上屏拆分, SendAttachChars
 			Menu, selectmenu, Icon, 上屏拆分,config\Skins\logoStyle\%StyleN%.icl,9
 			Menu, selectmenu, Add, 前移一位, set_add   ; +Break
-			Menu, selectmenu, Icon, 前移一位, config\wubi98.icl, 37
+			Menu, selectmenu, Icon, 前移一位, config\WubiIME.icl, 37
 			if ((PosIndex+ListNum*waitnum)=1){
 				Menu, selectmenu, Disable, 置顶词条
 				Menu, selectmenu, Disable, 前移一位
@@ -425,13 +428,13 @@ WM_RBUTTONDOWN(){
 				Menu, selectmenu, Enable, 前移一位
 			}
 			Menu, selectmenu, Add, 后移一位, set_next   ; +Break
-			Menu, selectmenu, Icon, 后移一位, config\wubi98.icl, 38
+			Menu, selectmenu, Icon, 后移一位, config\WubiIME.icl, 38
 			if (srf_for_select_Array.length()=(PosIndex+ListNum*waitnum))
 				Menu, selectmenu, Disable, 后移一位
 			else
 				Menu, selectmenu, Enable, 后移一位
 			Menu, selectmenu, Add, 删除词条, Delete_Word   ; +Break
-			Menu, selectmenu, Icon, 删除词条, config\wubi98.icl, 39
+			Menu, selectmenu, Icon, 删除词条, config\WubiIME.icl, 39
 			Menu, selectmenu, color, ffffff
 			Menu, selectmenu, Show
 		}else{
