@@ -31,9 +31,12 @@ If (!FileExist(Program:=(StrReplace(A_ProgramFiles, " (x86)") "\WubiInputMethod"
 	FileCreateDir,%A_ProgramFiles%\WubiInputMethod\x86
 	FileCopy, *.exe, %A_ProgramFiles%\WubiInputMethod\x86\*.*
 }
+
 BaseDir:=A_Is64bitOS?(FileExist(A_ScriptDir "\main\*.exe")?StrReplace(A_ProgramFiles, " (x86)") "\WubiInputMethod\x64":StrReplace(A_ProgramFiles, " (x86)") "\WubiInputMethod\x86"):A_ProgramFiles "\WubiInputMethod\x86" 
 If FileExist(BaseDir) {
-	ProcessName :=RegExReplace(A_AhkPath,".+\\"), count:=count_:=0
+	ProcessName :=RegExReplace(A_AhkPath,".+\\"), count:=count_:=0, CharsTotalCount:=Json_FileToObj(BaseDir "\CharacterCount.json")
+	,CharsTotalCount:=ObjCount(CharsTotalCount)?CharsTotalCount:{}, CharsTotalCount["UnitName"]:=CharsTotalCount["UnitName"]?CharsTotalCount["UnitName"]:"上屏统计"
+	, InputCount:=SubStr(A_Now,1,8)>SubStr(CharsTotalCount["Time"],1,8)?0:CharsTotalCount["Count"], CharsTotalCount["Time"]:=SubStr(A_Now,1,8)>SubStr(CharsTotalCount["Time"],1,8)?A_Now:CharsTotalCount["Time"]
 	IniRead, UIA, %A_Temp%\InputMethodData\Config.ini, Settings, UIAccess ,0
 	Loop, Files, %BaseDir%\*.exe
 	{
@@ -55,7 +58,7 @@ If FileExist(BaseDir) {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020110517"
+version :="2020110519"
 ;;--------------------------------------------------------
 FileRead, inivar, %A_Temp%\InputMethodData\Config.ini
 RegExMatch(inivar,"(?<=ThemeName\=).+",tName)
@@ -543,8 +546,8 @@ ShellIMEMessage( wParam,lParam ) {
 		;9 显示系统菜单 	;10 顶级窗体被强制关闭 	;14 wParam=替换顶级窗口的窗口hWnd
 		;12 没有被程序处理的APPCOMMAND。见WM_APPCOMMAND
 	*/
-	global srf_mode, InputModeData, Initial_Mode, WubiIni,StyleN,IStatus, program, IMEmode ,CursorStatus, versions, GzType, SchemaType
-		, Startup_Name, Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, srf_all_input, ID_Cursor, Logo_Switch
+	global srf_mode, InputModeData, Initial_Mode, WubiIni,StyleN,IStatus, program, IMEmode ,CursorStatus, versions, GzType, SchemaType, BaseDir
+		, Startup_Name, Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, srf_all_input, ID_Cursor, Logo_Switch, InputCount
 	If (wParam = 1||wParam=32772 ){
 		WinGet, WinEXE, ProcessName , ahk_id %lParam%
 		WinGetclass, WinClass, ahk_id %lParam%
@@ -599,7 +602,7 @@ ShellIMEMessage( wParam,lParam ) {
 			Gosub RestLogo
 		}
 		LastWinEXE:=WinEXE_, Eid:=WinExist(), lunarDate:=Date2LunarDate(SubStr( A_Now,1,10),GzType)
-		program:="※ " Startup_Name " ※`n◆ 当前方案：" (Wubi_Schema~="i)ci"?"【" SchemaType["ci"] "五笔•含词】":Wubi_Schema~="i)zi"?"【" SchemaType["zi"] "五笔•单字】":Wubi_Schema~="i)zg"?"【五笔•字根】":"【" SchemaType["chaoji"] "五笔•超集】") "`n◆ 农历日期：" lunarDate[1] "〖 " A_DDDD " 〗`n◆ 甲子历：" lunarDate[2] "`n◆ 农历时辰：" Time_GetShichen(SubStr( A_Now,9,2))   ;;"`n◆ 版本日期：" versions
+		program:="※ " Startup_Name " ※`n◆ 当前方案：" (Wubi_Schema~="i)ci"?"【" SchemaType["ci"] "五笔•含词】":Wubi_Schema~="i)zi"?"【" SchemaType["zi"] "五笔•单字】":Wubi_Schema~="i)zg"?"【五笔•字根】":"【" SchemaType["chaoji"] "五笔•超集】") "`n◆ 农历日期：" lunarDate[1] "〖 " A_DDDD " 〗`n◆ 甲子历：" lunarDate[2] "`n◆ 农历时辰：" Time_GetShichen(SubStr( A_Now,9,2)) (FileExist(BaseDir)?"`n◆ 今日统计：" InputCount:"")   ;;"`n◆ 版本日期：" versions
 		Menu,Tray,Tip,%program%
 		Gosub SelectItems
 	Return
