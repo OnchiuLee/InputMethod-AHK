@@ -2,8 +2,8 @@
 #NoTrayIcon
 #SingleInstance, Force
 Sourceurl:="https://github.com/OnchiuLee/AHK-Input-method/blob/master/Version.txt"
-IniRead, Versions, %A_Temp%\InputMethodData\Config.ini, Settings, versions
-InputMethodName:="五笔98版"
+
+Versions:=A_Args[1], InputMethodName:= A_Args[2]
 Progress, M ZH-1 ZW-1 Y100 W420 C0 FM14 WS700 CTffffff CW0078d7,, 正在检查最新版本。。。, 检查更新
 OnMessage(0x201, "MoveProgress")
 If (!DllCall("Wininet.dll\InternetCheckConnection", "Str", Sourceurl, "UInt", 0x1, "UInt", 0x0, "Int"))

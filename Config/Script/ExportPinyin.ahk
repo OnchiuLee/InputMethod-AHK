@@ -20,7 +20,7 @@ else IfMsgBox, Cancel
 FileSelectFolder, OutFolder,*%A_ScriptDir%\,3,请选择导出后保存的位置
 if (OutFolder<>"")
 {
-	DBFileName:=SubStr(A_ScriptDir,1,-13) "DB\wubi98.db", DB := New SQLiteDB
+	DBFileName:=SubStr(A_ScriptDir,1,-13) "DB\WubiCiku.db", DB := New SQLiteDB
 	If !FileExist(DBFileName) {
 		MsgBox, 262160, 错误警告, %DBFileName%不存在, 5
 		ExitApp

@@ -752,12 +752,12 @@ srf_select(list_num,thishotkey:=""){
 				If list_num>2
 					DB.Exec("UPDATE ci SET D_Key =(SELECT D_Key FROM ci WHERE aim_chars ='" srf_for_select_Array[list_num-1+ListNum*waitnum,1] "')+2 WHERE aim_chars ='" selectvalue "' AND A_Key ='" srf_all_Input "';")
 			}
-			Json_ObjToFile(Frequency_Obj, A_ScriptDir "\Config\Script\wubi98_ci.json", "UTF-8")
+			Json_ObjToFile(Frequency_Obj, A_ScriptDir "\Config\Script\WubiCiku.json", "UTF-8")
 		}else{
 			Frequency_obj[selectvalue,1]:=1, Frequency_obj[selectvalue,2]:=srf_all_Input
 			If list_num>2
 				DB.Exec("UPDATE ci SET D_Key =(SELECT D_Key FROM ci WHERE aim_chars ='" srf_for_select_Array[list_num-1+ListNum*waitnum,1] "')+2 WHERE aim_chars ='" selectvalue "' AND A_Key ='" srf_all_Input "';")
-			Json_ObjToFile(Frequency_Obj, A_ScriptDir "\Config\Script\wubi98_ci.json", "UTF-8")
+			Json_ObjToFile(Frequency_Obj, A_ScriptDir "\Config\Script\WubiCiku.json", "UTF-8")
 		}
 	}else If EN_Mode{
 			

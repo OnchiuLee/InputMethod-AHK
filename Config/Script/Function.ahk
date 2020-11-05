@@ -302,6 +302,21 @@ GetFileInfo(FilePath){
 				Return propertyitem
 }
 
+GetFileBits(FilePath){
+	If not FilePath~="\.exe$" {
+		FilePath:=RegExReplace(FilePath,"\\$")
+		Loop, Files,%FilePath%\*.exe
+			FilePath:=A_LoopFileFullPath
+	}
+	SplitPath,FilePath , FileName, DirPath,
+	objFolder := ComObjCreate("Shell.Application").NameSpace(DirPath)
+	objFolderItem := objFolder.ParseName(FileName)
+	Loop 283
+		if propertyitem :=objFolder.GetDetailsOf(objFolderItem, A_Index)   ;AutoHotkey Unicode 64-bit
+			if (objFolder.GetDetailsOf(objFolder.Items, A_Index)="文件说明"||propertyitem~="i)\d+\-bit$")
+				Return propertyitem
+}
+
 ;~ 从数组中寻找是否存在某个value，aArr为数组，aStr为要查重的字符
 Array_isInValue(aArr, aStr)
 {

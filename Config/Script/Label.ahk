@@ -26,8 +26,8 @@ Schema_logo:
 			Gui, logo:Add, Picture,x0 y0 w191 ,config\background.png
 			Gui, logo:Add, Picture,x4 y4 h26 w181 border, config\background.png
 		}else{
-			Gui, logo:Add, Picture,x0 y0 w191 Icon33,config\wubi98.icl
-			Gui, logo:Add, Picture,x4 y4 h26 w181 border Icon33, config\wubi98.icl
+			Gui, logo:Add, Picture,x0 y0 w191 Icon33,config\WubiIME.icl
+			Gui, logo:Add, Picture,x4 y4 h26 w181 border Icon33, config\WubiIME.icl
 		}
 		Gui, logo:Add, Picture,xp+3 yp+1 w22 BackgroundTrans Icon9 vPics gPics, config\Skins\logoStyle\%StyleN%.icl
 		Gui, logo:Add, text,x+3 yp-1 h28 w1 border
@@ -579,16 +579,16 @@ return
 OnSuspend:
 	Suspend
 	if A_IsSuspended {
-		Menu, Tray, Icon, config\wubi98.icl,31, 1
+		Menu, Tray, Icon, config\WubiIME.icl,31, 1
 		Menu, TRAY, Rename, 禁用 , 启用
-		Menu, TRAY, Icon, 启用, config\wubi98.icl, 4
+		Menu, TRAY, Icon, 启用, config\WubiIME.icl, 4
 		GuiControl,logo:, Pics,*Icon4 config\Skins\logoStyle\%StyleN%.icl
 		Traytip,  提示:,已切换至挂起状态！
 	}else if !A_IsSuspended {
-		if FileExist(A_ScriptDir "\wubi98.ico")
-			Menu, Tray, Icon, wubi98.ico
+		if FileExist(IconName_)
+			Menu, Tray, Icon, %IconName_%
 		else
-			Menu, Tray, Icon, config\wubi98.icl,30
+			Menu, Tray, Icon, config\WubiIME.icl,30
 		Menu, TRAY, Rename, 启用 , 禁用
 		Menu, TRAY, Icon, 禁用, shell32.dll, 175
 		Gosub SwitchSC
@@ -598,7 +598,7 @@ return
 
 OnUpdate:
 	If FileExist("Config\Script\CheckUpdate.ahk")
-		Run *RunAs "%A_AhkPath%" /restart "Config\Script\CheckUpdate.ahk"
+		Run *RunAs "%A_AhkPath%" /restart "Config\Script\CheckUpdate.ahk" %versions% %Startup_Name%
 	else
 		MsgBox, 262160, 错误, %A_ScriptDir%\Config\Script\CheckUpdate.ahk执行脚本不存在！, 10
 Return
@@ -1521,7 +1521,7 @@ Return
 
 ChangeWinIcon:
 	;ChangeWindowIcon(IconName_)
-	ChangeWindowIcon(A_ScriptDir "\Config\wubi98.icl",, 30)
+	ChangeWindowIcon(A_ScriptDir "\Config\WubiIME.icl",, 30)
 Return
 
 linkinfo3:
@@ -1561,10 +1561,10 @@ CreateSC:
 		FileGetShortcut, %A_Desktop%\%Startup_Name%.lnk , OutAHKPath, AHKOutDir, AHKOutArgs, , , ,
 		if (A_ScriptFullPath<>SubStr(AHKOutArgs,2,-1)){
 			FileDelete, %A_Desktop%\%Startup_Name%.lnk
-			FileCreateShortcut, %A_AhkPath%, %A_Desktop%\%Startup_Name%.lnk , %A_ScriptDir%, "%A_ScriptFullPath%", % "位置: " A_Space SubStr(RegExReplace(A_AhkPath,".+\\"),1,-4) "(" SubStr(RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")),1,-1) ")", %A_ScriptDir%\config\wubi98.icl, , 30, 1
+			FileCreateShortcut, %A_AhkPath%, %A_Desktop%\%Startup_Name%.lnk , %A_ScriptDir%, "%A_ScriptFullPath%", % "位置: " A_Space SubStr(RegExReplace(A_AhkPath,".+\\"),1,-4) "(" SubStr(RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")),1,-1) ")", %A_ScriptDir%\config\WubiIME.icl, , 30, 1
 		}
 	}else{
-		FileCreateShortcut, %A_AhkPath%, %A_Desktop%\%Startup_Name%.lnk , %A_ScriptDir%, "%A_ScriptFullPath%", % "位置: " A_Space SubStr(RegExReplace(A_AhkPath,".+\\"),1,-4) "(" SubStr(RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")),1,-1) ")", %A_ScriptDir%\config\wubi98.icl, , 30, 1
+		FileCreateShortcut, %A_AhkPath%, %A_Desktop%\%Startup_Name%.lnk , %A_ScriptDir%, "%A_ScriptFullPath%", % "位置: " A_Space SubStr(RegExReplace(A_AhkPath,".+\\"),1,-4) "(" SubStr(RegExReplace(A_AhkPath,RegExReplace(A_AhkPath,".+\\")),1,-1) ")", %A_ScriptDir%\config\WubiIME.icl, , 30, 1
 	}
 Return
 
@@ -2628,7 +2628,7 @@ themelists:
 	colum:=colum/(A_ScreenDPI/96)+CXVSCROLL, colum_:=colum+30
 	GuiControl, themes:Move, MyTheme, w%colum%
 	SB_SetText(A_Space LV_GetCount() . "个主题")
-	;;SB_SetIcon("Config\wubi98.icl",30)
+	;;SB_SetIcon("Config\WubiIME.icl",30)
 	Gui, themes:show, AutoSize, 主题管理
 	Gosub ChangeWinIcon
 Return
@@ -3450,7 +3450,7 @@ SBA18:
 	Gui,SKey:Add,StatusBar,,键位0-9a-z用|分隔五位
 	Gui,SKey:Show,AutoSize,笔画反查键位设置
 	EM_SetCueBanner(SkeyEdit,"当前键位：" StrockeKey)
-	ChangeWindowIcon(A_ScriptDir "\Config\wubi98.icl",, 30)
+	ChangeWindowIcon(A_ScriptDir "\Config\WubiIME.icl",, 30)
 Return
 
 setStrockekey:
@@ -3890,14 +3890,14 @@ CreateShortcut_Startup:
 		FileGetShortcut, %A_Startup%\%Startup_Name%.lnk , OutAHKPath, AHKOutDir, AHKOutArgs, , , ,
 		if (A_ScriptFullPath<>SubStr(AHKOutArgs,2,-1)){
 			FileDelete, %A_Startup%\%Startup_Name%.lnk
-			FileCreateShortcut, %A_AhkPath%, %A_Startup%\%Startup_Name%.lnk , %A_ScriptDir%, "%A_ScriptFullPath%", 一个便携式98五笔外挂式脚本输入法`n资源库下载地址:http://98wb.ys168.com/, %A_ScriptDir%\config\wubi98.icl, , 30, 1
+			FileCreateShortcut, %A_AhkPath%, %A_Startup%\%Startup_Name%.lnk , %A_ScriptDir%, "%A_ScriptFullPath%", 一个便携式98五笔外挂式脚本输入法`n资源库下载地址:http://98wb.ys168.com/, %A_ScriptDir%\config\WubiIME.icl, , 30, 1
 			Startup :=WubiIni.Settings["Startup"]:="sc",WubiIni.save()
 		}else{
 			Startup :=WubiIni.Settings["Startup"]:="sc",WubiIni.save()
 		}
 		Traytip,,你已建立「%Startup_Name%」开机自启！
 	}else{
-		FileCreateShortcut, %A_AhkPath%, %A_Startup%\%Startup_Name%.lnk , %A_ScriptDir%, "%A_ScriptFullPath%", 一个便携式98五笔外挂式脚本输入法`n资源库下载地址:http://98wb.ys168.com/, %A_ScriptDir%\config\wubi98.icl, , 30, 1
+		FileCreateShortcut, %A_AhkPath%, %A_Startup%\%Startup_Name%.lnk , %A_ScriptDir%, "%A_ScriptFullPath%", 一个便携式98五笔外挂式脚本输入法`n资源库下载地址:http://98wb.ys168.com/, %A_ScriptDir%\config\WubiIME.icl, , 30, 1
 		Startup :=WubiIni.Settings["Startup"]:="sc",WubiIni.save()
 		Traytip,,你已建立「%Startup_Name%」开机自启！
 	}
@@ -4552,8 +4552,8 @@ Backup_DB_2:
 			}
 			Resoure_:=RegExReplace(Resoure_,"^\n")
 			timecount:= CheckTickCount(startTime)
-			FileDelete, %OutFolder%\wubi98-%Wubi_Schema%_多义.txt
-			FileAppend,%Resoure_%,%OutFolder%\wubi98-%Wubi_Schema%_多义.txt, UTF-8
+			FileDelete, %OutFolder%\WubiCiku-%Wubi_Schema%_多义.txt
+			FileAppend,%Resoure_%,%OutFolder%\WubiCiku-%Wubi_Schema%_多义.txt, UTF-8
 			Resoure_ :=OutFolder :="", custom_db:=init_db:=0, Result_:=Results_:=Result:=[]
 			Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, 导出完成用时 %timecount%！, 码表导出
 			TrayTip,, 导出完成用时 %timecount%
@@ -4597,15 +4597,15 @@ Backup_DB:
 				If (Encoding="UTF-16BE BOM") {
 					MsgBox, 262160, 错误提示, 文件编码格式非〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 5
 				}
-				HeadInfo:=Wubi_Schema~="i)ci"?HeadInfo:(Wubi_Schema~="i)chaoji"?RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "wubi98_U"):Wubi_Schema~="i)zi"?RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "wubi98_dz"):RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "wubi98_zg"))
+				HeadInfo:=Wubi_Schema~="i)ci"?HeadInfo:(Wubi_Schema~="i)chaoji"?RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "WubiCiku_U"):Wubi_Schema~="i)zi"?RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "WubiCiku_dz"):RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "WubiCiku_zg"))
 				RegExMatch(HeadInfo,"(?<=name\:).+",FileInfo)
 				FileInfo:=RegExReplace(FileInfo,"\s+")
 				FileDelete, %OutFolder%\%FileInfo%.dict.yaml
 				Resoure_:=HeadInfo "`n" Resoure_, HeadInfo:=""
 				FileAppend,%Resoure_%,%OutFolder%\%FileInfo%.dict.yaml, UTF-8
 			}else{
-				FileDelete, %OutFolder%\wubi98-%fileNewname%_单义.txt
-				FileAppend,%Resoure_%,%OutFolder%\wubi98-%fileNewname%_单义.txt, UTF-8
+				FileDelete, %OutFolder%\WubiCiku-%fileNewname%_单义.txt
+				FileAppend,%Resoure_%,%OutFolder%\WubiCiku-%fileNewname%_单义.txt, UTF-8
 			}
 			Resoure_ :=OutFolder :="", custom_db:=init_db:=0, Result_:=Results_:=Result:=[]
 			TrayTip,, 导出完成用时 %timecount%
@@ -4625,13 +4625,13 @@ Backup_En:
 		startTime:= CheckTickCount()
 		Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, % "英文词库导出中...", 码表导出
 		if DB.gettable("SELECT aim_chars,A_Key FROM " (bd~="En"?"encode":"'extend'.'symbols'") "",Result){
-			FileDelete, %OutFolder%\wubi98-%bd%.txt
+			FileDelete, %OutFolder%\WubiCiku-%bd%.txt
 			Loop % Result.RowCount
 			{
 				Resoure_ .=Result.Rows[A_index,1] A_tab Result.Rows[A_index,2] "`n"
 			}
 			timecount:= CheckTickCount(startTime)
-			FileAppend,%Resoure_%,%OutFolder%\wubi98-%bd%.txt, UTF-8
+			FileAppend,%Resoure_%,%OutFolder%\WubiCiku-%bd%.txt, UTF-8
 			Resoure_ :=OutFolder :=""
 			Progress, M ZH-1 ZW-1 Y100 FM12 C0 FM14 WS700 ,, 导出完成用时 %timecount%！, 码表导出
 			TrayTip,, 导出完成用时 %timecount%
@@ -4706,18 +4706,18 @@ Return
 SetSuspend:
 	Suspend
 	if A_IsSuspended {
-		Menu, Tray, Icon, config\wubi98.icl,31, 1
+		Menu, Tray, Icon, config\WubiIME.icl,31, 1
 		;if !GET_IMESt()
 		;	SwitchToChsIME()
 		Menu, TRAY, Rename, 禁用 , 启用
-		Menu, TRAY, Icon, 启用, config\wubi98.icl, 4
+		Menu, TRAY, Icon, 启用, config\WubiIME.icl, 4
 		GuiControl,logo:, Pics,*Icon4 config\Skins\logoStyle\%StyleN%.icl
 		Traytip,  提示:,已切换至挂起状态！
 	}else if !A_IsSuspended {
-		if FileExist(A_ScriptDir "\wubi98.ico")
-			Menu, Tray, Icon, wubi98.ico
+		if FileExist(IconName_)
+			Menu, Tray, Icon, %IconName_%
 		else
-			Menu, Tray, Icon, config\wubi98.icl,30
+			Menu, Tray, Icon, config\WubiIME.icl,30
 		Traytip,  提示:,已切换至启用状态！
 		;if GET_IMESt()
 		;	SwitchToEngIME()
@@ -4841,7 +4841,7 @@ DB_management:
 	LV_ModifyCol(2,"80 Center")
 	LV_ModifyCol(3,"150 Integer Center")
 	SB_SetText(A_Space "[  " (DB_Page-1)*DB_Count+1 . " / " Result_.RowCount " 条  ]")
-	;SB_SetIcon("Config\wubi98.icl",30)
+	;SB_SetIcon("Config\WubiIME.icl",30)
 	EM_SetCueBanner(DBEdit, "请输入搜索的字词或编码")
 	Gui,DB:Show,AutoSize,自造词管理
 	Gosub ChangeWinIcon

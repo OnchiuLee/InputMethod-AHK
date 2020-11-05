@@ -13,7 +13,7 @@ If (MaBiaoFile<> ""&&filename){
 	MsgBox, 262452, 提示, 是否导入临时拼音词库进行替换？`n词库格式为：无比+制表符+wu'bi 或 「多义码表」`n码表处理耗时30秒左右。
 	IfMsgBox, Yes
 	{
-		DBFileName:=SubStr(A_ScriptDir,1,-13) "DB\wubi98.db", DB := New SQLiteDB
+		DBFileName:=SubStr(A_ScriptDir,1,-13) "DB\WubiCiku.db", DB := New SQLiteDB
 		If !FileExist(DBFileName) {
 			MsgBox, 262160, 错误警告, %DBFileName%不存在, 5
 			ExitApp

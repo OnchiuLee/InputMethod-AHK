@@ -17,7 +17,7 @@ If (MaBiaoFile<> ""&&filename){
 	MsgBox, 262452, 提示, 是否导入拆分单字源码表？`n词库格式须为「單字+tab+拆分」
 	IfMsgBox, Yes
 	{
-		DBFileName:=SubStr(A_ScriptDir,1,-13) "DB\wubi98.db", DB := New SQLiteDB
+		DBFileName:=SubStr(A_ScriptDir,1,-13) "DB\WubiCiku.db", DB := New SQLiteDB
 		If !FileExist(DBFileName) {
 			MsgBox, 262160, 错误警告, %DBFileName%不存在, 5
 			ExitApp

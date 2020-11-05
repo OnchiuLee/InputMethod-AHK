@@ -21,7 +21,7 @@ else IfMsgBox, Cancel
 FileSelectFolder, OutFolder,*%A_ScriptDir%\,3,请选择导出后保存的位置
 if (OutFolder<>"")
 {
-	DBFileName:=SubStr(A_ScriptDir,1,-13) "DB\wubi98.db", DB := New SQLiteDB
+	DBFileName:=SubStr(A_ScriptDir,1,-13) "DB\WubiCiku.db", DB := New SQLiteDB
 	If !FileExist(DBFileName) {
 		MsgBox, 262160, 错误警告, %DBFileName%不存在, 5
 		ExitApp
@@ -52,14 +52,14 @@ if (OutFolder<>"")
 			If (Encoding="UTF-16BE BOM") {
 				MsgBox, 262160, 错误提示, 文件编码格式为〔UTF-8 BOM 或 UTF-16LE BOM 或 CP936〕！, 5
 			}
-			HeadInfo:=Wubi_Schema~="i)ci"?HeadInfo:(Wubi_Schema~="i)chaoji"?RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "wubi98_U"):Wubi_Schema~="i)zi"?RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "wubi98_dz"):RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "wubi98_zg"))
+			HeadInfo:=Wubi_Schema~="i)ci"?HeadInfo:(Wubi_Schema~="i)chaoji"?RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "WubiCiku_U"):Wubi_Schema~="i)zi"?RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "WubiCiku_dz"):RegExReplace(HeadInfo,"(?<=name\:).+",A_Space "WubiCiku_zg"))
 			RegExMatch(HeadInfo,"(?<=name\:).+",FileInfo)
 			FileInfo:=RegExReplace(FileInfo,"\s+")
 			FileDelete, %OutFolder%\%FileInfo%.dict.yaml
 			Resoure_:=HeadInfo "`n" Resoure_, HeadInfo:=""
 			FileAppend,%Resoure_%,%OutFolder%\%FileInfo%.dict.yaml, UTF-8
 		}else{
-			FileName:=mabiao?"wubi98-" Wubi_Schema "_多义.txt":"wubi98-" Wubi_Schema "_单义.txt"
+			FileName:=mabiao?"WubiCiku-" Wubi_Schema "_多义.txt":"WubiCiku-" Wubi_Schema "_单义.txt"
 			FileDelete, %OutFolder%\%FileName%
 			FileAppend,%Resoure_%,%OutFolder%\%FileName%, UTF-8
 		}

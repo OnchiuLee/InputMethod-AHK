@@ -14,7 +14,7 @@ If (MaBiaoFile<> ""&&filename){
 
 	WubiIni:=class_EasyIni(A_Temp "\InputMethodData\Config.ini"), Wubi_Schema:=WubiIni.Settings["Wubi_Schema"]
 	Frequency:=WubiIni.Settings["Frequency"], Prompt_Word:=WubiIni.Settings["Prompt_Word"], Trad_Mode:=WubiIni.Settings["Trad_Mode"]
-	DBFileName:=SubStr(A_ScriptDir,1,-13) "DB\wubi98.db", DB := New SQLiteDB
+	DBFileName:=SubStr(A_ScriptDir,1,-13) "DB\WubiCiku.db", DB := New SQLiteDB
 	If !FileExist(DBFileName) {
 		MsgBox, 262160, 错误警告, %DBFileName%不存在, 5
 		ExitApp

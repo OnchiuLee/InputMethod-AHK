@@ -13,7 +13,7 @@ If (MaBiaoFile<> ""&&filename){
 	MsgBox, 262452, 提示, 要导入以下造词单字源表进行替换？`n词库格式须为「单行单义/单行多义」
 	IfMsgBox, Yes
 	{
-		DBFileName:=SubStr(A_ScriptDir,1,-13) "DB\wubi98.db", DB := New SQLiteDB
+		DBFileName:=SubStr(A_ScriptDir,1,-13) "DB\WubiCiku.db", DB := New SQLiteDB
 		If !DB.OpenDB(DBFileName) {
 			MsgBox, 262160, 数据库DB错误, % "消息:`t" DB.ErrorMsg "`n代码:`t" DB.ErrorCode, 5
 			ExitApp
