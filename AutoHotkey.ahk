@@ -55,7 +55,7 @@ If FileExist(BaseDir) {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020110511"
+version :="2020110517"
 ;;--------------------------------------------------------
 FileRead, inivar, %A_Temp%\InputMethodData\Config.ini
 RegExMatch(inivar,"(?<=ThemeName\=).+",tName)
@@ -288,13 +288,22 @@ if Exit_switch&&Exit_hotkey
 
 ;{{{{{SQlite类创建,db文件读取
 DBFileName:=A_ScriptDir "\DB\WubiCiku.db", ExtendDBName:=A_ScriptDir "\Config\ExtendData.db"
-If FileExist("DB\wubi*.7z")&&!FileExist("DB\WubiCiku.7z")
+If FileExist("DB\wubi*.7z")&&!FileExist("DB\WubiCiku.7z")   ;;处理7z压缩包
 	FileMove, DB\wubi*.7z, DB\WubiCiku.7z,1
 If !FileExist(DBFileName)&&FileExist("DB\WubiCiku.7z")
 	Un7Zip(A_ScriptDir "\DB\WubiCiku.7z",A_ScriptDir "\DB\")
+
+If FileExist("DB\wubi*.zip")&&!FileExist("DB\WubiCiku.zip")   ;;处理zip压缩包
+	FileMove, DB\wubi*.zip, DB\WubiCiku.zip,1
+If !FileExist(DBFileName)&&FileExist("DB\WubiCiku.zip")
+	Un7Zip(A_ScriptDir "\DB\WubiCiku.zip",A_ScriptDir "\DB\")
+
 If FileExist("DB\wubi*.db")&&!FileExist(DBFileName)
 	FileMove, DB\wubi*.db, DB\WubiCiku.db,1
-If !FileExist(DBFileName)
+
+If FileExist("DB\wubi*.rar")&&!FileExist(DBFileName)
+	MsgBox, 262160, 错误警告,不支持RAR压缩格式自动解压，请手动释放「 WubiCiku.db 」,15
+If !FileExist(DBFileName)&&FileExist("DB\WubiCiku.zip")||!FileExist(DBFileName)&&FileExist("DB\WubiCiku.7z")
 	MsgBox, 262160, 错误警告, %DBFileName%不存在或解压失败导致DB目录词库错误！请自行解压, 15
 
 If (DB._Handle)
