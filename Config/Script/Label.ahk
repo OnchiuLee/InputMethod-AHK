@@ -704,6 +704,7 @@ srf_tooltip:
 			srf_for_select_for_tooltip:=RegExReplace(srf_for_select_for_tooltip,"\s.+|\n.+|^\w+\.|\〔.+")
 			UpperScreenMode(StrSplit(srf_for_select_for_tooltip,Textdirection ~="i)vertical"?"`n":A_Space)[1])
 			srf_all_input :=RegExReplace(srf_all_input, "^[a-zA-Z]{4}", ""), updateRecent(srf_for_select_for_tooltip)
+			, InputCount+=StrLen(srf_for_select_for_tooltip)
 			Gosub srf_tooltip_fanye
 		}
 		else if StrLen(srf_all_input)<4&&srf_for_select_Array.Length()=0&&srf_all_input ~="^[a-yA-Y]+$"
@@ -1118,9 +1119,9 @@ More_Setting:
 	Gui, 98:Destroy
 	Gui, 98:Default
 	SysGet, SGW, 71
-	Menu, SchemaList, Add, 五笔•含词, sChoice4
-	Menu, SchemaList, Add, 五笔•单字, sChoice4
-	Menu, SchemaList, Add, 五笔98•超集, sChoice4
+	Menu, SchemaList, Add, % SchemaType["ci"] "五笔•含词", sChoice4
+	Menu, SchemaList, Add, % SchemaType["zi"] "五笔•单字", sChoice4
+	Menu, SchemaList, Add, % SchemaType["chaoji"] "五笔•超集", sChoice4
 	Menu, SchemaList, Add, 五笔•字根, sChoice4
 	Menu, SchemaList, Color, FFFFFF
 	Menu, StyleMenu, Add, Tooltip样式, ChangeTooltipstyle
