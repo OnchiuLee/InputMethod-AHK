@@ -705,7 +705,7 @@ Save_EnWord(input){
 }
 
 UpperScreenMode(TEXT){
-	global srf_all_Input, Initial_Mode, EN_Mode, srf_for_select_Array, CharsTotalCount, InputCount, BaseDir
+	global srf_all_Input, Initial_Mode, EN_Mode, srf_for_select_Array, CharsTotalCount, InputCount
 	If (Initial_Mode ~="on"||srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3)
 	{
 		WinClip.Snap( ClipSaved ), WinClip.Clear()
@@ -722,8 +722,8 @@ UpperScreenMode(TEXT){
 		||EN_Mode&&srf_for_select_Array[1,1]=srf_for_select_Array[2,1]&&srf_for_select_Array[2,1]=srf_for_select_Array[3,1]){
 		Save_EnWord(TEXT)
 	}
-	If FileExist(BaseDir)    ;统计
-		InputCount+=StrLen(TEXT), CharsTotalCount["Count"]:=InputCount, Json_ObjToFile(CharsTotalCount,BaseDir "\CharacterCount.json")
+	CharsTotalCount["Count"]:=InputCount:=SubStr(A_Now,1,8)<>SubStr(CharsTotalCount["Time"],1,8)?StrLen(TEXT):InputCount+StrLen(TEXT), CharsTotalCount["Time"]:=SubStr(A_Now,1,8)<>SubStr(CharsTotalCount["Time"],1,8)?A_Now:CharsTotalCount["Time"]
+	, Json_ObjToFile(CharsTotalCount,A_Temp "\InputMethodData\CharacterCount.json")
 }
 
 ;选词

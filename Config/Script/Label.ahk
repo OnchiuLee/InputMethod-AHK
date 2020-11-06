@@ -663,8 +663,9 @@ return
 ;退出设定
 OnExit:
 	DB.CloseDB()
-	Gosub RemoveFonts
-	if (not A_OSVersion ~="i)WIN_XP"&&GET_IMESt())
+	;;Gosub RemoveFonts
+	Json_ObjToFile(Frequency_Obj, A_ScriptDir "\Config\Script\WubiCiku.json", "UTF-8")
+	if not A_OSVersion ~="i)WIN_XP"
 		SwitchToChsIME()
 	ExitApp
 return
@@ -704,7 +705,8 @@ srf_tooltip:
 			srf_for_select_for_tooltip:=RegExReplace(srf_for_select_for_tooltip,"\s.+|\n.+|^\w+\.|\〔.+")
 			UpperScreenMode(StrSplit(srf_for_select_for_tooltip,Textdirection ~="i)vertical"?"`n":A_Space)[1])
 			srf_all_input :=RegExReplace(srf_all_input, "^[a-zA-Z]{4}", ""), updateRecent(srf_for_select_for_tooltip)
-			, InputCount+=StrLen(srf_for_select_for_tooltip)
+			CharsTotalCount["Count"]:=InputCount:=SubStr(A_Now,1,8)<>SubStr(CharsTotalCount["Time"],1,8)?StrLen(srf_for_select_for_tooltip):InputCount+StrLen(srf_for_select_for_tooltip), CharsTotalCount["Time"]:=SubStr(A_Now,1,8)<>SubStr(CharsTotalCount["Time"],1,8)?A_Now:CharsTotalCount["Time"]
+			, Json_ObjToFile(CharsTotalCount,A_Temp "\InputMethodData\CharacterCount.json")
 			Gosub srf_tooltip_fanye
 		}
 		else if StrLen(srf_all_input)<4&&srf_for_select_Array.Length()=0&&srf_all_input ~="^[a-yA-Y]+$"
@@ -854,12 +856,8 @@ srf_tooltip_fanye:
 		if srf_all_Input~="^z\w+|^z\'\w+" {
 			srf_all_input:=!zkey_mode?RegExReplace(srf_all_input,"^z|^z\'",srf_all_input~="'"?"z":"z'"):srf_all_input, srf_for_select_Array:=get_word(srf_all_input, Wubi_Schema)
 		}else If srf_all_input~="^z$"&&zkey_mode<2{
-			if recent[1]{
-				loop % objLength(recent)
-					srf_for_select_Array[A_Index,1]:=recent[A_Index]
-			}else{
-				Sym_Array:=[],Sym_Array[1,1]:=srf_all_Input,srf_for_select_Array:=Sym_Array
-			}
+			For key,value In recent
+				srf_for_select_Array.Push([value])
 		}
 		Gosub srf_tooltip_cut
 	}else if srf_all_Input ~="^~"&&!EN_Mode{
