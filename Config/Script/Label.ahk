@@ -3939,84 +3939,36 @@ return
 
 ;含词/单字选择
 Wubi_Schema:
-	Wubi_Schema :=WubiIni.Settings["Wubi_Schema"] :=Wubi_Schema~="i)zi|chaoji"?"ci":"zi", WubiIni.save()
-	if Wubi_Schema ~="i)zi|zg"{
-		Gosub Disable_Tray
-		Menu, More, Disable, 批量造词
-		if Wubi_Schema~="i)zi"
-			GuiControl,logo:, MoveGui,*Icon13 config\Skins\logoStyle\%StyleN%.icl
-		else
-			GuiControl,logo:, MoveGui,*Icon14 config\Skins\logoStyle\%StyleN%.icl
-	}
-	else if Wubi_Schema~="i)ci|chaoji"{
-		Gosub Enable_Tray
-		if Wubi_Schema~="i)ci"{
-			Menu, More, Enable, 批量造词
-			GuiControl,logo:, MoveGui,*Icon11 config\Skins\logoStyle\%StyleN%.icl
-		}else{
-			Menu, More, Disable, 批量造词
-			GuiControl,logo:, MoveGui,*Icon12 config\Skins\logoStyle\%StyleN%.icl
-		}
-	}
-	Gosub SelectItems
+	Wubi_Schema :=WubiIni.Settings["Wubi_Schema"] :=Wubi_Schema<>"ci"?"ci":"zi", WubiIni.save()
+	Gosub ChangeTray
 return
 
 ;超集方案选择
 Extend_Schema:
-	Wubi_Schema :=(Wubi_Schema~="i)zi|ci|zg"&&a_FontList ~="i)" FontExtend?"chaoji":"ci")
-	if Wubi_Schema~="i)ci|chaoji"{
-		Gosub Enable_Tray
-		if Wubi_Schema~="i)ci"{
-			Menu, More, Enable, 批量造词
-			GuiControl,logo:, MoveGui,*Icon11 config\Skins\logoStyle\%StyleN%.icl
-		}else{
-			Menu, More, Disable, 批量造词
-			GuiControl,logo:, MoveGui,*Icon12 config\Skins\logoStyle\%StyleN%.icl
-		}
-	}else{
-		Gosub Disable_Tray
-		Menu, More, Disable, 批量造词
-		if Wubi_Schema~="i)zi"
-			GuiControl,logo:, MoveGui,*Icon13 config\Skins\logoStyle\%StyleN%.icl
-		else
-			GuiControl,logo:, MoveGui,*Icon14 config\Skins\logoStyle\%StyleN%.icl
-	}
-	if (Wubi_Schema<>"chaoji"){
-		Traytip,提示,当前切换为「98含词」方案!
-		WubiIni.Settings["Wubi_Schema"]:=Wubi_Schema
-		GuiControl,logo:, MoveGui,*Icon11 config\Skins\logoStyle\%StyleN%.icl
-	}
-	else
-		WubiIni.Settings["Wubi_Schema"]:=Wubi_Schema
-	WubiIni.save()
-	Gosub SelectItems
+	Wubi_Schema :=WubiIni.Settings["Wubi_Schema"]:=Wubi_Schema<>"chaoji"?"chaoji":"ci", WubiIni.save()
+	If (Wubi_Schema="chaoji"&&a_FontList~="i)98WB-V|98WB-P0")
+		FontType :=WubiIni.TipStyle["FontType"]:=a_FontList~="i)98WB-V"?"98WB-V":a_FontList~="i)98WB-P0"?98WB-P0:Font_, WubiIni.save()
+	Gosub ChangeTray
 return
 
 ;字根码表选择
 ZG_Schema:
-	Wubi_Schema :=WubiIni.Settings["Wubi_Schema"]:=Wubi_Schema~="i)zi|ci|chaoji"?"zg":"ci", WubiIni.save()
-	if Wubi_Schema~="i)zg|zi"{
-		Menu, More, Disable, 批量造词
-		if Wubi_Schema~="i)zi"
-			GuiControl,logo:, MoveGui,*Icon13 config\Skins\logoStyle\%StyleN%.icl
-		else
-			GuiControl,logo:, MoveGui,*Icon14 config\Skins\logoStyle\%StyleN%.icl
-	}else{
-		Menu, More, Enable, 批量造词
-		if Wubi_Schema~="i)ci"
-			GuiControl,logo:, MoveGui,*Icon11 config\Skins\logoStyle\%StyleN%.icl
-		else
-			GuiControl,logo:, MoveGui,*Icon12 config\Skins\logoStyle\%StyleN%.icl
-	}
-	Gosub SelectItems
+	Wubi_Schema :=WubiIni.Settings["Wubi_Schema"]:=Wubi_Schema<>"zg"?"zg":"ci", WubiIni.save()
+	If (a_FontList~="i)98WB\-"&&SchemaType[Wubi_Schema]=98)
+		FontType :=WubiIni.TipStyle["FontType"]:=a_FontList~="i)98WB-0"?"98WB-0":a_FontList~="i)98WB-V"?"98WB-V":a_FontList~="i)98WB-3"?"98WB-3":a_FontList~="i)98WB-1"?"98WB-1":Font_, WubiIni.Save()
+	else If (a_FontList~="五笔拆字字根字体"&&SchemaType[Wubi_Schema]<>98||a_FontList~="五笔拆字字根字体"&&not a_FontList~="i)98WB\-"&&SchemaType[Wubi_Schema]=98)
+		FontType :=WubiIni.TipStyle["FontType"]:="五笔拆字字根字体", WubiIni.Save()
+	Gosub ChangeTray
 Return
 
 ;字根拆分
 Cut_Mode:
 	Cut_Mode :=WubiIni.Settings["Cut_Mode"] :=Cut_Mode~="i)off"?"on":"off", WubiIni.save()
 	Menu, More, Rename, % Cut_Mode="off"?"隐藏拆分":"显示拆分" , % Cut_Mode="off"?"显示拆分":"隐藏拆分"
-	If (Cut_Mode ~="i)on")
-		FontType :=WubiIni.TipStyle["FontType"]:="98WB-0", WubiIni.Save()
+	If (Cut_Mode ~="i)on"&&a_FontList~="i)98WB\-"&&SchemaType[Wubi_Schema]=98)
+		FontType :=WubiIni.TipStyle["FontType"]:=a_FontList~="i)98WB-0"?"98WB-0":a_FontList~="i)98WB-V"?"98WB-V":a_FontList~="i)98WB-3"?"98WB-3":a_FontList~="i)98WB-1"?"98WB-1":Font_, WubiIni.Save()
+	else If (Cut_Mode ~="i)on"&&a_FontList~="五笔拆字字根字体"&&SchemaType[Wubi_Schema]<>98||Cut_Mode ~="i)on"&&a_FontList~="五笔拆字字根字体"&&not a_FontList~="i)98WB\-"&&SchemaType[Wubi_Schema]=98)
+		FontType :=WubiIni.TipStyle["FontType"]:="五笔拆字字根字体", WubiIni.Save()
 	if srf_all_input
 		Gosub srf_tooltip_fanye
 return
