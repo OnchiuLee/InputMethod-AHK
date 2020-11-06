@@ -1354,14 +1354,14 @@ More_Setting:
 	ImageButton.Create(BBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
-	Gui, 98:Add, Text, x190 y+10 left vTextInfo29, 反查设定：
+	Gui, 98:Add, Text, x190 y+10 left vTextInfo29, 反查方式：
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
 	Gui, 98:Add, DDL,x+5 w90  vzKeySet gzKeySet  AltSubmit HwndZDDL , 临时拼音|模糊匹配|笔画反查    ;;+0x0210
 	;;OD_Colors.Attach(ZDDL,{T: 0xffe89e, B: 0x0178d6})
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, Button,x+10 yp-2 vSBA18 gSBA18 hwndBHBT, 笔画键位定义
+	Gui, 98:Add, Button,x+10 yp-2 vSBA18 gSBA18 hwndBHBT, 设置笔画键位
 	ImageButton.Create(BHBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
@@ -1374,23 +1374,23 @@ More_Setting:
 	;;OD_Colors.Attach(FRDL,{T: 0xffe89e, B: 0x0178d6})
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, Button, x+10 yp-1 vRestDB gRestDB hWndRDBT, 重置词频
+	Gui, 98:Add, Button, x+10 yp-1 vRestDB gRestDB hWndRDBT, 初始化词频
 	ImageButton.Create(RDBT, [6, 0x80404040, 0xC0C0C0, "Red"], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui, 98:Add, CheckBox,x190 y+10 Checked%IStatus% vInputStatus gInputStatus, 输入状态控制
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, Button, yp-4 x+10 gWinMode vWinMode hWndWMBT,程序设置
+	Gui, 98:Add, Button, yp-4 x+10 gWinMode vWinMode hWndWMBT,输入状态管理
 	ImageButton.Create(WMBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
-	Gui, 98:Add, Button,x+10 yp vSBA27 gSBA27 hwndFTBT, 日期格式
+	Gui, 98:Add, Button,x+10 yp vSBA27 gSBA27 hwndFTBT, 时间输出管理
 	ImageButton.Create(FTBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
 	Gui, 98:Add, CheckBox,x190 y+10 Checked%CursorStatus% vCursor_Status gCursor_Status, 光标监控
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
-	Gui, 98:Add, Button,yp-4 x+10 cred gCreateSC vCreateSC hWndSCBT,建立桌面捷径
+	Gui, 98:Add, Button,yp-4 x+10 cred gCreateSC vCreateSC hWndSCBT,创建快捷方式
 	ImageButton.Create(SCBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
@@ -1511,7 +1511,7 @@ More_Setting:
 	Gui 98:color,ffffff
 	Gui,98:Font
 	Gui,98:Font, s9, %font_%
-	Gui, 98:Add, StatusBar,, 设置面板
+	Gui, 98:Add, StatusBar,,❖ 设置面板
 	SB_SetText(A_Is64bitOS?" ❖ " ComInfo.GetOSVersionInfo()[1] "〔 AutoHotkey " A_AhkVersion "#64位 〕":" ❖ " ComInfo.GetOSVersionInfo() "〔 AutoHotkey " A_AhkVersion "#32位 〕" )
 	Gui, 98:Show,AutoSize,输入法设置
 	Gosub ChangeWinIcon
@@ -1669,9 +1669,15 @@ WinMode:
 		ColWidth:=240
 	Gui, IM:font,10 bold,%Font_%
 	Gui, IM:Add, Button, y+10 vRTxck gRTxck hWndRTBT,刷新列表
+	Gui, IM:Color,ffffff
+	Gui, IM:font,
+	Gui, IM:font,9 norm,%Font_%
+	Gui, IM:Add, StatusBar,
 	ImageButton.Create(RTBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	GuiControl, IM:Move, IPView, % "w" (A_ScreenDPI/96>1?ColWidth/(A_ScreenDPI/96):ColWidth)
-	Gui,IM:Show, AutoSize,程序配置
+	SB_SetParts(ColWidth*0.4, ColWidth*0.5)
+	SB_SetText( " ❖ 输入状态管理") 
+	Gui,IM:Show, AutoSize,状态管理
 	Gosub ChangeWinIcon
 Return
 
@@ -1702,7 +1708,7 @@ GetProcessInfo(filepath){
 IPView:
 	if A_GuiEvent~="i)Normal" {
 		LV_GetText(LVName_,A_EventInfo,2),LV_GetText(LVName,A_EventInfo,1), LVPOS:= A_EventInfo
-		GuiControl,IM:,IM_DDL,% LVName_~="中文"?"|英文|剪切板":LVName_~="英文"?"|中文|剪切板":LVName_~="剪切板"?"|中文|英文":""
+		GuiControl,IM:,IM_DDL,% LVName_~="中文"?"|英文|剪切板":LVName_~="英文"?"|中文|剪切板":LVName_~="剪切板"&&GetArrIndex(InputModeData["CN"],LVName)?"|英文":LVName_~="剪切板"&&GetArrIndex(InputModeData["EN"],LVName)?"|中文":"|中文|英文"
 		;;GuiControl, IM:ChooseString, IM_DDL, % LVName_
 		GuiControl,IM:Enable,IM_DDL
 		;;OD_Colors.Attach(IDDL,{T: 0xffffff, B: 0x0178d6})
@@ -1734,47 +1740,50 @@ Return
 
 AddProcess:
 	Gui, 98:Hide
-	TransGui("将光标放在要选择窗口的位置，然后按<左Ctrl键>获取进程名!`n如果不操作20s内自动获取位置进程名！", A_ScreenWidth/4 , A_ScreenHeight/2 , "s22","bold","cred")
 	Gui, IM:hide
+	Progress, M ZH-1 ZW-1 W420 C0 FM14 WS700 CTffffff CW0078d7,, 将光标放在要选择窗口的位置，然后按<左Ctrl键>获取进程名，限时20秒！, 窗口进程获取
+	OnMessage(0x201, "MoveProgress")
 	keywait, LControl, D T20
 	keywait, LControl
-	TransGui()
+	Progress, off
 	MouseGetPos, , , id
 	WinGet, win_exe, ProcessName, ahk_id %id%,
-	Set_IMode:=IMEmode~="i)off"?"EN":"CN", IModeCount:=Set_IMode~="i)EN"?"CN":"EN"
-	If win_exe~="i)\.exe" 
-	{
-		if !Array_isInValue(InputModeData[Set_IMode], win_exe){
-			if Array_isInValue(InputModeData[IModeCount], win_exe){
-				Loop, % InputModeData[IModeCount].Length()
-					if (InputModeData[IModeCount,A_Index]=win_exe)
-						InputModeData[IModeCount].RemoveAt(A_Index)
-				If InputModeData[Set_IMode].Length()>0
-					InputModeData[Set_IMode].Push(win_exe), LV_Modify(LVPOS,"text",win_exe,IMEmode~="i)off"?"英文":"中文")
-				else
-					LV_Insert(LV_GetCount() ,"", win_exe, "中文"),InputModeData[Set_IMode]:=[ win_exe ]
-			}else{
-				If InputModeData[Set_IMode].Length()>0
-					InputModeData[Set_IMode].Push(win_exe),LV_Insert(LV_GetCount() ,"", win_exe, IMEmode~="i)off"?"英文":"中文")
-				else
-					InputModeData[Set_IMode]:=[ win_exe ],LV_Insert(LV_GetCount() ,"", win_exe, IMEmode~="i)off"?"英文":"中文")
-			}
-			Json_ObjToFile(InputModeData, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
-			LV_ModifyCol(2,"100 center"), ColWidth:=0
-			GuiControlGet, IMVar, Pos , IPView
-			Loop % LV_GetCount("Column")
-			{
-				dIndex:=A_Index-1
-				SendMessage, 4125, %dIndex%, , , ahk_id %IPView%  ; 4125 为 LVM_GETCOLUMNWIDTH.
-				ColWidth+=ErrorLevel
-			}
-			GuiControl, IM:Move, IPView, % "w" (A_ScreenDPI/96>1?ColWidth/(A_ScreenDPI/96):ColWidth)
-		}else
-			Traytip,,该进程已存在！
+	Set_IMode:=IMEmode~="i)off"?"EN":"CN", lineNum:=RowExist(win_exe)
+	If (win_exe&&!lineNum) {
+		If objCount(InputModeData[Set_IMode])
+			InputModeData[Set_IMode].Push(win_exe)
+		else
+			InputModeData[Set_IMode]:=[win_exe]
+		LV_Insert(LV_GetCount() ,"", win_exe, "中文")
+		Json_ObjToFile(InputModeData, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
+		LV_ModifyCol(2,"100 center"), ColWidth:=0
+		GuiControlGet, IMVar, Pos , IPView
+		Loop % LV_GetCount("Column")
+		{
+			dIndex:=A_Index-1
+			SendMessage, 4125, %dIndex%, , , ahk_id %IPView%  ; 4125 为 LVM_GETCOLUMNWIDTH.
+			ColWidth+=ErrorLevel
+		}
+		GuiControl, IM:Move, IPView, % "w" (A_ScreenDPI/96>1?ColWidth/(A_ScreenDPI/96):ColWidth)
 	}
 	Gui, 98:Show
 	Gui, IM:show
+	LV_Modify(lineNum?lineNum:LV_GetCount(), "Select")
+	If (lineNum) {
+		SB_SetText("`t ⛔ 该进程已存在！",2)
+		Sleep 4000
+		SB_SetText( "" ,2)
+	}
 Return
+
+RowExist(ColumText,colum=1){
+	Loop,% LV_GetCount()
+	{
+		LV_GetText(RetrievedText, A_Index,colum)
+		If (RetrievedText=ColumText)
+			Return A_Index
+	}
+}
 
 RTxck:
 	LV_Delete()
@@ -1784,53 +1793,53 @@ RTxck:
 				LV_Add(value=InputModeData["CN",1]?"Select":"" ,value,Section="CN"?"中文":Section="EN"?"英文":"剪切板")
 Return
 
+GetRowNum(Text1,Text2){
+	Loop,% LV_GetCount()
+	{
+		LV_GetText(RetrievedText1, A_Index,1), LV_GetText(RetrievedText2, A_Index,2)
+			If (Text1=RetrievedText1&&Text2=RetrievedText2)
+				Return A_Index
+	}
+}
+
 IM_DDL:
 	GuiControlGet, IM_DDL,, IM_DDL, text 
-	if (IM_DDL<>LVName_&&IM_DDL<>""&&LVName_<>""&&LVName~="i)\.exe$"&&IM_DDL<>"") 
+	if (IM_DDL&&IM_DDL<>LVName_&&LVName_&&LVName~="i)\.exe$") 
 	{
 		if IM_DDL ~="中文" {
-			if InputModeData["CN"].Length()>0
-			{
-				if Array_isInValue(InputModeData["EN"], LVName){
-					Loop, % InputModeData["EN"].Length()
-						if (InputModeData["EN",A_Index]=LVName)
-							InputModeData["EN"].RemoveAt(A_Index), LV_Modify(LVPOS,"text",LVName,"中文"), InputModeData["CN"].Push(LVName)
-				}else
-					InputModeData["CN"].Push(LVName)
-			}else{
-				if Array_isInValue(InputModeData["EN"], LVName){
-					Loop, % InputModeData["EN"].Length()
-						if (InputModeData["EN",A_Index]=LVName)
-							InputModeData["EN"].RemoveAt(A_Index), LV_Modify(LVPOS,"text",LVName,"中文"), InputModeData["CN"]:=[ LVName ]
-				}else
-					InputModeData["CN"]:=[ LVName ], LV_Insert(LV_GetCount() ,"", LVName, "中文")
+			If (Ikey:=GetArrIndex(InputModeData["EN"],LVName)) {
+				If (Ikey>1)
+					InputModeData["EN"].RemoveAt(Ikey)
+				else
+					InputModeData.Delete("EN")
 			}
+			If objCount(InputModeData["CN"])
+				InputModeData["CN"].Push(LVName)
+			else
+				InputModeData["CN"]:=[ LVName ]
+			GetLineNum:=GetRowNum(InputModeData["CN",objCount(InputModeData["CLIP"])],"中文")
+			LVPOS:=LVName__="CLIP"?GetRowNum(LVName,"英文"):LVPOS, LV_Modify(Ikey?LVPOS:GetLineNum?GetLineNum:LV_GetCount(),"text",LVName,IM_DDL)
 		}else if IM_DDL ~="英文" {
-			if InputModeData["EN"].Length()>0
-			{
-				if Array_isInValue(InputModeData["CN"], LVName){
-					Loop, % InputModeData["CN"].Length()
-						if (InputModeData["CN",A_Index]=LVName)
-							InputModeData["CN"].RemoveAt(A_Index), LV_Modify(LVPOS,"text",LVName,"英文"), InputModeData["EN"].Push(LVName)
-				}else
-					InputModeData["EN"].Push(LVName)
-			}else{
-				if Array_isInValue(InputModeData["CN"], LVName){
-					Loop, % InputModeData["CN"].Length()
-						if (InputModeData["CN",A_Index]=LVName)
-							InputModeData["CN"].RemoveAt(A_Index), LV_Modify(LVPOS,"text",LVName,"英文"), InputModeData["EN"]:=[ LVName ]
-				}else
-					InputModeData["EN"]:=[ LVName ], LV_Insert(LV_GetCount() ,"", LVName, "英文")
+			If (Ikey:=GetArrIndex(InputModeData["CN"],LVName)) {
+				If (Ikey>1)
+					InputModeData["CN"].RemoveAt(Ikey)
+				else
+					InputModeData.Delete("CN")
 			}
+			If objCount(InputModeData["EN"])
+				InputModeData["EN"].Push(LVName)
+			else
+				InputModeData["EN"]:=[ LVName ]
+			GetLineNum:=GetRowNum(InputModeData["EN",objCount(InputModeData["CLIP"])],"英文")
+			LVPOS:=LVName__="CLIP"?GetRowNum(LVName,"中文"):LVPOS, LV_Modify(Ikey?LVPOS:GetLineNum?GetLineNum:LV_GetCount(),"text",LVName,IM_DDL)
 		}else if IM_DDL ~="剪切板" {
-			if InputModeData["CLIP"].Length()>0
-			{
-				if !Array_isInValue(InputModeData["CLIP"], LVName){
-					LV_Insert(LV_GetCount() ,"", LVName, "剪切板"), InputModeData["EN"].Push(LVName)
-				}
-			}else{
-				LV_Insert(1 ,"", LVName, "剪切板"), InputModeData["CLIP"]:=[ LVName ]
-			}
+			If objCount(InputModeData["CLIP"])
+				InputModeData["CLIP"].Push(LVName)
+			else
+				InputModeData["CLIP"]:=[ LVName ]
+			GetLineNum:=GetRowNum(InputModeData["CLIP",objCount(InputModeData["CLIP"])],"剪切板")
+			LV_Insert(GetLineNum?GetLineNum+1:LVPOS ,"Select", LVName, "剪切板")
+			;;Gosub RTxck
 		}
 		Json_ObjToFile(InputModeData, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
 	}
@@ -1848,9 +1857,15 @@ DelRows(deb=""){
 		{	if ( !deb ){
 				LV_GetText(LVar1, a , 1), LV_GetText(LVar2, a , 2)
 				LV_Delete( a )
-				Loop,% InputModeData[LVar2="中文"?"CN":LVar2="英文"?"EN":"CLIP"].Length()
-					if (InputModeData[LVar2="中文"?"CN":LVar2="英文"?"EN":"CLIP",A_Index]=LVar1)
-						InputModeData[LVar2="中文"?"CN":LVar2="英文"?"EN":"CLIP"].RemoveAt(A_Index)
+				Loop,% len:=objCount(InputModeData[LVar2="中文"?"CN":LVar2="英文"?"EN":"CLIP"])
+				{
+					if (InputModeData[LVar2="中文"?"CN":LVar2="英文"?"EN":"CLIP",A_Index]=LVar1) {
+						If len>1
+							InputModeData[LVar2="中文"?"CN":LVar2="英文"?"EN":"CLIP"].RemoveAt(A_Index)
+						else
+							InputModeData.Delete(LVar2="中文"?"CN":LVar2="英文"?"EN":"CLIP")
+					}
+				}
 			}
 		}else
 			++a
@@ -1917,7 +1932,7 @@ Label_management:
 	labellv.SetColumns(1, 3)
 	labellv.OnMessage()
 	Gui, label:Color,ffffff
-	Gui, label:add,StatusBar,,❖ 双击修改，勾选批量删除，/+标签别名 执行标签！
+	Gui, label:add,StatusBar,, ❖ 双击修改，勾选批量删除，/+标签别名 执行标签！
 	Gui, label:Show,AutoSize, 标签管理
 	Gosub ChangeWinIcon
 Return
@@ -2148,7 +2163,7 @@ Key_:
 			Gui, Key: Add, Button, %j% w%w% h%h1% -Wrap gRunKey, % v.1
 		}
 	}
-	Gui, Key: Add, StatusBar,vsbt,[ 请选取按键 。。。]
+	Gui, Key: Add, StatusBar,vsbt,❖ 请选取按键 。。。
 	Gui, Key: Show, NA, 小键盘
 return
 
@@ -2504,8 +2519,8 @@ LongStringlists:
 	}
 	Gui, ts:font
 	Gui, ts:font,norm,%Font_%
-	Gui, ts:Add, StatusBar,, 1
-	SB_SetText("[ "A_Space CountNum+1 "/" pageNum . "页 ] -" lineCount "条")
+	Gui, ts:Add, StatusBar,, ❖
+	SB_SetText(" ❖ " A_Space CountNum+1 "/" pageNum . "页 -" lineCount "条")
 	Gui, ts:show, AutoSize, 长字符串管理 ● 输出方法：/+编码+z结尾
 	Gosub ChangeWinIcon
 Return
@@ -2515,7 +2530,7 @@ GetLongString:
 		loop,% (CountNum>=pageNum?lineCount-(CountNum-1)*40:40)
 			LV_Add("", Result.Rows[CountNum*40+A_Index,1],Result.Rows[CountNum*40+A_Index,2],Result.Rows[CountNum*40+A_Index,3],substr(Result.Rows[CountNum*40+A_Index,4],1,25))
 	LV_ModifyCol(1,"60 "), LV_ModifyCol(2,"120 Center"), LV_ModifyCol(3,"200 Center"), LV_ModifyCol(4,"240 ")
-	SB_SetText(A_Space CountNum+1 "/" pageNum . "页")
+	SB_SetText(" ❖ " CountNum+1 "/" pageNum . "页")
 Return
 
 tsGuiClose:
@@ -2612,7 +2627,7 @@ themelists:
 	ImageButton.Create(ODBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui, themes:font
 	Gui, themes:font,norm,%Font_%
-	Gui, themes:Add, StatusBar,, 1
+	Gui, themes:Add, StatusBar,, ❖
 	colum:=colum_:=0
 	Loop % LV_GetCount("Column")
 	{
@@ -2623,7 +2638,7 @@ themelists:
 	SysGet, CXVSCROLL, 2
 	colum:=colum/(A_ScreenDPI/96)+CXVSCROLL, colum_:=colum+30
 	GuiControl, themes:Move, MyTheme, w%colum%
-	SB_SetText(A_Space LV_GetCount() . "个主题")
+	SB_SetText(" ❖ " A_Space LV_GetCount() . "个主题")
 	;;SB_SetIcon("Config\WubiIME.icl",30)
 	Gui, themes:show, AutoSize, 主题管理
 	Gosub ChangeWinIcon
@@ -2678,7 +2693,7 @@ ClearItems(deb =""){
 	}
 	themelist_:=RegExReplace(themelist_,"\|$")
 	themelist:=RegExReplace(RegExReplace(themelist,themelist_),"\|{2,}","|")
-	SB_SetText(A_Space LV_GetCount() . "个主题")
+	SB_SetText(" ❖ " A_Space LV_GetCount() . "个主题")
 	GuiControl,98:, select_theme , "|"
 	GuiControl,98:, select_theme , %themelist%
 	if FileExist(A_ScriptDir "\Config\Skins\" ThemeName ".json")
@@ -3445,7 +3460,7 @@ SBA18:
 	Gui,SKey:Add,Edit,w250 vEditBox3 hwndSkeyEdit,
 	Gui,SKey:Add,Button,x+10 gsetStrockekey,保存
 	Gui,SKey:Margin,5,5
-	Gui,SKey:Add,StatusBar,,键位0-9a-z用|分隔五位
+	Gui,SKey:Add,StatusBar,,❖ 键位0-9a-z用|分隔五位
 	Gui,SKey:Show,AutoSize,笔画反查键位设置
 	EM_SetCueBanner(SkeyEdit,"当前键位：" StrockeKey)
 	ChangeWindowIcon(A_ScriptDir "\Config\WubiIME.icl",, 30)
@@ -3515,8 +3530,8 @@ Sym_Gui:
 	ICELV2.OnMessage(False)
 	Gui, Sym:Margin, 10, 10
 	Gui, Sym:Color,ffffff
-	Gui, Sym:Add, StatusBar,, 1
-	SB_SetText("共计"LV_GetCount() . "组标点")
+	Gui, Sym:Add, StatusBar,, ❖
+	SB_SetText(" ❖ 共计"LV_GetCount() . "组标点")
 	Gui, Sym:Show, , 标点符号映射 
 	Gosub ChangeWinIcon
 Return
@@ -3527,7 +3542,7 @@ Insert_sym:
 	{
 		LV_Add(“”,Section,element[1],element[2])
 	}
-	SB_SetText("共计"LV_GetCount() . "组标点")
+	SB_SetText(" ❖ 共计"LV_GetCount() . "组标点")
 Return
 
 HiddenCol1ListView:
@@ -3595,8 +3610,8 @@ ShowSymList:
 	SysGet, CXVSCROLL, 2
 	GuiControl,SymList:Move,LV1,% "w" TotalWidth/(A_ScreenDPI/96)+CXVSCROLL
 	Gui, SymList:Color,ffffff
-	Gui, SymList:Add, StatusBar,, 1
-	SB_SetText("双击复制到剪切板")
+	Gui, SymList:Add, StatusBar,, ❖
+	SB_SetText(" ❖ 双击复制到剪切板")
 	Gui, SymList:show,AutoSize,标点符号选取列表
 	Gosub ChangeWinIcon
 Return
@@ -4773,14 +4788,14 @@ DB_management:
 	ImageButton.Create(LPBT, [6, 0x80404040, 0xC0C0C0, 0x0078D7], [ , 0x80606060, 0xF0F0F0, 0x606000],"", [0, 0xC0A0A0A0, , 0xC0606000])
 	Gui,DB:Font,
 	Gui,DB:Font, s10, %font_%
-	Gui, DB:Add, StatusBar,vSBTIP,
+	Gui, DB:Add, StatusBar,vSBTIP,❖
 	Gui, DB:Margin , 10, 10
 	DB_Page:=1, DB_Count:=40
 	Gosub ReadDB
 	LV_ModifyCol(1,"150 left")
 	LV_ModifyCol(2,"80 Center")
 	LV_ModifyCol(3,"150 Integer Center")
-	SB_SetText(A_Space "[  " (DB_Page-1)*DB_Count+1 . " / " Result_.RowCount " 条  ]")
+	SB_SetText(" ❖ " (DB_Page-1)*DB_Count+1 . " / " Result_.RowCount " 条 ")
 	;SB_SetIcon("Config\WubiIME.icl",30)
 	EM_SetCueBanner(DBEdit, "请输入搜索的字词或编码")
 	Gui,DB:Show,AutoSize,自造词管理
@@ -4891,7 +4906,7 @@ NextRows:
 			GuiControl, DB:Enable, %v%
 	}
 	;GuiControlGet, BUVar, Pos , DB_BU
-	SB_SetText(A_Space "[  " (DB_Page-1)*DB_Count+1 . " / " Result_.RowCount " 条  ]")
+	SB_SetText(" ❖ " (DB_Page-1)*DB_Count+1 . " / " Result_.RowCount " 条 ")
 Return
 
 ReadDB:
@@ -4922,7 +4937,7 @@ ReadDB:
 			GuiControl, DB:Enable, %v%
 	}
 	;GuiControlGet, BUVar, Pos , DB_BU
-	SB_SetText(A_Space "[  " (DB_Page-1)*DB_Count+1 . " / " Result_.RowCount " 条  ]")
+	SB_SetText(" ❖ " (DB_Page-1)*DB_Count+1 . " / " Result_.RowCount " 条 ")
 Return
 
 DB_search:
@@ -4981,7 +4996,7 @@ DB_Submit:
 		ss:=0
 		LV_Delete()
 		Gosub ReadDB
-		SB_SetText(A_Space "[  " (DB_Page-1)*DB_Count+1 . " / " Result_.RowCount " 条  ]")
+		SB_SetText(" ❖ "  (DB_Page-1)*DB_Count+1 . " / " Result_.RowCount " 条 ")
 	}
 Return
 
@@ -5005,7 +5020,7 @@ search_result:
 			loop % Results_.RowCount
 				LV_Add(A_Index=1?"Select":"", Results_.Rows[A_Index,1],Results_.Rows[A_Index,2],Results_.Rows[A_Index,3])
 	}
-	SB_SetText(A_Space "[ 共" LV_GetCount() . "条记录 ]")
+	SB_SetText(" ❖ 共" LV_GetCount() . "条记录")
 Return
 
 MyDB:
@@ -5027,9 +5042,9 @@ MyDB:
 		}
 		LV_GetText(LVars_1, A_EventInfo , 1), LV_GetText(LVars_2, A_EventInfo , 2), LV_GetText(LVars_, A_EventInfo , 3)
 		if ss{
-			SB_SetText(A_Space "[ 第 " A_EventInfo " / " LV_GetCount() . " 条记录 ]")
+			SB_SetText(" ❖ 第 " A_EventInfo " / " LV_GetCount() . " 条记录")
 		}else{
-			SB_SetText("[  " (DB_Page-1)*DB_Count+A_EventInfo . " / " Result_.RowCount " 条  ]")
+			SB_SetText(" ❖ " (DB_Page-1)*DB_Count+A_EventInfo . " / " Result_.RowCount " 条 ")
 		}
 	}
 Return
@@ -5062,6 +5077,6 @@ DelCode(deb =""){
 		}else
 			++a
 	}
-	SB_SetText(A_Space "[  " (DB_Page-1)*DB_Count+lineInfo . " / " Result_.RowCount-count " 条  ]")
+	SB_SetText(" ❖ " (DB_Page-1)*DB_Count+lineInfo . " / " Result_.RowCount-count " 条 ")
 
 }
