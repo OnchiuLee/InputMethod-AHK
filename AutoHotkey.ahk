@@ -34,9 +34,7 @@ If (!FileExist(Program:=(StrReplace(A_ProgramFiles, " (x86)") "\WubiInputMethod"
 
 BaseDir:=A_Is64bitOS?(FileExist(A_ScriptDir "\main\*.exe")?StrReplace(A_ProgramFiles, " (x86)") "\WubiInputMethod\x64":StrReplace(A_ProgramFiles, " (x86)") "\WubiInputMethod\x86"):A_ProgramFiles "\WubiInputMethod\x86" 
 If FileExist(BaseDir) {
-	ProcessName :=RegExReplace(A_AhkPath,".+\\"), count:=count_:=0, CharsTotalCount:=Json_FileToObj(BaseDir "\CharacterCount.json")
-	,CharsTotalCount:=ObjCount(CharsTotalCount)?CharsTotalCount:{}, CharsTotalCount["UnitName"]:=CharsTotalCount["UnitName"]?CharsTotalCount["UnitName"]:"上屏统计"
-	, InputCount:=SubStr(A_Now,1,8)>SubStr(CharsTotalCount["Time"],1,8)?0:CharsTotalCount["Count"], CharsTotalCount["Time"]:=SubStr(A_Now,1,8)>SubStr(CharsTotalCount["Time"],1,8)?A_Now:CharsTotalCount["Time"]
+	ProcessName :=RegExReplace(A_AhkPath,".+\\"), count:=count_:=0
 	IniRead, UIA, %A_Temp%\InputMethodData\Config.ini, Settings, UIAccess ,0
 	Loop, Files, %BaseDir%\*.exe
 	{
@@ -58,7 +56,7 @@ If FileExist(BaseDir) {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020110519"
+version :="2020110611"
 ;;--------------------------------------------------------
 FileRead, inivar, %A_Temp%\InputMethodData\Config.ini
 RegExMatch(inivar,"(?<=ThemeName\=).+",tName)
@@ -352,23 +350,18 @@ If EnKeyboardMode
 
 ;PrintObjects(WubiIni)
 ;{{常用变量值初始化
-global recent:=Carets:={}
+global Carets:={}
 global code_status:=localpos:=srfCounts:=select_pos:=1
 global valueindex:=Cut_Mode?2:1
 global waitnum:=select_sym:=PosLimit:=PosIndex:=InitSetting:=0
 Select_Code=gfdsahjklm;'space           ;字母选词
 global num__:=Result_Char:=Select_result :=selectallvalue:=ID_Cursor:=""
-global select_arr:=select_value_arr:=srf_bianma:=add_Array:=add_Result:=Split_code:=labelObj:=[]
+global recent:=select_arr:=select_value_arr:=srf_bianma:=add_Array:=add_Result:=Split_code:=labelObj:=[]
 ;}}
 
-Frequency_obj:=Json_FileToObj(A_ScriptDir "\Config\Script\WubiCiku.json")
-if !Frequency_obj.Count()
-	Frequency_obj:={}
-else{
-	for k,v in Frequency_obj
-		if v.length()<1
-			Frequency_obj:={}
-}
+CharsTotalCount:=Json_FileToObj(A_Temp "\InputMethodData\CharacterCount.json"),CharsTotalCount:=ObjCount(CharsTotalCount)?CharsTotalCount:{}
+, CharsTotalCount["UnitName"]:=CharsTotalCount["UnitName"]?CharsTotalCount["UnitName"]:Chr(0x4e0a) Chr(0x5c4f) Chr(0x7edf) Chr(0x8ba1)
+, InputCount:=CharsTotalCount["Count"], Frequency_obj:=Json_FileToObj(A_ScriptDir "\Config\Script\WubiCiku.json"), Frequency_obj:=ObjCount(Frequency_obj)?Frequency_obj:{}
 
 ;常用的符号列表（供选择用）
 SymObiect:=[[["中文逗号", "，"], ["中文句号", "。"],["中文问号", "？"],["中文感叹号", "！"],["中文冒号", "："],["中文分号", "；"],["中文顿号", "、"],["水平省略号", "…"],["波浪线", "~"],["连接符", "&"],["邮箱符", "@"],["数字标记", "#"]]
@@ -546,7 +539,7 @@ ShellIMEMessage( wParam,lParam ) {
 		;9 显示系统菜单 	;10 顶级窗体被强制关闭 	;14 wParam=替换顶级窗口的窗口hWnd
 		;12 没有被程序处理的APPCOMMAND。见WM_APPCOMMAND
 	*/
-	global srf_mode, InputModeData, Initial_Mode, WubiIni,StyleN,IStatus, program, IMEmode ,CursorStatus, versions, GzType, SchemaType, BaseDir
+	global srf_mode, InputModeData, Initial_Mode, WubiIni,StyleN,IStatus, program, IMEmode ,CursorStatus, versions, GzType, SchemaType
 		, Startup_Name, Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, srf_all_input, ID_Cursor, Logo_Switch, InputCount
 	If (wParam = 1||wParam=32772 ){
 		WinGet, WinEXE, ProcessName , ahk_id %lParam%
@@ -602,7 +595,7 @@ ShellIMEMessage( wParam,lParam ) {
 			Gosub RestLogo
 		}
 		LastWinEXE:=WinEXE_, Eid:=WinExist(), lunarDate:=Date2LunarDate(SubStr( A_Now,1,10),GzType)
-		program:="※ " Startup_Name " ※`n◆ 当前方案：" (Wubi_Schema~="i)ci"?"【" SchemaType["ci"] "五笔•含词】":Wubi_Schema~="i)zi"?"【" SchemaType["zi"] "五笔•单字】":Wubi_Schema~="i)zg"?"【五笔•字根】":"【" SchemaType["chaoji"] "五笔•超集】") "`n◆ 农历日期：" lunarDate[1] "〖 " A_DDDD " 〗`n◆ 甲子历：" lunarDate[2] "`n◆ 农历时辰：" Time_GetShichen(SubStr( A_Now,9,2)) (FileExist(BaseDir)?"`n◆ 今日统计：" InputCount:"")   ;;"`n◆ 版本日期：" versions
+		program:="※ " Startup_Name " ※`n◆ 当前方案：" (Wubi_Schema~="i)ci"?"【" SchemaType["ci"] "五笔•含词】":Wubi_Schema~="i)zi"?"【" SchemaType["zi"] "五笔•单字】":Wubi_Schema~="i)zg"?"【五笔•字根】":"【" SchemaType["chaoji"] "五笔•超集】") "`n◆ 农历日期：" lunarDate[1] "〖 " A_DDDD " 〗`n◆ 甲子历：" lunarDate[2] "`n◆ 农历时辰：" Time_GetShichen(SubStr( A_Now,9,2)) "`n◆ 今日统计：" InputCount   ;;"`n◆ 版本日期：" versions
 		Menu,Tray,Tip,%program%
 		Gosub SelectItems
 	Return
