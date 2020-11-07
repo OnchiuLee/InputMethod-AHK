@@ -447,7 +447,7 @@ Write_LongChars:
 		FileSelectFile, FileContents, 3, , 请选择要导入的文本文件, Text Documents (*.txt)
 		If (FileContents<>"")
 		{
-			SQL =CREATE TABLE IF NOT EXISTS TangSongPoetics ("A_Key" TEXT,"Author" TEXT, "B_Key" TEXT, "C_Key" TEXT);delete from TangSongPoetics
+			SQL =CREATE TABLE IF NOT EXISTS 'extend'.'TangSongPoetics' ("A_Key" TEXT,"Author" TEXT, "B_Key" TEXT, "C_Key" TEXT);delete from TangSongPoetics
 			DB.Exec(SQL)
 			GetFileFormat(FileContents,_Chars,Encoding)
 			If (Encoding="UTF-16BE BOM") {
@@ -457,7 +457,7 @@ Write_LongChars:
 			Loop,parse,_Chars,`n,`r
 				If A_LoopField 
 					CharsObj:=StrSplit(A_LoopField,A_tab), __Chars.="('" RegExReplace(CharsObj[1],"\s+") "','" RegExReplace(CharsObj[2],"\s+") "','" RegExReplace(CharsObj[3],"\s+") "','" RegExReplace(CharsObj[4],"\s+") "')" ","
-			If DB.Exec("INSERT INTO TangSongPoetics VALUES" RegExReplace(__Chars,"\,$") "")>0
+			If DB.Exec("INSERT INTO 'extend'.'TangSongPoetics' VALUES" RegExReplace(__Chars,"\,$") "")>0
 				Traytip,,导入成功！
 		}
 		__Chars:=_Chars:=FileContents:="", CharsObj:=[]
@@ -2501,8 +2501,6 @@ LongStringlists:
 	SysGet, CXVSCROLL, 2
 	ts_width:=620+CXVSCROLL
 	Gui, ts:Add, ListView, r15 w%ts_width% Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 -Multi 0x8 LV0x40 -LV0x10 vLongString hwndLSLV, 编码|【 副标题 】|【 标题 】|【 标题释义 】
-	DB.gettable("select * from TangSongPoetics ORDER BY A_Key,Author ASC;",Result)
-	CountNum:=0, lineCount:=Result.RowCount, pageNum:=ceil(lineCount/40)
 	Gosub GetLongString
 	Gui, ts:font
 	Gui, ts:font,bold,%Font_%
@@ -2534,6 +2532,8 @@ LongStringlists:
 Return
 
 GetLongString:
+	DB.gettable("select * from TangSongPoetics ORDER BY A_Key,Author ASC;",Result)
+	CountNum:=0, lineCount:=Result.RowCount, pageNum:=ceil(lineCount/40)
 	If Result.RowCount>0
 		loop,% (CountNum>=pageNum?lineCount-(CountNum-1)*40:40)
 			LV_Add("", Result.Rows[CountNum*40+A_Index,1],Result.Rows[CountNum*40+A_Index,2],Result.Rows[CountNum*40+A_Index,3],substr(Result.Rows[CountNum*40+A_Index,4],1,25))
