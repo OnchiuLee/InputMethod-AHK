@@ -2499,7 +2499,7 @@ LongStringlists:
 	Gui, ts: +Owner98  ;+ToolWindow   ;;+AlwaysOnTop -DPIScale 
 	Gui, ts:font,,%Font_%
 	SysGet, CXVSCROLL, 2
-	ts_width:=620+CXVSCROLL
+	ts_width:=620+CXVSCROLL, CountNum:=0
 	Gui, ts:Add, ListView, r15 w%ts_width% Grid AltSubmit ReadOnly NoSortHdr NoSort -WantF2 -Multi 0x8 LV0x40 -LV0x10 vLongString hwndLSLV, 编码|【 副标题 】|【 标题 】|【 标题释义 】
 	Gosub GetLongString
 	Gui, ts:font
@@ -2533,12 +2533,12 @@ Return
 
 GetLongString:
 	DB.gettable("select * from TangSongPoetics ORDER BY A_Key,Author ASC;",Result)
-	CountNum:=0, lineCount:=Result.RowCount, pageNum:=ceil(lineCount/40)
+	lineCount:=Result.RowCount, pageNum:=ceil(lineCount/40)
 	If Result.RowCount>0
 		loop,% (CountNum>=pageNum?lineCount-(CountNum-1)*40:40)
 			LV_Add("", Result.Rows[CountNum*40+A_Index,1],Result.Rows[CountNum*40+A_Index,2],Result.Rows[CountNum*40+A_Index,3],substr(Result.Rows[CountNum*40+A_Index,4],1,25))
 	LV_ModifyCol(1,"60 "), LV_ModifyCol(2,"120 Center"), LV_ModifyCol(3,"200 Center"), LV_ModifyCol(4,"240 ")
-	SB_SetText(" ❖ " CountNum+1 "/" pageNum . "页")
+	SB_SetText(" ❖ " A_Space CountNum+1 "/" pageNum . "页 -" lineCount "条")
 Return
 
 tsGuiClose:
