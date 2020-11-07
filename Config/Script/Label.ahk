@@ -511,13 +511,13 @@ TransformCiku:
 Return
 
 SelectItems:
-	Menu_CheckRadioItem(SCMENU, Wubi_Schema~="i)ci"?1:Wubi_Schema~="i)zi"?3:Wubi_Schema~="i)chaoji"?5:7)
-	Menu_CheckRadioItem(TMENU, ToolTipStyle~="i)on"?1:ToolTipStyle~="i)off"?3:5), Menu_CheckRadioItem(HMENU, ToolTipStyle ~="i)on"?1:ToolTipStyle ~="i)off"?2:3)
+	Menu_CheckRadioItem(SCMENU, Wubi_Schema~="i)ci"?1:Wubi_Schema~="i)zi"?3:Wubi_Schema~="i)chaoji"?5:7), Menu_CheckRadioItem(TMENU, ToolTipStyle~="i)on"?1:ToolTipStyle~="i)off"?3:5)
 	SchemaType:=CheckWubiVersion(DB), Startup_Name:="五笔" SchemaType["ci"] "版"
 	Menu, Schema, Rename, % Menu_GetItemName(SCMENU, 1) , % SchemaType["ci"] "五笔•含词"
 	Menu, Schema, Rename, % Menu_GetItemName(SCMENU, 3) , % SchemaType["zi"] "五笔•单字"
 	Menu, Schema, Rename, % Menu_GetItemName(SCMENU, 5) , % SchemaType["chaoji"] "五笔•超集"
 	If WinExist("输入法设置") {
+		Menu_CheckRadioItem(SMENU, Wubi_Schema="ci"?1:Wubi_Schema="zi"?2:Wubi_Schema="chaoji"?3:4), Menu_CheckRadioItem(HMENU, ToolTipStyle ~="i)on"?1:ToolTipStyle ~="i)off"?2:3)
 		Menu, SchemaList, Rename, % Menu_GetItemName(SMENU, 1) , % SchemaType["ci"] "五笔•含词"
 		Menu, SchemaList, Rename, % Menu_GetItemName(SMENU, 2) , % SchemaType["zi"] "五笔•单字"
 		Menu, SchemaList, Rename, % Menu_GetItemName(SMENU, 3) , % SchemaType["chaoji"] "五笔•超集"
@@ -1192,7 +1192,7 @@ More_Setting:
 	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","Initialize","SBA13","TextInfo1","showtools","SrfSlider","SizeValue","set_SizeValue","ExSty","DPISty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","TextInfo27","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 		,GBoxList2:["GBox2","TextInfo25","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","font_size","TextInfo11","FontSelect","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
 		,GBoxList3:["GBox3","SBA7","SBA26","SBA27","SBA28","SBA23","SBA24","TextInfo29","TextInfo22","zKeySet","UIAccess","SBA6","SBA14","SBA18","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC","Cursor_Status","yaml_"]
-		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode","TextInfo21","PageChoice"]
+		,GBoxList4:["GBox4","TextInfo15","SBA4","TextInfo16","sChoice1","InitiaMode","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_1","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode","TextInfo21","PageChoice"]
 		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
 		,GBoxList6:["GBox6","linkinfo1","linkinfo2","linkinfo3","versionsinfo","infos_"]}
 
@@ -1424,6 +1424,7 @@ More_Setting:
 	Gui,98:Font, s9 bold, %font_%
 	Gui, 98:Add, DDL,x%CheckPos1X% yp w110  vsChoice1 gsChoice1  AltSubmit HwndSCDL1 , 常规上屏|剪切板上屏    ;;+0x0210
 	;;OD_Colors.Attach(SCDL1,{T: 0xffe89e, B: 0x0178d6})
+	Gui, 98:Add, CheckBox,x+10 yp+3 Checked%InitiaMode% vInitiaMode gInitiaMode, 
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, Text, x190 y+10 left vTextInfo21, 翻页按键：
@@ -1525,6 +1526,11 @@ Return
 
 linkinfo3:
 	Gosub OnUpdate
+Return
+
+InitiaMode:
+	GuiControlGet, InitiaMode ,, InitiaMode, Checkbox
+	InitiaMode:=WubiIni.Settings["InitiaMode"]:=InitiaMode, WubiIni.save()
 Return
 
 ExSty:
@@ -2352,6 +2358,7 @@ ControlGui:
 		GuiControl,98:choose, sChoice1 , 2
 	}else{
 		GuiControl,98:choose, sChoice1 , 1
+		GuiControl, 98:Disable, InitiaMode
 	}
 	if Select_Enter~="i)clean" {
 		GuiControl,98:choose, sChoice2 , 2
@@ -2470,11 +2477,12 @@ sChoice1:
 	GuiControlGet, sChoice1,, sChoice1, text
 	if sChoice1~="常规" {
 		Initial_Mode:=WubiIni.Settings["Initial_Mode"]:="off",WubiIni.save()
-		GuiControl,logo:, Pics4,*Icon9 config\Skins\logoStyle\%StyleN%.icl
+		GuiControl, 98:Disable, InitiaMode
 	}else{
 		Initial_Mode:=WubiIni.Settings["Initial_Mode"]:="on",WubiIni.save()
-		GuiControl,logo:, Pics4,*Icon10 config\Skins\logoStyle\%StyleN%.icl
+		GuiControl, 98:Enable, InitiaMode
 	}
+	Gosub SwitchSC
 Return
 
 sChoice2:

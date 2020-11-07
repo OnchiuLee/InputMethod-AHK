@@ -705,12 +705,18 @@ Save_EnWord(input){
 }
 
 UpperScreenMode(TEXT){
-	global srf_all_Input, Initial_Mode, EN_Mode, srf_for_select_Array, CharsTotalCount, InputCount
+	global srf_all_Input, Initial_Mode, EN_Mode, srf_for_select_Array, CharsTotalCount, InputCount, InitiaMode
 	If (Initial_Mode ~="on"||srf_all_input~="^\/[a-z]+z$"&&strlen(srf_all_Input)>3)
 	{
-		WinClip.Snap( ClipSaved ), WinClip.Clear()
-		WinClip.SetText( TEXT ), WinClip.Paste()
-		WinClip.Restore( ClipSaved )
+		If (InitiaMode) {
+			clipboard:=TEXT
+			SendInput, ^{vk56sc02F}
+			;;SendInput, +{Ins}
+		}else{
+			WinClip.Snap( ClipSaved ), WinClip.Clear()
+			WinClip.SetText( TEXT ), WinClip.Paste()
+			WinClip.Restore( ClipSaved )
+		}
 	}else
 		SendInput % TEXT
 
