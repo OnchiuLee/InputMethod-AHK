@@ -534,20 +534,21 @@ ShellIMEMessage( wParam,lParam ) {
 	*/
 	global srf_mode, InputModeData, Initial_Mode, WubiIni,StyleN,IStatus, program, IMEmode ,CursorStatus, versions, GzType, SchemaType
 		, Startup_Name, Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, srf_all_input, ID_Cursor, Logo_Switch, InputCount
-	If (wParam =1||wParam =2||wParam =3||wParam =4||wParam =7||wParam =8||wParam =9||wParam =10||wParam =12||wParam =53||wParam =54||wParam =32772) {
+		
+	If (wParam~="^(1|2|3|4|5|7|8|9|10|12|53|54|32772)$"&&IStatus) {
 		WinGet, WinEXE, ProcessName , ahk_id %lParam%
 		WinGetclass, WinClass, ahk_id %lParam%
 		;WinActivate,ahk_class %WinClass%
-		If (Array_isInValue(InputModeData["CN"], WinEXE)&&!srf_mode&&IStatus)
+		If (Array_isInValue(InputModeData["CN"], WinEXE)&&!srf_mode)
 		{
 			srf_mode:=1
 			If Logo_Switch~="i)on"
 				Gosub RestLogo
-		}else If (Array_isInValue(InputModeData["EN"], WinEXE)&&srf_mode&&IStatus){
+		}else If (Array_isInValue(InputModeData["EN"], WinEXE)&&srf_mode){
 			srf_mode:=0
 			If Logo_Switch~="i)on"
 				Gosub RestLogo
-		}else If (Array_isInValue(InputModeData["CLIP"], WinEXE)&&IStatus){
+		}else If (Array_isInValue(InputModeData["CLIP"], WinEXE)){
 			if Initial_Mode~="i)off" {
 				Initial_Mode:=WubiIni.Settings["Initial_Mode"] :="on", WubiIni.save()
 			}
