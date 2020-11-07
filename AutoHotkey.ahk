@@ -52,7 +52,8 @@ If FileExist(BaseDir) {
 	}
 	If (UIA&&count=count_)
 		EnableUIAccess(sPath,UIA)
-}
+}else
+	MsgBox, 262452,权限提示, 当前为非管理员身份运行，首次运行请右击以「管理员身份」运行！,6
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
@@ -241,7 +242,7 @@ if FileExist("Font\*.*tf") {
 	}
 }
 */
-if !InitStatus {
+if (!InitStatus) {
 	;;Run, rundll32.exe "%A_ProgramFiles%\Windows Photo Viewer\PhotoViewer.dll"`, ImageView_Fullscreen %A_ScriptDir%\config\ReadMe.png,, UseErrorLevel
 	Run, http://98wb.ys168.com/,, UseErrorLevel
 	if (ErrorLevel = "ERROR") {
@@ -250,6 +251,7 @@ if !InitStatus {
 	InitStatus:=WubiIni.Settings["InitStatus"]:=1, WubiIni.Save()
 	If A_FontList~="i)98WB-0"&&A_FontList~="i)Andrich"
 		FontType:=WubiIni.TipStyle["FontType"]:="98WB-0",EnFontName:=WubiIni.TipStyle["EnFontName"]:="Andrich", WubiIni.Save()
+	Gosub OnHelp
 }
 if (ToolTipStyle ~="i)gdip"&&A_OSVersion ~="i)WIN_XP") {
 	;Traytip,,你的系统不支持当前Gdip候选框样式,请切换!,,2
