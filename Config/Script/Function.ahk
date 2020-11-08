@@ -3955,3 +3955,12 @@ DrawBackground(hBitmap, width, height) {
 	DllCall("SelectObject", "Ptr", hTmpDC, "Ptr", hTmpObj, "Ptr")
 	DllCall("DeleteDC", "Ptr", hTmpDC)
 }
+
+GetThemeColor(ThemeName){
+	result:={}
+	For section,element in Json_FileToObj("Config\Skins\" ThemeName ".json")
+		For key,Value in element
+			If (section="color_scheme")
+				result[key]:=SubStr(Value,5,2) SubStr(Value,3,2) SubStr(Value,1,2)
+	return result
+}

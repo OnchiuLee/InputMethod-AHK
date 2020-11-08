@@ -544,8 +544,7 @@ Initialize:
 	{
 		For Section,element In srf_default_obj
 			WubiIni.DeleteSection(Section)
-		WubiIni.AddSection("Initialize", "status", 1), WubiIni.save()
-		Gosub OnReload
+		RunWait *RunAs "%A_AhkPath%" "%A_ScriptFullPath%" Initialize
 	}
 Return
 
@@ -3377,11 +3376,11 @@ SBA9:
 Return
 
 IsGdipline:
-	ThemeObject:= Json_FileToObj("Config\Skins\" ThemeName ".json")
+	ThemeObject:=GetThemeColor(ThemeName)
 	If (Gdip_Line="on"&&FocusStyle||!FocusStyle) {
-		FontCodeColor:=FontCodeColor=BgColor?SubStr(ThemeObject["color_scheme","FontColor"],5,2) SubStr(ThemeObject["color_scheme","FontColor"],3,2) SubStr(ThemeObject["color_scheme","FontColor"],1,2):FontCodeColor
+		FontCodeColor:=FontCodeColor=BgColor?ThemeObject["FontColor"]:FontCodeColor
 	}else If (Gdip_Line="off"&&FocusStyle) {
-		FontCodeColor:=SubStr(ThemeObject["color_scheme","FontCodeColor"],5,2) SubStr(ThemeObject["color_scheme","FontCodeColor"],3,2) SubStr(ThemeObject["color_scheme","FontCodeColor"],1,2)
+		FontCodeColor:=ThemeObject["FontCodeColor"]
 	}
 Return
 
