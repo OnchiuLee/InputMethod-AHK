@@ -57,19 +57,11 @@ If FileExist(BaseDir) {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020110713"
+version :="2020110720"
 ;;--------------------------------------------------------
 FileRead, inivar, %A_Temp%\InputMethodData\Config.ini
 RegExMatch(inivar,"(?<=ThemeName\=).+",tName)
-tName:=tName?tName:(FileExist("Config\Skins\" DefaultThemeName ".json")?DefaultThemeName:"Steam"), ThemeObject:= Json_FileToObj("Config\Skins\" tName ".json")
-Bg_Color :=SubStr(ThemeObject["color_scheme","BgColor"],5,2) SubStr(ThemeObject["color_scheme","BgColor"],3,2) SubStr(ThemeObject["color_scheme","BgColor"],1,2)
-Border_Color:=SubStr(ThemeObject["color_scheme","BorderColor"],5,2) SubStr(ThemeObject["color_scheme","BorderColor"],3,2) SubStr(ThemeObject["color_scheme","BorderColor"],1,2)
-FocusBack_Color:=SubStr(ThemeObject["color_scheme","FocusBackColor"],5,2) SubStr(ThemeObject["color_scheme","FocusBackColor"],3,2) SubStr(ThemeObject["color_scheme","FocusBackColor"],1,2)
-FocusCode_Color:=SubStr(ThemeObject["color_scheme","FocusCodeColor"],5,2) SubStr(ThemeObject["color_scheme","FocusCodeColor"],3,2) SubStr(ThemeObject["color_scheme","FocusCodeColor"],1,2)
-Focus_Color:=SubStr(ThemeObject["color_scheme","FocusColor"],5,2) SubStr(ThemeObject["color_scheme","FocusColor"],3,2) SubStr(ThemeObject["color_scheme","FocusColor"],1,2)
-FontCode_Color:=SubStr(ThemeObject["color_scheme","FontCodeColor"],5,2) SubStr(ThemeObject["color_scheme","FontCodeColor"],3,2) SubStr(ThemeObject["color_scheme","FontCodeColor"],1,2)
-Font_Color:=SubStr(ThemeObject["color_scheme","FontColor"],5,2) SubStr(ThemeObject["color_scheme","FontColor"],3,2) SubStr(ThemeObject["color_scheme","FontColor"],1,2)
-Line_Color:=SubStr(ThemeObject["color_scheme","LineColor"],5,2) SubStr(ThemeObject["color_scheme","LineColor"],3,2) SubStr(ThemeObject["color_scheme","LineColor"],1,2)
+tName:=tName?tName:(FileExist("Config\Skins\" DefaultThemeName ".json")?DefaultThemeName:"Steam"), ThemeObject:=GetThemeColor(tName)
 ;;}}}}}}}}}}}}}}}
 
 #Include Config\Lib\Class_Gdip.ahk
@@ -104,27 +96,21 @@ SetWorkingDir %A_ScriptDir%
 DetectHiddenWindows, On
 DetectHiddenText, On
 WinGetPos,,,,Shell_Wnd ,ahk_class Shell_TrayWnd
-global y2 :=A_ScreenHeight-Shell_Wnd-40, CpuID:=ComInfo.GetCpuID_2()
-DllCall("gdi32\EnumFontFamilies","uint",DllCall("GetDC","uint",0),"uint",0,"uint",RegisterCallback("EnumFontFamilies"),"uint",a_FontList:="")
-font_:=ComInfo.GetDefaultFontName(), font_:=font_?font_:"Microsoft YaHei UI"
+y2 :=A_ScreenHeight-Shell_Wnd-40, font_:=ComInfo.GetDefaultFontName(), font_:=font_?font_:"Microsoft YaHei UI"
+DllCall("gdi32\EnumFontFamilies","uint",DllCall("GetDC","uint",0),"uint",0,"uint",RegisterCallback("EnumFontFamilies"),"uint",A_FontList:="")
 
 ;;===============输入法名称（可修改）==================
 Startup_Name :="五笔98版"   
 FontExtend:="98WB-U|98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_
 
 Loop Files, config\Skins\logoStyle\*.icl
-{
-	if A_LoopFileName {
+	if (A_LoopFileName&&a_index=1)
 		StyleName:=SubStr(A_LoopFileName,1,-4)
-		break
-	}
-}
 
 ;{{{{{读取配置及配置检测
-If !FileExist(A_Temp "\InputMethodData\Config.ini")
+If (!FileExist(A_Temp "\InputMethodData\Config.ini")||A_Args[1]="Initialize")
 	status:=1
-else
-	IniRead, status, %A_Temp%\InputMethodData\Config.ini, Initialize, status ,0
+
 global srf_default_value,config_tip, WubiIni:=class_EasyIni(A_Temp "\InputMethodData\Config.ini")
 , srf_default_obj:={LogoColor:{LogoColor_cn:"008000",LogoColor_en:"00FFFF",LogoColor_caps:"0000ff"}
 	,Settings:{Startup:"off",IStatus:1,CharFliter:0,Exit_switch:1,PromptChar:0, DPIScale:1,CursorStatus:0,Exit_hotkey:"^esc", symb_mode:2,Frequency:0,StrockeKey:"h|s|p|n|z"
@@ -132,9 +118,9 @@ global srf_default_value,config_tip, WubiIni:=class_EasyIni(A_Temp "\InputMethod
 		, cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"10", Logo_Y:A_ScreenHeight/2, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock", InitiaMode:0
 		, Suspend_switch:1,zkey_mode:0, Suspend_hotkey:"!z", tip_hotkey:"!q", rlk_switch:0, Logo_Switch:"on",Srf_Hotkey:"Shift", Select_Enter:"clean", TurnPage:2
 		, symb_send:"on", set_color:"on", Wubi_Schema:"ci", Initial_Mode:"off",Cut_Mode:"off", limit_code:"on", Trad_Mode:"off", IMEmode:"on",InitStatus:0,EN_Mode:0}
-	, TipStyle:{ThemeName:DefaultThemeName, StyleN:StyleName,Logo_ExStyle:0,transparentX:180,LogoSize:36, FontType:font_, FontSize:22, FontColor:Font_Color,FocusBackColor:FocusBack_Color
-		,FocusColor:Focus_Color,FocusCodeColor:FocusCode_Color,FocusRadius:5, FontStyle:"off", FontCodeColor:FontCode_Color,LineColor:Line_Color,BorderColor:Border_Color
-		, Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"off", BgColor:Bg_Color, ListNum:5,Gdip_Radius:5, EnFontName:font_, Textdirection:"horizontal", Set_Range:3
+	, TipStyle:{ThemeName:DefaultThemeName, StyleN:StyleName,Logo_ExStyle:0,transparentX:180,LogoSize:36, FontType:font_, FontSize:22, FontColor:ThemeObject["FontColor"],FocusBackColor:ThemeObject["FocusBackColor"]
+		,FocusColor:ThemeObject["FocusColor"],FocusCodeColor:ThemeObject["FocusCodeColor"],FocusRadius:5, FontStyle:"off", FontCodeColor:ThemeObject["FontCodeColor"],LineColor:ThemeObject["LineColor"],BorderColor:ThemeObject["BorderColor"]
+		, Gdip_Line:"off", ToolTipStyle:"Gdip", Radius:"off", BgColor:ThemeObject["BgColor"], ListNum:5,Gdip_Radius:5, EnFontName:font_, Textdirection:"horizontal", Set_Range:3
 		, Fix_Switch:"off",Fix_X:A_ScreenWidth/2,Fix_Y:10}  ;竖排--vertical
 	, CustomColors:{Color_Row1:"0x1C7399,0xEEEEEC,0x014E8B,0x444444,0x009FE8,0xDEF9FA,0xF8B62D,0x90FC0F", Color_Row2:"0x0078D7,0x0D1B0A,0xB9D497,0x00ADEF,0x1778BF,0xFDF6E3,0x002B36,0xDEDEDE"}}
 ;初始化默认配置
@@ -176,9 +162,7 @@ zq_:= cmdClipReturn(cmd_zq), Startup :=WubiIni.Settings["Startup"]:=FileExist(A_
 versions :=WubiIni.Settings["versions"]:=version
 if not Srf_Hotkey ~="i)Ctrl|Shift|Alt|LWin"||Srf_Hotkey ~="\&$"
 	Srf_Hotkey:=WubiIni.Settings["Srf_Hotkey"]:=srf_default_value["Settings","Srf_Hotkey"]
-If status {
-	WubiIni.DeleteSection("Initialize"), status:=0
-}
+
 if !WubiIni.GetTopComments()
 	WubiIni.AddTopComment("程序运行时，配置文件直接修改无效！退出后修改才有效！！！")
 
@@ -220,16 +204,14 @@ WubiIni.Save()
 Gosub TRAY_Menu
 if FileExist(A_ScriptDir "\*.ico") {
 	Loop,Files,*.ico
-	{
-		IconName_:=A_LoopFileLongPath   ;获取主目录第一个ico图标名称作为托盘图标
-		break
-	}
+		If (A_LoopFileLongPath&&a_index=1)
+			IconName_:=A_LoopFileLongPath   ;获取主目录第一个ico图标名称作为托盘图标
 	Menu, Tray, Icon, %IconName_%
 }else
 	Menu, Tray, Icon, config\WubiIME.icl,30
 
 srf_mode :=IMEmode~="off"?0:1
-;;=======================去掉多行注释启用字体注册=========================
+;;=======================去掉多行注释启用字体调用=========================
 /*
 if FileExist("Font\*.*tf") {
 	Loop,Files,Font\*.*tf
@@ -513,7 +495,7 @@ WM_MOUSEMOVE()
 		ToolTip
 	return
 }
-DefaultDate:={week:["公元年月日-周 周数"], time:["yyyy-MM-dd HH:mm:ss"],nl:["lnlylrls","干支"]}, JsonData_Date:=Json_FileToObj(A_ScriptDir "\Sync\JsonData_Date.json")
+DefaultDate:={week:["公元年月日-周 周数"], time:["yyyy-MM-dd HH:mm:ss"],nl:["lnlylrls","干支"],date:["中文格式"]}, JsonData_Date:=Json_FileToObj(A_ScriptDir "\Sync\JsonData_Date.json")
 if !ObjCount(JsonData_Date) {
 	JsonData_Date:=DefaultDate, Json_ObjToFile(JsonData_Date, A_ScriptDir "\Sync\JsonData_Date.json", "UTF-8")
 }
