@@ -1446,15 +1446,12 @@ More_Setting:
 	If WubiIni.Settings["Srf_Hotkey"]~="&" {
 		hkobj:=[], hkobj:=StrSplit(WubiIni.Settings["Srf_Hotkey"],"&")
 	}
-	Gui, 98:Add, Hotkey, x190 y+10 w197 vsethotkey_4 gsethotkey_4 Center,% Srf_Hotkey
+	Gui, 98:Add, Hotkey, x190 y+10 w147 vsethotkey_4 gsethotkey_4 Center,% Srf_Hotkey
 	GuiControlGet, hkInfo, Pos , sethotkey_4
-	Gui, 98:Add, DDL,x190 yp w50 vsethotkey_5 gsethotkey_5 AltSubmit , L|R|L&R
-	Gui, 98:Add, Edit, vsethotkey_1 gsethotkey_1 x+2 yp w70 h%hkInfoH% Center -WantCtrlA -WantReturn -Wrap, % objCount(hkobj)?(objCount(hkobj)=2?RegExReplace(hkobj[1],"^L|^\<|^R|^\>"):objCount(hkobj)>2?RegExReplace(hkobj[1],"^L|^\<|^R|^\>") "+" hkobj[2]:Srf_Hotkey~="i)^L\w+|^\<|^R\w+|^\>"?RegExReplace(Srf_Hotkey,"i)^L|^\<|^R|^\>"):Srf_Hotkey):Srf_Hotkey~="i)^L\w+|^\<|^R\w+|^\>"?RegExReplace(Srf_Hotkey,"i)^L|^\<|^R|^\>"):Srf_Hotkey
+	Gui, 98:Add, Edit, vsethotkey_1 gsethotkey_1 x190 yp w70 h%hkInfoH% Center -WantCtrlA -WantReturn -Wrap, % objCount(hkobj)?(objCount(hkobj)=2?hkobj[1]:objCount(hkobj)>2?hkobj[1] "+" hkobj[2]:Srf_Hotkey):Srf_Hotkey
 	Gui, 98:Add, Edit, vsethotkey_3 gsethotkey_3 x+5 yp w70 h%hkInfoH% Center -WantCtrlA -WantReturn -Wrap, % objCount(hkobj)?(objCount(hkobj)=2?hkobj[2]:objCount(hkobj)=3?hkobj[3]:hkobj[3] "+" hkobj[4]):""
 	GuiControl,98:Hide,sethotkey_1
 	GuiControl,98:Hide,sethotkey_3
-	GuiControl,98:Hide,sethotkey_5
-	GuiControl,98:choose,sethotkey_5, % Srf_Hotkey~="i)\<|^L\w+"?1:Srf_Hotkey~="i)\>|^R\w+"?2:3
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
 	Gui, 98:Add, Button, yp+0 x+10 vhk_1 ghk_1 hWndGBKBT, 设置
@@ -2202,7 +2199,6 @@ hk_1:
 		WubiIni.Settings["Srf_Hotkey"]:=hotkey_4?formatHotkey(hotkey_4):Srf_Hotkey, WubiIni.save()
 		Hotkey, %Srf_Hotkey%, SetHotkey,on
 		hkobj:=StrSplit(WubiIni.Settings["Srf_Hotkey"],"&")
-		GuiControl,98:choose,sethotkey_5,% Srf_Hotkey~="i)^L\w+|^\<"?1:Srf_Hotkey~="i)^R\+|^\>"?2:3
 		GuiControl,98:,sethotkey_1,% objCount(hkobj)=2?hkobj[1]:(objCount(hkobj)>2?hkobj[1] "+" hkobj[2]:Srf_Hotkey)
 		GuiControl,98:,sethotkey_3,% objCount(hkobj)=2?hkobj[2]:(objCount(hkobj)=3?hkobj[3]:objCount(hkobj)>3?hkobj[3] "+" hkobj[4])
 	}else{
@@ -2212,16 +2208,14 @@ hk_1:
 		GuiControl,98:,sethotkey_2,获取键名
 		GuiControlGet, hotkey_1, ,sethotkey_1 , text
 		GuiControlGet, hotkey_3, ,sethotkey_3 , text
-		GuiControlGet, hotkey_5, ,sethotkey_5 , text
-		hotkey_5:=hotkey_5~="\&"?"":hotkey_5
 		If (hotkey_1&&hotkey_3) {
 			Hotkey, %Srf_Hotkey%, SetHotkey,off
-			Srf_Hotkey:=formatHotkey_2(hotkey_5 hotkey_1 " & " hotkey_3)
+			Srf_Hotkey:=formatHotkey_2(hotkey_1 " & " hotkey_3)
 			Hotkey, %Srf_Hotkey%, SetHotkey,on
 			WubiIni.Settings["Srf_Hotkey"]:=formatHotkey(Srf_Hotkey), WubiIni.save()
 		}else If (hotkey_1&&!hotkey_3||hotkey_3&&!hotkey_1){
 			Hotkey, %Srf_Hotkey%, SetHotkey,off
-			Srf_Hotkey:=formatHotkey_2(hotkey_1?hotkey_5 hotkey_1:hotkey_5 hotkey_3)
+			Srf_Hotkey:=formatHotkey_2(hotkey_1?hotkey_1:hotkey_3)
 			Hotkey, %Srf_Hotkey%, SetHotkey,on
 			WubiIni.Settings["Srf_Hotkey"]:=Srf_Hotkey, WubiIni.save()
 		}
@@ -2229,7 +2223,6 @@ hk_1:
 		GuiControl,98:Disable,hk_1
 		GuiControl,98:Hide,sethotkey_1
 		GuiControl,98:Hide,sethotkey_3
-		GuiControl,98:Hide,sethotkey_5
 		GuiControl,98:Show,sethotkey_4
 		GuiControl,98:,sethotkey_4,% Srf_Hotkey
 	}
@@ -2242,10 +2235,8 @@ tip_text:
 	else{
 		GuiControl,98:,sethotkey_1,
 		GuiControl,98:,sethotkey_3,
-		GuiControl,98:choose, sethotkey_5 , 3
 		GuiControl,98:Enable,sethotkey_1
 		GuiControl,98:Enable,sethotkey_3
-		GuiControl,98:Enable,sethotkey_5
 	}
 Return
 
@@ -2257,7 +2248,6 @@ sethotkey_2:
 	If (KeyInitStatus=false) {
 		GuiControl,98:Show,sethotkey_1
 		GuiControl,98:Show,sethotkey_3
-		GuiControl,98:Show,sethotkey_5
 		GuiControl,98:Hide,sethotkey_4
 		srf_mode:=0
 		Gosub Srf_Tip
@@ -2268,7 +2258,6 @@ sethotkey_2:
 	}else{
 		GuiControl,98:Hide,sethotkey_1
 		GuiControl,98:Hide,sethotkey_3
-		GuiControl,98:Hide,sethotkey_5
 		GuiControl,98:Show,sethotkey_4
 		CaptainHook(KeyInitStatus:=false), KeyCodeObj:={}
 		GuiControl,98:,sethotkey_2,获取键名
@@ -2280,7 +2269,6 @@ Return
 HideHotkeyControl_1:
 	GuiControl,98:Hide,sethotkey_1
 	GuiControl,98:Hide,sethotkey_3
-	GuiControl,98:Hide,sethotkey_5
 	GuiControl,98:Hide,sethotkey_4
 	CaptainHook(KeyInitStatus:=false), KeyCodeObj:={}
 	GuiControl,98:,sethotkey_2,获取键名
@@ -2291,7 +2279,6 @@ Return
 HideHotkeyControl_2:
 	GuiControl,98:Hide,sethotkey_1
 	GuiControl,98:Hide,sethotkey_3
-	GuiControl,98:Hide,sethotkey_5
 	GuiControl,98:Show,sethotkey_4
 	CaptainHook(KeyInitStatus:=false), KeyCodeObj:={}
 	GuiControl,98:,sethotkey_2,获取键名
@@ -2304,10 +2291,6 @@ sethotkey_3:
 Return
 
 sethotkey_4:
-	GuiControl,98:Enable,hk_1
-Return
-
-sethotkey_5:
 	GuiControl,98:Enable,hk_1
 Return
 

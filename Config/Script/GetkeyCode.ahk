@@ -155,11 +155,11 @@ CaptainHook(enable := false) {
 
 KeyboardHookProc(code, wParam, lParam) {
 	if(code == 0 or code == 3) {
-		vk := wParam, sc := lParam
-		GuiControl,Name:,htky,% Format("VK{:X}", vk)
-		sc:=RegExreplace(Format("{:2X}", sc-1),"[0]{4}$")
-		GuiControl,Name:,htky2,% sc~="^C"?"S" sc:"SC" sc
-		GuiControl,Name:,info,% GetKeyName(Format("vk{:x}", vk))
+		vk := wParam, sc := lParam, sc:=RegExreplace(Format("{:2X}", sc-1),"[0]{4}$"), sc:=sc~="^C"?"S" sc:"SC" sc, vk:=Format("VK{:X}", vk)
+		KeyCodeObj:={vk:vk,sc:sc, KeyName:GetKeyName(sc)}
+		GuiControl,Name:,htky2,% KeyCodeObj.sc
+		GuiControl,Name:,info,% GetKeyName(KeyCodeObj.sc)
+		GuiControl,Name:,htky,% KeyCodeObj.vk
 	} else {
 		return CallNextHookEx(0, code, wParam, lParam)
 	}

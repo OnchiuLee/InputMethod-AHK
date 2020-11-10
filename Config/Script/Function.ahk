@@ -4075,8 +4075,8 @@ CaptainHook(enable := false) {
 KeyboardHookProc(code, wParam, lParam) {
 	global hWndgui98
 	if(code == 0 or code == 3) {
-		vk := wParam, sc := lParam, sc:=RegExreplace(Format("{:2X}", sc-1),"[0]{4}$"), vk:=Format("VK{:X}", vk)
-		KeyCodeObj:={vk:vk,sc:sc~="^C"?"S" sc:"SC" sc, KeyName:GetKeyName(vk)}
+		vk := wParam, sc := lParam, sc:=RegExreplace(Format("{:2X}", sc-1),"[0]{4}$"), sc:=sc~="^C"?"S" sc:"SC" sc, vk:=Format("VK{:X}", vk)
+		KeyCodeObj:={vk:vk,sc:sc, KeyName:GetKeyName(sc)}
 		ControlGetFocus, Control, ahk_id %hWndgui98%
 		GuiControlGet, Var1, 98:Name , %Control%
 		If (Var1="sethotkey_1")
