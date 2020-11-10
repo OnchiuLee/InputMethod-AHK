@@ -57,7 +57,7 @@ If FileExist(BaseDir) {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020111010"
+version :="2020111011"
 ;;--------------------------------------------------------
 FileRead, inivar, %A_Temp%\InputMethodData\Config.ini
 RegExMatch(inivar,"(?<=ThemeName\=).+",tName)
@@ -239,7 +239,7 @@ if (ToolTipStyle ~="i)gdip"&&A_OSVersion ~="i)WIN_XP") {
 }
 
 ;{{{{{快捷键注册
-Srf_Hotkey:=Srf_Hotkey~="&"?formatHotkey_2(Srf_Hotkey):Srf_Hotkey
+Srf_Hotkey:=formatHotkey_2(Srf_Hotkey)
 Hotkey, %Srf_Hotkey%, SetHotkey,on
 
 tiphotkey:=tip_hotkey, AddCodehotkey:=Addcode_hotkey, s2thotkey:=s2t_hotkey, cfhotkey:=cf_hotkey, Suspendhotkey:=Suspend_hotkey,exithotkey:=Exit_hotkey
