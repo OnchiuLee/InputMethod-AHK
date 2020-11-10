@@ -1582,8 +1582,10 @@ TVGUI:
 		TV_GetText(SelectedItem_, A_EventInfo)
 		If (A_EventInfo != TV1&&A_EventInfo != TV2){
 			If (TV2_3 <> A_EventInfo)
-				Gosub HideHotkeyControl
+				Gosub HideHotkeyControl_1
 			SetVisibleHide(Index_,A_EventInfo), SetVisibleShow(A_EventInfo)
+			If (TV2_3 = A_EventInfo)
+				Gosub HideHotkeyControl_2
 		}else{
 			TV_Modify(A_EventInfo , TV_Get(A_EventInfo, "Expand")?"-Expand":"Expand")
 		}
@@ -2275,7 +2277,18 @@ sethotkey_2:
 	}
 Return
 
-HideHotkeyControl:
+HideHotkeyControl_1:
+	GuiControl,98:Hide,sethotkey_1
+	GuiControl,98:Hide,sethotkey_3
+	GuiControl,98:Hide,sethotkey_5
+	GuiControl,98:Hide,sethotkey_4
+	CaptainHook(KeyInitStatus:=false), KeyCodeObj:={}
+	GuiControl,98:,sethotkey_2,获取键名
+	ImageButton.Create(KNBT, [6, 0x80404040, 0x0078D7, 0xffffff], [ , 0x80606060, 0xF0F0F0, 0x0078D7],"", [0, 0xC0A0A0A0, , 0xC00078D7])
+	GuiControl,98:,sethotkey_2,获取键名
+Return
+
+HideHotkeyControl_2:
 	GuiControl,98:Hide,sethotkey_1
 	GuiControl,98:Hide,sethotkey_3
 	GuiControl,98:Hide,sethotkey_5
