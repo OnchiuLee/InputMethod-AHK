@@ -43,11 +43,12 @@ MoveProgress() {
 }
 
 CreateGUI() {
-	global info, htky, htky2, DefaultFontName, Control1
+	global info, htky, htky2, DefaultFontName, Control1, Control0
 	Gui Name:Destroy
 	Gui,Name: +hWndKeyCode -MinimizeBox +AlwaysOnTop  ;-Theme
 	Gui, Name:font,s9 bold, %DefaultFontName% 
 	Gui, Name:font,s9 norm , %DefaultFontName%
+	Gui, Name:Add, CheckBox,x5 y5 gControl0 vControl0 ,中性键
 	Gui, Name:Add, edit,xm+10 y+15 center w150 -WantReturn vinfo hWndinfo,
 	GuiControl,Name:disable,info
 	Gui, Name:Add, Text,x+10 gControl1 vControl1 cgreen -Wrap ,复制键名
@@ -107,6 +108,10 @@ CreateGUI() {
 		}
 	return
 
+	Control0:
+		GuiControlGet, Control0 ,, Control0, Checkbox
+	return
+
 	NameGuiClose:
 	NameGuiEscape:
 		CaptainHook(false)
@@ -118,6 +123,17 @@ GetDefaultFontName(){
 	NumPut(VarSetCapacity(info, A_IsUnicode ? 504 : 344, 0), info, 0, "UInt")
 	DllCall("SystemParametersInfo", "UInt", 0x29, "UInt", 0, "Ptr", &info, "UInt", 0)
 	return StrGet(&info + 52)
+}
+
+GetArrIndex(Arr,Chars){
+	If (!objCount(Arr)||Chars="")
+		Return 0
+	For key,value In Arr
+	{
+		If (value=Chars)
+			Return key
+	}
+	Return 0
 }
 
 CaptainHook(enable := false) {
@@ -154,11 +170,15 @@ CaptainHook(enable := false) {
 
 
 KeyboardHookProc(code, wParam, lParam) {
+	global Control0
 	if(code == 0 or code == 3) {
-		vk := wParam, sc := lParam, sc:=RegExreplace(Format("{:2X}", sc-1),"[0]{4}$"), sc:=sc~="^C"?"S" sc:"SC" sc, vk:=Format("VK{:X}", vk)
-		KeyCodeObj:={vk:vk,sc:sc, KeyName:GetKeyName(sc)}
+		vk := wParam, sc := lParam, sc:=RegExreplace(Format("{:2X}", sc-1),"[0]{4}$"), vk:=Format("VK{:X}", vk)
+		mainKeylist:={LWin:"VK5B", RWin:"VK5C", LShift:"VKA0", RShift:"VKA1", LControl:"VKA2", RControl:"VKA3", LCtrl:"VKA2", RCtrl:"VKA3", LAlt:"VKA4", RAlt:"VKA5",Shift:"VKA1"}
+		sc:=sc~="^C"?"S" sc:"SC" sc, KeyName:=GetKeyName(Control0?vk:sc), vk:=mainKeylist[KeyName]&&!Control0?mainKeylist[KeyName]:vk
+		, KeyName:=GetArrIndex(mainKeylist,vk)&&!Control0&&KeyName="Shift"?"RShift":KeyName
+		KeyCodeObj:={vk:vk,sc:sc, KeyName:KeyName}
 		GuiControl,Name:,htky2,% KeyCodeObj.sc
-		GuiControl,Name:,info,% GetKeyName(KeyCodeObj.sc)
+		GuiControl,Name:,info,% KeyCodeObj.KeyName
 		GuiControl,Name:,htky,% KeyCodeObj.vk
 	} else {
 		return CallNextHookEx(0, code, wParam, lParam)

@@ -4073,10 +4073,13 @@ CaptainHook(enable := false) {
 }
 
 KeyboardHookProc(code, wParam, lParam) {
-	global hWndgui98
+	global hWndgui98, Control0
 	if(code == 0 or code == 3) {
-		vk := wParam, sc := lParam, sc:=RegExreplace(Format("{:2X}", sc-1),"[0]{4}$"), sc:=sc~="^C"?"S" sc:"SC" sc, vk:=Format("VK{:X}", vk)
-		KeyCodeObj:={vk:vk,sc:sc, KeyName:GetKeyName(sc)}
+		vk := wParam, sc := lParam, sc:=RegExreplace(Format("{:2X}", sc-1),"[0]{4}$"), vk:=Format("VK{:X}", vk)
+		mainKeylist:={LWin:"VK5B", RWin:"VK5C", LShift:"VKA0", RShift:"VKA1", LControl:"VKA2", RControl:"VKA3", LCtrl:"VKA2", RCtrl:"VKA3", LAlt:"VKA4", RAlt:"VKA5",Shift:"VKA1"}
+		sc:=sc~="^C"?"S" sc:"SC" sc, KeyName:=GetKeyName(Control0?vk:sc), vk:=mainKeylist[KeyName]&&!Control0?mainKeylist[KeyName]:vk
+		, KeyName:=GetArrIndex(mainKeylist,vk)&&!Control0&&KeyName="Shift"?"RShift":KeyName
+		KeyCodeObj:={vk:vk,sc:sc, KeyName:KeyName}
 		ControlGetFocus, Control, ahk_id %hWndgui98%
 		GuiControlGet, Var1, 98:Name , %Control%
 		If (Var1="sethotkey_1")

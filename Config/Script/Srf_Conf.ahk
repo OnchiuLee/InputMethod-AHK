@@ -260,6 +260,23 @@ return
 		}
 		gosub srf_value_off
 	Return
+
+	+,::send % srf_symblos["<",1]
+	+.::send % srf_symblos[">",1]
+	+/::send % srf_symblos["?",1]
+	<+1::send % srf_symblos["!",1]
+	>+1::send % srf_symblos["!",1]
+	+2::send % srf_symblos["@",1]
+	+4::send % srf_symblos["$",1]
+	+5::send % srf_symblos["%",1]
+	+6::send % srf_symblos["^",1]
+	+7::send % srf_symblos["&",1]
+	+8::send % srf_symblos["*",1]
+	+9::send % srf_symblos["(",1]
+	+0::send % srf_symblos[")",1]
+	+;::send % srf_symblos[":",1]
+	+[::send % srf_symblos["{",1]
+	+]::send % srf_symblos["}",1]
 return
 #if
 

@@ -1446,7 +1446,7 @@ More_Setting:
 	If WubiIni.Settings["Srf_Hotkey"]~="&" {
 		hkobj:=[], hkobj:=StrSplit(WubiIni.Settings["Srf_Hotkey"],"&")
 	}
-	Gui, 98:Add, Hotkey, x190 y+10 w147 vsethotkey_4 gsethotkey_4 Center,% Srf_Hotkey
+	Gui, 98:Add, Hotkey, x190 y+10 w147 vsethotkey_4 gsethotkey_4 Center,% Srf_Hotkey~="i)RShift"?RegExReplace(Srf_Hotkey,"i)RShift","Shift"):Srf_Hotkey
 	GuiControlGet, hkInfo, Pos , sethotkey_4
 	Gui, 98:Add, Edit, vsethotkey_1 gsethotkey_1 x190 yp w70 h%hkInfoH% Center -WantCtrlA -WantReturn -Wrap, % objCount(hkobj)?(objCount(hkobj)=2?hkobj[1]:objCount(hkobj)>2?hkobj[1] "+" hkobj[2]:Srf_Hotkey):Srf_Hotkey
 	Gui, 98:Add, Edit, vsethotkey_3 gsethotkey_3 x+5 yp w70 h%hkInfoH% Center -WantCtrlA -WantReturn -Wrap, % objCount(hkobj)?(objCount(hkobj)=2?hkobj[2]:objCount(hkobj)=3?hkobj[3]:hkobj[3] "+" hkobj[4]):""
@@ -1456,6 +1456,9 @@ More_Setting:
 	Gui,98:Font, s9 bold, %font_%
 	Gui, 98:Add, Button, yp+0 x+10 vhk_1 ghk_1 hWndGBKBT, 设置
 	ImageButton.Create(GBKBT, [6, 0x80404040, 0x0078D7, 0xffffff], [ , 0x80606060, 0xF0F0F0, 0x0078D7],"", [0, 0xC0A0A0A0, , 0xC00078D7])
+	Gui,98:Font, s9 norm, %font_%
+	Gui, 98:Add, CheckBox,yp+4 x+10 gControl0 vControl0 ,中性键
+	GuiControl,98:Hide,Control0
 	GuiControl,98:Disable,hk_1
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
@@ -2189,6 +2192,10 @@ RunKey:
 	k:=A_GuiControl
 return
 
+Control0:
+	GuiControlGet, Control0 ,, Control0, Checkbox
+Return
+
 hk_1:
 	GuiControlGet, OVar, 98:Visible , sethotkey_4
 	If OVar {
@@ -2223,8 +2230,9 @@ hk_1:
 		GuiControl,98:Disable,hk_1
 		GuiControl,98:Hide,sethotkey_1
 		GuiControl,98:Hide,sethotkey_3
+		GuiControl,98:Hide,Control0
 		GuiControl,98:Show,sethotkey_4
-		GuiControl,98:,sethotkey_4,% Srf_Hotkey
+		GuiControl,98:,sethotkey_4,% Srf_Hotkey~="i)RShift"?RegExReplace(Srf_Hotkey,"i)RShift","Shift"):Srf_Hotkey
 	}
 Return
 
@@ -2235,6 +2243,7 @@ tip_text:
 	else{
 		GuiControl,98:,sethotkey_1,
 		GuiControl,98:,sethotkey_3,
+		GuiControl,98:Enable,Control0
 		GuiControl,98:Enable,sethotkey_1
 		GuiControl,98:Enable,sethotkey_3
 	}
@@ -2248,6 +2257,7 @@ sethotkey_2:
 	If (KeyInitStatus=false) {
 		GuiControl,98:Show,sethotkey_1
 		GuiControl,98:Show,sethotkey_3
+		GuiControl,98:Show,Control0
 		GuiControl,98:Hide,sethotkey_4
 		srf_mode:=0
 		Gosub Srf_Tip
@@ -2258,6 +2268,7 @@ sethotkey_2:
 	}else{
 		GuiControl,98:Hide,sethotkey_1
 		GuiControl,98:Hide,sethotkey_3
+		GuiControl,98:Hide,Control0
 		GuiControl,98:Show,sethotkey_4
 		CaptainHook(KeyInitStatus:=false), KeyCodeObj:={}
 		GuiControl,98:,sethotkey_2,获取键名
@@ -2269,6 +2280,7 @@ Return
 HideHotkeyControl_1:
 	GuiControl,98:Hide,sethotkey_1
 	GuiControl,98:Hide,sethotkey_3
+	GuiControl,98:Hide,Control0
 	GuiControl,98:Hide,sethotkey_4
 	CaptainHook(KeyInitStatus:=false), KeyCodeObj:={}
 	GuiControl,98:,sethotkey_2,获取键名
@@ -2279,6 +2291,7 @@ Return
 HideHotkeyControl_2:
 	GuiControl,98:Hide,sethotkey_1
 	GuiControl,98:Hide,sethotkey_3
+	GuiControl,98:Hide,Control0
 	GuiControl,98:Show,sethotkey_4
 	CaptainHook(KeyInitStatus:=false), KeyCodeObj:={}
 	GuiControl,98:,sethotkey_2,获取键名
