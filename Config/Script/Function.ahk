@@ -3997,23 +3997,25 @@ formatHotkey(keys){
 }
 
 formatHotkey_2(keys){
-	If keys~="i)LCtrl|LControl"
+	If keys~="i)^LL|^RR"
+		keys:=RegExReplace(keys,"i)^LL|^RR",keys~="i)^LL"?"L":"R")
+	If keys~="i)LCtrl|LControl"&&keys~="\&"
 		keys:=RegExReplace(keys,"i)LCtrl|LControl","<^")
-	If keys~="i)RCtrl|RControl"
+	If keys~="i)RCtrl|RControl"&&keys~="\&"
 		keys:=RegExReplace(keys,"i)RCtrl|RControl",">^")
-	If keys~="i)Ctrl|Control"
+	If keys~="i)Ctrl|Control"&&keys~="\&"
 		keys:=RegExReplace(keys,"i)Ctrl|Control","^")
-	If keys~="i)Shift"
+	If keys~="i)Shift"&&keys~="\&"
 		keys:=RegExReplace(keys,"i)Shift","+")
-	If keys~="i)LShift"
+	If keys~="i)LShift"&&keys~="\&"
 		keys:=RegExReplace(keys,"i)LShift","<+")
-	If keys~="i)RShift"
+	If keys~="i)RShift"&&keys~="\&"
 		keys:=RegExReplace(keys,"i)RShift",">+")
-	If keys~="i)Alt"
+	If keys~="i)Alt"&&keys~="\&"
 		keys:=RegExReplace(keys,"i)Alt","!")
-	If keys~="i)LWin"
+	If keys~="i)LWin"&&keys~="\&"
 		keys:=RegExReplace(keys,"i)LWin","<#")
-	If keys~="i)RWin"
+	If keys~="i)RWin"&&keys~="\&"
 		keys:=RegExReplace(keys,"i)RWin",">#")
 	If keys~="[\^\!\+\#]"
 		keys:=RegExReplace(keys,"\&|\s")
