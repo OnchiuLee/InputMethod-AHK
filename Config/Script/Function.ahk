@@ -3947,6 +3947,21 @@ IsTaskRunning(name, path := "\") {
 			return task.GetInstances(0).Count
 }
 
+GetCharsObj(str){
+	CreatRule:=[[22],[23,32],[33,42,24,222],[223,232,322,34,43],[44,233,323,332,224,242,422,2222],[2223,2232,2322,3222,333,342,234,432,423,324,243]
+		,[442,424,244,433,343,334,22222,2233,2323,2224,2242,2422,3232,3322,3223,4222]], result:=[]
+	If objCount(lenObj:=strlen(str)>10?CreatRule[7]:strlen(str)>3?CreatRule[strlen(str)-3]:[]) {
+		for key,value In lenObj
+		{
+			index:=1, chars:=[]
+			loop,% objCount(n:=StrSplit(value))
+				chars.push(substr(str,index,n[A_Index])),index+=n[A_Index]
+			result.push(chars)
+		}
+	}
+	Return result
+}
+
 DrawBackground(hBitmap, width, height) {
 	static SRCCOPY := 0xCC0020
 	hTmpDC := DllCall("CreateCompatibleDC", "Ptr", this.MDC, "Ptr")
@@ -3964,3 +3979,120 @@ GetThemeColor(ThemeName){
 				result[key]:=SubStr(Value,5,2) SubStr(Value,3,2) SubStr(Value,1,2)
 	return result
 }
+
+formatHotkey(keys){
+	If keys~="\^"
+		keys:=RegExReplace(keys,"\^","Ctrl & ")
+	If keys~="\^"
+		keys:=RegExReplace(keys,"\+","Shift & ")
+	If keys~="\!"
+		keys:=RegExReplace(keys,"\!","Alt & ")
+	If keys~="\#"
+		keys:=RegExReplace(keys,"\#","Win & ")
+	If keys~="\<"
+		keys:=RegExReplace(keys,"\<","L")
+	If keys~="\>"
+		keys:=RegExReplace(keys,"\<","R")
+	Return keys
+}
+
+formatHotkey_2(keys){
+	If keys~="i)LCtrl|LControl"
+		keys:=RegExReplace(keys,"i)LCtrl|LControl","<^")
+	If keys~="i)RCtrl|RControl"
+		keys:=RegExReplace(keys,"i)RCtrl|RControl",">^")
+	If keys~="i)Ctrl|Control"
+		keys:=RegExReplace(keys,"i)Ctrl|Control","^")
+	If keys~="i)Shift"
+		keys:=RegExReplace(keys,"i)Shift","+")
+	If keys~="i)LShift"
+		keys:=RegExReplace(keys,"i)LShift","<+")
+	If keys~="i)RShift"
+		keys:=RegExReplace(keys,"i)RShift",">+")
+	If keys~="i)Alt"
+		keys:=RegExReplace(keys,"i)Alt","!")
+	If keys~="i)LWin"
+		keys:=RegExReplace(keys,"i)LWin","<#")
+	If keys~="i)RWin"
+		keys:=RegExReplace(keys,"i)RWin",">#")
+	If keys~="[\^\!\+\#]"
+		keys:=RegExReplace(keys,"\&|\s")
+	else If not keys~="[\^\!\+\#\s]"
+		keys:=RegExReplace(keys,"\&"," & ")
+	Return keys
+}
+
+;;--------------------------------------------
+kbhk := 0, mhk := 0
+KBCallback := RegisterCallback("KeyboardHookProc",,3)
+MCallback := RegisterCallback("MouseHookProc",,3)
+
+SetWindowsHookEx(idHook, lpfn, hMod, dwthreadId) {
+	return DllCall("SetWindowsHookEx", Int, idHook, Ptr, lpfn, Ptr, hMod, UInt, dwthreadId)
+}
+UnhookWindowsHookEx(hhk) {
+	return DllCall("UnhookWindowsHookEx", Ptr, hhk)
+}
+CallNextHookEx(hhk, nCode, wParam, lParam) {
+	return DllCall("CallNextHookEx", Ptr, hhk, Int, nCode, Ptr, wParam, Ptr, lParam)
+}
+GetLastError() {
+	return DllCall("GetLastError")
+}
+
+CaptainHook(enable := false) {
+	global kbhk, mhk, KBCallback, MCallback
+	static WH_KEYBOARD := 2, WH_MOUSE := 7
+	if(enable) {
+		dwThreadId := DllCall("GetCurrentThreadId")
+
+		if(kbhk or mhk) ;remove any old hooks
+			CaptainHook(false)
+
+		kbhk := SetWindowsHookEx(WH_KEYBOARD, KBCallback, 0, dwThreadId)
+		if(!kbhk)
+			MsgBox,262160,错误 ,% "无法设置键盘钩子" . GetLastError()
+		mhk := SetWindowsHookEx(WH_MOUSE, MCallback, 0, dwThreadId)
+		if(!mhk)
+			MsgBox,262160,错误 ,% "无法设置鼠标钩子" . GetLastError()
+		;if(mhk and kbhk)
+		;	CreateGUI()
+	} else {
+		if(kbhk) {
+			UnhookWindowsHookEx(kbhk)
+			kbhk := 0
+		}
+
+		if(mhk) {
+			UnhookWindowsHookEx(mhk)
+			mhk := 0
+		}
+	}
+}
+
+KeyboardHookProc(code, wParam, lParam) {
+	global hWndgui98
+	if(code == 0 or code == 3) {
+		vk := wParam, sc := lParam, sc:=RegExreplace(Format("{:2X}", sc-1),"[0]{4}$"), vk:=Format("VK{:X}", vk)
+		KeyCodeObj:={vk:vk,sc:sc~="^C"?"S" sc:"SC" sc, KeyName:GetKeyName(vk)}
+		ControlGetFocus, Control, ahk_id %hWndgui98%
+		GuiControlGet, Var1, 98:Name , %Control%
+		If (Var1="sethotkey_1")
+			GuiControl,98:,sethotkey_1,% KeyCodeObj.KeyName
+		else If (Var1="sethotkey_3")
+			GuiControl,98:,sethotkey_3,% KeyCodeObj.KeyName
+	} else {
+		return CallNextHookEx(0, code, wParam, lParam)
+	}
+}
+
+MouseHookProc(code, wParam, lParam) {
+	if(code == 0 or code == 3) {
+		m_id := wParam
+		mousehookstruct := lParam
+	} else {
+		return CallNextHookEx(0, code, wParam, lParam)
+	}
+}
+
+;;--------------------------------------------

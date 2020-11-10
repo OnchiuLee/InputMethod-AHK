@@ -785,4 +785,4 @@ Return
 		ToolTip(1, ""), ToolTip(2, "")
 return
 
-vk5d::return ; 屏蔽键盘上的菜单右键
+;;vk5d::return ; 屏蔽键盘上的菜单右键

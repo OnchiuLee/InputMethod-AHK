@@ -364,21 +364,22 @@ format_word(input){
 	}else if (select_arr[1]=""&&InStr(input,"``")){
 		Split_l:=[]
 		Split_code:=StrSplit(RegExReplace(input,"^``"), "``")
-		Split_l:= Combin_Arr(Split_code,DB)
-		SQL :="SELECT aim_chars FROM ci WHERE A_Key = '" Split_code[select_pos] "' AND Length(aim_chars)=1;"
-		If DB.GetTable(SQL, Result)
-		{
-			if (Result.Rows[1,1]<>""){
-				if (select_pos=1){
-					Result.Rows.InsertAt(1, [Split_l[select_pos]])
-					Result.Rows[1,2]:="☯",Result.Rows[1,3]:="☯"
-				}else{
+		If objCount(Split_l:= Combin_Arr(Split_code,DB)) {
+			SQL :="SELECT aim_chars FROM ci WHERE A_Key = '" Split_code[select_pos] "' AND Length(aim_chars)=1;"
+			If DB.GetTable(SQL, Result)
+			{
+				if (Result.Rows[1,1]<>""){
+					if (select_pos=1){
+						Result.Rows.InsertAt(1, [Split_l[select_pos]])
+						Result.Rows[1,2]:="☯",Result.Rows[1,3]:="☯"
+					}else{
+						Result.Rows.InsertAt(1, add_Array)
+					}
+				}else if (Result.Rows[1,1]=""&&add_Result[1]<>""){
 					Result.Rows.InsertAt(1, add_Array)
 				}
-			}else if (Result.Rows[1,1]=""&&add_Result[1]<>""){
-				Result.Rows.InsertAt(1, add_Array)
+				Return Result.Rows
 			}
-			Return Result.Rows
 		}
 	}
 }
@@ -388,10 +389,9 @@ format_word_2(input){
 		Return []
 	if (InStr(input,"``")){
 		Split_l:=Result:=[], Split_code:=StrSplit(RegExReplace(input,"^``"), "``")
-		Split_l:= Combin_Arr(Split_code,DB)
-		;PrintObjects(Split_l)
-		For key,value In Split_l
-			Result.InsertAt(key, [value])
+		If objCount(Split_l:= Combin_Arr(Split_code,DB))
+			For key,value In Split_l
+				Result.InsertAt(key, [value])
 		Return Result
 	}
 }
@@ -408,9 +408,12 @@ Combin_Arr(code_arr,DB){
 					if (Result.Rows[1,1]<>""){
 						Index++
 						loop, % Result.RowCount
-						{
 							arrs[Index,a_index]:=Result.Rows[a_index,1]
-		}}}}}
+					}else
+						Return []
+				}
+			}
+		}
 	}
 	;PrintObjects(arrs)
 	For section,element In arrs
@@ -711,7 +714,7 @@ UpperScreenMode(TEXT){
 		If (InitiaMode) {
 			clipboard:=TEXT
 			SendInput, ^{vk56sc02F}
-			;;SendInput, +{Ins}
+			;;SendInput, +{vk2Dsc152}
 		}else{
 			WinClip.Snap( ClipSaved ), WinClip.Clear()
 			WinClip.SetText( TEXT ), WinClip.Paste()
