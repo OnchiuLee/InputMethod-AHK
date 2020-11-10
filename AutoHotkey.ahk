@@ -57,7 +57,7 @@ If FileExist(BaseDir) {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020110720"
+version :="2020111010"
 ;;--------------------------------------------------------
 FileRead, inivar, %A_Temp%\InputMethodData\Config.ini
 RegExMatch(inivar,"(?<=ThemeName\=).+",tName)
@@ -160,8 +160,6 @@ if not Wubi_Schema ~="i)ci|zi|chaoji|zg"
 cmd_zq= schtasks /Query /TN %Startup_Name%
 zq_:= cmdClipReturn(cmd_zq), Startup :=WubiIni.Settings["Startup"]:=FileExist(A_Startup "\" Startup_Name ".lnk")?"sc":zq_~=Startup_Name?"on":"off"
 versions :=WubiIni.Settings["versions"]:=version
-if not Srf_Hotkey ~="i)Ctrl|Shift|Alt|LWin"||Srf_Hotkey ~="\&$"
-	Srf_Hotkey:=WubiIni.Settings["Srf_Hotkey"]:=srf_default_value["Settings","Srf_Hotkey"]
 
 if !WubiIni.GetTopComments()
 	WubiIni.AddTopComment("程序运行时，配置文件直接修改无效！退出后修改才有效！！！")
@@ -241,20 +239,8 @@ if (ToolTipStyle ~="i)gdip"&&A_OSVersion ~="i)WIN_XP") {
 }
 
 ;{{{{{快捷键注册
-hk_conv(Srf_Hotkey){
-	if Srf_Hotkey~="``|`;" {
-		Srf_Hotkey:=RegExReplace(Srf_Hotkey,"``|`;",Srf_Hotkey~="``"?"``":"`;")
-	} else if not Srf_Hotkey~="&" {
-		Srf_Hotkey_:=(not Srf_Hotkey~="LWin"?"~":"") . Srf_Hotkey_
-		;Srf_Hotkey_:="~" . Srf_Hotkey_   ;注释上行 启用此行如果设定是单独win键 则不屏蔽打开开始菜单功能
-	}
-	Srf_Hotkey_ :=Srf_Hotkey~="i)Shift"?RegExReplace(Srf_Hotkey,"i)Shift\&","+"):(Srf_Hotkey~="i)Ctrl"?RegExReplace(Srf_Hotkey,"i)Ctrl\&","^"):(Srf_Hotkey~="i)Alt"?RegExReplace(Srf_Hotkey,"i)Alt\&","!"):RegExReplace(Srf_Hotkey,"i)LWin\&","<#")))
-	Return Srf_Hotkey_
-}
-if not GetKeyState(RegExReplace(Srf_Hotkey,".+\&",""))~="\d"
-	Srf_Hotkey:=RegExReplace(Srf_Hotkey,"\&.+","")
-Srf_Hotkey_ :=hk_conv(Srf_Hotkey)
-Hotkey, %Srf_Hotkey_%, SetHotkey,on
+Srf_Hotkey:=Srf_Hotkey~="&"?formatHotkey_2(Srf_Hotkey):Srf_Hotkey
+Hotkey, %Srf_Hotkey%, SetHotkey,on
 
 tiphotkey:=tip_hotkey, AddCodehotkey:=Addcode_hotkey, s2thotkey:=s2t_hotkey, cfhotkey:=cf_hotkey, Suspendhotkey:=Suspend_hotkey,exithotkey:=Exit_hotkey
 if tip_hotkey
@@ -434,7 +420,7 @@ WM_RBUTTONDOWN(){
 
 /*
 WM_MOUSEWHEEL(){
-	if A_GuiControl in select_theme,FontType,font_size,set_select_value,set_regulate,set_GdipRadius,set_FocusRadius_value,sChoice4,SBA4,sChoice1,sChoice2,sChoice3,sethotkey_1
+	if A_GuiControl in select_theme,FontType,font_size,set_select_value,set_regulate,set_GdipRadius,set_FocusRadius_value,sChoice4,SBA4,sChoice1,sChoice2,sChoice3, 
 		Return
 }
 */
@@ -442,7 +428,7 @@ WM_MOUSEWHEEL(){
 WM_MOUSEMOVE()
 {
 	global Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, StrockeKey, transparentX, LogoSize, srfTool, Tip_Show:={LineColor:"Gdip样式中间分隔线颜色",SBA6:"符号顶首选屏并上屏该键符号",font_value:"候选字号大小`n范围[9-40]"
-		,BorderColor : "Gdip样式四周边框线颜色", SBA16:"冻结/启用程序快捷键启用开关", SBA15:"鼠标划词反查编码功能启用开关", UIAccess:"候选框UI层级权限提升`n看不到候选框时开启",font_size:"候选字号大小`n范围[9-40]"
+		,BorderColor : "Gdip样式四周边框线颜色", SBA16:"冻结/启用程序快捷键启用开关", SBA15:"鼠标划词反查编码功能启用开关", UIAccess:"候选框UI层级权限提升`n看不到候选框时开启",font_size:"候选字号大小`n范围[9-40]",sethotkey_4:"默认为程序自带热键设置方法可设置的热键有限`n点击「获取键名」可以自定义获取键名"
 		, SBA0 :"候选框固定坐标设置",About:"软件使用说明",ciku3:"英文词库导入`n（单行单义格式，以tab符隔开）`n「英文词条+Tab+词频」",ciku4:"英文词库导出`n（导出为单行单义格式txt码表）", Cursor_Status:"在不同窗口情况下鼠标为‘工’字形时自动切换至中文状态，反之"
 		,ciku5:"特殊符号词库导入`n（格式「/引导字母+Tab+多符号以英文逗号隔开」）", SBA5 : "固定候选框的位置，不跟随光标",BgColor:"候选框背景色",FocusBackColor:"候选框焦点选项背景色", GzType:"农历干支输出默认以「春节」为生肖年开始`n选中后切换到以「立春」为换算起点。"
 		,FocusColor:"候选框焦点选项字体色", FontColor:"候选词字体颜色", FontCodeColor:"候选框编码字体颜色", SBA1:"繁体开关（输简出繁）快捷键启用开关",select_value:"候选框词条显示数目`n范围[3-10]", SBA18:"当前笔画键位为：" StrockeKey, zKeySet:"Z键引导反查方式"
@@ -450,7 +436,7 @@ WM_MOUSEMOVE()
 		,tip_hotkey:"通过快捷键开关划词反查",SizeValue:"桌面色块尺寸`n范围[1-150]",SBA20:"候选框分页数显示",FontIN:"字根拆分字体安装",set_regulate_Hx:"ToolTip候选框编码框`n与选词框距离范围[3-25)]",FontType:"中文方案显示的字体",FontSelect:"英文方案或临时英文显示的字体"
 		, SBA13:"显示/隐藏桌面色块图标",SBA19:"有焦点色块选项的候选框",SetInput_CNMode:"程序启动时默认中文输入模式",SetInput_ENMode:"程序启动时默认英文输入模式", SBA12 : "候选词显示粗体",SBA26:"四码候选唯一时自动上屏"
 		,ciku1:"导入txt词库至数据库`ntxt码表格式需为「单行单义」",ciku2:"导出词库为「单行单义」的txt格式文本",SBA2:"拆分功能快捷键启用开关`n（需特殊字体支持，字体在本程序Font目录）",GdipRadius:"Gdip候选框圆角大小`n范围[0-15]"
-		,sethotkey_2:"打开小键盘选取键值",InputStatus:"窗口程序输入状态配置，切换窗口有效！",set_SizeValue:"桌面色块尺寸`n范围[1-150]", vset_regulate:"ToolTip候选框编码框`n与选词框距离范围[3-25]",SBA28:"启动时切换到英语键盘模式"
+		,sethotkey_2:"开启获取取键名模式",InputStatus:"窗口程序输入状态配置，切换窗口有效！",set_SizeValue:"桌面色块尺寸`n范围[1-150]", vset_regulate:"ToolTip候选框编码框`n与选词框距离范围[3-25]",SBA28:"启动时切换到英语键盘模式"
 		,set_FocusRadius:"焦点候选框焦点项背景圆角`n范围[0-18]",set_FocusRadius_value:"焦点候选框焦点项背景圆角`n范围[0-18]", SBA3:"当编码无词条时模糊匹配提示",SBA7:"五码时顶首选上屏", InitiaMode:"剪切板模式1：不影响剪切板本身数据。`n剪切板模式2：剪切板本身数据会被冲掉。`n-----------------------------------------`n选中切换到模式2，反之"
 		,SBA9:"Gdip候选框圆角开关",SBA10:"Gdip候选样式中间分隔线",yaml_:"导出词库为yaml格式可直接应用于rime平台，`n需Sync目录有header.txt文件头支持",search_1:"〔 词频为0的为主词库已删除的，勾选删除即恢复！ 〕"
 		,IM_DDL:"此处选择你要更改的内容",WinMode:"设置每个有窗口进程的输入状态与上屏方式",SBA22:"程序退出快捷键启用开关",Exit_hotkey:"程序退出操作快捷键",SBA23:"GB2312字集过滤", showtools:"独立显示指示功能条，不显示色块"
@@ -473,7 +459,7 @@ WM_MOUSEMOVE()
 	Tip_timer:
 		;aero_link:="C:\Windows\Cursors\aero_link.cur" ;小手
 		;aero_arrow_l:="C:\Windows\Cursors\aero_arrow_l.cur" ;箭头
-		if (A_GuiControl~="i)nextpage|uppage|MyDB|Lastpage|Toppage|Pics2|Pics3|Pics4|MoveGui|helpico"){  ;&&FileExist(aero_link)
+		if (A_GuiControl~="i)nextpage|uppage|MyDB|Lastpage|Toppage|Pics2|Pics3|Pics4|MoveGui|helpico|tip_text"){  ;&&FileExist(aero_link)
 			;CursorHandle := DllCall( "LoadCursorFromFile", Str,aero_link )
 			;DllCall( "SetSystemCursor", Uint,CursorHandle, Int,32512 )
 			SetSystemCursor( "IDC_HAND" )
