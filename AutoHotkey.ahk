@@ -57,7 +57,7 @@ If FileExist(BaseDir) {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020111018"
+version :="2020111019"
 ;;--------------------------------------------------------
 FileRead, inivar, %A_Temp%\InputMethodData\Config.ini
 RegExMatch(inivar,"(?<=ThemeName\=).+",tName)
@@ -242,7 +242,8 @@ if (ToolTipStyle ~="i)gdip"&&A_OSVersion ~="i)WIN_XP") {
 Srf_Hotkey:=formatHotkey_2(Srf_Hotkey)
 Hotkey, %Srf_Hotkey%, SetHotkey,on
 
-tiphotkey:=tip_hotkey, AddCodehotkey:=Addcode_hotkey, s2thotkey:=s2t_hotkey, cfhotkey:=cf_hotkey, Suspendhotkey:=Suspend_hotkey,exithotkey:=Exit_hotkey
+tiphotkey:=tip_hotkey, AddCodehotkey:=Addcode_hotkey, s2thotkey:=s2t_hotkey
+	, cfhotkey:=cf_hotkey, Suspendhotkey:=Suspend_hotkey,exithotkey:=Exit_hotkey
 if tip_hotkey
 	Hotkey, %tiphotkey%, SetRlk,on
 if Suspend_switch
@@ -331,6 +332,7 @@ global recent:=select_arr:=select_value_arr:=srf_bianma:=add_Array:=add_Result:=
 
 CharsTotalCount:=Json_FileToObj(A_Temp "\InputMethodData\CharacterCount.json"),CharsTotalCount:=ObjCount(CharsTotalCount)?CharsTotalCount:{}
 , CharsTotalCount["UnitName"]:=CharsTotalCount["UnitName"]?CharsTotalCount["UnitName"]:Chr(0x4e0a) Chr(0x5c4f) Chr(0x7edf) Chr(0x8ba1)
+, CharsTotalCount["Count"]:=SubStr(A_Now,1,8)<>SubStr(CharsTotalCount["Time"],1,8)?0:CharsTotalCount["Count"], CharsTotalCount["Time"]:=SubStr(A_Now,1,8)<>SubStr(CharsTotalCount["Time"],1,8)?A_Now:CharsTotalCount["Time"]
 , InputCount:=CharsTotalCount["Count"], Frequency_obj:=Json_FileToObj(A_ScriptDir "\Config\Script\WubiCiku.json"), Frequency_obj:=ObjCount(Frequency_obj)?Frequency_obj:{}
 
 ;常用的符号列表（供选择用）
