@@ -57,7 +57,7 @@ If FileExist(BaseDir) {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020111111"
+version :="2020111112"
 ;;--------------------------------------------------------
 FileRead, inivar, %A_Temp%\InputMethodData\Config.ini
 RegExMatch(inivar,"(?<=ThemeName\=).+",tName)
