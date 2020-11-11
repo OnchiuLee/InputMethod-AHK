@@ -2539,11 +2539,15 @@ Return
 ChoiceCode:
 	GuiControlGet, ChoiceCode,, ChoiceCode, text
 	If ChoiceCode~="句号" {
-		ChoiceItems:=WubiIni.Settings["ChoiceItems"]:=1,WubiIni.save(), HotkeyRegister()
+		ChoiceItems:=WubiIni.Settings["ChoiceItems"]:=TurnPage=1?ChoiceItems:1, WubiIni.save(), HotkeyRegister()
+		If (TurnPage=1){
+			GuiControl,98:choose, ChoiceCode,%ChoiceItems%
+			Traytip,  警告提示:,修改失败，与「翻页按键」冲突！,,2
+		}
 	}else If ChoiceCode~="引号"{
-		ChoiceItems:=WubiIni.Settings["ChoiceItems"]:=2,WubiIni.save(), HotkeyRegister()
+		ChoiceItems:=WubiIni.Settings["ChoiceItems"]:=2, WubiIni.save(), HotkeyRegister()
 	}else If ChoiceCode~="i)shift" {
-		ChoiceItems:=WubiIni.Settings["ChoiceItems"]:=3,WubiIni.save(), HotkeyRegister()
+		ChoiceItems:=WubiIni.Settings["ChoiceItems"]:=3, WubiIni.save(), HotkeyRegister()
 	}
 Return
 
@@ -2555,9 +2559,13 @@ Return
 
 PageChoice:
 	GuiControlGet, PageChoice,, PageChoice, text
-	If PageChoice~="句号"
-		TurnPage:=WubiIni.Settings["TurnPage"]:=1,WubiIni.save()
-	else If PageChoice~="等号"
+	If PageChoice~="句号"{
+		TurnPage:=WubiIni.Settings["TurnPage"]:=ChoiceItems=1?TurnPage:1,WubiIni.save()
+		If (ChoiceItems=1) {
+			GuiControl,98:choose, PageChoice , %TurnPage%
+			Traytip,  警告提示:,修改失败，与「次选/三选」冲突！,,2
+		}
+	}else If PageChoice~="等号"
 		TurnPage:=WubiIni.Settings["TurnPage"]:=2,WubiIni.save()
 	else If PageChoice~="括号"
 		TurnPage:=WubiIni.Settings["TurnPage"]:=3,WubiIni.save()
