@@ -1346,7 +1346,7 @@ More_Setting:
 	Gui, 98:Add, CheckBox, x+8 yp+0 Checked%EnKeyboardMode% vSBA28 gSBA28, 默认美式键盘
 	Gui, 98:Add, CheckBox,x+8 yp+0 vSBA26 gSBA26, 四码唯一上屏
 	Gui, 98:Add, CheckBox,x190 y+10 vyaml_ gyaml_, 导出为yaml格式
-	Gui 98:Add, Text,x190 y+5 w365 h2 0x10 vTextInfo28
+	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo28
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA14 gSBA14, 中文时使用英文标点
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
@@ -1365,7 +1365,7 @@ More_Setting:
 	ImageButton.Create(BHBT, [6, 0x80404040, 0x0078D7, 0xffffff], [ , 0x80606060, 0xF0F0F0, 0x0078D7],"", [0, 0xC0A0A0A0, , 0xC00078D7])
 	Gui,98:Font
 	Gui,98:Font, s10, %font_%
-	Gui 98:Add, Text,x190 y+5 w365 h2 0x10 vTextInfo13
+	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo13
 	Gui, 98:Add, CheckBox,x190 y+10 Checked%Frequency% vFrequency gFrequency, 动态调频
 	Gui, 98:Add, Text, x+5 yp vFTip left vTextInfo14, 调频参数：
 	Gui,98:Font
@@ -1433,10 +1433,10 @@ More_Setting:
 	Gui, 98:Add, Radio,yp x+30 vSetInput_ENMode gSetInput_Mode, 英文
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
-	Gui 98:Add, Text,x190 y+25 w365 h2 0x10 vlineText2
+	Gui 98:Add, Text,x190 y+20 w365 h2 0x10 vlineText2
 	Gui, 98:Add, Text, x190 y+10 left vTextInfo19, 中英文切换：
 	Gui,98:Font, s9 bold, %font_%
-	KeyInitStatus:=false
+	KeyInitStatus:=false, Control0:=0
 	Gui 98:Add, Button, x+10 yp h22 w65 Center vsethotkey_2 gsethotkey_2 hWndKNBT, 获取键名
 	ImageButton.Create(KNBT, [6, 0x80404040, 0x0078D7, 0xffffff], [ , 0x80606060, 0xF0F0F0, 0x0078D7],"", [0, 0xC0A0A0A0, , 0xC00078D7])
 	;ImageButton.Create(KNBT, [6, 0x80404040, 0xe81010, 0xffffff], [ , 0x80606060, 0xF0F0F0, 0xe81010],"", [0, 0xC0A0A0A0, , 0xC0e81010])
@@ -1446,10 +1446,10 @@ More_Setting:
 	If WubiIni.Settings["Srf_Hotkey"]~="&" {
 		hkobj:=[], hkobj:=StrSplit(WubiIni.Settings["Srf_Hotkey"],"&")
 	}
-	Gui, 98:Add, Hotkey, x190 y+10 w147 vsethotkey_4 gsethotkey_4 Center,% Srf_Hotkey~="i)RShift"?RegExReplace(Srf_Hotkey,"i)RShift","Shift"):Srf_Hotkey
+	Gui, 98:Add, Hotkey, x190 y+10 w205 vsethotkey_4 gsethotkey_4 Center,% Srf_Hotkey~="i)RShift"?RegExReplace(Srf_Hotkey,"i)RShift","Shift"):Srf_Hotkey
 	GuiControlGet, hkInfo, Pos , sethotkey_4
-	Gui, 98:Add, Edit, vsethotkey_1 gsethotkey_1 x190 yp w70 h%hkInfoH% Center -WantCtrlA -WantReturn -Wrap, % objCount(hkobj)?(objCount(hkobj)=2?hkobj[1]:objCount(hkobj)>2?hkobj[1] "+" hkobj[2]:Srf_Hotkey):Srf_Hotkey
-	Gui, 98:Add, Edit, vsethotkey_3 gsethotkey_3 x+5 yp w70 h%hkInfoH% Center -WantCtrlA -WantReturn -Wrap, % objCount(hkobj)?(objCount(hkobj)=2?hkobj[2]:objCount(hkobj)=3?hkobj[3]:hkobj[3] "+" hkobj[4]):""
+	Gui, 98:Add, Edit, vsethotkey_1 gsethotkey_1 x190 yp w100 h%hkInfoH% Center -WantCtrlA -WantReturn -Wrap, % objCount(hkobj)?(objCount(hkobj)=2?hkobj[1]:objCount(hkobj)>2?hkobj[1] "+" hkobj[2]:Srf_Hotkey):Srf_Hotkey
+	Gui, 98:Add, Edit, vsethotkey_3 gsethotkey_3 x+5 yp w100 h%hkInfoH% Center -WantCtrlA -WantReturn -Wrap, % objCount(hkobj)?(objCount(hkobj)=2?hkobj[2]:objCount(hkobj)=3?hkobj[3]:hkobj[3] "+" hkobj[4]):""
 	GuiControl,98:Hide,sethotkey_1
 	GuiControl,98:Hide,sethotkey_3
 	Gui,98:Font
@@ -1457,7 +1457,7 @@ More_Setting:
 	Gui, 98:Add, Button, yp+0 x+10 vhk_1 ghk_1 hWndGBKBT, 设置
 	ImageButton.Create(GBKBT, [6, 0x80404040, 0x0078D7, 0xffffff], [ , 0x80606060, 0xF0F0F0, 0x0078D7],"", [0, 0xC0A0A0A0, , 0xC00078D7])
 	Gui,98:Font, s9 norm, %font_%
-	Gui, 98:Add, CheckBox,yp+4 x+10 gControl0 vControl0 ,中性键
+	Gui, 98:Add, CheckBox,yp+4 x+10 gControl0 vControl0 Checked%Control0%,中性键
 	GuiControl,98:Hide,Control0
 	GuiControl,98:Disable,hk_1
 	Gui,98:Font
@@ -1465,37 +1465,37 @@ More_Setting:
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox5, 快捷键
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
-	Gui, 98:Add, CheckBox,x190 yp+45 vSBA1 gSBA1, 简繁切换>>
+	Gui, 98:Add, CheckBox,x190 yp+35 vSBA1 gSBA1, 简繁切换>>
 	Gui,98:Font
 	Gui,98:Font, s9 , %font_%
 	Gui, 98:Add, Hotkey, x+0 yp-3 vs2t_hotkeys gs2t_hotkeys,% s2thotkey
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
-	Gui, 98:Add, CheckBox,x190 yp+45 vSBA2 gSBA2, 拆分显示>>
+	Gui, 98:Add, CheckBox,x190 y+10 vSBA2 gSBA2, 拆分显示>>
 	Gui,98:Font
 	Gui,98:Font, s9 , %font_%
 	Gui, 98:Add, Hotkey, x+0 yp-3 vcf_hotkeys gcf_hotkeys,% cfhotkey
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
-	Gui, 98:Add, CheckBox,x190 yp+45 vSBA15 gSBA15 Checked%rlk_switch%, 划译反查>>
+	Gui, 98:Add, CheckBox,x190 y+10 vSBA15 gSBA15 Checked%rlk_switch%, 划译反查>>
 	Gui,98:Font
 	Gui,98:Font, s9 , %font_%
 	Gui, 98:Add, Hotkey, x+0 yp-3 vtip_hotkey gtip_hotkey,% tiphotkey
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
-	Gui, 98:Add, CheckBox,x190 yp+45 vSBA16 gSBA16 Checked%Suspend_switch%, 程序挂起>>
+	Gui, 98:Add, CheckBox,x190 y+10 vSBA16 gSBA16 Checked%Suspend_switch%, 程序挂起>>
 	Gui,98:Font
 	Gui,98:Font, s9 , %font_%
 	Gui, 98:Add, Hotkey, x+0 yp-3 vSuspend_hotkey gSuspend_hotkey,% Suspendhotkey
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
-	Gui, 98:Add, CheckBox,x190 yp+45 vSBA17 gSBA17 Checked%Addcode_switch%, 批量造词>>
+	Gui, 98:Add, CheckBox,x190 y+10 vSBA17 gSBA17 Checked%Addcode_switch%, 批量造词>>
 	Gui,98:Font
 	Gui,98:Font, s9 , %font_%
 	Gui, 98:Add, Hotkey, x+0 yp-3 vAddcode_hotkey gAddcode_hotkey,% Addcodehotkey
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
-	Gui, 98:Add, CheckBox,x190 yp+45 vSBA22 gSBA22 Checked%Exit_switch%, 快捷退出>>
+	Gui, 98:Add, CheckBox,x190 y+10 vSBA22 gSBA22 Checked%Exit_switch%, 快捷退出>>
 	Gui,98:Font
 	Gui,98:Font, s9 , %font_%
 	Gui, 98:Add, Hotkey, x+0 yp-3 vExit_hotkey gExit_hotkey,% exithotkey
