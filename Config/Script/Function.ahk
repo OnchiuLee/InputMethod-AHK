@@ -4024,6 +4024,72 @@ formatHotkey_2(keys){
 	Return keys
 }
 
+HotkeyFunc(item1){
+	global srf_all_Input
+	return item1=3&&srf_all_Input||item1<>3?1:0
+}
+
+HotkeyRegister(){
+	global Srf_Hotkey, ChoiceItems, ThisKeyObj, srf_all_input, rlk_switch, Suspend_switch, Addcode_switch,s2t_swtich ,cf_swtich ,Exit_switch
+		, tip_hotkey, Addcode_hotkey, s2t_hotkey, cf_hotkey, Suspend_hotkey,Exit_hotkey
+	Srf_Hotkey:=formatHotkey_2(Srf_Hotkey)
+	Hotkey, LShift, SetHotkey,off
+	Hotkey, RShift, SetHotkey,off
+	Hotkey, LShift, SetChoiceCodeHotkey,off
+	Hotkey, RShift, SetChoiceCodeHotkey,off
+	If (Srf_Hotkey="Shift") {
+		;;HotkeyStatus := Func("HotkeyFunc").Bind(ChoiceItems)
+		;;hotkey,If,% HotkeyStatus
+		ThisKeyObj:=["LShift","RShift"]
+		Hotkey, LShift, SetHotkey,on
+		Hotkey, RShift, SetHotkey,on
+		;;hotkey,If
+	}else If (Srf_Hotkey="LShift"){
+		ThisKeyObj:=["LShift"]
+		Hotkey, LShift, SetHotkey,on
+		If (ChoiceItems=3)
+			Hotkey, RShift, SetChoiceCodeHotkey,on
+	}else If (Srf_Hotkey="RShift"){
+		ThisKeyObj:=["RShift"]
+		Hotkey, RShift, SetHotkey,on
+		If (ChoiceItems=3)
+			Hotkey, LShift, SetChoiceCodeHotkey,on
+	}else{
+		Hotkey, %Srf_Hotkey%, SetHotkey,on
+		ThisKeyObj:=[]
+	}
+
+	if rlk_switch
+		Hotkey, %tip_hotkey%, SetRlk,on
+	else
+		Hotkey, %tip_hotkey%, SetRlk,off
+
+	if Suspend_switch
+		Hotkey, %Suspend_hotkey%, SetSuspend,on
+	else
+		Hotkey, %Suspend_hotkey%, SetSuspend,off
+
+	if Addcode_switch
+		Hotkey, %AddCode_hotkey%, Batch_AddCode,on
+	else
+		Hotkey, %AddCode_hotkey%, Batch_AddCode,off
+
+	if s2t_swtich
+		Hotkey, %s2t_hotkey%, Trad_Mode,on
+	else
+		Hotkey, %s2t_hotkey%, Trad_Mode,off
+
+	if cf_swtich
+		Hotkey, %cf_hotkey%, Cut_Mode,on
+	else
+		Hotkey, %cf_hotkey%, Cut_Mode,off
+
+	if Exit_switch
+		Hotkey, %exit_hotkey%, OnExit,on
+	else
+		Hotkey, %exit_hotkey%, OnExit,off
+}
+
 ;;--------------------------------------------
 kbhk := 0, mhk := 0
 KBCallback := RegisterCallback("KeyboardHookProc",,3)
@@ -4095,6 +4161,7 @@ MouseHookProc(code, wParam, lParam) {
 	if(code == 0 or code == 3) {
 		m_id := wParam
 		mousehookstruct := lParam
+		;;tooltip,% Format("VK{:X}", m_id)
 	} else {
 		return CallNextHookEx(0, code, wParam, lParam)
 	}

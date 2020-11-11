@@ -129,16 +129,20 @@ Return
 
 ; 中英文切换模式
 SetHotkey:
-	srf_mode:=!srf_mode
-	If GetKeyState("CapsLock", "T")
-		SetCapsLockState , off
-	If Logo_Switch~="i)on"
-		Gosub RestLogo
-	if !srf_mode
-		UpperScreenMode( RegExReplace(srf_all_input,"\'|\``") )
-	If Logo_Switch~="i)on"
-		Gosub Write_Pos
-	Gosub Get_IME
+	If (A_thishotkey~="i)^(LShift|RShift)$"&&ChoiceItems=3&&srf_all_input) {
+		srf_select(A_thishotkey="LShift"?2:3)
+	}else{
+		srf_mode:=!srf_mode
+		if !srf_mode
+			UpperScreenMode( RegExReplace(srf_all_input,"\'|\``") )
+		If GetKeyState("CapsLock", "T")
+			SetCapsLockState , off
+		If Logo_Switch~="i)on"
+			Gosub RestLogo
+		If Logo_Switch~="i)on"
+			Gosub Write_Pos
+		Gosub Get_IME
+	}
 	Gosub srf_value_off
 Return
 
@@ -1191,9 +1195,9 @@ More_Setting:
 	Gui,98:Font, s10 bold, %font_%
 	TV_obj:={GBoxList1:["GBox1","themelogo","lineText1","Initialize","SBA13","TextInfo1","showtools","SrfSlider","SizeValue","set_SizeValue","ExSty","DPISty","select_theme","diycolor","themelists","TextInfo2","Backup_Conf","Rest_Conf","select_logo","TextInfo3","TextInfo4","TextInfo27","LogoColor_cn","LogoColor_en","LogoColor_caps"]
 		,GBoxList2:["GBox2","TextInfo25","SBA5","SBA0","TextInfo12","SBA9","SBA10","SBA12","SBA19","SBA20","set_select_value","font_size","TextInfo11","FontSelect","TextInfo5","FontType","TextInfo6","font_value","TextInfo7","select_value","TextInfo8","set_regulate_Hx","set_regulate","TextInfo9","GdipRadius","set_GdipRadius","TextInfo10","set_FocusRadius","set_FocusRadius_value"]
-		,GBoxList3:["GBox3","SBA7","SBA26","SBA27","SBA28","SBA23","SBA24","TextInfo29","TextInfo22","zKeySet","UIAccess","SBA6","SBA14","SBA18","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC","Cursor_Status","yaml_"]
-		,GBoxList4:["GBox4","TextInfo15","lineText2","SBA4","TextInfo16","sChoice1","InitiaMode","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode","TextInfo21","PageChoice","sethotkey_4"]
-		,GBoxList5:["GBox5","SBA1","s2t_hotkeys","SBA2","cf_hotkeys","SBA15","tip_hotkey","SBA16","Suspend_hotkey","SBA17","Addcode_hotkey","Exit_hotkey","SBA22"]
+		,GBoxList3:["GBox3","SBA7","SBA26","SBA27","SBA28","SBA23","SBA24","TextInfo29","TextInfo22","zKeySet","UIAccess","SBA6","SBA14","SBA18","SBA21","SBA3","SBA25","TextInfo13","TextInfo28","Frequency","TextInfo14","set_Frequency","RestDB","InputStatus","WinMode","CreateSC","Cursor_Status","yaml_", "SBA11"]
+		,GBoxList4:["GBox4","TextInfo15","lineText2","SBA4","TextInfo16","sChoice1","InitiaMode","TextInfo17","sChoice2","TextInfo18","sChoice3","TextInfo19","sethotkey_2","hk_1","tip_text","TextInfo20","SetInput_CNMode","SetInput_ENMode","TextInfo21","PageChoice","sethotkey_4","TextInfo23", "ChoiceCode"]
+		,GBoxList5:["GBox5","SBA1","s2thotkeys","SBA2","cfhotkeys","SBA15","tiphotkey","SBA16","Suspendhotkey","SBA17","Addcodehotkey","Exithotkey","SBA22"]
 		,GBoxList6:["GBox6","linkinfo1","linkinfo2","linkinfo3","versionsinfo","infos_"]}
 
 	Gui, 98:Add, GroupBox,x+10 yp w400 h400 vGBox1, 主题配置
@@ -1345,7 +1349,8 @@ More_Setting:
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA23 gSBA23 Checked%CharFliter%, 字集过滤
 	Gui, 98:Add, CheckBox, x+8 yp+0 Checked%EnKeyboardMode% vSBA28 gSBA28, 默认美式键盘
 	Gui, 98:Add, CheckBox,x+8 yp+0 vSBA26 gSBA26, 四码唯一上屏
-	Gui, 98:Add, CheckBox,x190 y+10 vyaml_ gyaml_, 导出为yaml格式
+	Gui, 98:Add, CheckBox,x190 y+10 vSBA11 gSBA11 , 输简出繁
+	Gui, 98:Add, CheckBox,x+8 yp+0 vyaml_ gyaml_, 导出yaml格式
 	Gui 98:Add, Text,x190 y+10 w365 h2 0x10 vTextInfo28
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA14 gSBA14, 中文时使用英文标点
 	Gui,98:Font
@@ -1424,12 +1429,18 @@ More_Setting:
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, Text, x190 y+10 left vTextInfo21, 翻页按键：
-	Gui, 98:Add, Text, x%TextInfoX% yp  left vTextInfo20, 默认状态：
+	Gui, 98:Add, Text, x%TextInfoX% yp left vTextInfo23, 次选三选：
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
 	Gui, 98:Add, DDL,x190 y+5 w110  vPageChoice gPageChoice  AltSubmit HwndPCDL , 逗号-句号|减号-等号|左右方括号|PgUp-PgDn    ;;+0x0210
 	;;OD_Colors.Attach(PCDL,{T: 0xffe89e, B: 0x0178d6})
-	Gui, 98:Add, Radio,yp x%TextInfoX% vSetInput_CNMode gSetInput_Mode, 中文
+	Gui, 98:Add, DDL,yp x%TextInfoX% w110  vChoiceCode gChoiceCode  AltSubmit HwndTCDL , 逗号-句号|分号-引号|左右Shift
+	Gui,98:Font
+	Gui,98:Font, s10 norm, %font_%
+	Gui, 98:Add, Text, x190 y+10  left vTextInfo20, 默认状态：
+	Gui,98:Font
+	Gui,98:Font, s9 bold, %font_%
+	Gui, 98:Add, Radio,x190 y+5 vSetInput_CNMode gSetInput_Mode, 中文
 	Gui, 98:Add, Radio,yp x+30 vSetInput_ENMode gSetInput_Mode, 英文
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
@@ -1468,37 +1479,37 @@ More_Setting:
 	Gui, 98:Add, CheckBox,x190 yp+35 vSBA1 gSBA1, 简繁切换>>
 	Gui,98:Font
 	Gui,98:Font, s9 , %font_%
-	Gui, 98:Add, Hotkey, x+0 yp-3 vs2t_hotkeys gs2t_hotkeys,% s2thotkey
+	Gui, 98:Add, Hotkey, x+0 yp-3 vs2thotkeys gs2thotkeys,% s2t_hotkey
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA2 gSBA2, 拆分显示>>
 	Gui,98:Font
 	Gui,98:Font, s9 , %font_%
-	Gui, 98:Add, Hotkey, x+0 yp-3 vcf_hotkeys gcf_hotkeys,% cfhotkey
+	Gui, 98:Add, Hotkey, x+0 yp-3 vcfhotkeys gcfhotkeys,% cf_hotkey
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA15 gSBA15 Checked%rlk_switch%, 划译反查>>
 	Gui,98:Font
 	Gui,98:Font, s9 , %font_%
-	Gui, 98:Add, Hotkey, x+0 yp-3 vtip_hotkey gtip_hotkey,% tiphotkey
+	Gui, 98:Add, Hotkey, x+0 yp-3 vtiphotkey gtiphotkey,% tip_hotkey
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA16 gSBA16 Checked%Suspend_switch%, 程序挂起>>
 	Gui,98:Font
 	Gui,98:Font, s9 , %font_%
-	Gui, 98:Add, Hotkey, x+0 yp-3 vSuspend_hotkey gSuspend_hotkey,% Suspendhotkey
+	Gui, 98:Add, Hotkey, x+0 yp-3 vSuspendhotkey gSuspendhotkey,% Suspend_hotkey
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA17 gSBA17 Checked%Addcode_switch%, 批量造词>>
 	Gui,98:Font
 	Gui,98:Font, s9 , %font_%
-	Gui, 98:Add, Hotkey, x+0 yp-3 vAddcode_hotkey gAddcode_hotkey,% Addcodehotkey
+	Gui, 98:Add, Hotkey, x+0 yp-3 vAddcodehotkey gAddcodehotkey,% Addcode_hotkey
 	Gui,98:Font
 	Gui,98:Font, s10 norm, %font_%
 	Gui, 98:Add, CheckBox,x190 y+10 vSBA22 gSBA22 Checked%Exit_switch%, 快捷退出>>
 	Gui,98:Font
 	Gui,98:Font, s9 , %font_%
-	Gui, 98:Add, Hotkey, x+0 yp-3 vExit_hotkey gExit_hotkey,% exithotkey
+	Gui, 98:Add, Hotkey, x+0 yp-3 vExithotkey gExithotkey,% exit_hotkey
 	Gui,98:Font
 	Gui,98:Font, s10 bold, %font_%
 	Gui 98:Add, GroupBox,x170 y10 w400 h400 vGBox6, 关于
@@ -2202,9 +2213,8 @@ hk_1:
 		CaptainHook(KeyInitStatus:=false), KeyCodeObj:={}
 		GuiControlGet, hotkey_4, ,sethotkey_4 , text
 		Hotkey, %Srf_Hotkey%, SetHotkey,off
-		Srf_Hotkey:=hotkey_4?hotkey_4:Srf_Hotkey
+		Srf_Hotkey:=hotkey_4?hotkey_4:Srf_Hotkey, HotkeyRegister()
 		WubiIni.Settings["Srf_Hotkey"]:=hotkey_4?formatHotkey(hotkey_4):Srf_Hotkey, WubiIni.save()
-		Hotkey, %Srf_Hotkey%, SetHotkey,on
 		hkobj:=StrSplit(WubiIni.Settings["Srf_Hotkey"],"&")
 		GuiControl,98:,sethotkey_1,% objCount(hkobj)=2?hkobj[1]:(objCount(hkobj)>2?hkobj[1] "+" hkobj[2]:Srf_Hotkey)
 		GuiControl,98:,sethotkey_3,% objCount(hkobj)=2?hkobj[2]:(objCount(hkobj)=3?hkobj[3]:objCount(hkobj)>3?hkobj[3] "+" hkobj[4])
@@ -2217,13 +2227,11 @@ hk_1:
 		GuiControlGet, hotkey_3, ,sethotkey_3 , text
 		If (hotkey_1&&hotkey_3) {
 			Hotkey, %Srf_Hotkey%, SetHotkey,off
-			Srf_Hotkey:=formatHotkey_2(hotkey_1 " & " hotkey_3)
-			Hotkey, %Srf_Hotkey%, SetHotkey,on
+			Srf_Hotkey:=formatHotkey_2(hotkey_1 " & " hotkey_3), HotkeyRegister()
 			WubiIni.Settings["Srf_Hotkey"]:=formatHotkey(Srf_Hotkey), WubiIni.save()
 		}else If (hotkey_1&&!hotkey_3||hotkey_3&&!hotkey_1){
 			Hotkey, %Srf_Hotkey%, SetHotkey,off
-			Srf_Hotkey:=formatHotkey_2(hotkey_1?hotkey_1:hotkey_3)
-			Hotkey, %Srf_Hotkey%, SetHotkey,on
+			Srf_Hotkey:=formatHotkey_2(hotkey_1?hotkey_1:hotkey_3), HotkeyRegister()
 			WubiIni.Settings["Srf_Hotkey"]:=Srf_Hotkey, WubiIni.save()
 		}
 		hotkey_1:=hotkey_3:=""
@@ -2369,7 +2377,7 @@ ControlGui:
 		If (%k%)
 			GuiControl,98:, %v% , 1
 
-	For k,v In {Radius:"SBA9",FontStyle:"SBA12",Logo_Switch:"SBA13",Gdip_Line:"SBA10",Prompt_Word:"SBA3",symb_send:"SBA6",limit_code:"SBA7",length_code:"SBA26"}
+	For k,v In {Radius:"SBA9",FontStyle:"SBA12",Logo_Switch:"SBA13",Gdip_Line:"SBA10",Prompt_Word:"SBA3",symb_send:"SBA6",limit_code:"SBA7",length_code:"SBA26",Trad_Mode:"SBA11"}
 		if (%k%~="i)on")
 			GuiControl,98:, %v% , 1
 	If (Fix_Switch="off")
@@ -2398,15 +2406,15 @@ ControlGui:
 		GuiControl,98:, SetInput_ENMode , 1
 
 	if !rlk_switch
-		GuiControl, 98:Disable, tip_hotkey
+		GuiControl, 98:Disable, tiphotkey
 	else
 		GuiControl,98:, SBA15 , 1
 	if !Suspend_switch
-		GuiControl, 98:Disable, Suspend_hotkey
+		GuiControl, 98:Disable, Suspendhotkey
 	else
 		GuiControl,98:, SBA16 , 1
 	if !Addcode_switch
-		GuiControl, 98:Disable, Addcode_hotkey
+		GuiControl, 98:Disable, Addcodehotkey
 	else
 		GuiControl,98:, SBA17 , 1
 	If (zkey_mode=2){
@@ -2432,6 +2440,7 @@ ControlGui:
 		GuiControl,98:choose, sChoice2 , 1
 	}
 	GuiControl,98:choose, PageChoice , %TurnPage%
+	GuiControl,98:choose, ChoiceCode,%ChoiceItems%
 	if Textdirection~="i)vertical" {
 		GuiControl,98:choose, sChoice3 , 2
 	}else{
@@ -2447,12 +2456,12 @@ ControlGui:
 	if cf_swtich {
 		GuiControl,98:, SBA2 , 1
 	}else{
-		GuiControl, 98:Disable, cf_hotkeys
+		GuiControl, 98:Disable, cfhotkeys
 	}
 	if s2t_swtich {
 		GuiControl,98:, SBA1 , 1
 	}else{
-		GuiControl, 98:Disable, s2t_hotkeys
+		GuiControl, 98:Disable, s2thotkeys
 	}
 
 	if Startup~="i)on" {
@@ -2525,6 +2534,23 @@ zKeySet:
 		zkey_mode:=WubiIni.Settings["zkey_mode"]:=1,WubiIni.save()
 		GuiControl, 98:Disable, SBA18
 	}
+Return
+
+ChoiceCode:
+	GuiControlGet, ChoiceCode,, ChoiceCode, text
+	If ChoiceCode~="句号" {
+		ChoiceItems:=WubiIni.Settings["ChoiceItems"]:=1,WubiIni.save(), HotkeyRegister()
+	}else If ChoiceCode~="引号"{
+		ChoiceItems:=WubiIni.Settings["ChoiceItems"]:=2,WubiIni.save(), HotkeyRegister()
+	}else If ChoiceCode~="i)shift" {
+		ChoiceItems:=WubiIni.Settings["ChoiceItems"]:=3,WubiIni.save(), HotkeyRegister()
+	}
+Return
+
+SetChoiceCodeHotkey:
+	If (ChoiceItems=3&&srf_all_input)
+		srf_select(A_thishotkey="lshift"?2:3)
+	Gosub srf_value_off
 Return
 
 PageChoice:
@@ -3044,13 +3070,11 @@ Return
 SBA1:
 	GuiControlGet, SBA ,, SBA1, Checkbox
 	if SBA {
-		GuiControl, 98:Enable, s2t_hotkeys
-		Hotkey, %s2thotkey%, Trad_Mode,on
+		GuiControl, 98:Enable, s2thotkeys
 	}else{
-		GuiControl, 98:Disable, s2t_hotkeys
-		Hotkey, %s2thotkey%, Trad_Mode,off
+		GuiControl, 98:Disable, s2thotkeys
 	}
-	s2t_swtich:=WubiIni.Settings["s2t_swtich"]:=SBA,WubiIni.save()
+	s2t_swtich:=WubiIni.Settings["s2t_swtich"]:=SBA,WubiIni.save(), HotkeyRegister()
 Return
 
 showtools:
@@ -3069,13 +3093,11 @@ Return
 SBA2:
 	GuiControlGet, SBA ,, SBA2, Checkbox
 	if SBA {
-		GuiControl, 98:Enable, cf_hotkeys
-		Hotkey, %cfhotkey%, Cut_Mode,on
+		GuiControl, 98:Enable, cfhotkeys
 	}else{
-		GuiControl, 98:Disable, cf_hotkeys
-		Hotkey, %cfhotkey%, Cut_Mode,off
+		GuiControl, 98:Disable, cfhotkeys
 	}
-	cf_swtich:=WubiIni.Settings["cf_swtich"]:=SBA,WubiIni.save()
+	cf_swtich:=WubiIni.Settings["cf_swtich"]:=SBA,WubiIni.save(), HotkeyRegister()
 Return
 
 CheckFilter:
@@ -3183,6 +3205,11 @@ Return
 SBA26:
 	GuiControlGet, SBA ,, SBA26, Checkbox
 	length_code:=WubiIni.Settings["length_code"]:=SBA?"on":"off",WubiIni.save()
+Return
+	GuiControlGet, SBA ,, SBA26, Checkbox
+	length_code:=WubiIni.Settings["length_code"]:=SBA?"on":"off",WubiIni.save()
+SBA11:
+	Gosub Trad_Mode
 Return
 
 format_Date:
@@ -3501,7 +3528,7 @@ Return
 
 SBA14:
 	GuiControlGet, SBA ,, SBA14, Checkbox
-	if (SBA==1) {
+	if (SBA) {
 		global symb_mode:=WubiIni.Settings["symb_mode"]:=1
 		GuiControl,logo:, Pics3,*Icon7 config\Skins\logoStyle\%StyleN%.icl
 	}else{
@@ -3513,28 +3540,22 @@ Return
 
 SBA15:
 	GuiControlGet, SBA ,, SBA15, Checkbox
-	if (SBA==1) {
-		rlk_switch:=WubiIni.Settings["rlk_switch"]:=1,WubiIni.save()
-		Hotkey, %tiphotkey%, SetRlk,on
-		GuiControl, 98:Enable, tip_hotkey
+	if (SBA) {
+		GuiControl, 98:Enable, tiphotkey
 	}else{
-		rlk_switch:=WubiIni.Settings["rlk_switch"]:=0,WubiIni.save()
-		Hotkey, %tiphotkey%, SetRlk,off
-		GuiControl, 98:Disable, tip_hotkey
+		GuiControl, 98:Disable, tiphotkey
 	}
+		rlk_switch:=WubiIni.Settings["rlk_switch"]:=SBA,WubiIni.save(), HotkeyRegister()
 Return
 
 SBA16:
 	GuiControlGet, SBA ,, SBA16, Checkbox
-	if (SBA==1) {
-		Suspend_switch:=WubiIni.Settings["Suspend_switch"]:=1,WubiIni.save()
-		Hotkey, %Suspendhotkey%, SetSuspend,on
-		GuiControl, 98:Enable, Suspend_hotkey
+	if (SBA) {
+		GuiControl, 98:Enable, Suspendhotkey
 	}else{
-		Suspend_switch:=WubiIni.Settings["Suspend_switch"]:=0,WubiIni.save()
-		Hotkey, %Suspendhotkey%, SetSuspend,off
-		GuiControl, 98:Disable, Suspend_hotkey
+		GuiControl, 98:Disable, Suspendhotkey
 	}
+	Suspend_switch:=WubiIni.Settings["Suspend_switch"]:=SBA,WubiIni.save(), HotkeyRegister()
 Return
 
 SBA18:
@@ -3564,18 +3585,12 @@ Return
 
 SBA17:
 	GuiControlGet, SBA ,, SBA17, Checkbox
-	if (SBA==1) {
-		Addcode_switch:=WubiIni.Settings["Addcode_switch"]:=1,WubiIni.save()
-		Hotkey, %Addcodehotkey%, Batch_AddCode,on
-		if (Wubi_Schema~="i)ci"&&Addcode_switch)
-		Menu, More, Enable, 批量造词
-		GuiControl, 98:Enable, Addcode_hotkey
+	if (SBA) {
+		GuiControl, 98:Enable, Addcodehotkey
 	}else{
-		Addcode_switch:=WubiIni.Settings["Addcode_switch"]:=0,WubiIni.save()
-		Hotkey, %Addcodehotkey%, Batch_AddCode,off
-		Menu, More, Disable, 批量造词
-		GuiControl, 98:Disable, Addcode_hotkey
+		GuiControl, 98:Disable, Addcodehotkey
 	}
+	Addcode_switch:=WubiIni.Settings["Addcode_switch"]:=SBA,WubiIni.save(), HotkeyRegister()
 Return
 
 SBA19:
@@ -3727,14 +3742,11 @@ Return
 SBA22:
 	GuiControlGet, SBA ,, SBA22, Checkbox
 	if (SBA==1) {
-		Exit_switch:=WubiIni.Settings["Exit_switch"]:=1,WubiIni.save()
-		Hotkey, %exithotkey%, OnExit,on
-		GuiControl, 98:Enable, Exit_hotkey
+		GuiControl, 98:Enable, Exithotkey
 	}else{
-		Exit_switch:=WubiIni.Settings["Exit_switch"]:=0,WubiIni.save()
-		Hotkey, %exithotkey%, OnExit,off
-		GuiControl, 98:Disable, Exit_hotkey
+		GuiControl, 98:Disable, Exithotkey
 	}
+	Exit_switch:=WubiIni.Settings["Exit_switch"]:=SBA,WubiIni.save(), HotkeyRegister()
 Return
 
 SBA23:
@@ -3778,46 +3790,46 @@ CharFliter:
 	Gosub CheckFilter
 Return
 
-s2t_hotkeys:
-	if s2t_hotkeys
-		Hotkey, %s2thotkey%, Trad_Mode,off
-	s2thotkey:=WubiIni.Settings["s2t_hotkey"]:=s2t_hotkeys?s2t_hotkeys:"^+f", WubiIni.save()
-	Hotkey, %s2thotkey%, Trad_Mode,on
+s2thotkeys:
+	if s2thotkeys {
+		Hotkey, %s2t_hotkey%, Trad_Mode,off
+		s2thotkey:=WubiIni.Settings["s2t_hotkey"]:=s2thotkeys?s2thotkeys:"^+f", WubiIni.save(), HotkeyRegister()
+	}
 Return
 
-cf_hotkeys:
-	if cf_hotkeys
-		Hotkey, %cfhotkey%, Cut_Mode,off
-	cfhotkey:=WubiIni.Settings["cf_hotkey"]:=cf_hotkeys?cf_hotkeys:"^+h", WubiIni.save()
-	Hotkey, %cfhotkey%, Cut_Mode,on
+cfhotkeys:
+	if cfhotkeys {
+		Hotkey, %cf_hotkey%, Cut_Mode,off
+		cfhotkey:=WubiIni.Settings["cf_hotkey"]:=cfhotkeys?cfhotkeys:"^+h", WubiIni.save(), HotkeyRegister()
+	}
 Return
 
-Suspend_hotkey:
-	if Suspend_hotkey
-		Hotkey, %Suspendhotkey%, SetSuspend,off
-	Suspendhotkey:=WubiIni.Settings["Suspend_hotkey"]:=Suspend_hotkey?Suspend_hotkey:"!z", WubiIni.save()
-	Hotkey, %Suspendhotkey%, SetSuspend,on
+Suspendhotkey:
+	if Suspendhotkey {
+		Hotkey, %Suspend_hotkey%, SetSuspend,off
+		Suspendhotkey:=WubiIni.Settings["Suspend_hotkey"]:=Suspendhotkey?Suspendhotkey:"!z", WubiIni.save(), HotkeyRegister()
+	}
 Return
 
-tip_hotkey:
-	if tip_hotkey
-		Hotkey, %tiphotkey%, SetRlk,off
-	tiphotkey:=WubiIni.Settings["tip_hotkey"]:=tip_hotkey?tip_hotkey:"!q", WubiIni.save()
-	Hotkey, %tiphotkey%, SetRlk,on
+tiphotkey:
+	if tiphotkey {
+		Hotkey, %tip_hotkey%, SetRlk,off
+		tiphotkey:=WubiIni.Settings["tip_hotkey"]:=tiphotkey?tiphotkey:"!q", WubiIni.save(), HotkeyRegister()
+	}
 Return
 
-Addcode_hotkey:
-	if Addcode_hotkey
-		Hotkey, %AddCodehotkey%, Batch_AddCode,off
-	AddCodehotkey:=WubiIni.Settings["Addcode_hotkey"]:=Addcode_hotkey?Addcode_hotkey:"^CapsLock", WubiIni.save()
-	Hotkey, %AddCodehotkey%, Batch_AddCode,on
+Addcodehotkey:
+	if Addcodehotkey {
+		Hotkey, %AddCode_hotkey%, Batch_AddCode,off
+		AddCodehotkey:=WubiIni.Settings["Addcode_hotkey"]:=Addcodehotkey?Addcodehotkey:"^CapsLock", WubiIni.save(), HotkeyRegister()
+	}
 Return
 
-Exit_hotkey:
-	if Exit_hotkey
-		Hotkey, %exithotkey%, OnExit,off
-	exithotkey:=WubiIni.Settings["Exit_hotkey"]:=Exit_hotkey?Exit_hotkey:"^Esc", WubiIni.save()
-	Hotkey, %exithotkey%, OnExit,on
+Exithotkey:
+	if Exithotkey {
+		Hotkey, %Exit_hotkey%, OnExit,off
+		exithotkey:=WubiIni.Settings["Exit_hotkey"]:=Exithotkey?Exithotkey:"^Esc", WubiIni.save(), HotkeyRegister()
+	}
 Return
 
 ChangeTooltipstyle:

@@ -393,12 +393,6 @@ Return
 	1::
 		srf_select(ToolTipStyle~="i)gdip"&&FocusStyle?localpos:1,A_ThisHotkey)
 	Return
-	`;::
-		srf_select(2)
-	return
-	'::
-		srf_select(3)
-	return
 
 	2::srf_select(2)
 	3::srf_select(3)
@@ -604,9 +598,33 @@ Return
 		}
 	Return
 
+	`;::
+		If (ChoiceItems=2)
+			srf_select(2)
+		else{
+			If symb_send ~="on" {
+				srf_select(1)
+				send % srf_symblos["`;",symb_mode]
+			}
+		}
+	return
+
+	'::
+		If (ChoiceItems=2)
+			srf_select(3)
+		else{
+			If symb_send ~="on" {
+				srf_select(1)
+				send % srf_symblos["'",symb_mode]
+			}
+		}
+	return
+
 	,::
 		If (TurnPage=1) {
 			gosub LessWait
+		}else if (ChoiceItems=1) {
+			srf_select(2)
 		}else{
 			If symb_send ~="on" {
 				srf_select(1)
@@ -614,9 +632,12 @@ Return
 			}
 		}
 	Return
+
 	.::
 		If (TurnPage=1) {
 			gosub MoreWait
+		}else if (ChoiceItems=1) {
+			srf_select(3)
 		}else{
 			If symb_send ~="on" {
 				srf_select(1)

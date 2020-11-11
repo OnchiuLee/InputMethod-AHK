@@ -189,6 +189,7 @@ MouseHookProc(code, wParam, lParam) {
 	if(code == 0 or code == 3) {
 		m_id := wParam
 		mousehookstruct := lParam
+		;;tooltip,% Format("VK{:#X}", m_id)
 	} else {
 		return CallNextHookEx(0, code, wParam, lParam)
 	}
