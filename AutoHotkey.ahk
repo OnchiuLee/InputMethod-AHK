@@ -57,7 +57,7 @@ If FileExist(BaseDir) {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020111019"
+version :="2020111111"
 ;;--------------------------------------------------------
 FileRead, inivar, %A_Temp%\InputMethodData\Config.ini
 RegExMatch(inivar,"(?<=ThemeName\=).+",tName)
@@ -98,10 +98,7 @@ DetectHiddenText, On
 WinGetPos,,,,Shell_Wnd ,ahk_class Shell_TrayWnd
 y2 :=A_ScreenHeight-Shell_Wnd-40, font_:=ComInfo.GetDefaultFontName(), font_:=font_?font_:"Microsoft YaHei UI"
 DllCall("gdi32\EnumFontFamilies","uint",DllCall("GetDC","uint",0),"uint",0,"uint",RegisterCallback("EnumFontFamilies"),"uint",A_FontList:="")
-
-;;===============输入法名称（可修改）==================
-Startup_Name :="五笔98版"   
-FontExtend:="98WB-U|98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_
+Startup_Name :="五笔98版", FontExtend:="98WB-U|98WB-V|98WB-P0|五笔拆字字根字体|98WB-1|98WB-3|98WB-ZG|98WB-0|" font_
 
 Loop Files, config\Skins\logoStyle\*.icl
 	if (A_LoopFileName&&a_index=1)
@@ -114,7 +111,7 @@ If (!FileExist(A_Temp "\InputMethodData\Config.ini")||A_Args[1]="Initialize")
 global srf_default_value,config_tip, WubiIni:=class_EasyIni(A_Temp "\InputMethodData\Config.ini")
 , srf_default_obj:={LogoColor:{LogoColor_cn:"008000",LogoColor_en:"00FFFF",LogoColor_caps:"0000ff"}
 	,Settings:{Startup:"off",IStatus:1,CharFliter:0,Exit_switch:1,PromptChar:0, DPIScale:1,CursorStatus:0,Exit_hotkey:"^esc", symb_mode:2,Frequency:0,StrockeKey:"h|s|p|n|z"
-		,Freq_Count:3,srfTool:0,length_code:"on",GzType:0, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f",versions:version,EnKeyboardMode:0
+		,Freq_Count:3,srfTool:0,length_code:"on",GzType:0, BUyaml:0, s2t_swtich:1,FocusStyle:1,PageShow:1, s2t_hotkey:"^+f",versions:version,EnKeyboardMode:0, ChoiceItems:2
 		, cf_swtich:1, cf_hotkey:"^+h", Prompt_Word:"off", Logo_X:"10", Logo_Y:A_ScreenHeight/2, UIAccess:0, Addcode_switch:1, Addcode_hotkey:"^CapsLock", InitiaMode:0
 		, Suspend_switch:1,zkey_mode:0, Suspend_hotkey:"!z", tip_hotkey:"!q", rlk_switch:0, Logo_Switch:"on",Srf_Hotkey:"Shift", Select_Enter:"clean", TurnPage:2
 		, symb_send:"on", set_color:"on", Wubi_Schema:"ci", Initial_Mode:"off",Cut_Mode:"off", limit_code:"on", Trad_Mode:"off", IMEmode:"on",InitStatus:0,EN_Mode:0}
@@ -239,23 +236,7 @@ if (ToolTipStyle ~="i)gdip"&&A_OSVersion ~="i)WIN_XP") {
 }
 
 ;{{{{{快捷键注册
-Srf_Hotkey:=formatHotkey_2(Srf_Hotkey)
-Hotkey, %Srf_Hotkey%, SetHotkey,on
-
-tiphotkey:=tip_hotkey, AddCodehotkey:=Addcode_hotkey, s2thotkey:=s2t_hotkey
-	, cfhotkey:=cf_hotkey, Suspendhotkey:=Suspend_hotkey,exithotkey:=Exit_hotkey
-if tip_hotkey
-	Hotkey, %tiphotkey%, SetRlk,on
-if Suspend_switch
-	Hotkey, %Suspendhotkey%, SetSuspend,on
-if Addcode_switch
-	Hotkey, %AddCodehotkey%, Batch_AddCode,on
-if s2t_hotkey&&s2t_swtich
-	Hotkey, %s2thotkey%, Trad_Mode,on
-if cf_hotkey&&cf_swtich
-	Hotkey, %cfhotkey%, Cut_Mode,on
-if Exit_switch&&Exit_hotkey
-	Hotkey, %exithotkey%, OnExit,on
+HotkeyRegister()
 ;}}}}}
 
 ;{{{{{SQlite类创建,db文件读取
@@ -349,7 +330,7 @@ SymObiect.Insert([["全角上横线", "¯"],["全角上横线", "￣"],["波浪�
 Default_symblos:={"``":["``","·"], "~":["~","～"], "`!":["+1","！"], "@":["@","@"], "#":["#","#"]
 	, "$":["$","￥"], "%":["`%","`%"], "`^":["+6","……"], "&":["&","&"], "*":["*","*"], "(":["(","（）{Left}"]
 	, ")":[")","）"], "-":["-","-"], "=":["=","="], "[":["[","「"], "]":["]","」"]
-	, "{":["`{`}{Left}","【】{Left}"], "}":["`}","】"], "\":["\","、"], "|":["|","|"], ";":[";","；"], ":":[":","："]
+	, "{":["+[","【】{Left}"], "}":["+]","】"], "\":["\","、"], "|":["|","|"], "`;":["`;","；"], ":":[":","："]
 	, "'":["'","‘’{left}"], "<":["<","《》{Left}"],">":[">","》"],",":[",","，"]
 	,".":[".","。"], "/":["/","/"], "?":["?","？"], """":["""""{Left}","“”{left}"]}
 If !FileExist("Sync\srf_symblos.json") {
