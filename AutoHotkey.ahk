@@ -22,17 +22,30 @@ If FileExist(A_ScriptDir "\*_UIA.exe")
 	FileDelete,*_UIA.exe
 If !FileExist(A_Temp "\InputMethodData")
 	FileCreateDir,%A_Temp%\InputMethodData
-If (!FileExist(Program:=(StrReplace(A_ProgramFiles, " (x86)") "\WubiInputMethod"))&&A_Is64bitOS) {
-	FileCreateDir,%Program%\x64
-	FileCreateDir,%Program%\x86
-	FileCopy, *.exe, % Program (InStr(GetFileBits(A_ScriptDir),32)?"\x86":"\x64") "\*.*"
-	FileCopy, main\*.exe, % Program (InStr(GetFileBits(A_ScriptDir "\main"),64)?"\x64":"\x86") "\*.*"
-}else If !FileExist(A_ProgramFiles "\WubiInputMethod")&&!A_Is64bitOS{
-	FileCreateDir,%A_ProgramFiles%\WubiInputMethod\x86
-	FileCopy, *.exe, %A_ProgramFiles%\WubiInputMethod\x86\*.*
+
+ProgramDir:=A_Is64bitOS?StrReplace(A_ProgramFiles, " (x86)") "\WubiInputMethod":A_ProgramFiles "\WubiInputMethod"
+If !FileExist(ProgramDir) {
+	FileCreateDir,%ProgramDir%\x64
+	FileCreateDir,%ProgramDir%\x86
+	FileCreateDir,%ProgramDir%\Font
+	If (GetAllFileSize(A_ScriptDir)[1,2]<GetAllFileSize(A_ScriptDir "\main")[1,2]){
+		FileCopy, *.exe, %ProgramDir%\x86\*.*
+		If A_Is64bitOS
+			FileCopy, main\*.exe, %ProgramDir%\x64\*.*
+	}else{
+		If A_Is64bitOS
+			FileCopy, *.exe, %ProgramDir%\x64\*.*
+	}
 }
 
-BaseDir:=A_Is64bitOS?(FileExist(A_ScriptDir "\main\*.exe")?StrReplace(A_ProgramFiles, " (x86)") "\WubiInputMethod\x64":StrReplace(A_ProgramFiles, " (x86)") "\WubiInputMethod\x86"):A_ProgramFiles "\WubiInputMethod\x86" 
+If FileExist(ProgramDir){
+	If FileExist("Font\*.otf")&&!FileExist(ProgramDir "\Font\*.otf")
+		FileCopy, Font\*.otf, %ProgramDir%\*.otf
+	If FileExist(ProgramDir "\*.otf")&&FileExist(ProgramDir "\Font")
+		FileMove, %ProgramDir%\*.otf, %ProgramDir%\Font\*.otf
+}
+
+BaseDir:=A_Is64bitOS?(FileExist(A_ScriptDir "\main\*.exe")?ProgramDir "\x64":ProgramDir "\x86"):ProgramDir "\x86" 
 If FileExist(BaseDir) {
 	ProcessName :=RegExReplace(A_AhkPath,".+\\"), count:=count_:=0
 	IniRead, UIA, %A_Temp%\InputMethodData\Config.ini, Settings, UIAccess ,0
@@ -57,7 +70,7 @@ If FileExist(BaseDir) {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020111219"
+version :="2020111220"
 ;;--------------------------------------------------------
 FileRead, inivar, %A_Temp%\InputMethodData\Config.ini
 RegExMatch(inivar,"(?<=ThemeName\=).+",tName)
@@ -206,19 +219,13 @@ if FileExist(A_ScriptDir "\*.ico") {
 	Menu, Tray, Icon, config\WubiIME.icl,30
 
 srf_mode :=IMEmode~="off"?0:1
-;;=======================去掉多行注释启用字体调用=========================
-/*
-if FileExist("Font\*.*tf") {
-	Loop,Files,Font\*.*tf
-	{
-		DllCall("gdi32\EnumFontFamilies","uint",DllCall("GetDC","uint",0),"uint",0,"uint",RegisterCallback("EnumFontFamilies"),"uint",a_FontList:="")
-		If GetFontNamesFromFile(A_LoopFileLongPath).Family~=a_FontList
-		{
-			AddFontResource(A_LoopFileLongPath)
-		}
-	}
+;;=======================装载字体=========================
+
+If FileExist(ProgramDir "\*.otf")||FileExist(ProgramDir "\Font\*.otf") {
+	Loop,Files,% FileExist(ProgramDir "\Font")?ProgramDir "\Font\*.otf":ProgramDir "\*.otf"
+		AddFontResource(A_LoopFileLongPath)
 }
-*/
+
 if (!InitStatus) {
 	;;Run, rundll32.exe "%A_ProgramFiles%\Windows Photo Viewer\PhotoViewer.dll"`, ImageView_Fullscreen %A_ScriptDir%\config\ReadMe.png,, UseErrorLevel
 	Run, http://98wb.ys168.com/,, UseErrorLevel
@@ -226,7 +233,7 @@ if (!InitStatus) {
 		Run, iexplore.exe "98wb.ys168.com/",, UseErrorLevel
 	}
 	InitStatus:=WubiIni.Settings["InitStatus"]:=1, WubiIni.Save()
-	If A_FontList~="i)98WB-0"&&A_FontList~="i)Andrich"
+	If FileExist(ProgramDir "\*.otf")||FileExist(ProgramDir "\Font\*.otf")
 		FontType:=WubiIni.TipStyle["FontType"]:="98WB-0",EnFontName:=WubiIni.TipStyle["EnFontName"]:="Andrich", WubiIni.Save()
 	Gosub OnHelp
 }
