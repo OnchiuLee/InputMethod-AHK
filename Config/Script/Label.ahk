@@ -1457,7 +1457,7 @@ More_Setting:
 	If WubiIni.Settings["Srf_Hotkey"]~="&" {
 		hkobj:=[], hkobj:=StrSplit(WubiIni.Settings["Srf_Hotkey"],"&")
 	}
-	Gui, 98:Add, Hotkey, x190 y+10 w205 vsethotkey_4 gsethotkey_4 Center,% Srf_Hotkey~="i)RShift"?RegExReplace(Srf_Hotkey,"i)RShift","Shift"):Srf_Hotkey
+	Gui, 98:Add, Hotkey, x190 y+10 w205 vsethotkey_4 gsethotkey_4 Center,% RegExReplace(Srf_Hotkey,"^(\<|\>|L|R)")
 	GuiControlGet, hkInfo, Pos , sethotkey_4
 	Gui, 98:Add, Edit, vsethotkey_1 gsethotkey_1 x190 yp w100 h%hkInfoH% Center -WantCtrlA -WantReturn -Wrap, % objCount(hkobj)?(objCount(hkobj)=2?hkobj[1]:objCount(hkobj)>2?hkobj[1] "+" hkobj[2]:Srf_Hotkey):Srf_Hotkey
 	Gui, 98:Add, Edit, vsethotkey_3 gsethotkey_3 x+5 yp w100 h%hkInfoH% Center -WantCtrlA -WantReturn -Wrap, % objCount(hkobj)?(objCount(hkobj)=2?hkobj[2]:objCount(hkobj)=3?hkobj[3]:hkobj[3] "+" hkobj[4]):""
@@ -2240,7 +2240,7 @@ hk_1:
 		GuiControl,98:Hide,sethotkey_3
 		GuiControl,98:Hide,Control0
 		GuiControl,98:Show,sethotkey_4
-		GuiControl,98:,sethotkey_4,% Srf_Hotkey~="i)RShift"?RegExReplace(Srf_Hotkey,"i)RShift","Shift"):Srf_Hotkey
+		GuiControl,98:,sethotkey_4,% RegExReplace(Srf_Hotkey,"^(\<|\>|L|R)")
 	}
 Return
 
