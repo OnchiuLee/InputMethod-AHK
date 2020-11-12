@@ -4144,8 +4144,7 @@ KeyboardHookProc(code, wParam, lParam) {
 		vk := wParam, sc := lParam, sc:=RegExreplace(Format("{:2X}", sc-1),"[0]{4}$"), vk:=Format("VK{:X}", vk)
 		mainKeylist:={LWin:"VK5B", RWin:"VK5C", LShift:"VKA0", RShift:"VKA1", LControl:"VKA2", RControl:"VKA3", LCtrl:"VKA2", RCtrl:"VKA3", LAlt:"VKA4", RAlt:"VKA5",Shift:"VKA1"}
 		sc:=sc~="^C"?"S" sc:"SC" sc, KeyName:=GetKeyName(Control0?vk:sc), vk:=mainKeylist[KeyName]&&!Control0?mainKeylist[KeyName]:vk
-		, KeyName:=GetArrIndex(mainKeylist,vk)&&!Control0&&KeyName="Shift"?"RShift":KeyName
-		KeyCodeObj:={vk:vk,sc:sc, KeyName:KeyName}
+		, KeyName:=GetArrIndex(mainKeylist,vk)&&!Control0&&KeyName="Shift"?"RShift":KeyName, KeyCodeObj:={vk:vk,sc:sc, KeyName:KeyName}
 		ControlGetFocus, Control, ahk_id %hWndgui98%
 		GuiControlGet, Var1, 98:Name , %Control%
 		If (Var1="sethotkey_1")
@@ -4167,4 +4166,152 @@ MouseHookProc(code, wParam, lParam) {
 	}
 }
 
+GetTabItemCount(TabHwnd) {
+	Return DllCall("SendMessage", "Ptr", TabHwnd, "UInt", 0x1304, "Ptr", 0, "Ptr", 0, "Int")
+}
+
 ;;--------------------------------------------
+;;WinSet,Redraw,,ahk_id%main%
+;;tv:=new treeview(hwnd)
+;;top:=TreeView.Add({Label:"Blue",Fore:0xff0000})
+;;Tv.Add({Label:"Purple",Back:0xff00ff,parent:top,Option:"Vis"})
+;;Tv.Add({Label:"Red",Fore:0x0000ff})
+;;tv1.Remove(Test1)
+;;WinSet,Redraw,,A
+class TreeView{
+	static list:=[]
+	__New(hwnd){
+		this.list[hwnd]:=this
+		OnMessage(0x4e,"WM_NOTIFY")
+		this.hwnd:=hwnd
+	}
+	add(info){
+		Gui,TreeView,% this.hwnd
+		hwnd:=TV_Add(info.Label,info.parent,info.option)
+		if info.fore!=""
+			this.control["|" hwnd,"fore"]:=info.fore
+		if info.back!=""
+			this.control["|" hwnd,"back"]:=info.back
+		return hwnd
+	}
+	modify(info){
+		this.control["|" info.hwnd,"fore"]:=info.fore
+		this.control["|" info.hwnd,"back"]:=info.back
+		WinSet,Redraw,,A
+	}
+	Remove(hwnd){
+		this.control.Remove("|" hwnd)
+	}
+}
+WM_NOTIFY(Param*){
+	static list:=[],ll:=""
+	control:=
+	if (this:=treeview.list[NumGet(Param.2)])&&(NumGet(Param.2,2*A_PtrSize,"int")=-12){
+		stage:=NumGet(Param.2,3*A_PtrSize,"uint")
+		if (stage=1)
+			return 0x20 ;sets CDRF_NOTIFYITEMDRAW
+		if (stage=0x10001&&info:=this.control["|" numget(Param.2,A_PtrSize=4?9*A_PtrSize:7*A_PtrSize,"uint")]){ ;NM_CUSTOMDRAW && Control is in the list
+			if info.fore!=""
+				NumPut(info.fore,Param.2,A_PtrSize=4?12*A_PtrSize:10*A_PtrSize,"int") ;sets the foreground
+			if info.back!=""
+				NumPut(info.back,Param.2,A_PtrSize=4?13*A_PtrSize:10.5*A_PtrSize,"int") ;sets the background
+		}
+	}
+}
+/*
+;;lv1H := new ListView(LV1)
+;;handle := lv1H.Add("","Main " . A_index, A_index * 4)
+;;lv1H.Color(handle,0xff00ff,0x000000)
+class ListView
+{
+	static list:=[]
+	__New(hwnd)
+	{
+		this.list[hwnd]:=this			
+		OnMessage(0x4e,"WM_NOTIFY")
+		this.hwnd:=hwnd
+		this.control:=[]
+	}
+	add(options,items*)
+	{
+		Gui,ListView,% this.hwnd
+		for a,b in items{
+			if A_Index=1
+				item:=LV_Add(options,b)
+			Else
+				LV_Modify(item,"col" A_Index,b)
+		}
+		return item
+	}
+	clear(){
+		this.control:=[]
+	}
+	getColor(item)
+	{
+		LV_GetText(text,item)
+		return {"fore":this.Control[text].fore,"back":this.Control[text].back}
+	}
+	Color(item,byref fore:="",byref back:="")
+	{
+		LV_GetText(text,item)
+		;msgbox [%item%]`n[%fore%]`n[%back%]
+		if(fore!="")
+		{
+			this.Control[text,"fore"]:=fore
+		}
+		if(back!="")
+		{
+			this.Control[text,"back"]:=back
+		}
+	}
+}
+
+
+WM_NOTIFY(Param*)
+{
+	Critical
+	control:=
+	if (this:=ListView.list[NumGet(Param.2)])&&(NumGet(Param.2,2*A_PtrSize,"int")=-12)
+	{
+		
+		stage:=NumGet(Param.2,3*A_PtrSize,"uint")
+		if (stage=1)
+		{
+			return 0x20 ;sets CDRF_NOTIFYITEMDRAW
+		}
+		if (stage=0x10001) ;NM_CUSTOMDRAW && Control is in the list
+		{ 
+			index:=numget(Param.2,A_PtrSize=4?9*A_PtrSize:7*A_PtrSize,"uint")
+			LV_GetText(text,index+1)			
+			info:=this.Control[text]
+			if(info.fore!="")
+			{					
+				NumPut(info.fore,Param.2,A_PtrSize=4?12*A_PtrSize:10*A_PtrSize,"int") ;sets the foreground
+			}
+			if(info.back!="")
+			{
+				NumPut(info.back,Param.2,A_PtrSize=4?13*A_PtrSize:10.5*A_PtrSize,"int") ;sets the background
+			}
+		}
+	}
+	else if (this:=treeview.list[NumGet(Param.2)])&&(NumGet(Param.2,2*A_PtrSize,"int")=-12)
+	{
+		stage:=NumGet(Param.2,3*A_PtrSize,"uint")
+		if (stage=1)
+		{
+			return 0x20 ;sets CDRF_NOTIFYITEMDRAW
+		}
+		if (stage=0x10001&&info:=this.control[numget(Param.2,A_PtrSize=4?9*A_PtrSize:7*A_PtrSize,"uint")]) ;NM_CUSTOMDRAW && Control is in the list
+		{
+			if(info.fore!="")
+			{
+				NumPut(info.fore,Param.2,A_PtrSize=4?12*A_PtrSize:10*A_PtrSize,"int") ;sets the foreground
+			}
+			if(info.back!="")
+			{
+				NumPut(info.back,Param.2,A_PtrSize=4?13*A_PtrSize:10.5*A_PtrSize,"int") ;sets the background
+			}
+		}
+	}	
+}
+*/

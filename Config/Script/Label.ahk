@@ -1433,6 +1433,7 @@ More_Setting:
 	Gui,98:Font
 	Gui,98:Font, s9 bold, %font_%
 	Gui, 98:Add, DDL,x190 y+5 w110  vPageChoice gPageChoice  AltSubmit HwndPCDL , 逗号-句号|减号-等号|左右方括号|PgUp-PgDn    ;;+0x0210
+	;;PostMessage, 0x153, 0, 30,, ahk_id %PCDL%   ;;change items Height
 	;;OD_Colors.Attach(PCDL,{T: 0xffe89e, B: 0x0178d6})
 	Gui, 98:Add, DDL,yp x%TextInfoX% w110  vChoiceCode gChoiceCode  AltSubmit HwndTCDL , 逗号-句号|分号-引号|左右Shift
 	Gui,98:Font
@@ -1457,10 +1458,11 @@ More_Setting:
 	If WubiIni.Settings["Srf_Hotkey"]~="&" {
 		hkobj:=[], hkobj:=StrSplit(WubiIni.Settings["Srf_Hotkey"],"&")
 	}
-	Gui, 98:Add, Hotkey, x190 y+10 w205 vsethotkey_4 gsethotkey_4 Center,% RegExReplace(Srf_Hotkey,"^(\<|\>|L|R)")
+	Gui, 98:Add, Hotkey, x190 y+10 w205 vsethotkey_4 gsethotkey_4 Center ,% RegExReplace(Srf_Hotkey,"^(\<|\>|L|R)")
 	GuiControlGet, hkInfo, Pos , sethotkey_4
-	Gui, 98:Add, Edit, vsethotkey_1 gsethotkey_1 x190 yp w100 h%hkInfoH% Center -WantCtrlA -WantReturn -Wrap, % objCount(hkobj)?(objCount(hkobj)=2?hkobj[1]:objCount(hkobj)>2?hkobj[1] "+" hkobj[2]:Srf_Hotkey):Srf_Hotkey
-	Gui, 98:Add, Edit, vsethotkey_3 gsethotkey_3 x+5 yp w100 h%hkInfoH% Center -WantCtrlA -WantReturn -Wrap, % objCount(hkobj)?(objCount(hkobj)=2?hkobj[2]:objCount(hkobj)=3?hkobj[3]:hkobj[3] "+" hkobj[4]):""
+	Gui, 98:Add, Edit, vsethotkey_1 gsethotkey_1 x190 yp w100 h%hkInfoH% Center -WantCtrlA -WantReturn -Wrap hwndsethotkey_1, % objCount(hkobj)?(objCount(hkobj)=2?hkobj[1]:objCount(hkobj)>2?hkobj[1] "+" hkobj[2]:Srf_Hotkey):Srf_Hotkey
+	Gui, 98:Add, Edit, vsethotkey_3 gsethotkey_3 x+5 yp w100 h%hkInfoH% Center -WantCtrlA -WantReturn -Wrap hwndsethotkey_3, % objCount(hkobj)?(objCount(hkobj)=2?hkobj[2]:objCount(hkobj)=3?hkobj[3]:hkobj[3] "+" hkobj[4]):""
+	EM_SetCueBanner(sethotkey_1,"键位1"), EM_SetCueBanner(sethotkey_3,"键位2")
 	GuiControl,98:Hide,sethotkey_1
 	GuiControl,98:Hide,sethotkey_3
 	Gui,98:Font
