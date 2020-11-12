@@ -2554,6 +2554,8 @@ Return
 SetChoiceCodeHotkey:
 	If (ChoiceItems=3&&srf_all_input)
 		srf_select(A_thishotkey="lshift"?2:3)
+	else
+		send,{shift}
 	Gosub srf_value_off
 Return
 
