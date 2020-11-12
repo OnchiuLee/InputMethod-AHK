@@ -440,6 +440,23 @@ IfIn(ByRef var, MatchList)
 	If var in %MatchList%
 		return true
 }
+
+GetAllFileSize(File,FileType:="exe",Units:="K"){
+	If File~="\\\w+\.\w+$"{
+		FileGetSize, OutputVar , %File%, %Units%
+		return OutputVar
+	}else{
+		sizeobj:=[]
+		loop,files,%File%\*.%FileType%
+		{
+			FileGetSize, OutputVar , %A_LoopFileFullPath%, %Units%
+			sizeobj.Push([A_LoopFileFullPath,OutputVar])
+		}
+		return sizeobj
+	}
+
+}
+
 IfNotIn(ByRef var, MatchList)
 {
 	If var not in %MatchList%

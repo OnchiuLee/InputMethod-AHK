@@ -606,11 +606,9 @@ OnUpdate:
 Return
 
 RemoveFonts:
-	if FileExist("Font\*.*tf") {
+	if FileExist(ProgramDir "\Font\*.*tf") {
 		Loop,Files,Font\*.*tf
-		{
 			RemoveFontResource(A_LoopFileLongPath)
-		}
 	}
 Return
 
