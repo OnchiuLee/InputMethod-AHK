@@ -1511,88 +1511,64 @@ Analyze(Data,ByRef rtn1,ByRef rtn2,ByRef rtn3,ByRef rtn4)
 }
 
 ;-------------------------金額轉換--------------------------
-Dot_To(Int,st){
-	;Int:数字
+Dot_To(num,st){
 	;st:简繁状态0为简体1为繁体
-	if Int contains .
-	{
-		if RegExMatch(Int, "\.\d+\.|\.\.")>0
-			Return "无效数字"
+	if num ~="^\d+\." {
 		static Dot :=["角","分","厘","毫"]
 		,num_t :=["壹","貳","叁","肆","伍","陆","柒","捌","玖"]
 		,num_s :=["一","二","三","四","五","六","七","八","九"]
-		if Int~="[a-z]|\.$"
-			Return "无效数字"
-		Int_ :=RegExReplace(Int,"\..+","")
-		Int :=RegExReplace(Int,".+\.","")
-		Loop, Parse, Int
-		{
-			if A_loopfield ~="0"{
-				if (A_index==4)
-					continue
-				else
-					b :=(st=1?"零":"〇")
-			}
-			else if A_index>4
-				continue
-			else
-				b :=(st=1?num_t[A_loopfield]:num_s[A_loopfield]) Dot[A_index]
-			c .=b
-		}
-		if (not Int_ ~="[a-z]"&&Strlen(Int)<5)
-			c_ :=(NumToC(Int_,st)?(NumToC(Int_,st) "元"):"") RegExReplace(RegExReplace(c,"[〇零]$"),"[〇零]{2,}",st=1?"零":"〇")
-		else
-			c_ :="无效数字"
+		if num~="^[^\d]+"
+			Return
+		arr:=StrSplit(num,"."), result1:=NumToC(arr[1],st) (st?"圆":"元")
+		If num~="\d+\.$"
+			return result1?result1 "整":""
+		loop,% strlen(arr[2])>4?4:strlen(arr[2])
+			s.=SubStr(arr[2],A_Index,1)>0?(st?num_t[SubStr(arr[2],A_Index,1)]:num_s[SubStr(arr[2],A_Index,1)]) Dot[A_Index]:st?"零":"〇"
+		return result1&&s?result1 s:""
 	}else{
-		if not Int~="[a-z]"
-			c_ :=(NumToC(Int,st)?NumToC(Int,st):(st=1?"零":"〇")) (Strlen(Int)<17?"元整":"")
-		else
-			c_ :="无效数字"
+		if num~="^\d+$" {
+			result :=NumToC(num,st), result:=result?result (st?"圆整":"元整"):""
+		}
 	}
-	return c_
+	return result
 }
 ;------------------------数字转中文--------------------
-NumToC(n,st){
-	;n:数字
-	;st:简繁状态0为简体1为繁体
-	n+=0
-	if not n~="^[1-9]\d*$"
+
+NumToC(num,st){
+	;;n--数字    st--简繁状态0为简体1为繁体
+	if num~="^[^1-9]+$"
 		Return
-	static    o_t:=["壹","貳","叁","肆","伍","陆","柒","捌","玖"]
-	,o:=["一","二","三","四","五","六","七","八","九"]
-	,b:=["","十","百","千"]
-	,b_t:=["","拾","佰","仟"]
-	,m:=["","万","亿","兆"]
-	,m_t:=["","萬","億","兆"]
-	z:=false    ;之前位是否为0
-	,l:=StrLen(n)+1
-	,s:=Mod(l-1,4)+1
-	,c:=""    ;保存结果
-	Loop, Parse, n
+	static m_s:=["","万","亿","兆","京","垓"],m_t:=["","萬","億","兆","京","垓"]
+	len:=StrLen(num), result="", arr:=[], c:=Mod(len,4), l:=c?Ceil(len/4):Floor(len/4)
+	If c
+		arr.push(substr(num,1,c)),num:=substr(num,c+1)
+	Loop, % c?l-1:l
+		arr.push(substr(num,(A_Index-1)*4+1,4))
+	Count:= objcount(arr)
+	For key,value In arr
 	{
-		if Mod(--l,4)=0
-			s:=4
-		if(A_LoopField=0){
-			s--
-			,z:=true
-		}else if z{
-			if (A_Index=3&&Strlen(n)=6||A_Index=3&&Strlen(n)=10||A_Index=3&&Strlen(n)=14)
-				c.="" ,z:=false
-			else
-			{
-				(st==1)?(c.="零"):(c.="〇"), z:=false
-			}
-		}
-		else if Strlen(n)>16
-			Return "位数超限"
-		_:=Mod(l-1,4)+1
-		,c.=(st==1?o_t[A_LoopField]:o[A_LoopField]) . (A_LoopField?(st==1?b_t[_]:b[_]):"") . ((!b[_] && s)?(st==1?m_t[(l+3)//4]:m[(l+3)//4]):"")
+		value:=RegExReplace(value,"^[0]+"), nt:=RegExReplace(NumToChs(value,st) ,"[零〇]$")
+		If (StrLen(Value)<4&&key>1)
+			result.=(st?"零":"〇") . (nt (st?m_t[Count]:m_s[Count])),Count--
+		else
+			result.=(nt~="^(一十|壹拾)"?SubStr(nt,2):nt) . (st?m_t[Count]:m_s[Count]),Count--
 	}
-	if c~="^一十$|^壹拾$"
-		c:=SubStr(c,2)
-	;if c~="[^零].[拾佰仟]$|[^〇].[十百千]$"
-		;c:=SubStr(c,1,-1)
-	return c
+
+	return RegExReplace(result,"[零〇]$")
+}
+
+NumToChs(num,st){
+	If strlen(num)>4
+		return
+	static t:=["壹","貳","叁","肆","伍","陆","柒","捌","玖"]
+		,s:=["一","二","三","四","五","六","七","八","九"]
+		,dw_s:=["","十","百","千"]
+		,dw_t:=["","拾","佰","仟"]
+	num:=RegExReplace(num,"^0"), len:=Count:=StrLen(num)
+	Loop, Parse,num
+		r.=A_LoopField==0?st?"零":"〇":(st?t[A_LoopField]:s[A_LoopField]) (st?dw_t[Count]:dw_s[Count]), Count--
+	Return RegExReplace(r,"[零〇]{2,}",st?"零":"〇")
+
 }
 
 ;-------------------------取色值-------------------------
@@ -1951,8 +1927,7 @@ ToolTipStyle(hwnd:="",Options:=""){
 	}
 }
 
-numTohz(num)
-{
+numTohz(num){
 	num_switch:=[], num_switch[1,1] :=Dot_To(num,0),num_switch[2,1] := Dot_To(num,1)
 	Lunar_Jq:=GetLunarJqDate(num)
 	If Lunar_Jq
