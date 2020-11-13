@@ -1536,9 +1536,9 @@ Dot_To(num,st){
 
 NumToC(num,st){
 	;;n--数字    st--简繁状态0为简体1为繁体
-	if num~="^[^1-9]+$"
+	if num~="^[^1-9]+$"||strlen(num)>16
 		Return
-	static m_s:=["","万","亿","兆","京","垓"],m_t:=["","萬","億","兆","京","垓"]
+	static m_s:=["","万","亿","万亿"],m_t:=["","萬","億","萬億"]
 	len:=StrLen(num), result="", arr:=[], c:=Mod(len,4), l:=c?Ceil(len/4):Floor(len/4)
 	If c
 		arr.push(substr(num,1,c)),num:=substr(num,c+1)
@@ -1558,12 +1558,11 @@ NumToC(num,st){
 }
 
 NumToChs(num,st){
-	If strlen(num)>4
-		return
+
 	static t:=["壹","貳","叁","肆","伍","陆","柒","捌","玖"]
 		,s:=["一","二","三","四","五","六","七","八","九"]
-		,dw_s:=["","十","百","千"]
-		,dw_t:=["","拾","佰","仟"]
+		,dw_s:=["","十","百","千","万","亿"]
+		,dw_t:=["","拾","佰","仟","萬","億"]
 	num:=RegExReplace(num,"^0"), len:=Count:=StrLen(num)
 	Loop, Parse,num
 		r.=A_LoopField==0?st?"零":"〇":(st?t[A_LoopField]:s[A_LoopField]) (st?dw_t[Count]:dw_s[Count]), Count--
@@ -1928,7 +1927,9 @@ ToolTipStyle(hwnd:="",Options:=""){
 }
 
 numTohz(num){
-	num_switch:=[], num_switch[1,1] :=Dot_To(num,0),num_switch[2,1] := Dot_To(num,1)
+	num_switch:=[], result1:=Dot_To(num,0), result2:=Dot_To(num,1)
+	If result1&&result2
+		num_switch[1,1] :=result1,num_switch[2,1] := result2
 	Lunar_Jq:=GetLunarJqDate(num)
 	If Lunar_Jq
 		num_switch.Push([Lunar_Jq])
