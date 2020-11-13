@@ -166,9 +166,6 @@ If Logo_X not between 0 and %LHeight%
 if not Wubi_Schema ~="i)ci|zi|chaoji|zg"
 	Wubi_Schema :=WubiIni.Settings["Wubi_Schema"]:="ci"
 
-;开机自启项检测是否开启，以便与配置文件同步
-cmd_zq= schtasks /Query /TN %Startup_Name%
-zq_:= cmdClipReturn(cmd_zq), Startup :=WubiIni.Settings["Startup"]:=FileExist(A_Startup "\" Startup_Name ".lnk")?"sc":zq_~=Startup_Name?"on":"off"
 versions :=WubiIni.Settings["versions"]:=version
 
 if !WubiIni.GetTopComments()
@@ -222,8 +219,10 @@ srf_mode :=IMEmode~="off"?0:1
 ;;=======================装载字体=========================
 
 If FileExist(ProgramDir "\*.otf")||FileExist(ProgramDir "\Font\*.otf") {
+	Traytip,,正在检测并载入字体...
 	Loop,Files,% FileExist(ProgramDir "\Font")?ProgramDir "\Font\*.otf":ProgramDir "\*.otf"
-		AddFontResource(A_LoopFileLongPath)
+		If GetFontNamesFromFile(A_LoopFileLongPath)["family"]~="(^" a_FontList ")"
+			AddFontResource(A_LoopFileLongPath)
 }
 
 if (!InitStatus) {
