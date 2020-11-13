@@ -2899,15 +2899,15 @@ FocusGdipGui(codetext, Textobj, x:=0, y:=0, Font:="Microsoft YaHei UI"){
 			TPosObj[0,A_Index,3]:=mw
 		mw+=xoffset, mh+=yoffset
 	}
-	GM:=Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[3]
-	SelectObject(hdc, obm), DeleteObject(hbm), Gdip_DeleteGraphics(G),mh:=mh+FontSize*0.2, mw:=mw>GM+FontSize*0.45?(objCount(Textobj)?mw-FontSize*0.36+(srf_all_Input~="\d"?(Strlen(codetext)>1?Strlen(codetext)*2:Strlen(codetext)*5):Strlen(codetext)):mw):objCount(Textobj)?GM+FontSize*DPI:GM+FontSize/2
+	GM:=Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)
+	SelectObject(hdc, obm), DeleteObject(hbm), Gdip_DeleteGraphics(G),mh:=mh+FontSize*0.2, mw:=mw>GM[3]+FontSize*0.45?(objCount(Textobj)?mw-FontSize*0.36+(srf_all_Input~="\d"?(Strlen(codetext)>1?Strlen(codetext)*2:Strlen(codetext)*5):Strlen(codetext)):mw):objCount(Textobj)?GM[3]+FontSize*DPI:GM[3]+FontSize*0.5
 	hbm := CreateDIBSection(mw, mh), obm := SelectObject(hdc, hbm)
 	G := Gdip_GraphicsFromHDC(hdc), Gdip_SetSmoothingMode(G, 2), Gdip_SetTextRenderingHint(G, 4)
 	; 背景色
 	Gdip_FillRoundedRectangle(G, pBrush[Bg], 0, 0, mw-2, mh-2, Radius~="i)on"?Gdip_Radius:0)
 	; 编码
 	if (Gdip_Line ~="i)off")
-		Gdip_FillRoundedRectangle(G, pBrush[FocusCode], Textobj.length()>0?FontSize*0.32:FontSize*0.18, FontSize/3, Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[3]+(Textobj.Length()>0?Strlen(codetext)*1.1:0), Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[4], FocusRadius*0.6)
+		Gdip_FillRoundedRectangle(G, pBrush[FocusCode], objCount(Textobj)?FontSize*0.32:FontSize*0.18, FontSize/3, objCount(Textobj)?GM[3]+FontSize*0.2:GM[3], GM[4], FocusRadius*0.6)
 	CreateRectF(RC, Textobj.length()>0?CodePos[1]:CodePos[1]-FontSize/4, CodePos[2]-FontSize*0.05, w-30, h-30), Gdip_DrawString(G, codetext, hFont, hFormat, pBrush[FontCode], RC)
 	Loop % Textobj.Length()
 		If (A_Index=localpos){
