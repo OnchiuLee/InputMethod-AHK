@@ -2880,7 +2880,7 @@ FocusGdipGui(codetext, Textobj, x:=0, y:=0, Font:="Microsoft YaHei UI"){
 			TPosObj[A_Index,3]:=mw
 		Loop % Textobj[0].Length()
 			TPosObj[0,A_Index,3]:=mw
-		mw+=srf_all_Input~="\d+"?2.4*xoffset:2*xoffset, mh+=2*yoffset
+		mw+=srf_all_Input~="\d+"?(strlen(srf_all_Input)>3?xoffset*2+strlen(srf_all_Input):xoffset*3.1):2.6*xoffset, mh+=2*yoffset
 	} Else {
 		t:=xoffset, mh+=hoffset
 		TPosObj[1] := Gdip_MeasureString2(G, Textobj[1], hFont, hFormat, RC), TPosObj[1,2]:=mh, TPosObj[1,1]:=t, t+=TPosObj[1,3]+hoffset
@@ -2899,27 +2899,28 @@ FocusGdipGui(codetext, Textobj, x:=0, y:=0, Font:="Microsoft YaHei UI"){
 			TPosObj[0,A_Index,3]:=mw
 		mw+=xoffset, mh+=yoffset
 	}
-	SelectObject(hdc, obm), DeleteObject(hbm), Gdip_DeleteGraphics(G),mh:=mh+FontSize*0.2, mw:=mw>Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[3]?(Textobj.length()>0?mw-FontSize*(Textdirection~="horizontal"?0.76:0.4)+(srf_all_Input~="\d"?(Strlen(codetext)>1?Strlen(codetext)*2:Strlen(codetext)*5):Strlen(codetext)):mw):Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[3]+FontSize
+	GM:=Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[3]
+	SelectObject(hdc, obm), DeleteObject(hbm), Gdip_DeleteGraphics(G),mh:=mh+FontSize*0.2, mw:=mw>GM+FontSize*0.45?(objCount(Textobj)?mw-FontSize*0.36+(srf_all_Input~="\d"?(Strlen(codetext)>1?Strlen(codetext)*2:Strlen(codetext)*5):Strlen(codetext)):mw):objCount(Textobj)?GM+FontSize*DPI:GM+FontSize/2
 	hbm := CreateDIBSection(mw, mh), obm := SelectObject(hdc, hbm)
 	G := Gdip_GraphicsFromHDC(hdc), Gdip_SetSmoothingMode(G, 2), Gdip_SetTextRenderingHint(G, 4)
 	; 背景色
 	Gdip_FillRoundedRectangle(G, pBrush[Bg], 0, 0, mw-2, mh-2, Radius~="i)on"?Gdip_Radius:0)
 	; 编码
 	if (Gdip_Line ~="i)off")
-		Gdip_FillRoundedRectangle(G, pBrush[FocusCode], Textobj.length()>0?FontSize*0.3:FontSize*0.18, FontSize/4, Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[3]+(Textobj.Length()>0?Strlen(codetext):0), Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[4], FocusRadius*0.6)
-	CreateRectF(RC, Textobj.length()>0?CodePos[1]:CodePos[1]-FontSize/4, CodePos[2]-FontSize*0.1, w-30, h-30), Gdip_DrawString(G, codetext, hFont, hFormat, pBrush[FontCode], RC)
+		Gdip_FillRoundedRectangle(G, pBrush[FocusCode], Textobj.length()>0?FontSize*0.32:FontSize*0.18, FontSize/3, Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[3]+(Textobj.Length()>0?Strlen(codetext)*1.1:0), Gdip_MeasureString2(G, codetext, hFont, hFormat, RC)[4], FocusRadius*0.6)
+	CreateRectF(RC, Textobj.length()>0?CodePos[1]:CodePos[1]-FontSize/4, CodePos[2]-FontSize*0.05, w-30, h-30), Gdip_DrawString(G, codetext, hFont, hFormat, pBrush[FontCode], RC)
 	Loop % Textobj.Length()
 		If (A_Index=localpos){
-			Gdip_FillRoundedRectangle(G, pBrush[FocusBack], TPosObj[A_Index,1]-FontSize*0.15, TPosObj[A_Index,2]-FontSize*0.1, srf_all_Input~="\d"?TPosObj[A_Index,3]+FontSize*0.35:TPosObj[A_Index,3]-FontSize*0.2, TPosObj[A_Index,4]+FontSize*0.65, FocusRadius)  ;焦点背景圆弧
-			, CreateRectF(RC, srf_all_Input~="\d"?TPosObj[A_Index,1]:TPosObj[A_Index,1]-FontSize*0.55, TPosObj[A_Index,2]+fontoffset+FontSize*0.45, w-30, h-30), Gdip_DrawString(G, Textobj[A_Index], hFont, hFormat, pBrush[Focus], RC)
+			Gdip_FillRoundedRectangle(G, pBrush[FocusBack], TPosObj[A_Index,1]-FontSize*0.1, TPosObj[A_Index,2], srf_all_Input~="\d"?(Textdirection="vertical"?mw-FontSize:TPosObj[A_Index,3]+FontSize*0.35):TPosObj[A_Index,3], TPosObj[A_Index,4]+FontSize*0.65, FocusRadius)  ;焦点背景圆弧
+			, CreateRectF(RC, srf_all_Input~="\d"?TPosObj[A_Index,1]:TPosObj[A_Index,1]-FontSize*0.35, TPosObj[A_Index,2]+fontoffset+FontSize*0.45, w-30, h-30), Gdip_DrawString(G, Textobj[A_Index], hFont, hFormat, pBrush[Focus], RC)
 		}Else
-			CreateRectF(RC, srf_all_Input~="\d"?TPosObj[A_Index,1]:TPosObj[A_Index,1]-FontSize*0.55, TPosObj[A_Index,2]+fontoffset+FontSize*0.45, w-30, h-30), Gdip_DrawString(G, Textobj[A_Index], hFont, hFormat, pBrush[Font], RC)
+			CreateRectF(RC, srf_all_Input~="\d"?TPosObj[A_Index,1]:TPosObj[A_Index,1]-FontSize*0.35, TPosObj[A_Index,2]+fontoffset+FontSize*0.45, w-30, h-30), Gdip_DrawString(G, Textobj[A_Index], hFont, hFormat, pBrush[Font], RC)
 	Loop % Textobj[0].Length()
 		CreateRectF(RC, TPosObj[0,A_Index,1], TPosObj[0,A_Index,2], w-30, h-30), Gdip_DrawString(G, Textobj[0,A_Index], hFont, hFormat, pBrush[Font], RC)
 
 	; 边框、分隔线
 	Gdip_DrawRoundedRectangle(G, pPen_Border, 0, 0, mw-2, mh-2, Radius~="i)on"?Gdip_Radius:0)
-	Gdip_Line ~="i)on"?(Gdip_DrawLine(G, pPen_Line, xoffset, CodePos[4]+CodePos[2]-FontSize*0.1, mw-xoffset, CodePos[4]+CodePos[2]-FontSize*0.1), Gdip_DeletePen(pPen_Line)):""
+	Gdip_Line ~="i)on"&&objCount(Textobj)?(Gdip_DrawLine(G, pPen_Line, xoffset, CodePos[4]+CodePos[2], mw-xoffset, CodePos[4]+CodePos[2]), Gdip_DeletePen(pPen_Line)):""
 	UpdateLayeredWindow(@TSF, hdc, tx:=mw>MaxRight?0:(x+mw>MaxRight?MaxRight-mw:x), ty:=mh>MaxBottom?0:(y+mh>MaxBottom?y-mh-35:(x+mw>MaxRight?y-mh-35:y)), mw, mh)
 	SelectObject(hdc, obm), DeleteObject(hbm), DeleteDC(hdc), Gdip_DeleteGraphics(G)
 	Gdip_DeleteStringFormat(hFormat), Gdip_DeleteFont(hFont), Gdip_DeleteFontFamily(hFamily)
