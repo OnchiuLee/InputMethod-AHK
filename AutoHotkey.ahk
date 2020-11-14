@@ -144,7 +144,7 @@ if (FileExist(A_ScriptDir "\Sync\Default.json")&&!status) {
 				%key%:=WubiIni[Section,key]:=srf_default_value[Section,key]:= srf_default_obj[Section,key]
 			}else if (!Array_ValueNotEmpty(srf_default_value, key)&&WubiIni[Section,key]<>"")
 				%key%:=srf_default_value[Section,key]:=WubiIni[Section,key]
-			else if (Array_ValueNotEmpty(srf_default_value, key)&&WubiIni[Section,key]="")
+			else if (Array_ValueNotEmpty(srf_default_value, key)&&WubiIni[Section,key]=""&&key<>"FontType")
 				%key%:=WubiIni[Section,key]:=srf_default_value[Section,key]
 		}
 	}
