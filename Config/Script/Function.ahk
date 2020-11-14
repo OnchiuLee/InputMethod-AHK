@@ -1547,14 +1547,12 @@ NumToC(num,st){
 	Count:= objcount(arr)
 	For key,value In arr
 	{
-		value:=RegExReplace(value,"^[0]+"), nt:=RegExReplace(NumToChs(value,st) ,"[零〇]$")
-		If (StrLen(Value)<4&&key>1)
-			result.=(st?"零":"〇") . (nt (st?m_t[Count]:m_s[Count])),Count--
-		else
-			result.=(nt~="^(一十|壹拾)"?SubStr(nt,2):nt) . (st?m_t[Count]:m_s[Count]),Count--
+		nt:=NumToChs(value,st)
+		result.=(nt~="^(一十|壹拾)"?SubStr(nt,2):nt) . (st&&nt?m_t[Count]:!st&&nt?m_s[Count]:""),Count--
 	}
-
-	return RegExReplace(result,"[零〇]$")
+	result:=RegExReplace(result,"[零〇]+(?=[十拾百佰千仟万萬亿億])|[零〇]+$")
+	, result:=RegExReplace(result,"[零〇]{2,}",st?"零":"〇")
+	return RegExReplace(result ,"[零〇]+$")
 }
 
 NumToChs(num,st){
@@ -1563,10 +1561,10 @@ NumToChs(num,st){
 		,s:=["一","二","三","四","五","六","七","八","九"]
 		,dw_s:=["","十","百","千","万","亿"]
 		,dw_t:=["","拾","佰","仟","萬","億"]
-	num:=RegExReplace(num,"^0"), len:=Count:=StrLen(num)
+	len:=Count:=StrLen(num)
 	Loop, Parse,num
 		r.=A_LoopField==0?st?"零":"〇":(st?t[A_LoopField]:s[A_LoopField]) (st?dw_t[Count]:dw_s[Count]), Count--
-	Return RegExReplace(r,"[零〇]{2,}",st?"零":"〇")
+	Return r
 
 }
 
