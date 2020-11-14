@@ -2,6 +2,9 @@
 #NoTrayIcon
 #SingleInstance, Force
 Sourceurl:="https://github.com/OnchiuLee/AHK-Input-method/blob/master/Version.txt"
+downloadurl1:="https://g.ioiox.com/https://github.com/OnchiuLee/AHK-Input-method/releases/download/wubi/default.7z"
+downloadurl2:="https://github.com/OnchiuLee/AHK-Input-method/archive/master.zip"
+downloadurl:=DllCall("Wininet.dll\InternetCheckConnection", "Str", downloadurl1, "UInt", 0x1, "UInt", 0x0, "Int")?downloadurl1:downloadurl2
 
 Versions:=A_Args[1], InputMethodName:= A_Args[2]
 Progress, M ZH-1 ZW-1 Y100 W420 C0 FM14 WS700 CTffffff CW0078d7,, 正在检查最新版本。。。, 检查更新
@@ -15,7 +18,7 @@ else{
 		MsgBoxRenBtn("下载","打开下载页","取消")
 		MsgBox, 262723, 更新提示, % "发现新版本>> " _sj[2] (GetVersionInfo[2]?"`n*********************************************************`n" GetVersionInfo[2] "`n*********************************************************`n":"`n") "是否下载至电脑桌面？下载过程中，请该干嘛去干嘛！！！"
 		IfMsgBox, Yes
-			UrlDownloadToFile("https://github.com/OnchiuLee/AHK-Input-method/archive/master.zip", InputMethodName "-" _sj[2] ".zip",1800)
+			UrlDownloadToFile(downloadurl, InputMethodName "-" _sj[2] RegExReplace(downloadurl,".+(?=(\.zip|\.7z))"),1800)
 		else IfMsgBox, No
 		{
 			Run, https://gitee.com/leeonchiu/AHK-Input-method,, UseErrorLevel
