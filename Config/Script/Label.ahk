@@ -788,17 +788,17 @@ Return
 
 helpInfo:
 	Textdirection:="vertical", ListNum:=10
-	srf_for_select_Array:=[["简繁模式"," 热键" GetkeysName(s2thotkey) " 组合","〔 热键" GetkeysName(s2thotkey) " 组合 〕"]
-		,["程序挂起"," 热键" GetkeysName(Suspendhotkey) " 组合","〔 热键" GetkeysName(Suspendhotkey) " 组合 〕"]
+	srf_for_select_Array:=[["简繁模式", formatHotkey(s2t_hotkey) ,"〔 " formatHotkey(s2t_hotkey) " 〕"]
+		,["程序挂起", formatHotkey(Suspend_hotkey) ,"〔 " formatHotkey(Suspend_hotkey) " 〕"]
 		,["以形查音"," ~键引导 ","〔 ~键引导 〕"]
 		,["方案切换","〔 /sc 切换方案 〕","〔 /sc 切换方案 〕"]
 		,["精准造词"," ``键引导+``键分词 ","〔 ``键引导+``键分词 〕"]
-		,["划译反查"," 热键" GetkeysName(tiphotkey) " 开/关 ","〔 热键" GetkeysName(tiphotkey) " 开/关 〕"]
+		,["划译反查", formatHotkey(tip_hotkey) " 开/关 ","〔 " formatHotkey(tip_hotkey) " 〕"]
 		,["临时英文"," 双``键引导 ","〔 双``键引导 〕"]
-		,["快捷退出"," 热键" GetkeysName(exithotkey) " 组合","〔 热键" GetkeysName(exithotkey) " 组合 〕"]
+		,["快捷退出", formatHotkey(exit_hotkey) ,"〔 " formatHotkey(exit_hotkey) " 〕"]
 		,["编码反查"," 反查方式：" (zkey_mode=1?"模糊匹配":zkey_mode=2?"笔画反查":"临时拼音"),"〔  反查方式：" (zkey_mode=1?"模糊匹配":zkey_mode=2?"笔画反查":"临时拼音") " 〕"]
-		,["拆分显示"," 热键" GetkeysName(cfhotkey) " 组合","〔 热键" GetkeysName(cfhotkey) " 组合 〕"]
-		,["批量造词"," 热键" GetkeysName(AddCodehotkey) " 组合 ","〔 热键" GetkeysName(AddCodehotkey) " 组合 〕"]]
+		,["拆分显示", formatHotkey(cf_hotkey) ,"〔 " formatHotkey(cf_hotkey) " 〕"]
+		,["批量造词", formatHotkey(AddCode_hotkey) ,"〔 " formatHotkey(AddCode_hotkey) "  〕"]]
 Return
 
 ;候选词条分页处理
@@ -886,18 +886,6 @@ Return
 SendAttachChars:
 	UpperScreenMode("〔" srf_for_select_Array[PosIndex+ListNum*waitnum,2] "〕")
 Return
-
-GetkeysName(hotkey:=""){
-	if (hotkey="")
-		Return
-	Loop,% StrLen(hotkey)
-	{
-		hkey:=SubStr(hotkey,A_Index,1), hkey:=RegExReplace(RegExReplace(hkey,"\<","L"),"\>","R")
-		hkey:=RegExReplace(RegExReplace(RegExReplace(RegExReplace(hkey,"\+","Shift • "),"\^","Ctrl • "),"\!","Alt • "),"\#","Win • ")
-		hkey_.= hkey
-	}
-	Return hkey_
-}
 
 srf_tooltip_cut:
 	srf_for_select_string:="", localpos:=1, srf_for_select_obj:=[], loopindex:=srf_for_select_Array.Length()-ListNum*waitnum

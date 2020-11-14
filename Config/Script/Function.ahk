@@ -3977,7 +3977,7 @@ GetThemeColor(ThemeName){
 formatHotkey(keys){
 	If keys~="\^"
 		keys:=RegExReplace(keys,"\^","Ctrl & ")
-	If keys~="\^"
+	If keys~="\+"
 		keys:=RegExReplace(keys,"\+","Shift & ")
 	If keys~="\!"
 		keys:=RegExReplace(keys,"\!","Alt & ")
