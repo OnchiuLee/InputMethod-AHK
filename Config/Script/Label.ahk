@@ -3480,8 +3480,9 @@ IsGdipline:
 	ThemeObject:=GetThemeColor(ThemeName)
 	If (Gdip_Line="on"&&FocusStyle||!FocusStyle) {
 		FontCodeColor:=FontCodeColor=BgColor?ThemeObject["FontColor"]:FontCodeColor
+		LineColor:=LineColor=BgColor?ThemeObject["FocusBackColor"]:LineColor
 	}else If (Gdip_Line="off"&&FocusStyle) {
-		FontCodeColor:=ThemeObject["FontCodeColor"]
+		FontCodeColor:=ThemeObject["FontCodeColor"], LineColor:=ThemeObject["LineColor"]
 	}
 Return
 
