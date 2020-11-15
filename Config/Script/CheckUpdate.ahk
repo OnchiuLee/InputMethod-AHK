@@ -1,7 +1,10 @@
 ﻿#NoEnv
 #NoTrayIcon
 #SingleInstance, Force
+/*
 Sourceurl:="https://github.com/OnchiuLee/AHK-Input-method/blob/master/Version.txt"
+*/
+Sourceurl:="https://gitee.com/leeonchiu/AHK-Input-method/blob/master/Version.txt"
 downloadurl1:="https://g.ioiox.com/https://github.com/OnchiuLee/AHK-Input-method/releases/download/wubi/default.7z"
 downloadurl2:="https://github.com/OnchiuLee/AHK-Input-method/archive/master.zip"
 downloadurl:=DllCall("Wininet.dll\InternetCheckConnection", "Str", downloadurl1, "UInt", 0x1, "UInt", 0x0, "Int")?downloadurl1:downloadurl2
@@ -46,14 +49,14 @@ GetVersion(URL,Charset="",Timeout=-1)
 	WebRequest.WaitForResponse(Timeout)
 	if (Charset=""){
 		RegExMatch(WebRequest.ResponseText(), "/[a-zA-Z0-9]*@20[2-3][0-5][0-9]{6}", UpdateVersion)
-		RegExMatch(WebRequest.ResponseText(), "\〔(.*)\〕", UpdateInfo)
+		RegExMatch(WebRequest.ResponseText(), "\〔(.*)\〕", UpdateInfo), UpdateInfo:=RegExReplace(UpdateInfo,"\〕.+\〕|^\〔|\〕$")
 		return [UpdateVersion,UpdateInfo]
 	}else{
 		ADO:=ComObjCreate("adodb.stream"), ADO.Type:=1, ADO.Mode:=3
 		ADO.Open(), ADO.Write(WebRequest.ResponseBody())
 		ADO.Position:=0, ADO.Type:=2, ADO.Charset:=Charset
 		RegExMatch(WebRequest.ResponseText(), "/[a-zA-Z0-9]*@20[2-3][0-5][0-9]{6}", UpdateVersion)
-		RegExMatch(WebRequest.ResponseText(), "\〔(.*)\〕", UpdateInfo)
+		RegExMatch(WebRequest.ResponseText(), "\〔(.*)\〕", UpdateInfo), UpdateInfo:=RegExReplace(UpdateInfo,"\〕.+\〕|^\〔|\〕$")
 		return [UpdateVersion,UpdateInfo]
 	}
 }
