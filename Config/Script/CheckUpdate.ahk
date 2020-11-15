@@ -63,6 +63,7 @@ UrlDownloadToFile(URL, FilePath:="",Timeout=-1){   ;Timeout 超时限制设置 �
 		FilePath:=Url2Decode(RegExReplace(URL,".+\/"))
 	ComObjError(1)
 	If RegExMatch(LTrim(FilePath, "\"), "(.*\\)?([^\\]+)$", FilePath){
+		TC:=CheckTickCount()
 		Progress,M ZH-1 ZW-1 Y80 FM14 W400 C0 FS14 WS700 CW0078d7 CTffffff,, %FilePath%-下载中..., 检查更新
 		OnMessage(0x201, "MoveProgress")
 		If (FilePath1&&!FileExist(FilePath1)){
@@ -95,9 +96,9 @@ UrlDownloadToFile(URL, FilePath:="",Timeout=-1){   ;Timeout 超时限制设置 �
 		ADO:=ComObjCreate("adodb.stream"), ADO.Type:=1, ADO.Mode:=3, ADO.Open()
 		Try ADO.Write(WebRequest.ResponseBody())
 		Try ADO.SaveToFile(A_Desktop "\" FilePath,2)
-		ADO.Close(), WebRequest:=ADO:=""
+		ADO.Close(), WebRequest:=ADO:="", TimeCount:=CheckTickCount(TC)
 		Progress, Off
-		MsgBox, 262208, 检查更新, 下载成功，文件%FilePath%在电脑桌面请解压更新！！, 8
+		MsgBox, 262208, 检查更新, 下载成功，耗时%TimeCount%。`n文件%FilePath%在电脑桌面请解压更新！！, 8
 		Return 1
 	} Else{
 		Progress, Off
@@ -197,6 +198,17 @@ MsgBoxRenBtn(btn1="",btn2="",btn3=""){
 			SetTimer, MsgBoxRenBtn, Off
 		i++
 	Return
+}
+
+CheckTickCount(TC:=0){
+	if !TC {
+		DllCall("QueryPerformanceFrequency", "Int64*", freq), DllCall("QueryPerformanceCounter", "Int64*", CounterBefore)
+		Return {CB:CounterBefore,Perf:freq}
+	}Else{
+		DllCall("QueryPerformanceCounter", "Int64*", CounterAfter), t:=(CounterAfter-TC.CB)/TC.Perf
+		TickCount:=t<1?t*1000 "毫秒":(t>60?Floor(t/60) "分" mod(t,60) "秒":t "秒")
+		Return TickCount
+	}
 }
 
 Url2Decode(Str)

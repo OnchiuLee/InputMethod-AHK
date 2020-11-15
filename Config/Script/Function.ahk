@@ -2894,7 +2894,7 @@ FocusGdipGui(codetext, Textobj, x:=0, y:=0, Font:="Microsoft YaHei UI"){
 
 	; 边框、分隔线
 	Gdip_DrawRoundedRectangle(G, pPen_Border, 0, 0, mw-2, mh-2, Radius~="i)on"?Gdip_Radius:0)
-	Gdip_Line ~="i)on"&&objCount(Textobj)?(Gdip_DrawLine(G, pPen_Line, xoffset, CodePos[4]+CodePos[2], mw-xoffset, CodePos[4]+CodePos[2]), Gdip_DeletePen(pPen_Line)):""
+	Gdip_Line ~="i)on"&&objCount(Textobj)?(Gdip_DrawLine(G, pPen_Line, xoffset, CodePos[4]+CodePos[2], mw-xoffset*DPI, CodePos[4]+CodePos[2]), Gdip_DeletePen(pPen_Line)):""
 	UpdateLayeredWindow(@TSF, hdc, tx:=mw>MaxRight?0:(x+mw>MaxRight?MaxRight-mw:x), ty:=mh>MaxBottom?0:(y+mh>MaxBottom?y-mh-35:(x+mw>MaxRight?y-mh-35<0?y:y-mh-35:y)), mw, mh)
 	SelectObject(hdc, obm), DeleteObject(hbm), DeleteDC(hdc), Gdip_DeleteGraphics(G)
 	Gdip_DeleteStringFormat(hFormat), Gdip_DeleteFont(hFont), Gdip_DeleteFontFamily(hFamily)
