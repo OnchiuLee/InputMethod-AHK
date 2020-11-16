@@ -390,10 +390,9 @@ Return
 
 #if srf_mode&&srf_all_input&&not srf_all_input~="\d+"
 	Space::
-	1::
 		srf_select(ToolTipStyle~="i)gdip"&&FocusStyle?localpos:1,A_ThisHotkey)
 	Return
-
+	1::srf_select(1)
 	2::srf_select(2)
 	3::srf_select(3)
 	4::srf_select(4)

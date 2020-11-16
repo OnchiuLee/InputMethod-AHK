@@ -4021,9 +4021,14 @@ HotkeyFunc(item1){
 	return item1=3&&srf_all_Input||item1<>3?1:0
 }
 
+ChangeFontFunc(item1){
+	global srf_all_Input
+	return item1&&srf_all_Input?1:0
+}
+
 HotkeyRegister(){
 	global Srf_Hotkey, ChoiceItems, ThisKeyObj, srf_all_input, rlk_switch, Suspend_switch, Addcode_switch,s2t_swtich ,cf_swtich ,Exit_switch
-		, tip_hotkey, Addcode_hotkey, s2t_hotkey, cf_hotkey, Suspend_hotkey,Exit_hotkey
+		, tip_hotkey, Addcode_hotkey, s2t_hotkey, cf_hotkey, Suspend_hotkey,Exit_hotkey, srf_mode
 	Srf_Hotkey:=formatHotkey_2(Srf_Hotkey)
 	Hotkey, LShift, SetHotkey,off
 	Hotkey, RShift, SetHotkey,off
@@ -4080,6 +4085,13 @@ HotkeyRegister(){
 		Hotkey, %exit_hotkey%, OnExit,on
 	else
 		Hotkey, %exit_hotkey%, OnExit,off
+
+	HotkeyStatus :=Func("ChangeFontFunc").Bind(srf_mode)
+	Hotkey,If,% HotkeyStatus
+	Hotkey, ^Up, ChangeFontSize,on
+	Hotkey, ^Down, ChangeFontSize,on
+	Hotkey,If
+
 }
 
 ;;--------------------------------------------
