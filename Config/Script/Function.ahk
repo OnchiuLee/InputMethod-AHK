@@ -1222,7 +1222,7 @@ Date2LunarDate(Gregorian,T:=0) {
 	;;msgbox % LunarDate JqDate[2] JqDate_
 	DateVar:=Gregorian
 	EnvSub, DateVar, 19000101, days
-	DayPos:= Mod(DateVar+StratSj[2],60), MonthPos:=GetLunarJq(Gregorian,1)[3]
+	DayPos:= Mod(DateVar+StratSj[2],60), DayPos:=DayPos?DayPos:60, MonthPos:=GetLunarJq(Gregorian,1)[3]
 	flag:=GetLunarJq(SubStr(Gregorian,1,4) 02 SubStr(Gregorian,7,2)), last:=02 (strlen(flag[1])<2?0 flag[1]:flag[1])
 	If T {
 		If (SubStr(Gregorian,5,4)>=last)
