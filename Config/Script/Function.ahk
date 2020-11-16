@@ -3989,8 +3989,14 @@ formatHotkey(keys){
 }
 
 formatHotkey_2(keys){
+	If keys~="\&" {
+		obj:=StrSplit(keys,"&")
+		If obj[1]~="i)shift|Ctrl|Control|Alt|Win"&&obj[objCount(obj)]~="i)shift|Ctrl|Control|Alt|Win"
+			return keys
+	}
 	If keys~="i)^LL|^RR"
 		keys:=RegExReplace(keys,"i)^LL|^RR",keys~="i)^LL"?"L":"R")
+
 	If keys~="i)LCtrl|LControl"&&keys~="\&"
 		keys:=RegExReplace(keys,"i)LCtrl|LControl","<^")
 	If keys~="i)RCtrl|RControl"&&keys~="\&"
@@ -4005,6 +4011,10 @@ formatHotkey_2(keys){
 		keys:=RegExReplace(keys,"i)RShift",">+")
 	If keys~="i)Alt"&&keys~="\&"
 		keys:=RegExReplace(keys,"i)Alt","!")
+	If keys~="i)LAlt"&&keys~="\&"
+		keys:=RegExReplace(keys,"i)LAlt","<!")
+	If keys~="i)RAlt"&&keys~="\&"
+		keys:=RegExReplace(keys,"i)RAlt",">!")
 	If keys~="i)LWin"&&keys~="\&"
 		keys:=RegExReplace(keys,"i)LWin","<#")
 	If keys~="i)RWin"&&keys~="\&"
@@ -4029,7 +4039,8 @@ ChangeFontFunc(item1){
 HotkeyRegister(){
 	global Srf_Hotkey, ChoiceItems, ThisKeyObj, srf_all_input, rlk_switch, Suspend_switch, Addcode_switch,s2t_swtich ,cf_swtich ,Exit_switch
 		, tip_hotkey, Addcode_hotkey, s2t_hotkey, cf_hotkey, Suspend_hotkey,Exit_hotkey, srf_mode
-	Srf_Hotkey:=formatHotkey_2(Srf_Hotkey)
+	obj:=StrSplit(Srf_Hotkey,"&")
+	Srf_Hotkey:=obj[1]~="i)shift|Ctrl|Control|Alt|Win"&&obj[objCount(obj)]~="i)shift|Ctrl|Control|Alt|Win"?Srf_Hotkey:formatHotkey_2(Srf_Hotkey)
 	Hotkey, LShift, SetHotkey,off
 	Hotkey, RShift, SetHotkey,off
 	Hotkey, LShift, SetChoiceCodeHotkey,off

@@ -2215,8 +2215,12 @@ hk_1:
 		GuiControlGet, hotkey_3, ,sethotkey_3 , text
 		If (hotkey_1&&hotkey_3) {
 			Hotkey, %Srf_Hotkey%, SetHotkey,off
-			Srf_Hotkey:=formatHotkey_2(hotkey_1 " & " hotkey_3), HotkeyRegister()
-			WubiIni.Settings["Srf_Hotkey"]:=formatHotkey(Srf_Hotkey), WubiIni.save()
+			If (hotkey_1~="i)shift|Ctrl|Control|Alt|Win"&&hotkey_3~="i)shift|Ctrl|Control|Alt|Win"){
+				Srf_Hotkey:=WubiIni.Settings["Srf_Hotkey"]:=hotkey_1 " & " hotkey_3, HotkeyRegister()
+			}else{
+				Srf_Hotkey:=formatHotkey_2(hotkey_1 " & " hotkey_3), HotkeyRegister()
+				WubiIni.Settings["Srf_Hotkey"]:=formatHotkey(Srf_Hotkey), WubiIni.save()
+			}
 		}else If (hotkey_1&&!hotkey_3||hotkey_3&&!hotkey_1){
 			Hotkey, %Srf_Hotkey%, SetHotkey,off
 			Srf_Hotkey:=formatHotkey_2(hotkey_1?hotkey_1:hotkey_3), HotkeyRegister()
