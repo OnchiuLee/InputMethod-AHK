@@ -28,11 +28,12 @@ If !FileExist(ProgramDir) {
 	FileCreateDir,%ProgramDir%\x64
 	FileCreateDir,%ProgramDir%\x86
 	FileCreateDir,%ProgramDir%\Font
-	If (GetAllFileSize(A_ScriptDir)[1,2]<GetAllFileSize(A_ScriptDir "\main")[1,2]){
+	FileBitInfo:=FileGetBits(SubStr(A_ScriptName,1,-4) ".exe")   ;判断启动文件是32位还是64位
+	If InStr(FileBitInfo,"86") {
 		FileCopy, *.exe, %ProgramDir%\x86\*.*
 		If A_Is64bitOS
 			FileCopy, main\*.exe, %ProgramDir%\x64\*.*
-	}else{
+	}else If InStr(FileBitInfo,"64"){
 		If A_Is64bitOS
 			FileCopy, *.exe, %ProgramDir%\x64\*.*
 	}
@@ -70,7 +71,7 @@ If FileExist(BaseDir) {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020111614"
+version :="2020112111"
 ;;--------------------------------------------------------
 FileRead, inivar, %A_Temp%\InputMethodData\Config.ini
 RegExMatch(inivar,"(?<=ThemeName\=).+",tName)
@@ -271,6 +272,7 @@ global DB := New SQLiteDB
 If !DB.OpenDB(DBFileName)
 	MsgBox, 16, 数据库DB错误, % "消息:`t" DB.ErrorMsg "`n代码:`t" DB.ErrorCode
 DB.AttachDB(ExtendDBName, "extend")
+
 Gosub Backup_CustomDB
 
 If FileExist("Config\6763字频表.txt") {
