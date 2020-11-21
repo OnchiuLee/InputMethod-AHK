@@ -4330,3 +4330,353 @@ WM_NOTIFY(Param*)
 	}	
 }
 */
+;;-------------------------------------------------
+;{ Timer
+; Fanatic Guru
+; 2014 04 10
+;
+; FUNCTION to Create and Manage Timers
+;
+;------------------------------------------------
+;
+; Method:
+;   Timer(Name of Timer, Options)
+;   All times are in milliseconds and use A_TickCount which is milliseconds since computer boot up
+;
+;   Parameters:
+;   1) {Name of Timer} A Unique Name for Timer to Create or Get Information About
+;   2) {Option = {Number}} Set Period of Timer, creates or resets existing timer to period
+;      {Option = R or RESET} Reset existing timer
+;      {Option = U or UNSET} Unset existing timer ie. remove from Timer array
+;      {Option = D or DONE} Return true or false if timer is done and period has passed
+;      {Option = S or START} Return start time of timer
+;      {Option = F or FINISH} Return finish time of timer
+;      {Option = L or LEFT} Return time left of timer, will return a negative number if timer is done
+;      {Option = N or NOW} Return time now
+;      {Option = P or PERIOD} Return period of timer ie. duration, span, length
+;      {Option = E or ELAPSE} Return elapse time since timer started
+;      Optional, Default = "D"
+;
+; Returns:
+;   Creates or Returns Information About Timer Based on Options
+;   Timer() refreshes all timers which updates the information in the Timer array
+;
+; Global:
+;   Timer.{Timer Name}.Start|Finish|Period|Done|Left|Now|Elapse
+;     Creates a global array called Timer that contains all the timer information at the time of last function call
+;	  To use a variable to retrieve Timer information use [] array syntax
+;     Timer[Variable_Name,"Left"]
+;   Timer_Count = number of Timers created
+;	  Variables contain the information the last time function was called
+;	  To obtain current information either call the Timer specifically by Name of Timer or use Timer() to update all variables
+;
+; Examples:
+;   Timer("Cooldown",8000)		; <-- Creates a Timer named Cooldown with an 8 second period
+;   Timer("Cooldown")			; <-- Returns True if Timer is Done, False if not Done
+;   Timer("Cooldown,"L")		; <-- Returns updated time Left on Timer
+;   Timer(VariableName,30000)		; <-- Creates A Timer named the contents of VariableName with a 30 second period
+;
+;   When Name of Timer = Cooldown
+;   Timer.Cooldown.Period		; <-- Variable created by Function that contains Period (Duration) of Timer named Cooldown
+;   Timer.Cooldown.Start		; <-- Variable created by Function that contains internal clock time when Timer Started
+;   Timer.Cooldown.Finish		; <-- Variable created by Function that contains internal clock time when Timer will Finish
+;   Timer.Cooldown.Now			; <-- Variable created by Function that contains internal clock time last time function was called
+;   Timer.Cooldown.Done			; <-- Variable created by Function that contains Done status last time function was called
+;   Timer.Cooldown.Left			; <-- Variable created by Function that contains time Left last time function was called
+;   Timer.Cooldown.Elapse		; <-- Variable created by Function that contains Elapse time since start of timer and last time function was called
+;   Timer["Cooldown","Period"]		; <-- Equivalent to above . array syntax but works better if using Variable to replace literal strings
+;
+;   For index, element in Timer		; <-- Useful for accessing information for all timers stored in the array Timer 
+;
+;	It is important to understand that () are used to call the function and [] are used to access global variables created by function
+;	The function can be used for many applications without ever accessing the variable information
+;	I find it useful to have access to these variables outside the function so made them Global but they could probably be made Static
+;
+Timer(Timer_Name := "", Timer_Opt := "D")
+{
+	static
+	global Timer, Timer_Count
+	if !Timer
+		Timer := {}
+	if (Timer_Opt = "U" or Timer_Opt = "Unset")
+		if IsObject(Timer[Timer_Name])
+		{
+			Timer.Remove(Timer_Name)
+			Timer_Count --=
+			return true
+		}
+		else
+			return false
+	if RegExMatch(Timer_Opt,"(\d+)",Timer_Match)
+	{
+		if !(Timer[Timer_Name,"Start"])
+			Timer_Count += 1
+		Timer[Timer_Name,"Start"] := A_TickCount
+		Timer[Timer_Name,"Finish"] := A_TickCount + Timer_Match1
+		Timer[Timer_Name,"Period"] := Timer_Match1
+	}
+	if RegExMatch(Timer_Opt,"(\D+)",Timer_Match)
+		Timer_Opt := Timer_Match1
+	else
+		Timer_Opt := "D"
+	if (Timer_Name = "")
+	{
+		for index, element in Timer
+			Timer(index)
+		return
+	}
+	if (Timer_Opt = "R" or Timer_Opt = "Reset")
+	{
+		Timer[Timer_Name,"Start"] := A_TickCount
+		Timer[Timer_Name,"Finish"] := A_TickCount + Timer[Timer_Name,"Period"]
+	}
+	Timer[Timer_Name,"Now"] := A_TickCount
+	Timer[Timer_Name,"Left"] := Timer[Timer_Name,"Finish"] - Timer[Timer_Name,"Now"]
+	Timer[Timer_Name,"Elapse"] := Timer[Timer_Name,"Now"] - Timer[Timer_Name,"Start"]
+	Timer[Timer_Name,"Done"] := true
+	if (Timer[Timer_Name,"Left"] > 0)
+		Timer[Timer_Name,"Done"] := false
+	if (Timer_Opt = "D" or Timer_Opt = "Done")
+		return Timer[Timer_Name,"Done"]
+	if (Timer_Opt = "S" or Timer_Opt = "Start")
+		return Timer[Timer_Name,"Start"]
+	if (Timer_Opt = "F" or Timer_Opt = "Finish")
+		return Timer[Timer_Name,"Finish"]
+	if (Timer_Opt = "L" or Timer_Opt = "Left")
+		return Timer[Timer_Name,"Left"]
+	if (Timer_Opt = "N" or Timer_Opt = "Now")
+		return Timer[Timer_Name,"Now"]
+	if (Timer_Opt = "P" or Timer_Opt = "Period")
+		return Timer[Timer_Name,"Period"]
+	if (Timer_Opt = "E" or Timer_Opt = "Elapse")
+		return Timer[Timer_Name,"Elapse"]
+}
+;}
+;;-----------------------------------------------------------------------
+
+TrayIcon_GetInfo(sExeName := "")
+{
+	DetectHiddenWindows, % (Setting_A_DetectHiddenWindows := A_DetectHiddenWindows) ? "On" :
+	oTrayIcon_GetInfo := {}
+	For key, sTray in ["Shell_TrayWnd", "NotifyIconOverflowWindow"]
+	{
+		idxTB := TrayIcon_GetTrayBar(sTray)
+		WinGet, pidTaskbar, PID, ahk_class %sTray%
+		
+		hProc := DllCall("OpenProcess", UInt, 0x38, Int, 0, UInt, pidTaskbar)
+		pRB   := DllCall("VirtualAllocEx", Ptr, hProc, Ptr, 0, UPtr, 20, UInt, 0x1000, UInt, 0x4)
+
+		SendMessage, 0x418, 0, 0, ToolbarWindow32%idxTB%, ahk_class %sTray%   ; TB_BUTTONCOUNT
+		
+		szBtn := VarSetCapacity(btn, (A_Is64bitOS ? 32 : 20), 0)
+		szNfo := VarSetCapacity(nfo, (A_Is64bitOS ? 32 : 24), 0)
+		szTip := VarSetCapacity(tip, 128 * 2, 0)
+		
+		Loop, %ErrorLevel%
+		{
+			SendMessage, 0x417, A_Index - 1, pRB, ToolbarWindow32%idxTB%, ahk_class %sTray%   ; TB_GETBUTTON
+			DllCall("ReadProcessMemory", Ptr, hProc, Ptr, pRB, Ptr, &btn, UPtr, szBtn, UPtr, 0)
+
+			iBitmap := NumGet(btn, 0, "Int")
+			IDcmd   := NumGet(btn, 4, "Int")
+			statyle := NumGet(btn, 8)
+			dwData  := NumGet(btn, (A_Is64bitOS ? 16 : 12))
+			iString := NumGet(btn, (A_Is64bitOS ? 24 : 16), "Ptr")
+
+			DllCall("ReadProcessMemory", Ptr, hProc, Ptr, dwData, Ptr, &nfo, UPtr, szNfo, UPtr, 0)
+
+			hWnd  := NumGet(nfo, 0, "Ptr")
+			uID   := NumGet(nfo, (A_Is64bitOS ? 8 : 4), "UInt")
+			msgID := NumGet(nfo, (A_Is64bitOS ? 12 : 8))
+			hIcon := NumGet(nfo, (A_Is64bitOS ? 24 : 20), "Ptr")
+
+			WinGet, pID, PID, ahk_id %hWnd%
+			WinGet, sProcess, ProcessName, ahk_id %hWnd%
+			WinGetClass, sClass, ahk_id %hWnd%
+
+			If !sExeName || (sExeName = sProcess) || (sExeName = pID)
+			{
+				DllCall("ReadProcessMemory", Ptr, hProc, Ptr, iString, Ptr, &tip, UPtr, szTip, UPtr, 0)
+				Index := (oTrayIcon_GetInfo.MaxIndex()>0 ? oTrayIcon_GetInfo.MaxIndex()+1 : 1)
+				oTrayIcon_GetInfo[Index,"idx"]     := A_Index - 1
+				oTrayIcon_GetInfo[Index,"IDcmd"]   := IDcmd
+				oTrayIcon_GetInfo[Index,"pID"]     := pID
+				oTrayIcon_GetInfo[Index,"uID"]     := uID
+				oTrayIcon_GetInfo[Index,"msgID"]   := msgID
+				oTrayIcon_GetInfo[Index,"hIcon"]   := hIcon
+				oTrayIcon_GetInfo[Index,"hWnd"]    := hWnd
+				oTrayIcon_GetInfo[Index,"Class"]   := sClass
+				oTrayIcon_GetInfo[Index,"Process"] := sProcess
+				oTrayIcon_GetInfo[Index,"Tooltip"] := StrGet(&tip, "UTF-16")
+				oTrayIcon_GetInfo[Index,"Tray"]    := sTray
+			}
+		}
+		DllCall("VirtualFreeEx", Ptr, hProc, Ptr, pRB, UPtr, 0, Uint, 0x8000)
+		DllCall("CloseHandle", Ptr, hProc)
+	}
+	DetectHiddenWindows, %Setting_A_DetectHiddenWindows%
+	Return oTrayIcon_GetInfo
+}
+
+TrayIcon_GetTrayBar(Tray:="Shell_TrayWnd")
+{
+	DetectHiddenWindows, % (Setting_A_DetectHiddenWindows := A_DetectHiddenWindows) ? "On" :
+	WinGet, ControlList, ControlList, ahk_class %Tray%
+	RegExMatch(ControlList, "(?<=ToolbarWindow32)\d+(?!.*ToolbarWindow32)", nTB)
+	Loop, %nTB%
+	{
+		ControlGet, hWnd, hWnd,, ToolbarWindow32%A_Index%, ahk_class %Tray%
+		hParent := DllCall( "GetParent", Ptr, hWnd )
+		WinGetClass, sClass, ahk_id %hParent%
+		If !(sClass = "SysPager" or sClass = "NotifyIconOverflowWindow" )
+			Continue
+		idxTB := A_Index
+		Break
+	}
+	DetectHiddenWindows, %Setting_A_DetectHiddenWindows%
+	Return  idxTB
+}
+
+TrayIcon_Remove(hWnd, uID)
+{
+		NumPut(VarSetCapacity(NID,(A_IsUnicode ? 2 : 1) * 384 + A_PtrSize * 5 + 40,0), NID)
+		NumPut(hWnd , NID, (A_PtrSize == 4 ? 4 : 8 ))
+		NumPut(uID  , NID, (A_PtrSize == 4 ? 8  : 16 ))
+		Return DllCall("shell32\Shell_NotifyIcon", "Uint", 0x2, "Uint", &NID)
+}
+
+WinGetPosEx(hWindow,ByRef X="",ByRef Y="",ByRef Width="",ByRef Height="",ByRef Offset_X="",ByRef Offset_Y="") {
+	Static Dummy5693
+		,RECTPlus
+		,S_OK:=0x0
+		,DWMWA_EXTENDED_FRAME_BOUNDS:=9
+
+	;-- Workaround for AutoHotkey Basic
+	PtrType:=(A_PtrSize=8) ? "Ptr":"UInt"
+
+	;-- Get the window's dimensions
+	;   Note: Only the first 16 bytes of the RECTPlus structure are used by the
+	;   DwmGetWindowAttribute and the GetWindowRect functions.
+	VarSetCapacity(RECTPlus,24,0)
+	DWMRC:=DllCall("dwmapi\DwmGetWindowAttribute"
+		,PtrType,hWindow		;-- hwnd
+		,"UInt",DWMWA_EXTENDED_FRAME_BOUNDS	 ;-- dwAttribute
+		,PtrType,&RECTPlus		  ;-- pvAttribute
+		,"UInt",16)			 ;-- cbAttribute
+
+	if (DWMRC<>S_OK)
+		if ErrorLevel in -3,-4  ;-- Dll or function not found (older than Vista)
+		{
+			VarSetCapacity(RECT,16,0)
+			DllCall("GetWindowRgnBox",PtrType,hWindow,PtrType,&RECT)
+			DllCall("GetWindowRect",PtrType,hWindow,PtrType,&RECTPlus)
+		} 
+		else
+		{
+			outputdebug,
+			(ltrim join`s
+				Function: %A_ThisFunc% -
+				Unknown error calling the "dwmapi\DwmGetWindowAttribute"
+				function. RC=%DWMRC%,
+				ErrorLevel=%ErrorLevel%,
+				A_LastError=%A_LastError%
+			)
+			Return False
+		}
+	;-- Populate the output variables
+	X:=Left :=NumGet(RECTPlus,0,"Int")
+	Y:=Top  :=NumGet(RECTPlus,4,"Int")
+	Right   :=NumGet(RECTPlus,8,"Int")
+	Bottom  :=NumGet(RECTPlus,12,"Int")
+	Width   :=Right-Left
+	Height  :=Bottom-Top
+	OffSet_X:=NumGet(RECT,0,"Int")
+	OffSet_Y:=NumGet(RECT,4,"Int")
+	;-- If DWM is not used (older than Vista), we're done
+	if (DWMRC<>S_OK)
+	{
+		;-- Calculate offsets and update output variables
+		NumPut(Offset_X,RECTPlus,16,"Int")
+		NumPut(Offset_Y,RECTPlus,20,"Int")
+		Return &RECTPlus
+	}
+	;-- Collect dimensions via GetWindowRect
+	VarSetCapacity(RECT,16,0)
+	DllCall("GetWindowRect",PtrType,hWindow,PtrType,&RECT)
+	GWR_Width :=NumGet(RECT,8,"Int")-NumGet(RECT,0,"Int")
+		;-- Right minus Left
+	GWR_Height:=NumGet(RECT,12,"Int")-NumGet(RECT,4,"Int")
+		;-- Bottom minus Top
+
+	;-- Calculate offsets and update output variables
+	NumPut(Offset_X:=(Width-GWR_Width)//2,RECTPlus,16,"Int")
+	NumPut(Offset_Y:=(Height-GWR_Height)//2,RECTPlus,20,"Int")
+	Return &RECTPlus
+}
+
+;;MsgBox % "Font Name:`t" GuiDefaultFont().Name "`nFont Size:`t" GuiDefaultFont().Size
+GuiDefaultFont() ; by SKAN (modified by jNizM)
+{
+	hFont := DllCall("gdi32.dll\GetStockObject", "Int", 17, "Ptr")
+	VarSetCapacity(LF, szLF := 60 * (A_IsUnicode ? 2 : 1))
+	DllCall("gdi32.dll\GetObject", "Ptr", hFont, "Int", szLF, "Ptr", &LF)
+	hDC := DllCall("user32.dll\GetDC", "Ptr", hwnd), DPI := DllCall("gdi32.dll\GetDeviceCaps", "Ptr", hDC, "Int", 90)
+	DllCall("user32.dll\ReleaseDC", "Ptr", 0, "Ptr", hDC), S := Round((-NumGet(LF, 0, "Int") * 72) / DPI)
+	Fnt := {}, Fnt.Name := DllCall("kernel32.dll\MulDiv", "Int", &LF+28, "Int", 1, "Int", 1, "Str"), Fnt.Size := S
+	return Fnt
+}
+/*
+GuiDefaultFont() { ; by SKAN (modified by just me)
+	VarSetCapacity(LF, szLF := 28 + (A_IsUnicode ? 64 : 32), 0) ; LOGFONT structure
+	If DllCall("GetObject", "Ptr", DllCall("GetStockObject", "Int", 17, "Ptr"), "Int", szLF, "Ptr", &LF)
+		Return {Name: StrGet(&LF + 28, 32), Size: Round(Abs(NumGet(LF, 0, "Int")) * (72 / A_ScreenDPI), 1)
+			, Weight: NumGet(LF, 16, "Int"), Quality: NumGet(LF, 26, "UChar")}
+	Return False
+}
+*/
+
+FileGetInfo( lptstrFilename) {
+	List := "Comments InternalName ProductName CompanyName LegalCopyright ProductVersion"
+		. " FileDescription LegalTrademarks PrivateBuild FileVersion OriginalFilename SpecialBuild"
+	dwLen := DllCall("Version.dll\GetFileVersionInfoSize", "Str", lptstrFilename, "Ptr", 0)
+	dwLen := VarSetCapacity( lpData, dwLen + A_PtrSize)
+	DllCall("Version.dll\GetFileVersionInfo", "Str", lptstrFilename, "UInt", 0, "UInt", dwLen, "Ptr", &lpData) 
+	DllCall("Version.dll\VerQueryValue", "Ptr", &lpData, "Str", "\VarFileInfo\Translation", "PtrP", lplpBuffer, "PtrP", puLen )
+	sLangCP := Format("{:04X}{:04X}", NumGet(lplpBuffer+0, "UShort"), NumGet(lplpBuffer+2, "UShort"))
+	i := {}
+	Loop, Parse, % List, %A_Space%
+		DllCall("Version.dll\VerQueryValue", "Ptr", &lpData, "Str", "\StringFileInfo\" sLangCp "\" A_LoopField, "PtrP", lplpBuffer, "PtrP", puLen )
+		? i[A_LoopField] := StrGet(lplpBuffer, puLen) : ""
+	return i
+}
+
+/*
+	判断exe文件是32位还是64位
+	返回值包含字符解释：IA64是intel推出的架构，IA64不兼容原有的32位x86架构指令集
+		AMD64是AMD推出的也叫 X64 指令集，对原有的32位X86架构进行了扩展，有良好的兼容性
+		i386是32位指令集统称
+*/
+FileGetBits(vPath) {
+	IMAGE_DOS_SIGNATURE := 0x5A4D
+	IMAGE_NT_SIGNATURE := 0x4550
+
+	Machines := {0x014c: "IMAGE_FILE_MACHINE_I386", 0x0200: "IMAGE_FILE_MACHINE_IA64", 0x8664: "IMAGE_FILE_MACHINE_AMD64"}
+
+	if ((file := FileOpen(vPath, "r")))
+	{
+		if (file.ReadUShort() == IMAGE_DOS_SIGNATURE)
+		{
+			file.Seek(60)
+			e_lfanew := file.ReadInt()
+			file.Seek(e_lfanew)
+			if (file.ReadUInt() == IMAGE_NT_SIGNATURE)
+			{
+				file.Seek(e_lfanew + 4)
+				vOutput := Machines[file.ReadUShort()]
+			}
+		}
+		file.Close()
+	}
+
+	return vOutput
+}
