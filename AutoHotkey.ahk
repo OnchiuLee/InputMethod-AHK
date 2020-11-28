@@ -2,7 +2,7 @@
    脚本说明： 98五笔多功能版改装自--@河许人@天黑请闭眼联合开发的「影子输入法」与@hello_srf的柚子输入法代码结构
    资源库:https://wubi98.gitee.io/ && http://98wb.ys168.com/
    GitHub:https://github.com/OnchiuLee/AHK-Input-method
-;~ 环境 版本:   Autohotkey v1.1.33.02
+;~ 最低环境版本:   Autohotkey v1.1.31
 */
 ;*********************************************************************************
 
@@ -15,6 +15,11 @@
 #Persistent
 #WinActivateForce
 #Include %A_ScriptDir%
+
+If (A_AhkVersion < 1.1.31){
+	MsgBox, 262452,兼容提示, 当前的AHK启动器低于1.1.31版本，请更换更高版本！,5
+	ExitApp
+}
 
 If FileExist(A_ScriptDir "\main\*_UIA.exe")
 	FileDelete,main\*_UIA.exe
@@ -70,8 +75,8 @@ If FileExist(BaseDir) {
 	MsgBox, 262452,权限提示, 当前为非管理员身份运行，首次运行请右击以「管理员身份」运行！,6
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
-DefaultThemeName:="Steam"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020112111"
+DefaultThemeName:="游驿四"    ;默认的主题配色，主题文件在config\Skins目录
+version :="2020112811"
 ;;--------------------------------------------------------
 FileRead, inivar, %A_Temp%\InputMethodData\Config.ini
 RegExMatch(inivar,"(?<=ThemeName\=).+",tName)
@@ -421,7 +426,7 @@ WM_MOUSEMOVE()
 	global Logo_X, Logo_Y, SrfTip_Width, SrfTip_Height, Logo_ExStyle, StrockeKey, transparentX, LogoSize, srfTool, Tip_Show:={LineColor:"Gdip样式中间分隔线颜色",SBA6:"符号顶首选屏并上屏该键符号",font_value:"候选字号大小`n范围[9-40]"
 		,BorderColor : "Gdip样式四周边框线颜色", SBA16:"冻结/启用程序快捷键启用开关", SBA15:"鼠标划词反查编码功能启用开关", UIAccess:"候选框UI层级权限提升`n看不到候选框时开启",font_size:"候选字号大小`n范围[9-40]",sethotkey_4:"默认为程序自带热键设置方法可设置的热键有限`n点击「获取键名」可以自定义获取键名"
 		, SBA0 :"候选框固定坐标设置",About:"软件使用说明",ciku3:"英文词库导入`n（单行单义格式，以tab符隔开）`n「英文词条+Tab+词频」",ciku4:"英文词库导出`n（导出为单行单义格式txt码表）", Cursor_Status:"在不同窗口情况下鼠标为‘工’字形时自动切换至中文状态，反之"
-		,ciku5:"特殊符号词库导入`n（格式「/引导字母+Tab+多符号以英文逗号隔开」）", SBA5 : "固定候选框的位置，不跟随光标",BgColor:"候选框背景色",FocusBackColor:"候选框焦点选项背景色", GzType:"农历干支输出默认以「春节」为生肖年开始`n选中后切换到以「立春」为换算起点。"
+		,ciku5:"特殊符号词库导入`n（格式「/引导字母+Tab+多符号以英文逗号隔开」）", SBA5 : "取消为固定候选框的位置，不跟随光标",BgColor:"候选框背景色",FocusBackColor:"候选框焦点选项背景色", GzType:"农历干支输出默认以「春节」为生肖年开始`n选中后切换到以「立春」为换算起点。"
 		,FocusColor:"候选框焦点选项字体色", FontColor:"候选词字体颜色", FontCodeColor:"候选框编码字体颜色", SBA1:"繁体开关（输简出繁）快捷键启用开关",select_value:"候选框词条显示数目`n范围[3-10]", SBA18:"当前笔画键位为：" StrockeKey, zKeySet:"Z键引导反查方式"
 		, SBA4:"加入开机自启动任务：「`non＝>为建立系统计划任务实现自启`noff＝>为关闭开机自启`nsc＝>为在系统自启目录建立快捷方式实现自启」`n计划任务自启成功率不高，建议开启建立「快捷方式自启」的自启方式",ciku6:"特殊符号词库导出`n（导出为txt）",set_GdipRadius:"Gdip候选框圆角大小`n范围[0-15]"
 		,tip_hotkey:"通过快捷键开关划词反查",SizeValue:"桌面色块尺寸`n范围[1-150]",SBA20:"候选框分页数显示",FontIN:"字根拆分字体安装",set_regulate_Hx:"ToolTip候选框编码框`n与选词框距离范围[3-25)]",FontType:"中文方案显示的字体",FontSelect:"英文方案或临时英文显示的字体"
@@ -482,7 +487,7 @@ InputModeData:=Json_FileToObj(A_ScriptDir "\Sync\InputMode.json"), InputModeData
 
 ;;监控消息回调ShellIMEMessage监控窗口变化
 Gui +LastFound
-DllCall( "RegisterShellHookWindow", UInt,WinExist() )   ;WinActive()
+DllCall( "RegisterShellHookWindow", UInt,WinExist() )
 OnMessage( DllCall( "RegisterWindowMessage", Str,"SHELLHOOK" ), "ShellIMEMessage")
 ShellIMEMessage( wParam,lParam ) {
 	/*    wParam参数：
