@@ -1,4 +1,62 @@
 ﻿;词条拆分字根生成
+split_wubizg(chars){
+	global DB, Wubi_Schema
+	index:=1, tarr:=[], chars:=RegExReplace(chars,"^[\s\t\w]+|[\s\t\,\.\?\!\;\，\。\；\？\！\w]+$")
+	If (!chars)
+		return ""
+	While index:=RegExMatch(chars, "O).", match, index)
+		tarr.Push(match.Value), index+=match.Len
+	Switch tarr.Length()
+	{
+		Case 0:
+			Return ""
+		Case 1:
+			DB.gettable("SELECT A_Key FROM EtymologyChr WHERE aim_chars = '" chars "'", Result)
+			Return Result.Rows[1,1]
+		Case 2:
+			tt:=""
+			Loop 2
+			{
+				DB.gettable("SELECT A_Key,B_Key FROM EtymologyPhrase WHERE aim_chars = '" tarr[A_Index] "'", Result)
+				If Result.RowCount
+					tt .= Result.Rows[1,1] Result.Rows[1,2]
+				Else
+					Return ""
+			}
+			Return tt
+		Case 3:
+			tt:=""
+			Loop 3
+			{
+				DB.gettable("SELECT A_Key,B_Key FROM EtymologyPhrase WHERE aim_chars = '" tarr[A_Index] "'", Result)
+				If Result.RowCount
+					tt .= Result.Rows[1,1]
+				Else
+					Return ""
+			}
+			tt .= Result.Rows[1,2]
+			Return tt
+		Default:
+			tt:=""
+			Loop 3
+			{
+				DB.gettable("SELECT A_Key,B_Key FROM EtymologyPhrase WHERE aim_chars = '" tarr[A_Index] "'", Result)
+				If Result.RowCount
+					tt .= Result.Rows[1,1]
+				Else
+					Return ""
+			}
+			DB.gettable("SELECT A_Key,B_Key FROM EtymologyPhrase WHERE aim_chars = '" tarr[tarr.Length()] "'", Result)
+			If Result.RowCount
+				tt .= Result.Rows[1,1]
+			Else
+				Return ""
+			Return tt
+	}
+	Return ""
+}
+
+/*
 split_wubizg(input){
 	global DB
 	If (input="")
@@ -48,6 +106,7 @@ split_wubizg(input){
 		}
 	}
 }
+*/
 
 ;快捷置顶
 set_top(list_num){
@@ -162,70 +221,65 @@ Simp2Trad(chars){
 	}
 }
 
-/*
 ;自造词条编码生成
 get_en_code(chars){
-	global DB
-	If (chars="")
-		Return []
-	else
+	global DB, Wubi_Schema
+	index:=1, tarr:=[], chars:=RegExReplace(chars,"^[\s\t\w]+|[\s\t\,\.\?\!\;\，\。\；\？\！\w]+$")
+	If (!chars)
+		return ""
+	While index:=RegExMatch(chars, "O).", match, index)
+		tarr.Push(match.Value), index+=match.Len
+	Switch tarr.Length()
 	{
-		if (strlen(chars)=1)
-		{
-			If DB.gettable("SELECT A_Key FROM EN_Chr WHERE aim_chars = '" chars "'", Result){
-				Result_ := Result.Rows[1,1]
-			}
-			Return Result_
-		}
-		else if (strlen(chars)=2)
-		{
-			loop % 2
+		Case 0:
+			Return ""
+		Case 1:
+			DB.gettable("SELECT A_Key FROM " (Wubi_Schema="chaoji"chaoji?:EN_Chr) " WHERE aim_chars = '" chars "'", Result)
+			Return Result.Rows[1,1]
+		Case 2:
+			tt:=""
+			Loop 2
 			{
-				If DB.gettable("SELECT A_Key FROM EN_Chr WHERE aim_chars= '" SubStr(chars,a_index,1) "'", Result){
-					Result_part := SubStr(Result.Rows[1,1],1,2)
-				}
-				Result_ .=Result_part
+				DB.gettable("SELECT A_Key FROM EN_Chr WHERE aim_chars = '" tarr[A_Index] "'", Result)
+				If c:=Result.Rows[1,1]
+					tt .= SubStr(c,1,2)
+				Else
+					Return ""
 			}
-			Return Result_
-		}
-		else if (strlen(chars)=3)
-		{
-			loop % 3
+			Return tt
+		Case 3:
+			tt:=""
+			Loop 3
 			{
-				If DB.gettable("SELECT A_Key FROM EN_Chr WHERE aim_chars = '" SubStr(chars,a_index,1) "'", Result){
-					If a_index=3
-						Result_part := SubStr(Result.Rows[1,1],1,2)
-					else
-						Result_part := SubStr(Result.Rows[1,1],1,1)
-				}
-				Result_ .=Result_part
+				DB.gettable("SELECT A_Key FROM EN_Chr WHERE aim_chars = '" tarr[A_Index] "'", Result)
+				If c:=Result.Rows[1,1]
+					tt .= SubStr(c,1,1)
+				Else
+					Return ""
 			}
-			Return Result_
-		}
-		else if (strlen(chars)>3)
-		{
-			loop % 4
+			tt .= SubStr(c,2,1)
+			Return tt
+		Default:
+			tt:=""
+			Loop 3
 			{
-				if a_index=4
-					SQL_chars :=SubStr(chars,0,1)
-				else
-					SQL_chars :=SubStr(chars,a_index,1)
-				If DB.gettable("SELECT A_Key FROM EN_Chr WHERE aim_chars = '" SQL_chars "'", Result){
-					Result_part := SubStr(Result.Rows[1,1],1,1)
-				}
-				Result_ .=Result_part
+				DB.gettable("SELECT A_Key FROM EN_Chr WHERE aim_chars = '" tarr[A_Index] "'", Result)
+				If c:=Result.Rows[1,1]
+					tt .= SubStr(c,1,1)
+				Else
+					Return ""
 			}
-			Return Result_
-		}
-		else
-		{
-			Return chars
-		}
+			DB.gettable("SELECT A_Key FROM EN_Chr WHERE aim_chars = '" tarr[tarr.Length()] "'", Result)
+			If c:=Result.Rows[1,1]
+				tt .= SubStr(c,1,1)
+			Else
+				Return ""
+			Return tt
 	}
+	Return ""
 }
-*/
 
-;自造词条编码生成
+/*
 get_en_code(chars){
 	global DB, Wubi_Schema
 	If (chars="")
@@ -265,6 +319,7 @@ get_en_code(chars){
 		Return Result_
 	}
 }
+*/
 
 Get_Phrase(bianma,citiao){
 	global DB, Frequency, Prompt_Word, Trad_Mode

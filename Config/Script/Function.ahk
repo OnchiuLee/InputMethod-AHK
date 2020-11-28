@@ -1368,14 +1368,11 @@ FormatDate(SJ,s:=0, t:=0){   ;;s=1为格式化后时间格式，s=0为源格式�
 }
 
 ;获取农历时辰
-Time_GetShichen(time)
+Time_GetShichen(time,t=1)
 {
-	shichen :=["子时(夜半｜三更)","丑时(鸡鸣｜四更)","丑时(鸡鸣｜四更)","寅时(平旦｜五更)","寅时(平旦|五更)","卯时(日出)","卯时(日出)","辰时(食时)","辰时(食时)","巳时(隅中)","巳时(隅中)","午时(日中)","午时(日中)","未时(日昳)","未时(日昳)","申时(哺时)","申时(哺时)","酉时(日入)","酉时(日入)","戌时(黄昏｜一更)","戌时(黄昏｜一更)","亥时(人定｜二更)","亥时(人定｜二更)","子时(夜半｜三更)"]
-	time_count :=time+1
-	Loop % shichen.MaxIndex()
-	%A_Index% = %time_count%
-	LShichen :=shichen[time_count]
-	Return,LShichen
+	shichen :=["子时(夜半｜三更)","丑时(鸡鸣｜四更)","寅时(平旦｜五更)","卯时(日出)","辰时(食时)","巳时(隅中)","午时(日中)","未时(日昳)","申时(哺时)","酉时(日入)","戌时(黄昏｜一更)","亥时(人定｜二更)"]
+	sj:=Floor(!t?(time+13)/2:(time+1)/2)+1
+	Return shichen[sj>12?sj-12:sj]
 }
 
 ;-------------------------农历转公历-------------------------
@@ -4650,6 +4647,87 @@ FileGetInfo( lptstrFilename) {
 	return i
 }
 
+Base64toStr(sString){
+	DllCall("crypt32\CryptStringToBinary", "str", sString, "Uint", 0, "Uint", 1, "ptr", 0, "Uint*", nSize, "ptr", 0, "ptr", 0)
+	VarSetCapacity(sbin, nSize)
+	DllCall("crypt32\CryptStringToBinary", "str", sString, "Uint", 0, "Uint", 1, "ptr", &sbin, "Uint*", nSize, "ptr", 0, "ptr", 0)
+	Return StrGet(&sbin, "utf-8")
+}
+
+StrToBase64(sString, Flags:=0x40000001){
+	sStrlen:=StrPutVar(sString, sbin, "utf-8")
+	Return BinToBase64(&sbin, sStrlen, Flags)
+}
+
+BinToBase64(binpointer, bytes, Flags:=0x40000001){
+	DllCall("crypt32\CryptBinaryToString", "Ptr", binpointer, "Uint", bytes, "Uint", Flags, "Ptr", 0, "Uint*", nSize)
+	VarSetCapacity(sString, nSize*2)
+	DllCall("crypt32\CryptBinaryToString", "Ptr", binpointer, "Uint", bytes, "Uint", Flags, "str", sString, "Uint*", nSize)
+	Return StrGet(&sString, (A_IsUnicode ? "utf-16" : "cp0"))
+}
+
+Base64toBin(sString, ByRef sbin){
+	DllCall("crypt32\CryptStringToBinary", "str", sString, "Uint", 0, "Uint", 1, "ptr", 0, "Uint*", Bytes, "ptr", 0, "ptr", 0)
+	VarSetCapacity(sbin, Bytes)
+	DllCall("crypt32\CryptStringToBinary", "str", sString, "Uint", 0, "Uint", 1, "ptr", &sbin, "Uint*", Bytes, "ptr", 0, "ptr", 0)
+	Return Bytes
+}
+; BASE64转Bitmap
+Gdip_BitmapFromBase64(ByRef Base64){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	; calculate the length of the buffer needed
+	If !(DllCall("crypt32\CryptStringToBinary", Ptr, &Base64, "UInt", 0, "UInt", 0x01, Ptr, 0, "UIntP", DecLen, Ptr, 0, Ptr, 0))
+		return -1
+	VarSetCapacity(Dec, DecLen, 0)
+	; decode the Base64 encoded string
+	If !(DllCall("crypt32\CryptStringToBinary", Ptr, &Base64, "UInt", 0, "UInt", 0x01, Ptr, &Dec, "UIntP", DecLen, Ptr, 0, Ptr, 0))
+		return -2
+	; create a memory stream
+	If !(pStream := DllCall("shlwapi\SHCreateMemStream", Ptr, &Dec, "UInt", DecLen, "UPtr"))
+		return -3
+	DllCall("gdiplus\GdipCreateBitmapFromStreamICM", Ptr, pStream, "PtrP", pBitmap)
+	ObjRelease(pStream)
+	return pBitmap
+}
+
+FileReadToVar(FilePath,Line:=0){
+	file := FileOpen(FilePath, "r"), len:=file.RawRead(sbin, 512), file.Close(), utf8chars:=0
+	If (NumGet(sbin, 0, "UChar")=0xFE&&NumGet(sbin, 1, "UChar")=0xFF){    ; UTF16BE
+		MsgBox, 16, 错误, 不支持UTF-16BE编码的文本
+	} Else {
+		Loop % Max(0, len-2)
+			If ((NumGet(sbin, A_index-1, "UChar")&0xE0)&&(NumGet(sbin, A_index, "UChar")&0x80)&&(NumGet(sbin, A_index+1, "UChar")&0x80))
+				utf8chars++
+			Else If (NumGet(sbin, A_index-1, "UChar")=0||(NumGet(sbin, A_index-1, "UChar")>0xC0&&(NumGet(sbin, A_index, "UChar")>0x80||NumGet(sbin, A_index, "UChar")<0xC0))){
+				utf8chars:=0
+				Break
+			}
+		FileEncoding % (utf8chars?"CP65001 ":"CP0")
+		If (Line){
+			If (Line<0){
+				Var:="", s:=""
+				Loop % (-Line)
+				{
+					FileReadLine, s, %path%, %A_index%
+					Var .= s "`n"
+				}
+			} Else
+				FileReadLine, Var, %path%, %Line%
+		} Else
+			FileRead, Var, %path%
+		Return Var
+	}
+}
+
+WritetoFile(String,FileName){
+	file := FileOpen(FileName, "w `n")
+	if !IsObject(file)
+		return 0
+	file.Write(String)
+	file.Close()
+	return 1
+}
+
 /*
 	判断exe文件是32位还是64位
 	返回值包含字符解释：IA64是intel推出的架构，IA64不兼容原有的32位x86架构指令集
@@ -4659,9 +4737,7 @@ FileGetInfo( lptstrFilename) {
 FileGetBits(vPath) {
 	IMAGE_DOS_SIGNATURE := 0x5A4D
 	IMAGE_NT_SIGNATURE := 0x4550
-
 	Machines := {0x014c: "IMAGE_FILE_MACHINE_I386", 0x0200: "IMAGE_FILE_MACHINE_IA64", 0x8664: "IMAGE_FILE_MACHINE_AMD64"}
-
 	if ((file := FileOpen(vPath, "r")))
 	{
 		if (file.ReadUShort() == IMAGE_DOS_SIGNATURE)
@@ -4679,4 +4755,75 @@ FileGetBits(vPath) {
 	}
 
 	return vOutput
+}
+
+FileGetEncoding(FileName) {
+	/*
+		获取指定文本文件中使用的字符编码
+		Parameters:
+			FileName:
+				具有读取权限的文件
+		Return value:
+			如果«FileName»不是文件或打开文件进行读取时出错，则返回零。
+			如果«FileName»不是文件或在为打开文件时出错，则返回零。返回如果无法确定编码，则返回空字符串。当编码不带BOM时或为CP936时返回ANSI
+			如果函数成功，则返回一个包含检测到的编码的字符串。支持以下编码（UTF-8, UTF-16LE, UTF-16BE等不带BOM时返回ANSI）：
+				BOCU-1, SCSU, UTF-EBCDIC, UTF-1, UTF-7, UTF-8, UTF-16LE, UTF-16BE, UTF-32LE and UTF-32BE.
+	*/
+	Local
+	File := FileOpen(FileName, "r-wd")
+	if (!IsObject(File))
+		return 0
+	Size := File.Length 
+	if (Size < 2)
+		return ""
+	File.Seek(0)
+	Byte := [0x00, 0x00, 0x00, 0x00]
+	while (A_Index < 5 && !File.AtEOF)
+		Byte[A_Index] := File.ReadUChar()
+	string:=file.read()
+	File.Close()
+	; UTF-16LE | UTF-16BE.
+	if (Size < 3)    {
+		if (Byte[1] == 0xFE && Byte[2] == 0xFF)
+			return "UTF-16BE"
+		else if (Byte[1] == 0xFF && Byte[2] == 0xFE)
+			return "UTF-16LE"
+	}
+	; UTF-8 | UTF-1 | SCSU | BOCU-1.
+	else if (Size < 4)    {
+		if (Byte[1] == 0xEF && Byte[2] == 0xBB && Byte[3] == 0xBF)
+			return "UTF-8"
+		else if (Byte[1] == 0xF7 && Byte[2] == 0x64 && Byte[3] == 0x4C)
+			return "UTF-1"
+		else if (Byte[1] == 0x0E && Byte[2] == 0xFE && Byte[3] == 0xFF)
+			return "SCSU"
+		else if (Byte[1] == 0xFB && Byte[2] == 0xEE && Byte[3] == 0x28)
+			return "BOCU-1"
+	}
+	; UTF-32BE | UTF-32LE | UTF-EBCDIC | UTF-7 | BOCU-1 | UTF-8 | UTF-1 | SCSU | BOCU-1 | UTF-16BE | UTF-16LE.
+	else    {
+		if (Byte[1] == 0x00 && Byte[2] == 0x00 && Byte[3] == 0xFE && Byte[4] == 0xFF)
+			return "UTF-32BE"
+		else if (Byte[1] == 0xFF && Byte[2] == 0xFE && Byte[3] == 0x00 && Byte[4] == 0x00)
+			return "UTF-32LE"
+		else if (Byte[1] == 0xDD && Byte[2] == 0x73 && Byte[3] == 0x66 && Byte[4] == 0x73)
+			return "UTF-EBCDIC"
+		else if (Byte[1] == 0x2B && Byte[2] == 0x2F && Byte[3] == 0x76 && (Byte[4] == 0x38 || Byte[4] == 0x39 || Byte[4] == 0x2B || Byte[4] == 0x2F))
+			return "UTF-7"
+		else if (Byte[1] == 0xFB && Byte[2] == 0xEE && Byte[3] == 0x28 && Byte[4] == 0xFF)
+			return "BOCU-1"
+		else if (Byte[1] == 0xEF && Byte[2] == 0xBB && Byte[3] == 0xBF)
+			return "UTF-8"
+		else if (Byte[1] == 0xF7 && Byte[2] == 0x64 && Byte[3] == 0x4C)
+			return "UTF-1"
+		else if (Byte[1] == 0x0E && Byte[2] == 0xFE && Byte[3] == 0xFF)
+			return "SCSU"
+		else if (Byte[1] == 0xFB && Byte[2] == 0xEE && Byte[3] == 0x28)
+			return "BOCU-1"
+		else if (Byte[1] == 0xFE && Byte[2] == 0xFF)
+			return "UTF-16BE"
+		else if (Byte[1] == 0xFF && Byte[2] == 0xFE)
+			return "UTF-16LE"
+	}
+	return "ANSI"
 }
