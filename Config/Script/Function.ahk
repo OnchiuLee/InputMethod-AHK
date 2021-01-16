@@ -4631,22 +4631,6 @@ GuiDefaultFont() { ; by SKAN (modified by just me)
 	Return False
 }
 */
-
-FileGetInfo( lptstrFilename) {
-	List := "Comments InternalName ProductName CompanyName LegalCopyright ProductVersion"
-		. " FileDescription LegalTrademarks PrivateBuild FileVersion OriginalFilename SpecialBuild"
-	dwLen := DllCall("Version.dll\GetFileVersionInfoSize", "Str", lptstrFilename, "Ptr", 0)
-	dwLen := VarSetCapacity( lpData, dwLen + A_PtrSize)
-	DllCall("Version.dll\GetFileVersionInfo", "Str", lptstrFilename, "UInt", 0, "UInt", dwLen, "Ptr", &lpData) 
-	DllCall("Version.dll\VerQueryValue", "Ptr", &lpData, "Str", "\VarFileInfo\Translation", "PtrP", lplpBuffer, "PtrP", puLen )
-	sLangCP := Format("{:04X}{:04X}", NumGet(lplpBuffer+0, "UShort"), NumGet(lplpBuffer+2, "UShort"))
-	i := {}
-	Loop, Parse, % List, %A_Space%
-		DllCall("Version.dll\VerQueryValue", "Ptr", &lpData, "Str", "\StringFileInfo\" sLangCp "\" A_LoopField, "PtrP", lplpBuffer, "PtrP", puLen )
-		? i[A_LoopField] := StrGet(lplpBuffer, puLen) : ""
-	return i
-}
-
 Base64toStr(sString){
 	DllCall("crypt32\CryptStringToBinary", "str", sString, "Uint", 0, "Uint", 1, "ptr", 0, "Uint*", nSize, "ptr", 0, "ptr", 0)
 	VarSetCapacity(sbin, nSize)
@@ -4826,4 +4810,139 @@ FileGetEncoding(FileName) {
 			return "UTF-16LE"
 	}
 	return "ANSI"
+}
+
+GetCharsPhrase(chars){
+	tarr:=[], index:=1
+	While index:=RegExMatch(chars, "O).", match, index)
+		tarr.Push(match.Value), index+=match.Len
+	return tarr
+}
+
+GetFileContent(FilePath,Encoding="UTF-8"){
+	If FileExist(FilePath){
+		FileEncoding,%Encoding%
+		FileRead,chars,%FilePath%
+		chars:=RegExReplace(RegExReplace(RegExReplace(chars,"`r`n","`r"),"`n","`r"),"`r","`r`n")
+		return chars
+	}
+}
+
+/*
+	FileDescription	文件描述说明
+	FileVersion	文件版本
+	InternalName	内部名称
+	LegalCopyright	法律版权所有
+	OriginalFilename	创建文件时所使用的名称
+	ProductName	产品名称
+	ProductVersion	产品版本
+	CompanyName	企业名称
+	PrivateBuild	私有版本的信息
+	SpecialBuild	特殊内部版本信息
+	LegalTrademarks	文件的商标和注册商标
+
+FileGetInfo( lptstrFilename) {
+	List := "Comments InternalName ProductName CompanyName LegalCopyright ProductVersion"
+		. " FileDescription LegalTrademarks PrivateBuild FileVersion OriginalFilename SpecialBuild"
+	dwLen := DllCall("Version.dll\GetFileVersionInfoSize", "Str", lptstrFilename, "Ptr", 0)
+	dwLen := VarSetCapacity( lpData, dwLen + A_PtrSize)
+	DllCall("Version.dll\GetFileVersionInfo", "Str", lptstrFilename, "UInt", 0, "UInt", dwLen, "Ptr", &lpData) 
+	DllCall("Version.dll\VerQueryValue", "Ptr", &lpData, "Str", "\VarFileInfo\Translation", "PtrP", lplpBuffer, "PtrP", puLen )
+	sLangCP := Format("{:04X}{:04X}", NumGet(lplpBuffer+0, "UShort"), NumGet(lplpBuffer+2, "UShort"))
+	i := {}
+	Loop, Parse, % List, %A_Space%
+		DllCall("Version.dll\VerQueryValue", "Ptr", &lpData, "Str", "\StringFileInfo\" sLangCp "\" A_LoopField, "PtrP", lplpBuffer, "PtrP", puLen )
+		? i[A_LoopField] := StrGet(lplpBuffer, puLen) : ""
+	return i
+}
+*/
+
+/*
+	FileDescription	文件描述说明
+	FileVersion	文件版本
+	InternalName	内部名称
+	LegalCopyright	法律版权所有
+	OriginalFilename	创建文件时所使用的名称
+	ProductName	产品名称
+	ProductVersion	产品版本
+	CompanyName	企业名称
+	PrivateBuild	私有版本的信息
+	SpecialBuild	特殊内部版本信息
+	LegalTrademarks	文件的商标和注册商标
+*/
+FileGetInfo(FilePath:="", p*) {   ; Written by SKAN, modified by HotKeyIt	; www.autohotkey.com/forum/viewtopic.php?p=233188#233188  CD:24-Nov-2008 / LM:27-Oct-2010
+	static DLL:="Version\GetFileVersion"
+	If ! FSz := DllCall( DLL "InfoSize" (A_IsUnicode ? "W" : "A"), "Str",FilePath, "UInt",0 )
+		Return DllCall( "SetLastError", UInt,1 ),""
+	VarSetCapacity( FVI, FSz, 0 ),DllCall( DLL "Info" ( A_IsUnicode ? "W" : "A"), "Str",FilePath, "UInt",0, "UInt",FSz, "PTR",&FVI )
+	If !DllCall( "Version\VerQueryValue" (A_IsUnicode ? "W" : "A"), "PTR",&FVI, "Str","\VarFileInfo\Translation", "PTR*",Transl, "PTR",0 )
+		Return DllCall( "SetLastError", UInt,2 ),""
+	If !Trans:=format("{1:.8X}",NumGet(Transl+0,"UInt"))
+		Return DllCall( "SetLastError", UInt,3),""
+	for k,v in p
+	{
+		subBlock := "\StringFileInfo\" SubStr(Trans,-3) SubStr(Trans,1,4) "\" v
+		If ! DllCall( "Version\VerQueryValue" ( A_IsUnicode ? "W" : "A"), "PTR",&FVI, "Str",SubBlock, "PTR*",InfoPtr, "UInt",0 )
+			continue
+		If Value := StrGet( InfoPtr )
+			Info .= p.MaxIndex()=1?Value:SubStr( v "                        ",1,24 ) . A_Tab . Value . "`n"
+	}
+	Info:=RTrim(Info,"`n")
+
+	Return Info
+}
+
+GetProcessInfo(exename,type:="ExecutablePath") {
+	/*
+	class Win32_Process : CIM_Process
+	{
+		string   CreationClassName;	创建类的名称
+		string   Caption;	进程标题
+		string   CommandLine;	进程的命令行
+		datetime CreationDate;	创建日期
+		string   CSCreationClassName;
+		string   CSName;
+		string   Description;	显示进程说明
+		string   ExecutablePath;	可执行路径
+		uint16   ExecutionState;	执行状态
+		string   Handle;	句柄
+		uint32   HandleCount;	句柄统计
+		datetime InstallDate;	安装日期
+		uint64   KernelModeTime;	内核调节时间
+		uint32   MaximumWorkingSetSize;
+		uint32   MinimumWorkingSetSize;
+		string   Name;	进程名
+		string   OSCreationClassName;	系统创建类名
+		string   OSName;	系统名
+		uint64   OtherOperationCount;
+		uint64   OtherTransferCount;
+		uint32   PageFaults;	页面默认值
+		uint32   PageFileUsage;
+		uint32   ParentProcessId;
+		uint32   PeakPageFileUsage;
+		uint64   PeakVirtualSize;
+		uint32   PeakWorkingSetSize;
+		uint32   Priority = NULL;
+		uint64   PrivatePageCount;
+		uint32   ProcessId;	进程ID
+		uint32   QuotaNonPagedPoolUsage;
+		uint32   QuotaPagedPoolUsage;
+		uint32   QuotaPeakNonPagedPoolUsage;
+		uint32   QuotaPeakPagedPoolUsage;
+		uint64   ReadOperationCount;
+		uint64   ReadTransferCount;
+		uint32   SessionId;	会话的唯一标识符
+		string   Status;	状态值
+		datetime TerminationDate;	终止日期
+		uint32   ThreadCount;	线程计数
+		uint64   UserModeTime;	用户模式时间
+		uint64   VirtualSize;	虚拟化大小
+		string   WindowsVersion;
+		uint64   WorkingSetSize;
+		uint64   WriteOperationCount;
+		uint64   WriteTransferCount;
+	};
+	*/
+	for process in ComObjGet("winmgmts:").ExecQuery("Select * from Win32_Process where name ='" exename "'")
+		return process[type]
 }

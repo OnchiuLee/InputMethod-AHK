@@ -1665,13 +1665,20 @@ WinMode:
 	Gui, IM:Add, DropDownList ,Choose1 w80 x+10 vIM_DDL gIM_DDL hWndIDDL , 中文|英文|剪切板    ;;+0x0210
 	;;OD_Colors.Attach(IDDL,{T: 0x767641, B: 0xb3b3b3})
 	GuiControl,IM:Disable,IM_DDL
+	SysGet, CXVSCROLL, 2
 	Gui, IM:font,10 norm,%Font_%
-	Gui, IM:Add, ListView, AltSubmit Grid r15 x10 yp+30 -LV0x10 -Multi Checked NoSortHdr -wscroll -WantF2 0x8 LV0x40 hwndIPView gIPView vIPView  ,进程名|输入状态
+	Gui, IM:Add, ListView, AltSubmit Grid r10 x10 yp+30 -LV0x10 -Multi Checked NoSortHdr -wscroll -WantF2 0x8 LV0x40 hwndIPView gIPView vIPView  ,进程名|输入状态|进程描述
 	For Section, element In InputModeData
+	{
 		For key, value In element
-			if (value<>""&&Section~="CN|EN|CLIP")
-				LV_Add(value=InputModeData["CN",1]?"Select":"" ,value,Section="CN"?"中文":Section="EN"?"英文":"剪切板"),LV_ModifyCol()
-	LV_ModifyCol(2,"100 center")
+		{
+			if (value<>""&&Section~="CN|EN|CLIP"){
+				Process, Exist , %value%
+				LV_Add(value=InputModeData["CN",1]?"Select":"" ,value,Section="CN"?"中文":Section="EN"?"英文":"剪切板",ErrorLevel?FileGetInfo(GetProcessInfo(value),"FileDescription"):""),LV_ModifyCol()
+			}
+		}
+	}
+	LV_ModifyCol(2,"100 center"),LV_ModifyCol(3,"200 center")
 	ColWidth:=0
 	GuiControlGet, IMVar, Pos , IPView
 	Loop % LV_GetCount("Column")
@@ -1689,36 +1696,13 @@ WinMode:
 	Gui, IM:font,9 norm,%Font_%
 	Gui, IM:Add, StatusBar,
 	ImageButton.Create(RTBT, [6, 0x80404040, 0x0078D7, 0xffffff], [ , 0x80606060, 0xF0F0F0, 0x0078D7],"", [0, 0xC0A0A0A0, , 0xC00078D7])
-	GuiControl, IM:Move, IPView, % "w" (A_ScreenDPI/96>1?ColWidth/(A_ScreenDPI/96):ColWidth)
+	GuiControl, IM:Move, IPView, % "w" ColWidth/(A_ScreenDPI/96)+CXVSCROLL
+	GuiControl, IM:Move, IM_DDL, % "x" ColWidth/(A_ScreenDPI/96)-80
 	SB_SetParts(ColWidth*0.4, ColWidth*0.5)
 	SB_SetText( " ❖ 输入状态管理") 
 	Gui,IM:Show, AutoSize,状态管理
 	Gosub ChangeWinIcon
 Return
-
-IsProcessInfo(ProcessName){
-	CaptionObj:=[],ProcessFullPath:=""
-	for process in ComObjGet("winmgmts:").ExecQuery("Select * from Win32_Process")
-	{
-		CaptionObj.push([process.Caption,process.ExecutablePath])
-		if (process.Caption=ProcessName)
-			ProcessFullPath:=CaptionObj[A_Index,2]
-	}
-	If Array_isInValue(CaptionObj, ProcessFullPath)
-		return GetProcessInfo(ProcessFullPath)
-}
-
-GetProcessInfo(filepath){
-	SplitPath, filepath , FileName, DirPath,
-	objShell := ComObjCreate("Shell.Application")
-	objFolder := objShell.NameSpace(DirPath)
-	objFolderItem := objFolder.ParseName(FileName)
-	Loop 283
-		if propertyitem :=objFolder.GetDetailsOf(objFolderItem, A_Index)
-			if objFolder.GetDetailsOf(objFolder.Items, A_Index)="文件说明"
-				if propertyitem
-					return propertyitem
-}
 
 IPView:
 	if A_GuiEvent~="i)Normal" {
@@ -1749,7 +1733,6 @@ IPView:
 				break
 			}
 		}
-		ToolTip, % IsProcessInfo(LVName)   ;显示进程描述
 	}
 Return
 
@@ -1769,7 +1752,7 @@ AddProcess:
 			InputModeData[Set_IMode].Push(win_exe)
 		else
 			InputModeData[Set_IMode]:=[win_exe]
-		LV_Insert(LV_GetCount() ,"", win_exe, "中文")
+		LV_Insert(LV_GetCount() ,"", win_exe, "中文",FileGetInfo(GetProcessInfo(win_exe),"FileDescription"))
 		Json_ObjToFile(InputModeData, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
 		LV_ModifyCol(2,"100 center"), ColWidth:=0
 		GuiControlGet, IMVar, Pos , IPView
@@ -1779,7 +1762,7 @@ AddProcess:
 			SendMessage, 4125, %dIndex%, , , ahk_id %IPView%  ; 4125 为 LVM_GETCOLUMNWIDTH.
 			ColWidth+=ErrorLevel
 		}
-		GuiControl, IM:Move, IPView, % "w" (A_ScreenDPI/96>1?ColWidth/(A_ScreenDPI/96):ColWidth)
+		GuiControl, IM:Move, IPView, % "w" ColWidth/(A_ScreenDPI/96)+CXVSCROLL
 	}
 	Gui, 98:Show
 	Gui, IM:show
@@ -1803,9 +1786,28 @@ RowExist(ColumText,colum=1){
 RTxck:
 	LV_Delete()
 	For Section, element In InputModeData
+	{
 		For key, value In element
-			if (value<>""&&Section~="CN|EN|CLIP")
-				LV_Add(value=InputModeData["CN",1]?"Select":"" ,value,Section="CN"?"中文":Section="EN"?"英文":"剪切板")
+		{
+			if (value<>""&&Section~="CN|EN|CLIP"){
+				Process, Exist , %value%
+				LV_Add(value=InputModeData["CN",1]?"Select":"" ,value,Section="CN"?"中文":Section="EN"?"英文":"剪切板",ErrorLevel?FileGetInfo(GetProcessInfo(value),"FileDescription"):""),LV_ModifyCol()
+			}
+		}
+	}
+	LV_ModifyCol(2,"100 center"),LV_ModifyCol(3,"200 center")
+	ColWidth:=0
+	GuiControlGet, IMVar, Pos , IPView
+	Loop % LV_GetCount("Column")
+	{
+		dIndex:=A_Index-1
+		SendMessage, 4125, %dIndex%, , , ahk_id %IPView%  ; 4125 为 LVM_GETCOLUMNWIDTH.
+		ColWidth+=ErrorLevel
+	}
+	if LV_GetCount()<1
+		ColWidth:=240
+	GuiControl, IM:Move, IPView, % "w" ColWidth/(A_ScreenDPI/96)+CXVSCROLL
+	GuiControl, IM:Move, IM_DDL, % "x" ColWidth/(A_ScreenDPI/96)-80
 Return
 
 GetRowNum(Text1,Text2){
@@ -1833,7 +1835,7 @@ IM_DDL:
 			else
 				InputModeData["CN"]:=[ LVName ]
 			GetLineNum:=GetRowNum(InputModeData["CN",objCount(InputModeData["CLIP"])],"中文")
-			LVPOS:=LVName__="CLIP"?GetRowNum(LVName,"英文"):LVPOS, LV_Modify(Ikey?LVPOS:GetLineNum?GetLineNum:LV_GetCount(),"text",LVName,IM_DDL)
+			LVPOS:=LVName__="CLIP"?GetRowNum(LVName,"英文"):LVPOS, LV_Modify(Ikey?LVPOS:GetLineNum?GetLineNum:LV_GetCount(),"text",LVName,IM_DDL,FileGetInfo(GetProcessInfo(LVName),"FileDescription"))
 		}else if IM_DDL ~="英文" {
 			If (Ikey:=GetArrIndex(InputModeData["CN"],LVName)) {
 				If (Ikey>1)
@@ -1846,14 +1848,14 @@ IM_DDL:
 			else
 				InputModeData["EN"]:=[ LVName ]
 			GetLineNum:=GetRowNum(InputModeData["EN",objCount(InputModeData["CLIP"])],"英文")
-			LVPOS:=LVName__="CLIP"?GetRowNum(LVName,"中文"):LVPOS, LV_Modify(Ikey?LVPOS:GetLineNum?GetLineNum:LV_GetCount(),"text",LVName,IM_DDL)
+			LVPOS:=LVName__="CLIP"?GetRowNum(LVName,"中文"):LVPOS, LV_Modify(Ikey?LVPOS:GetLineNum?GetLineNum:LV_GetCount(),"text",LVName,IM_DDL,FileGetInfo(GetProcessInfo(LVName),"FileDescription"))
 		}else if IM_DDL ~="剪切板" {
 			If objCount(InputModeData["CLIP"])
 				InputModeData["CLIP"].Push(LVName)
 			else
 				InputModeData["CLIP"]:=[ LVName ]
 			GetLineNum:=GetRowNum(InputModeData["CLIP",objCount(InputModeData["CLIP"])],"剪切板")
-			LV_Insert(GetLineNum?GetLineNum+1:LVPOS ,"Select", LVName, "剪切板")
+			LV_Insert(GetLineNum?GetLineNum+1:LVPOS ,"Select", LVName, "剪切板",FileGetInfo(GetProcessInfo(LVName),"FileDescription"))
 			;;Gosub RTxck
 		}
 		Json_ObjToFile(InputModeData, A_ScriptDir "\Sync\InputMode.json", "UTF-8")
@@ -1868,7 +1870,8 @@ Return
 DelRows(deb=""){
 	global InputModeData
 	Loop % (LV_GetCount(),a:=1)
-	{	if ( LV_GetNext( 0, "C" ) = a )
+	{
+		if ( LV_GetNext( 0, "C" ) = a )
 		{	if ( !deb ){
 				LV_GetText(LVar1, a , 1), LV_GetText(LVar2, a , 2)
 				LV_Delete( a )

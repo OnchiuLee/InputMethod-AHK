@@ -1,12 +1,8 @@
 ﻿#NoEnv
 #NoTrayIcon
 #SingleInstance, Force
-/*
-Sourceurl:="https://github.com/OnchiuLee/AHK-Input-method/blob/master/Version.txt"
-*/
+
 Sourceurl:="https://gitee.com/leeonchiu/AHK-Input-method/blob/master/Version.txt"
-downloadurl1:="https://g.ioiox.com/https://github.com/OnchiuLee/AHK-Input-method/releases/download/wubi/default.7z"
-downloadurl2:="https://github.com/OnchiuLee/AHK-Input-method/archive/master.zip"
 downloadurl:=DllCall("Wininet.dll\InternetCheckConnection", "Str", downloadurl1, "UInt", 0x1, "UInt", 0x0, "Int")?downloadurl1:downloadurl2
 
 Versions:=A_Args[1], InputMethodName:= A_Args[2]
@@ -18,11 +14,9 @@ else{
 	GetVersionInfo:=GetVersion(Sourceurl), _sj:=StrSplit(GetVersionInfo[1], "@")
 	If (_sj[2]>SubStr(Versions,1,10)&&_sj.Length()) {
 		Progress, off
-		MsgBoxRenBtn("下载","打开下载页","取消")
-		MsgBox, 262723, 更新提示, % "发现新版本>> " _sj[2] (GetVersionInfo[2]?"`n*********************************************************`n" GetVersionInfo[2] "`n*********************************************************`n":"`n") "是否下载至电脑桌面？下载过程中，请该干嘛去干嘛！！！"
+		MsgBoxRenBtn("打开下载页","取消")
+		MsgBox, 262724, 更新提示, % "发现新版本>> " _sj[2] (GetVersionInfo[2]?"`n*********************************************************`n" GetVersionInfo[2] "`n*********************************************************`n":"`n")
 		IfMsgBox, Yes
-			UrlDownloadToFile(downloadurl, InputMethodName "-" _sj[2] RegExReplace(downloadurl,".+(?=(\.zip|\.7z))"),1800)
-		else IfMsgBox, No
 		{
 			Run, https://gitee.com/leeonchiu/AHK-Input-method,, UseErrorLevel
 			if (ErrorLevel = "ERROR")
