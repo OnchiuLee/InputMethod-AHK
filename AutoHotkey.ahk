@@ -15,10 +15,20 @@
 #Persistent
 #WinActivateForce
 #Include %A_ScriptDir%
-
+punctuate:=""""
 If (A_AhkVersion < 1.1.31){
 	MsgBox, 262452,兼容提示, 当前的AHK启动器低于1.1.31版本，请更换更高版本！,5
 	ExitApp
+}
+
+full_command_line := RegExReplace(DllCall("GetCommandLine", "str"),punctuate)
+If !A_IsAdmin {
+	If A_IsCompiled {
+		Run *RunAs "%full_command_line%" /restart
+		ExitApp
+	}else{
+		Run *RunAs "%A_AhkPath%" /restart "%A_ScriptFullPath%"
+	}
 }
 
 If FileExist(A_ScriptDir "\main\*_UIA.exe")
@@ -76,7 +86,7 @@ If FileExist(BaseDir) {
 
 ;;{{{{{{{{{{{{{{{{主题配色获取
 DefaultThemeName:="游驿四"    ;默认的主题配色，主题文件在config\Skins目录
-version :="2020112811"
+version :="2021011616"
 ;;--------------------------------------------------------
 FileRead, inivar, %A_Temp%\InputMethodData\Config.ini
 RegExMatch(inivar,"(?<=ThemeName\=).+",tName)
@@ -225,7 +235,7 @@ srf_mode :=IMEmode~="off"?0:1
 ;;=======================装载字体=========================
 
 If FileExist(ProgramDir "\*.otf")||FileExist(ProgramDir "\Font\*.otf") {
-	Traytip,,正在检测并载入字体...
+	;;Traytip,,正在检测并载入字体...
 	Loop,Files,% FileExist(ProgramDir "\Font")?ProgramDir "\Font\*.otf":ProgramDir "\*.otf"
 		If GetFontNamesFromFile(A_LoopFileLongPath)["family"]~="(^" a_FontList ")"
 			AddFontResource(A_LoopFileLongPath)
@@ -520,6 +530,8 @@ ShellIMEMessage( wParam,lParam ) {
 			}
 		}
 	}
+	If !FileExist(A_Temp "\InputMethodData")
+		FileCreateDir,%A_Temp%\InputMethodData
 	SetTimer, func_timer, 1000
 
 	func_timer:
